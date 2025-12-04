@@ -1,0 +1,4 @@
+*.tflite binary
+*.png binary
+*.jpg binary
+assets/model/* binary
