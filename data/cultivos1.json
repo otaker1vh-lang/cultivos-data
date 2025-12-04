@@ -1,0 +1,809 @@
+{
+  "meta": {
+    "created_by": "Asistente AI - Fusión Maestra Final",
+    "description": "Base de datos consolidada. Integra estadísticas detalladas (SIAP) con fichas técnicas edafoclimáticas y sanitarias (INIFAP/SENASICA).",
+    "version": "7.0_Final_Master",
+    "notes": "Se conservan estadísticas, precios y citas BBCH originales. Se agregaron requerimientos de suelo, clima y sanidad faltantes."
+  },
+  "categorias": {
+    "hortalizas": [ "Jitomate", "Chile", "Cebolla", "Lechuga", "Pepino", "Calabacita", "Berenjena", "Brócoli", "Coliflor", "Nopalitos", "Papa", "Tomate verde", "Espárrago" ],
+    "frutales": [ "Fresa", "Zarzamora", "Frambuesa", "Arándano", "Piña", "Mango", "Platano", "Aguacate", "Limon", "Naranja", "Durazno", "Guayaba", "Manzana", "Melón", "Papaya", "Pera", "Sandía", "Toronja", "Uva fruta", "Uva industrial", "Uva pasa", "Copra y coco", "Nuez" ],
+    "cereales": [ "Maiz", "Trigo", "Sorgo", "Cebada", "Arroz", "Avena", "Avena forrajera", "Maiz forrajero", "Sorgo forrajero", "Amaranto" ],
+    "leguminosas": [ "Frijol", "Garbanzo", "Soya" ],
+    "ornamentales": [ "Rosa", "Gerbera" ],
+    "agroindustriales": [ "Agave tequilero", "Cacao", "Café cereza", "Caña de azúcar", "Cártamo", "Tabaco", "Ajonjolí", "Algodón hueso" ]
+  },
+  "cultivos": {
+    "Agave tequilero": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 80.6,
+        "precio_medio_mxn_ton": 21270,
+        "superficie_sembrada_ha": 215000,
+        "superficie_cosechada_ha": 26364,
+        "produccion_miles_ton": 2125,
+        "variacion_anual_pct": 29.9,
+        "tmac_10_anos_pct": -0.3,
+        "principales_estados": ["Jalisco", "Guanajuato", "Michoacán"],
+        "panorama_2023_summary": { "produccion_miles_ton": 2125, "variacion_anual_pct": 29.9, "principales_estados_valor": "Jalisco (67.1%)" }
+      },
+      "requerimientos_edafoclimaticos": {
+        "suelo": { "limitante_fisica": "Intolerante a encharcamiento. Prefiere suelos delgados/pedregosos.", "ph": "6.0-8.0" },
+        "clima": "Metabolismo CAM. Requiere noches frescas para asimilación de CO2."
+      },
+      "protocolos_sanidad": {
+        "plaga_critica": "Picudo del Agave (Scyphophorus).",
+        "manejo": "Uso de hijuelos certificados."
+      },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "1,000-2,500", "distancia_entre_plantas": "2-3 m", "distancia_entre_surcos": "3-4 m", "variedades_principales": ["Azul"] },
+        "duracion_total_dias": 2190,
+        "etapas": [{ "nombre": "Jima", "fase_bbch": "Madurez" }]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Aguacate": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 11.7,
+        "precio_medio_mxn_ton": 20212,
+        "superficie_sembrada_ha": 265000,
+        "superficie_cosechada_ha": 253000,
+        "produccion_miles_ton": 2973,
+        "variacion_anual_pct": 17.0,
+        "tmac_10_anos_pct": 7.7,
+        "ranking_mundial": "1º",
+        "principales_estados": ["Michoacán", "Jalisco", "Estado de México"],
+        "historial_produccion": [{ "year": 2021, "rendimiento_t_ha": 10.1 }, { "year": 2022, "rendimiento_t_ha": 10.0 }, { "year": 2023, "rendimiento_t_ha": 10.3 }],
+        "panorama_2023_summary": { "produccion_miles_ton": 2973, "variacion_anual_pct": 17.0, "principales_estados_valor": "Michoacán (72.7%)" }
+      },
+      "requerimientos_edafoclimaticos": {
+        "suelo": { "limitante_fisica": "CRÍTICO: Intolerancia total a asfixia radicular. Macroporosidad >25%.", "ph_optimo": "5.5 - 7.0", "profundidad": ">1.5 m" },
+        "clima": { "temperatura_optima": "20-30°C", "riesgo": "Aborto de fruto con T >35°C." }
+      },
+      "protocolos_sanidad": {
+        "plagas_cuarentenarias": ["Barrenador de hueso", "Barrenador de ramas"], "manejo": "Muestreo sistemático para zonas libres."
+      },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "100-250", "distancia_entre_plantas": "8-10 m", "distancia_entre_surcos": "10-12 m", "variedades_principales": ["Hass", "Méndez", "Fuerte"] },
+        "duracion_total_dias": 240,
+        "etapas": [
+          { "nombre": "Brotación", "duracion_dias": 60, "bbch_fase": "00-09" },
+          { "nombre": "Floración", "duracion_dias": 90, "bbch_fase": "60-69" },
+          { "nombre": "Engorde", "duracion_dias": 90, "bbch_fase": "71-79" },
+          { "nombre": "Cosecha", "duracion_dias": 240, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Brotación": ["Poda", "Fertilización"], "Floración": ["Riego"], "Engorde": ["Fertilización"], "Cosecha": ["Corte"] },
+      "plagas_y_enfermedades": [
+          { "nombre": "Barrenador del hueso", "tipo": "Plaga", "control": { "mecanismo": "Mallas", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol" }] } },
+          { "nombre": "Tristeza", "tipo": "Enfermedad", "control": { "mecanismo": "Drenaje", "productos_activos_mexico": [{ "ingrediente": "Fosetil-Al" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 75, "P": 20, "K": 100 } }
+    },
+    "Ajonjolí": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 0.8, "precio_medio_mxn_ton": 22617, "produccion_miles_ton": 51, "principales_estados": ["Guerrero", "Sinaloa", "Oaxaca"] },
+      "requerimientos_edafoclimaticos": { "clima": "Tropical/Subtropical. Resistente a sequía.", "suelo": "Intolerante a encharcamiento." },
+      "protocolos_sanidad": { "enfermedad": "Pata negra (Macrophomina).", "plaga": "Gusano telarañero." },
+      "ciclo_fenologico": { "variedades_principales": ["Blanca", "Negra"], "etapas": [{ "nombre": "Cápsulas", "fase_bbch": "70" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Algodón hueso": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 4.5, "precio_medio_mxn_ton": 15971, "produccion_miles_ton": 604, "principales_estados": ["Chihuahua", "Coahuila", "Baja California"] },
+      "requerimientos_edafoclimaticos": { "clima": "Requiere >180 días libres de heladas.", "suelo": "Tolera salinidad moderada-alta." },
+      "protocolos_sanidad": { "plaga_critica": "Picudo del algodonero (Erradicación).", "manejo": "Desvare y barbecho obligatorio." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Gossypium hirsutum"],
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Apertura de Cápsulas", "duracion_dias": 20, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Amaranto": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 1.8, "precio_medio_mxn_ton": 10046, "produccion_miles_ton": 6, "principales_estados": ["Tlaxcala", "Puebla", "Edo. Mex."] },
+      "requerimientos_edafoclimaticos": { "clima": "Planta C4, eficiente en uso de agua.", "suelo": "Tolera suelos pobres." },
+      "protocolos_sanidad": { "plaga": "Gusano telarañero.", "enfermedad": "Chamuiz." },
+      "ciclo_fenologico": { "variedades_principales": ["Cruentus"], "etapas": [{ "nombre": "Grano", "fase_bbch": "89" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Arándano": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 13.7, "precio_medio_mxn_ton": 65077, "produccion_miles_ton": 80, "principales_estados": ["Jalisco", "Sinaloa", "Baja California"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Estricto: pH ÁCIDO (4.5-5.5).", "clima": "Requerimiento frío medio a bajo (Biloxi)." },
+      "protocolos_sanidad": { "enfermedad": "Roya del arándano.", "plaga": "Larvas de suelo." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Biloxi", "Emerald"],
+          "etapas": [
+              { "nombre": "Brotación", "duracion_dias": 60, "bbch_fase": "00-09" },
+              { "nombre": "Cosecha", "duracion_dias": 245, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": { "Poda": ["Ligera"] }, "plagas_y_enfermedades": [], "calculo_fertilizacion": { "recomendada": { "N": 80, "P": 40, "K": 100 } }
+    },
+    "Arroz": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 6.9, "precio_medio_mxn_ton": 5863, "produccion_miles_ton": 252, "principales_estados": ["Campeche", "Veracruz", "Nayarit"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Gleysoles (arcillosos) que retengan agua.", "clima": "Altos requerimientos hídricos." },
+      "protocolos_sanidad": { "enfermedad": "Piricularia (Sogata).", "plaga": "Barrenadores del tallo." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "200,000+" },
+        "etapas": [
+          { "nombre": "Siembra", "duracion_dias": 30, "bbch_fase": "00-09" },
+          { "nombre": "Madurez", "duracion_dias": 30, "bbch_fase": "83-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Inundación"] }, "plagas_y_enfermedades": [{ "nombre": "Barrenador tallo", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 100 } }
+    },
+    "Avena": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 2.4, "precio_medio_mxn_ton": 6460, "produccion_miles_ton": 62, "principales_estados": ["Chihuahua", "Hidalgo", "Edo. Mex."] },
+      "requerimientos_edafoclimaticos": { "clima": "Clima fresco. Tolera frío.", "suelo": "Tolera acidez moderada." },
+      "protocolos_sanidad": { "enfermedad": "Roya de la avena.", "plaga": "Pulgones." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "2M-3M" },
+        "etapas": [
+          { "nombre": "Siembra", "duracion_dias": 30, "bbch_fase": "00-09" },
+          { "nombre": "Madurez", "duracion_dias": 30, "bbch_fase": "83-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Pulgón", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 80, "P": 40, "K": 40 } }
+    },
+    "Avena forrajera": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 19.0, "precio_medio_mxn_ton": 727, "produccion_miles_ton": 6681, "principales_estados": ["Durango", "Edo. Mex.", "Zacatecas"] },
+      "requerimientos_edafoclimaticos": { "clima": "Resistente a heladas moderadas.", "suelo": "Adaptable." },
+      "protocolos_sanidad": { "manejo": "Corte antes de floración para calidad proteica." },
+      "ciclo_fenologico": { "variedades_principales": ["Forrajeras"], "etapas": [{ "nombre": "Corte", "fase_bbch": "45" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Berenjena": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 52.9, "precio_medio_mxn_ton": 12272, "produccion_miles_ton": 90, "principales_estados": ["Sinaloa", "Nayarit", "San Luis Potosí"] },
+      "requerimientos_edafoclimaticos": { "clima": "Muy exigente en calor (T optima >25°C).", "suelo": "Profundo y franco." },
+      "protocolos_sanidad": { "plaga": "Araña roja y Trips.", "enfermedad": "Verticillium (marchitez)." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Negra Larga"],
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 15, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 20, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Brócoli": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 17.8, "precio_medio_mxn_ton": 7207, "produccion_miles_ton": 663, "principales_estados": ["Guanajuato", "Sonora", "Michoacán"] },
+      "requerimientos_edafoclimaticos": { "clima": "Cultivo de clima fresco.", "suelo": "Exigente en Boro y Molibdeno." },
+      "protocolos_sanidad": { "plaga": "Palomilla dorso de diamante (Plutella).", "enfermedad": "Alternaria." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Calabrese"],
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 10, "bbch_fase": "49" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Cacao": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 0.6, "precio_medio_mxn_ton": 41138, "produccion_miles_ton": 29, "principales_estados": ["Tabasco", "Chiapas", "Guerrero"] },
+      "requerimientos_edafoclimaticos": { "clima": "Tropical húmedo estricto.", "suelo": "Profundos, ricos en materia orgánica, pH 6.0-7.0." },
+      "protocolos_sanidad": { "enfermedad_critica": "Moniliasis y Escoba de Bruja.", "manejo": "Poda fitosanitaria." },
+      "ciclo_fenologico": { "variedades_principales": ["Criollo"], "etapas": [{ "nombre": "Mazorca", "fase_bbch": "70" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Café cereza": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 1.6, "precio_medio_mxn_ton": 6727, "produccion_miles_ton": 1059, "principales_estados": ["Chiapas", "Veracruz", "Puebla"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Suelos ácidos (pH 5.0-5.5).", "clima": "Altitud >900 msnm (Calidad)." },
+      "protocolos_sanidad": { "enfermedad_critica": "Roya del Café.", "plaga": "Broca del café." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Arábica"],
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 60, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 60, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Calabacita": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 21.2, "precio_medio_mxn_ton": 6371, "produccion_miles_ton": 553, "principales_estados": ["Sinaloa", "Sonora"] },
+      "requerimientos_edafoclimaticos": { "clima": "Polinización entomófila obligada.", "suelo": "Sensible a salinidad media." },
+      "protocolos_sanidad": { "virus": "Virus del Mosaico de la Sandía (WMV).", "plaga": "Mosca blanca." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "15k-20k", "distancia_entre_plantas": "0.5-0.7m", "distancia_entre_surcos": "1.5-2m", "variedades_principales": ["Zucchini"] },
+        "duracion_total_dias": 60,
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 10, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Mosca Blanca", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 70, "K": 120 } }
+    },
+    "Caña de azúcar": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 69.3, "precio_medio_mxn_ton": 952, "produccion_miles_ton": 55590, "principales_estados": ["Veracruz", "Jalisco", "SLP"] },
+      "requerimientos_edafoclimaticos": { "clima": "Temp base 12°C. Requiere periodo seco/frío antes de cosecha.", "suelo": "Exigente en agua y nutrientes (K)." },
+      "protocolos_sanidad": { "plaga": "Barrenador (Diatraea).", "enfermedad": "Carbón y Mosaico." },
+      "ciclo_fenologico": { "variedades_principales": ["Valeria"], "etapas": [{ "nombre": "Zafra", "fase_bbch": "49" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Cártamo": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 1.9, "precio_medio_mxn_ton": 11248, "produccion_miles_ton": 66, "principales_estados": ["Sonora", "Jalisco", "Sinaloa"] },
+      "requerimientos_edafoclimaticos": { "clima": "Resistente a sequía.", "suelo": "Franco-arcilloso." },
+      "protocolos_sanidad": { "enfermedad": "Falsa cenicilla (Ramularia).", "plaga": "Pulgón." },
+      "ciclo_fenologico": { "variedades_principales": ["Gila"], "etapas": [{ "nombre": "Botón", "fase_bbch": "50" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Cebada": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 2.8, "precio_medio_mxn_ton": 6001, "produccion_miles_ton": 832, "principales_estados": ["Hidalgo", "Puebla", "Tlaxcala"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Tolerante a salinidad.", "clima": "Requiere frío para amacollar." },
+      "protocolos_sanidad": { "enfermedad": "Roya lineal y Carbón.", "plaga": "Pulgón." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "2M-3M", "distancia_entre_plantas": "0.05m", "distancia_entre_surcos": "0.15m", "variedades_principales": ["Maltera Esmeralda"] },
+        "duracion_total_dias": 150,
+        "etapas": [
+          { "nombre": "Siembra", "duracion_dias": 30, "bbch_fase": "00-09" },
+          { "nombre": "Madurez", "duracion_dias": 30, "bbch_fase": "83-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Roya Enana", "tipo": "Enfermedad" }], "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 40 } }
+    },
+    "Cebolla": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 32.3, "precio_medio_mxn_ton": 7410, "produccion_miles_ton": 1801, "principales_estados": ["Zacatecas", "Chihuahua", "Tamaulipas"] },
+      "requerimientos_edafoclimaticos": { "clima": { "fotoperiodo": "CRÍTICO: Requiere horas luz específicas.", "temperatura": "Bulbificación requiere T >15°C." } },
+      "protocolos_sanidad": { "enfermedad_critica": "Raíz rosada (Pyrenochaeta).", "plaga": "Trips." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "350k-500k", "distancia_entre_plantas": "0.08-0.12m", "distancia_entre_surcos": "0.3-0.5m", "variedades_principales": ["Amarilla", "Blanca"] },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 60, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 30, "bbch_fase": "49" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Trips", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 80, "K": 150 } }
+    },
+    "Chile": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 21.3, "precio_medio_mxn_ton": 12490, "produccion_miles_ton": 3681, "principales_estados": ["Chihuahua", "Zacatecas", "Sinaloa"] },
+      "requerimientos_edafoclimaticos": { "suelo": { "salinidad": "Sensible.", "drenaje": "Crucial para evitar Phytophthora." }, "clima": "T >30°C reduce viabilidad del polen." },
+      "protocolos_sanidad": { "plaga_critica": "Picudo del Chile (Anthonomus).", "virus": "Complejo viral (Begomovirus)." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "25k-40k", "distancia_entre_plantas": "0.3-0.5m", "distancia_entre_surcos": "0.8-1.2m", "variedades_principales": ["Ancho", "Jalapeño"] },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 20, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa/Trasplante"] }, "plagas_y_enfermedades": [{ "nombre": "Picudo", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 100, "K": 200 } }
+    },
+    "Coliflor": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 23.6, "precio_medio_mxn_ton": 6156, "produccion_miles_ton": 105, "principales_estados": ["Guanajuato", "Puebla", "Hidalgo"] },
+      "requerimientos_edafoclimaticos": { "clima": "Muy sensible a T altas (>25°C) y bajas (<0°C).", "suelo": "Sensible a acidez." },
+      "protocolos_sanidad": { "plaga": "Pulgón de la col.", "enfermedad": "Hernia de la col." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Snow Crown"],
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 10, "bbch_fase": "49" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Copra y coco": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 3.2, "precio_medio_mxn_ton": 6504, "produccion_miles_ton": 439, "principales_estados": ["Guerrero", "Jalisco", "Colima"] },
+      "requerimientos_edafoclimaticos": { "clima": "Tropical estricto.", "suelo": "Tolera salinidad alta." },
+      "protocolos_sanidad": { "enfermedad_critica": "Amarillamiento Letal.", "plaga": "Picudo del cocotero." },
+      "ciclo_fenologico": { "variedades_principales": ["Alto Pacífico"], "tipo": "Perenne", "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Durazno": {
+      "meta_data": { "fuente_tecnica": "Guía Técnica CICTAMEX (Edo. Méx) / SIAP", "nivel_tecnificacion": "Alto" },
+      "categoria": "frutal",
+      "requerimientos_edafoclimaticos": {
+        "clima": {
+          "horas_frio_acumuladas": { "min": 200, "max": 300, "nota": "Variedades bajas: Diamante (250 UF)" },
+          "temperatura_optima_c": { "min": 18, "max": 24 }
+        },
+        "suelo": {
+          "limitante_fisica": "Intolerante a alcalinidad (pH >7.5 causa clorosis). Sensible a asfixia.",
+          "ph_optimo": { "min": 6.0, "max": 7.5 }
+        }
+      },
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 10.4,
+        "precio_medio_mxn_ton": 12534,
+        "produccion_miles_ton": 258,
+        "principales_estados": ["Zacatecas", "Chihuahua", "Michoacán", "Estado de México"]
+      },
+      "protocolos_sanidad": { "enfermedad_critica": "Monilinia fructicola (Pudrición morena) y Gomosis." },
+      "ciclo_fenologico": {
+        "variedades_recomendadas": [ { "nombre": "Diamante (Amapre)", "horas_frio": 250 } ],
+        "etapas_bbch_simplificadas": [ { "nombre": "Dormancia", "codigo": 0 }, { "nombre": "Cosecha", "codigo": 87 } ]
+      },
+      "labores": {},
+      "plagas_y_enfermedades": [
+        { "nombre": "Araña Roja", "tipo": "Plaga", "control_quimico": [{ "ingrediente_activo": "Abamectina" }] },
+        { "nombre": "Pudrición Morena", "tipo": "Enfermedad" }
+      ],
+      "calculo_fertilizacion": { "programa_base_adultos_kgha": { "N": 251, "P2O5": 142, "K2O": 120 } }
+    },
+    "Espárrago": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 9.3, "precio_medio_mxn_ton": 44827, "produccion_miles_ton": 347, "principales_estados": ["Sonora", "BCS", "BC"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Tolera salinidad ALTA. Requiere suelos sueltos.", "clima": "Dormancia inducida por frío o sequía." },
+      "protocolos_sanidad": { "enfermedad": "Fusarium y Roya.", "plaga": "Gusanos trozadores." },
+      "ciclo_fenologico": { "variedades_principales": ["UC 157"], "tipo": "Perenne", "etapas": [{ "nombre": "Cosecha", "duracion": "60-90 días" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Frambuesa": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 18.5, "precio_medio_mxn_ton": 70745, "produccion_miles_ton": 190, "principales_estados": ["Jalisco", "Michoacán"] },
+      "requerimientos_edafoclimaticos": { "clima": "Prefiere climas templados.", "suelo": "Suelos francos ricos en materia orgánica." },
+      "protocolos_sanidad": { "plaga": "Araña roja.", "enfermedad": "Roya (Pucciniastrum)." },
+      "ciclo_fenologico": { "variedades_principales": ["Heritage"], "etapas": [{ "nombre": "Cosecha", "fase_bbch": "89" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Fresa": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 42.0, "precio_medio_mxn_ton": 24135, "produccion_miles_ton": 642, "principales_estados": ["Michoacán", "Jalisco", "BC"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Muy sensible a salinidad (>1.0 dS/m).", "clima": "Fotoperiodo: Variedades de día corto vs día neutro." },
+      "protocolos_sanidad": { "plaga": "Araña roja (Tetranychus).", "enfermedad": "Pestalotiopsis y Botrytis." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "45k-60k", "distancia_entre_plantas": "0.3m", "distancia_entre_surcos": "1.2m", "variedades_principales": ["Camarosa"] },
+        "duracion_total_dias": 210,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 45, "bbch_fase": "00-03" },
+            { "nombre": "Cosecha", "duracion_dias": 60, "bbch_fase": "87-89" }
+        ]
+      },
+      "labores": { "Plantación": ["Acolchado"] },
+      "plagas_y_enfermedades": [{ "nombre": "Araña roja", "tipo": "Plaga" }],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 240 } }
+    },
+    "Frijol": {
+      "categoria": "leguminosa",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 1.0, "precio_medio_mxn_ton": 19304, "produccion_miles_ton": 724, "principales_estados": ["Zacatecas", "Durango", "Chiapas"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Muy sensible a salinidad y sodio.", "clima": "T >30°C o sequía en floración causa aborto." },
+      "protocolos_sanidad": { "enfermedad": "Roya y Antracnosis.", "plaga": "Conchuela del frijol." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "80k-150k", "distancia_entre_plantas": "0.1m", "distancia_entre_surcos": "0.7m", "variedades_principales": ["Negro Jamapa"] },
+        "duracion_total_dias": 105,
+        "etapas": [
+          { "nombre": "Siembra", "duracion_dias": 10, "bbch_fase": "00-09" },
+          { "nombre": "Maduración", "duracion_dias": 10, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Mosca Blanca", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 40, "P": 70, "K": 30 } }
+    },
+    "Garbanzo": {
+      "categoria": "leguminosa",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 1.9, "precio_medio_mxn_ton": 19111, "produccion_miles_ton": 143, "principales_estados": ["Sinaloa", "Sonora", "BC"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Aprovecha humedad residual.", "clima": "Clima seco en maduración. Humedad provoca Rabia." },
+      "protocolos_sanidad": { "enfermedad_critica": "Rabia del garbanzo (Ascochyta rabiei).", "plaga": "Gusano elotero." },
+      "ciclo_fenologico": { "variedades_principales": ["Blanco Sinaloa"], "etapas": [{ "nombre": "Vainas", "fase_bbch": "70" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Gerbera": {
+      "categoria": "ornamental",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 12057.8, "precio_medio_mxn_ton": 339, "produccion_miles_ton": 1.375, "principales_estados": ["Edo. Mex.", "Puebla"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Muy sensible a compactación y enfermedades de raíz.", "clima": "Luz alta requerida." },
+      "protocolos_sanidad": { "plaga": "Minador de la hoja.", "enfermedad": "Botrytis." },
+      "ciclo_fenologico": { "variedades_principales": ["Festival"], "tipo": "Continuo", "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Guayaba": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 17.2, "precio_medio_mxn_ton": 7113, "produccion_miles_ton": 406, "principales_estados": ["Michoacán", "Aguascalientes", "Zacatecas"] },
+      "requerimientos_edafoclimaticos": { "clima": "Manejo de ciclos mediante poda.", "suelo": "Tolera pH 5-8." },
+      "protocolos_sanidad": { "plaga_critica": "Picudo de la guayaba.", "enfermedad": "Clavo (Pestalotia)." },
+      "ciclo_fenologico": { "variedades_principales": ["Media China"], "etapas": [{ "nombre": "Fructificación", "fase_bbch": "71" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Jitomate": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 73.5, "precio_medio_mxn_ton": 10038, "produccion_miles_ton": 3637, "principales_estados": ["Sinaloa", "SLP", "Michoacán"] },
+      "requerimientos_edafoclimaticos": {
+        "clima": { "temperatura_base": "10°C", "umbral_termico": "Polinización falla con T >32°C." },
+        "suelo": { "salinidad": "Moderadamente tolerante." }
+      },
+      "protocolos_sanidad": { "virus_critico": "Virus Rugoso (ToBRFV).", "suelo": "Nematodos (Meloidogyne)." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "25k-35k", "distancia_entre_plantas": "0.3m", "distancia_entre_surcos": "1.5m", "variedades_principales": ["Saladette"] },
+        "duracion_total_dias": 100,
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 20, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Trasplante"] }, "plagas_y_enfermedades": [{ "nombre": "Mosca Blanca", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 140, "K": 260 } }
+    },
+    "Lechuga": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 24.2, "precio_medio_mxn_ton": 5395, "produccion_miles_ton": 553, "principales_estados": ["Guanajuato", "Puebla", "Zacatecas"] },
+      "requerimientos_edafoclimaticos": { "clima": { "umbral_termico": "T >25°C induce floración prematura." } },
+      "protocolos_sanidad": { "enfermedad": "Mildiu (Bremia).", "plaga": "Pulgón." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "50k-80k", "distancia_entre_plantas": "0.3m", "distancia_entre_surcos": "0.45m", "variedades_principales": ["Romana"] },
+        "duracion_total_dias": 90,
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Formación cabeza", "duracion_dias": 15, "bbch_fase": "41-49" }
+        ]
+      },
+      "labores": { "Siembra": ["Trasplante"] }, "plagas_y_enfermedades": [{ "nombre": "Pulgones", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 100 } }
+    },
+    "Limon": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 15.4, "precio_medio_mxn_ton": 9630, "produccion_miles_ton": 3240, "principales_estados": ["Michoacán", "Veracruz", "Colima"] },
+      "requerimientos_edafoclimaticos": { "clima": "Sensible a heladas.", "suelo": "Sensible a salinidad." },
+      "protocolos_sanidad": { "plaga_critica": "Psílido Asiático (Diaphorina citri).", "enfermedad": "Gomosis." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "200-400", "distancia_entre_plantas": "6-8m", "distancia_entre_surcos": "8-10m", "variedades_principales": ["Mexicano"] },
+        "duracion_total_dias": 270,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 60, "bbch_fase": "00-09" },
+            { "nombre": "Madurez", "duracion_dias": 30, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Latencia": ["Poda"] }, "plagas_y_enfermedades": [{ "nombre": "Psílido Asiático", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 40, "K": 140 } }
+    },
+    "Maiz": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 4.3, "precio_medio_mxn_ton": 6256, "produccion_miles_ton": 27550, "principales_estados": ["Sinaloa", "Jalisco", "Edo. Mex."] },
+      "requerimientos_edafoclimaticos": {
+        "clima": { "grados_dia": "1600-1800 GDD a madurez.", "periodo_critico": "Floración." },
+        "suelo": { "ph": "5.5-7.5." }
+      },
+      "protocolos_sanidad": { "plaga_critica": "Gusano Cogollero.", "toxinas": "Aflatoxinas." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "60k-80k", "distancia_entre_plantas": "0.18-0.25m", "distancia_entre_surcos": "0.75-0.9m", "variedades_principales": ["Híbridos"] },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 15, "bbch_fase": "83-89" }
+        ]
+      },
+      "labores": { "Germinación": ["Siembra"] }, "plagas_y_enfermedades": [{ "nombre": "Cogollero", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 60 } }
+    },
+    "Maiz forrajero": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 33.6, "precio_medio_mxn_ton": 900, "produccion_miles_ton": 15432, "principales_estados": ["Jalisco", "Durango", "Zacatecas"] },
+      "requerimientos_edafoclimaticos": { "clima": "Igual que maíz grano.", "suelo": "Exigente N." },
+      "protocolos_sanidad": { "manejo": "Ensilaje en grano lechoso-masoso." },
+      "ciclo_fenologico": { "variedades_principales": ["Ensilaje"], "etapas": [{ "nombre": "Ensilaje", "fase_bbch": "75" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Mango": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 10.8, "precio_medio_mxn_ton": 5792, "produccion_miles_ton": 2300, "principales_estados": ["Sinaloa", "Guerrero", "Nayarit"] },
+      "requerimientos_edafoclimaticos": { "clima": "Requiere estrés (frío/sequía) para floración.", "suelo": "Tolera suelos pobres." },
+      "protocolos_sanidad": { "plaga_cuarentenaria": "Mosca de la fruta.", "enfermedad": "Antracnosis." },
+      "ciclo_fenologico": { "variedades_principales": ["Haden"], "etapas": [{ "nombre": "Llenado", "fase_bbch": "79" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Manzana": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 11.8, "precio_medio_mxn_ton": 12000, "produccion_miles_ton": 650, "principales_estados": ["Chihuahua", "Durango", "Coahuila"] },
+      "requerimientos_edafoclimaticos": { "clima": { "horas_frio": "Estricto.", "riesgo": "Brotación deficiente." } },
+      "protocolos_sanidad": { "enfermedad_critica": "Tizón de Fuego (Erwinia).", "plaga": "Palomilla de la manzana." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Red Delicious"],
+        "duracion_total_dias": 180,
+        "etapas": [
+            { "nombre": "Dormancia", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Latencia": ["Poda"] }, "plagas_y_enfermedades": [{ "nombre": "Palomilla manzana", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 138, "P": 45, "K": 40 } }
+    },
+    "Melón": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 30.0, "precio_medio_mxn_ton": 6000, "produccion_miles_ton": 540, "principales_estados": ["Coahuila", "Sonora", "Guerrero"] },
+      "requerimientos_edafoclimaticos": { "clima": "Exige T >25°C y baja humedad.", "suelo": "Franco-arenoso." },
+      "protocolos_sanidad": { "enfermedad": "Cenicilla y Fusariosis.", "plaga": "Minador." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Cantaloupe"],
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 10, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Naranja": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 14.5, "precio_medio_mxn_ton": 3986, "produccion_miles_ton": 4943, "principales_estados": ["Veracruz", "Tamaulipas", "NL"] },
+      "requerimientos_edafoclimaticos": { "clima": "Requiere integral térmica.", "suelo": "Franco-arcilloso." },
+      "protocolos_sanidad": { "plaga": "Psílido Asiático.", "enfermedad": "Virus Tristeza." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "200-400", "distancia_entre_plantas": "6-8m", "distancia_entre_surcos": "8-10m", "variedades_principales": ["Valencia"] },
+        "duracion_total_dias": 270,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 60, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Dormancia": ["Poda"] }, "plagas_y_enfermedades": [{ "nombre": "Psílido Asiático", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 50, "K": 180 } }
+    },
+    "Nopalitos": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 69.5, "precio_medio_mxn_ton": 3630, "produccion_miles_ton": 864, "principales_estados": ["Morelos", "CDMX", "Edo. Mex."] },
+      "requerimientos_edafoclimaticos": { "suelo": "Tolera suelos pobres.", "clima": "Resistente a sequía." },
+      "protocolos_sanidad": { "plaga": "Grana cochinilla.", "enfermedad": "Pudrición blanda." },
+      "ciclo_fenologico": { "variedades_principales": ["Verde"], "tipo": "Perenne", "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Nuez": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 1.4, "precio_medio_mxn_ton": 66392, "produccion_miles_ton": 168, "principales_estados": ["Chihuahua", "Sonora", "Coahuila"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Profundo (>2m). Sensible a salinidad.", "clima": "Horas frío altas." },
+      "protocolos_sanidad": { "plaga": "Barrenador de la nuez.", "enfermedad": "Viviparidad." },
+      "ciclo_fenologico": { "variedades_principales": ["Pecanera"], "etapas": [{ "nombre": "Llenado almendra", "fase_bbch": "79" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Papa": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 32.0, "precio_medio_mxn_ton": 8774, "produccion_miles_ton": 1986, "principales_estados": ["Sonora", "Sinaloa", "NL"] },
+      "requerimientos_edafoclimaticos": { "suelo": { "limitante_fisica": "Muy sensible a compactación.", "salinidad": "Sensible." }, "clima": { "umbral_termico": "Tuberización se detiene con T >25°C." } },
+      "protocolos_sanidad": { "enfermedad_critica": "Tizón Tardío.", "semilla": "Certificada libre de virus." },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Alpha"],
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 20, "bbch_fase": "00-09" },
+            { "nombre": "Madurez", "duracion_dias": 10, "bbch_fase": "49" }
+        ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Papaya": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 56.5, "precio_medio_mxn_ton": 6622, "produccion_miles_ton": 1149, "principales_estados": ["Oaxaca", "Colima", "Michoacán"] },
+      "requerimientos_edafoclimaticos": { "clima": "Sexado térmico.", "suelo": "Intolerante a encharcamiento." },
+      "protocolos_sanidad": { "virus": "Virus de la Mancha Anular (PRSV).", "plaga": "Ácaros." },
+      "ciclo_fenologico": { "variedades_principales": ["Maradol"], "etapas": [{ "nombre": "Cosecha", "fase_bbch": "89" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Pepino": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 54.1, "precio_medio_mxn_ton": 8574, "produccion_miles_ton": 1037, "principales_estados": ["Sinaloa", "Michoacán"] },
+      "requerimientos_edafoclimaticos": { "clima": { "temperatura": "Optima 25-28°C." }, "suelo": "Exigente en drenaje." },
+      "protocolos_sanidad": { "enfermedad": "Mildiu velloso.", "virus": "CMV." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "20k-30k", "distancia_entre_plantas": "0.5-0.7m", "distancia_entre_surcos": "1.5-2m", "variedades_principales": ["Poinsett"] },
+        "duracion_total_dias": 90,
+        "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 20, "bbch_fase": "00-09" },
+            { "nombre": "Cosecha", "duracion_dias": 10, "bbch_fase": "81-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Araña roja", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 140, "P": 80, "K": 220 } }
+    },
+    "Pera": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 7.5, "precio_medio_mxn_ton": 5872, "produccion_miles_ton": 27, "principales_estados": ["Michoacán", "Puebla", "Veracruz"] },
+      "requerimientos_edafoclimaticos": { "clima": "Requiere horas frío.", "suelo": "Tolera suelos más pesados." },
+      "protocolos_sanidad": { "enfermedad": "Tizón de fuego.", "plaga": "Psílido del peral." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Bartlett"],
+          "etapas": [
+              { "nombre": "Dormancia", "duracion_dias": 90, "bbch_fase": "00-09" },
+              { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Piña": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 49.0, "precio_medio_mxn_ton": 5732, "produccion_miles_ton": 1273, "principales_estados": ["Veracruz", "Oaxaca", "Tabasco"] },
+      "requerimientos_edafoclimaticos": { "suelo": "pH ÁCIDO (4.5-5.5).", "clima": "Inducción floral artificial." },
+      "protocolos_sanidad": { "plaga": "Cochinilla harinosa.", "enfermedad": "Pudrición del corazón." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "50k-70k", "distancia_entre_plantas": "0.3-0.4m", "distancia_entre_surcos": "0.9-1m", "variedades_principales": ["MD2"] },
+        "etapas": [{ "nombre": "Inducción", "duracion_dias": 60, "fase_bbch": "50" }]
+      },
+      "labores": { "Plantación": ["Hijuelos"] }, "plagas_y_enfermedades": [{ "nombre": "Cochinilla", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 300, "P": 70, "K": 350 } }
+    },
+    "Platano": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 30.7, "precio_medio_mxn_ton": 4218, "produccion_miles_ton": 2642, "principales_estados": ["Chiapas", "Tabasco", "Veracruz"] },
+      "requerimientos_edafoclimaticos": { "clima": "Tropical húmedo.", "suelo": "Franco-limoso." },
+      "protocolos_sanidad": { "enfermedad_critica": "Sigatoka Negra.", "cuarentenaria": "Foc R4T." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "1.5k-2k", "distancia_entre_plantas": "2.5-3m", "distancia_entre_surcos": "3-4m", "variedades_principales": ["Macho"] },
+        "duracion_total_dias": 365,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 15, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": { "Crecimiento": ["Deshije"] }, "plagas_y_enfermedades": [{ "nombre": "Picudo negro", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 60, "K": 400 } }
+    },
+    "Rosa": {
+      "categoria": "ornamental",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 6011.5, "precio_medio_mxn_ton": 272, "produccion_miles_ton": 9951, "principales_estados": ["Edo. Mex.", "Puebla"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Sustratos porosos.", "clima": "Invernadero controlado." },
+      "protocolos_sanidad": { "plaga": "Araña roja.", "enfermedad": "Mildeo polvoso." },
+      "ciclo_fenologico": { "variedades_principales": ["Freedom"], "tipo": "Continuo", "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Sandía": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 33.5, "precio_medio_mxn_ton": 5113, "produccion_miles_ton": 1429, "principales_estados": ["Sonora", "Chihuahua", "Veracruz"] },
+      "requerimientos_edafoclimaticos": { "clima": "T optima >25°C.", "suelo": "Franco-arenoso." },
+      "protocolos_sanidad": { "enfermedad": "Marchitez por Fusarium.", "virus": "WMV." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Crimson Sweet"],
+          "etapas": [
+            { "nombre": "Siembra", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 10, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Sorgo": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 3.6, "precio_medio_mxn_ton": 5408, "produccion_miles_ton": 4816, "principales_estados": ["Tamaulipas", "Guanajuato", "Sinaloa"] },
+      "requerimientos_edafoclimaticos": { "clima": "Tolerante a sequía.", "suelo": "Tolera salinidad moderada." },
+      "protocolos_sanidad": { "plaga_critica": "Pulgón Amarillo.", "enfermedad": "Ergot." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "150k-250k", "distancia_entre_plantas": "0.15-0.25m", "distancia_entre_surcos": "0.75-0.9m", "variedades_principales": ["Granífero"] },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 15, "bbch_fase": "00-09" },
+            { "nombre": "Llenado", "duracion_dias": 30, "bbch_fase": "71-79" }
+        ]
+      },
+      "labores": { "Emergencia": ["Directa"] }, "plagas_y_enfermedades": [{ "nombre": "Pulgón amarillo", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 50 } }
+    },
+    "Sorgo forrajero": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 25.5, "precio_medio_mxn_ton": 833, "produccion_miles_ton": 3211, "principales_estados": ["Coahuila", "Durango", "Sonora"] },
+      "requerimientos_edafoclimaticos": { "clima": "Alta rusticidad.", "suelo": "Tolerante." },
+      "protocolos_sanidad": { "riesgo": "Toxicidad por Ácido Cianhídrico." },
+      "ciclo_fenologico": { "variedades_principales": ["Forrajeros"], "etapas": [{ "nombre": "Corte", "fase_bbch": "60" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Soya": {
+      "categoria": "leguminosa",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 2.2, "precio_medio_mxn_ton": 9269, "produccion_miles_ton": 199, "principales_estados": ["Tamaulipas", "Chiapas", "Campeche"] },
+      "requerimientos_edafoclimaticos": { "clima": "Muy sensible al FOTOPERIODO.", "suelo": "Franco." },
+      "protocolos_sanidad": { "enfermedad_critica": "Roya asiática.", "plaga": "Gusano terciopelo." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "250k-400k", "distancia_entre_plantas": "0.05-0.1m", "distancia_entre_surcos": "0.4-0.7m", "variedades_principales": ["Huasteca"] },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Siembra/Emergencia", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 10, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Inoculación"] }, "plagas_y_enfermedades": [{ "nombre": "Gusano Vaina", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 40, "P": 80, "K": 60 } }
+    },
+    "Tabaco": {
+      "categoria": "agroindustriales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 2.5, "precio_medio_mxn_ton": 39858, "produccion_miles_ton": 18, "principales_estados": ["Nayarit", "Veracruz", "Chiapas"] },
+      "requerimientos_edafoclimaticos": { "suelo": "Ligero, arenoso.", "clima": "Humedad relativa alta." },
+      "protocolos_sanidad": { "enfermedad": "Moho azul.", "virus": "TMV." },
+      "ciclo_fenologico": { "variedades_principales": ["Burley"], "etapas": [{ "nombre": "Cosecha", "fase_bbch": "49" }] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Tomate verde": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 18.9, "precio_medio_mxn_ton": 6749, "produccion_miles_ton": 758, "principales_estados": ["Sinaloa", "Jalisco", "Zacatecas"] },
+      "requerimientos_edafoclimaticos": { "clima": "Autoincompatible. T optima 20-25°C.", "suelo": "Franco." },
+      "protocolos_sanidad": { "plaga": "Barrenador del fruto.", "virus": "Mosaico." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Verde M-30"],
+          "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 15, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 20, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Toronja": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 23.4, "precio_medio_mxn_ton": 4467, "produccion_miles_ton": 488, "principales_estados": ["Veracruz", "Tamaulipas", "Michoacán"] },
+      "requerimientos_edafoclimaticos": { "clima": "Requiere altas temperaturas para color.", "suelo": "Franco." },
+      "protocolos_sanidad": { "plaga": "Mosca de la fruta.", "enfermedad": "Cancrosis." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Ruby Red"],
+          "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 60, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Trigo": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 6.2, "precio_medio_mxn_ton": 8010, "produccion_miles_ton": 3476, "principales_estados": ["Sonora", "BC", "Guanajuato"] },
+      "requerimientos_edafoclimaticos": { "clima": { "vernalizacion": "Invernales requieren frío.", "horas_frio": "Favorece amacollamiento." } },
+      "protocolos_sanidad": { "enfermedad_critica": "Roya del tallo/hoja.", "plaga": "Pulgón." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "3M-4M", "distancia_entre_plantas": "0.05m", "distancia_entre_surcos": "0.15m", "variedades_principales": ["Bacanora"] },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Maduración", "duracion_dias": 20, "bbch_fase": "83-89" }
+        ]
+      },
+      "labores": { "Emergencia": ["Siembra"] }, "plagas_y_enfermedades": [{ "nombre": "Roya Amarilla", "tipo": "Enfermedad" }], "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 40 } }
+    },
+    "Uva fruta": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 16.7, "precio_medio_mxn_ton": 29011, "produccion_miles_ton": 385, "principales_estados": ["Sonora", "Zacatecas", "Aguascalientes"] },
+      "requerimientos_edafoclimaticos": { "clima": "Acumulación de frío (50-200 HF).", "suelo": "Tolera calizos." },
+      "protocolos_sanidad": { "plaga": "Piojo harinoso.", "enfermedad": "Cenicilla." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Perlette", "Flame"],
+          "etapas": [
+              { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+              { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Uva industrial": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 8.8, "precio_medio_mxn_ton": 14909, "produccion_miles_ton": 77, "principales_estados": ["BC", "Zacatecas", "Querétaro"] },
+      "requerimientos_edafoclimaticos": { "clima": "Amplitud térmica día/noche.", "suelo": "Pobres/pedregosos." },
+      "protocolos_sanidad": { "enfermedad": "Mildiu y Botrytis.", "plaga": "Filoxera." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Cabernet", "Merlot"],
+          "etapas": [
+              { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+              { "nombre": "Maduración", "duracion_dias": 40, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Uva pasa": {
+      "categoria": "frutales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 5.0, "precio_medio_mxn_ton": 18204, "produccion_miles_ton": 19, "principales_estados": ["Sonora", "BC"] },
+      "requerimientos_edafoclimaticos": { "clima": "Calor seco intenso.", "suelo": "Franco-arenoso." },
+      "protocolos_sanidad": { "plaga": "Polilla de la pasa.", "enfermedad": "Pudriciones." },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Thompson"],
+          "etapas": [
+              { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+              { "nombre": "Maduración", "duracion_dias": 40, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+    "Zarzamora": {
+      "categoria": "frutal",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 21.9, "precio_medio_mxn_ton": 23445, "produccion_miles_ton": 238, "principales_estados": ["Michoacán", "Jalisco", "Puebla"] },
+      "requerimientos_edafoclimaticos": { "clima": "Acumulación de frío. Defoliación química.", "suelo": "Sensible a encharcamiento." },
+      "protocolos_sanidad": { "enfermedad": "Peronospora.", "plaga": "Trips." },
+      "ciclo_fenologico": {
+        "densidad": { "plantas_por_ha": "2.5k-4k", "distancia_entre_plantas": "1-1.5m", "distancia_entre_surcos": "2.5-3m", "variedades_principales": ["Tupy"] },
+        "duracion_total_dias": 365,
+        "etapas": [
+          { "nombre": "Poda", "duracion_dias": 60 },
+          { "nombre": "Cosecha", "fase_bbch": "89" }
+        ]
+      },
+      "labores": { "Poda": ["Canas viejas"] }, "plagas_y_enfermedades": [{ "nombre": "Trips", "tipo": "Plaga" }], "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 150 } }
+    }
+  }
+}
+
+
+Aquí hay una representación visual para que puedas identificar fácilmente la estructura del archivo JSON unificado 
+
+[Image of JSON structure]
+. Esta imagen muestra cómo se integran los diferentes bloques de datos.

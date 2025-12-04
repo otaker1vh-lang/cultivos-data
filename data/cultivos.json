@@ -1,0 +1,2656 @@
+{
+  "meta": {
+    "created_by": "Asistente AI & Usuario",
+    "version": "1.4",
+    "description": "Base de datos completa con estadísticas históricas, calendarios regionales y sanidad detallada."
+  },
+  "categorias": {
+    "hortalizas": ["Jitomate", "Chile", "Cebolla", "Lechuga", "Pepino", "Calabacita", "Berenjena", "Brócoli", "Coliflor", "Nopalitos", "Papa", "Tomate verde", "Espárrago"],
+    "frutales": ["Fresa", "Zarzamora", "Frambuesa", "Arándano", "Piña", "Mango", "Platano", "Aguacate", "Limon", "Naranja", "Durazno", "Guayaba", "Manzana", "Melón", "Papaya", "Pera", "Sandía", "Toronja", "Uva fruta", "Uva industrial", "Uva pasa", "Copra y coco", "Nuez"],
+    "cereales": ["Maiz", "Trigo", "Sorgo", "Cebada", "Arroz", "Avena", "Avena forrajera", "Maiz forrajero", "Sorgo forrajero", "Amaranto"],
+    "leguminosas": ["Frijol", "Garbanzo", "Soya"],
+    "ornamentales": ["Rosa", "Gerbera"],
+    "agroindustriales": ["Agave tequilero", "Cacao", "Café cereza", "Caña de azúcar", "Cártamo", "Tabaco", "Ajonjolí", "Algodón hueso"]
+  },
+  "cultivos": {
+    "Durazno": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 10.4,
+        "precio_medio_mxn_ton": 12534,
+        "superficie_sembrada_ha": 34000,
+        "superficie_cosechada_ha": 32000,
+        "produccion_miles_ton": 258,
+        "variacion_anual_pct": 7.8,
+        "principales_estados": ["Zacatecas", "Chihuahua", "Michoacán", "Puebla", "Edo. México"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 258,
+            "variacion_anual_pct": 7.8,
+            "ranking_mundial": "11º",
+            "consumo_per_capita": "2.1 kg",
+            "principales_estados_valor": "Zacatecas (58.7%)" 
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 9.8, "produccion_ton": 217000 },
+            { "year": 2022, "rendimiento_t_ha": 10.1, "produccion_ton": 230000 },
+            { "year": 2023, "rendimiento_t_ha": 10.4, "produccion_ton": 258000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Diamante", "Oro de San Juan", "Regio", "San Gabriel"],
+        "densidad_plantacion": {
+          "nota": "La densidad depende del sistema de conducción elegido.",
+          "sistemas": [
+            { "nombre": "Tradicional (Vaso)", "arboles_ha": 400, "distancia_m": "5x5" },
+            { "nombre": "Semi-Intensivo", "arboles_ha": 666, "distancia_m": "3x5" },
+            { "nombre": "Alta Densidad (Tatura)", "arboles_ha": 1481, "distancia_m": "1.5x4.5" },
+            { "nombre": "MIAF (Intercalado)", "arboles_ha": 1000, "distancia_m": "1x14" }
+          ]
+        },
+        "duracion_total_dias": 210,
+        "etapas": [
+          { "nombre": "Dormancia", "duracion_dias": 90, "bbch_fase": "00-09" },
+          { "nombre": "Floración", "duracion_dias": 20, "bbch_fase": "60-69" },
+          { "nombre": "Cuajado y Crecimiento I", "duracion_dias": 45, "bbch_fase": "71-75" },
+          { "nombre": "Endurecimiento de hueso", "duracion_dias": 30, "bbch_fase": "76-79" },
+          { "nombre": "Maduración y Cosecha", "duracion_dias": 25, "bbch_fase": "81-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Zacatecas (Criollos/Mejorados)", "siembra_inicio": "N/A (Perenne)", "siembra_fin": "N/A", "cosecha_inicio": "Julio", "cosecha_fin": "Septiembre" },
+            { "estado": "Michoacán (Temprano)", "siembra_inicio": "N/A", "siembra_fin": "N/A", "cosecha_inicio": "Abril", "cosecha_fin": "Junio" }
+        ]
+      },
+      "labores": { 
+          "Dormancia": ["Poda de invierno", "Aplicación compensadores frío", "Lavado de ramas"], 
+          "Floración": ["Riego ligero", "Control de Trips", "Colocación de trampas"], 
+          "Crecimiento": ["Raleo de frutos (manual/químico)", "Fertilización NPK", "Riego pesado"],
+          "Cosecha": ["Recolección manual", "Selección y empaque", "Poda en verde"] 
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Ácaros que causan bronceado en hojas y defoliación.",
+          "control": { "mecanismo": "Químico/Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "25 mL / 100 L" }, { "ingrediente": "Azufre", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Mosca de la Fruta", "tipo": "Plaga", "descripcion": "Larvas que se alimentan de la pulpa, pudriendo el fruto.",
+          "control": { "mecanismo": "Trampeo masivo", "productos_activos_mexico": [{ "ingrediente": "Spinosad + Proteína", "dosis_tipo": "Cebo" }, { "ingrediente": "Malatión", "dosis_tipo": "Aspersión (solo si necesario)" }] }
+        },
+        {
+          "nombre": "Pulgón", "tipo": "Plaga", "descripcion": "Succiona savia en brotes tiernos y transmite virus.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }, { "ingrediente": "Jabón Potásico", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Escama de San José", "tipo": "Plaga", "descripcion": "Costras en ramas y manchas rojas en frutos.",
+          "control": { "mecanismo": "Aceites", "productos_activos_mexico": [{ "ingrediente": "Aceite Mineral", "dosis_tipo": "Contacto (Invierno)" }] }
+        },
+        {
+          "nombre": "Frailecillo", "tipo": "Plaga", "descripcion": "Escarabajo que come flores y frutos pequeños.",
+          "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Cenicilla (Oidium)", "tipo": "Enfermedad", "descripcion": "Polvo blanco en hojas y frutos que causa russeting.",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azufre elemental", "dosis_tipo": "Preventivo" }, { "ingrediente": "Tebuconazol", "dosis_tipo": "Curativo" }] }
+        },
+        {
+          "nombre": "Verrucosis (Taphrina)", "tipo": "Enfermedad", "descripcion": "Hojas deformes, engrosadas y rojizas (enchina).",
+          "control": { "mecanismo": "Fungicida Cúprico", "productos_activos_mexico": [{ "ingrediente": "Oxicloruro de Cobre", "dosis_tipo": "Preventivo (Yema hinchada)" }] }
+        },
+        {
+          "nombre": "Pudrición Morena (Monilinia)", "tipo": "Enfermedad", "descripcion": "Momificación de frutos y cancros en ramas.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Tiofanato Metílico", "dosis_tipo": "Curativo" }, { "ingrediente": "Captan", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Roya", "tipo": "Enfermedad", "descripcion": "Pústulas anaranjadas en envés de la hoja.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Sistémico" }] }
+        },
+        {
+          "nombre": "Tiro de Munición", "tipo": "Enfermedad", "descripcion": "Perforaciones circulares en hojas y manchas en fruto.",
+          "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Captan", "dosis_tipo": "Contacto" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 150 } }
+    },
+    
+    "Aguacate": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 11.7,
+        "precio_medio_mxn_ton": 20212,
+        "superficie_sembrada_ha": 265000,
+        "superficie_cosechada_ha": 253000,
+        "produccion_miles_ton": 2973,
+        "variacion_anual_pct": 17.0,
+        "principales_estados": ["Michoacán", "Jalisco", "Estado de México", "Nayarit", "Morelos"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 2973,
+            "variacion_anual_pct": 17.0,
+            "ranking_mundial": "1º",
+            "consumo_per_capita": "12.3 kg",
+            "principales_estados_valor": "Michoacán (72.7%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 10.8, "produccion_ton": 2450000 },
+            { "year": 2022, "rendimiento_t_ha": 11.2, "produccion_ton": 2540000 },
+            { "year": 2023, "rendimiento_t_ha": 11.7, "produccion_ton": 2973000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Hass", "Méndez", "Fuerte", "Criollo"],
+        "densidad_plantacion": {
+            "nota": "El aguacate requiere polinización cruzada y espacio para maquinaria.",
+            "sistemas": [
+                { "nombre": "Convencional", "arboles_ha": 100, "distancia_m": "10x10" },
+                { "nombre": "Alta Densidad", "arboles_ha": 400, "distancia_m": "5x5" },
+                { "nombre": "Muy Alta Densidad", "arboles_ha": 800, "distancia_m": "2.5x5" }
+            ]
+        },
+        "duracion_total_dias": 240,
+        "etapas": [
+            { "nombre": "Brotación Vegetativa", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Floración (Antesis)", "duracion_dias": 60, "bbch_fase": "60-69" },
+            { "nombre": "Cuajado del fruto", "duracion_dias": 30, "bbch_fase": "71-79" },
+            { "nombre": "Desarrollo del fruto", "duracion_dias": 90, "bbch_fase": "71-79" },
+            { "nombre": "Madurez de cosecha", "duracion_dias": 30, "bbch_fase": "81-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Michoacán (Flor Loca)", "siembra_inicio": "N/A", "siembra_fin": "N/A", "cosecha_inicio": "Junio", "cosecha_fin": "Septiembre" },
+            { "estado": "Michoacán (Temporada)", "siembra_inicio": "N/A", "siembra_fin": "N/A", "cosecha_inicio": "Octubre", "cosecha_fin": "Febrero" },
+            { "estado": "Jalisco", "siembra_inicio": "N/A", "siembra_fin": "N/A", "cosecha_inicio": "Mayo", "cosecha_fin": "Enero" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Poda de formación/sanidad", "Fertilización al suelo", "Control de malezas"],
+          "Floración": ["Introducción de colmenas (abejas)", "Riego constante", "Monitoreo de Trips"],
+          "Cuajado": ["Fertilización foliar (Boro/Zinc)", "Riego crítico"],
+          "Cosecha": ["Análisis de materia seca", "Corte con tijera", "Transporte en frío"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Barrenador del hueso", "tipo": "Plaga", "descripcion": "Larvas perforan la semilla (Cuarentenaria).",
+          "control": { "mecanismo": "Legal/Químico", "productos_activos_mexico": [{ "ingrediente": "Malatión", "dosis_tipo": "Foliar" }, { "ingrediente": "Permetrina", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Trips", "tipo": "Plaga", "descripcion": "Causa 'piel de cocodrilo' y deformaciones en frutos.",
+          "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Ingestión" }, { "ingrediente": "Azadiractina", "dosis_tipo": "Repelente" }] }
+        },
+        {
+          "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Bronceado y defoliación severa.",
+          "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Translaminar" }, { "ingrediente": "Bifenazato", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Barrenador de ramas", "tipo": "Plaga", "descripcion": "Galerías en ramas jóvenes y troncos.",
+          "control": { "mecanismo": "Poda sanitaria", "productos_activos_mexico": [{ "ingrediente": "Permetrina", "dosis_tipo": "Contacto" }, { "ingrediente": "Poda y quema", "dosis_tipo": "Cultural" }] }
+        },
+        {
+          "nombre": "Agalla del aguacate", "tipo": "Plaga", "descripcion": "Deformaciones tipo verruga en hojas.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] }
+        },
+        {
+          "nombre": "Tristeza (Phytophthora)", "tipo": "Enfermedad", "descripcion": "Pudrición de raíces, marchitez y muerte.",
+          "control": { "mecanismo": "Inyección/Suelo", "productos_activos_mexico": [{ "ingrediente": "Fosetil-Aluminio", "dosis_tipo": "Inyección al tronco" }, { "ingrediente": "Metalaxil", "dosis_tipo": "Drench" }] }
+        },
+        {
+          "nombre": "Antracnosis", "tipo": "Enfermedad", "descripcion": "Manchas negras hundidas en fruto y necrosis.",
+          "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina", "dosis_tipo": "Sistémico" }, { "ingrediente": "Cobre", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Roña", "tipo": "Enfermedad", "descripcion": "Lesiones corchosas superficiales en la piel.",
+          "control": { "mecanismo": "Cúprico", "productos_activos_mexico": [{ "ingrediente": "Sulfato de Cobre", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Anillamiento del pedúnculo", "tipo": "Enfermedad", "descripcion": "Caída prematura de frutos por anillo necrótico.",
+          "control": { "mecanismo": "Nutricional", "productos_activos_mexico": [{ "ingrediente": "Zinc + Boro", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Marchitez (Fusarium)", "tipo": "Enfermedad", "descripcion": "Secamiento general del árbol.",
+          "control": { "mecanismo": "Suelo", "productos_activos_mexico": [{ "ingrediente": "Trichoderma spp.", "dosis_tipo": "Biológico" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 180, "P": 60, "K": 200 } }
+    },
+
+    "Maiz": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 4.3,
+        "precio_medio_mxn_ton": 6256,
+        "superficie_sembrada_ha": 6941000,
+        "superficie_cosechada_ha": 6436000,
+        "produccion_miles_ton": 27550,
+        "variacion_anual_pct": 3.8,
+        "principales_estados": ["Sinaloa", "Jalisco", "Edo. México", "Michoacán", "Guanajuato"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 27550,
+            "variacion_anual_pct": 3.8,
+            "ranking_mundial": "7º",
+            "consumo_per_capita": "345 kg (incl. forraje)",
+            "principales_estados_valor": "Sinaloa (22.0%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 4.2, "produccion_ton": 27000000 },
+            { "year": 2022, "rendimiento_t_ha": 4.1, "produccion_ton": 26500000 },
+            { "year": 2023, "rendimiento_t_ha": 4.3, "produccion_ton": 27550000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Híbridos Blancos", "Híbridos Amarillos", "Nativos/Criollos"],
+        "densidad_plantacion": {
+            "nota": "Varía drásticamente entre riego y temporal.",
+            "sistemas": [
+                { "nombre": "Riego/Tecnificado", "arboles_ha": 90000, "distancia_m": "0.14x0.75" },
+                { "nombre": "Punteado Standard", "arboles_ha": 65000, "distancia_m": "0.20x0.75" },
+                { "nombre": "Temporal", "arboles_ha": 45000, "distancia_m": "0.27x0.80" }
+            ]
+        },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Emergencia (VE)", "duracion_dias": 7, "bbch_fase": "00-09" },
+            { "nombre": "Desarrollo Vegetativo (V1-Vn)", "duracion_dias": 50, "bbch_fase": "10-39" },
+            { "nombre": "Floración/Espigado (VT-R1)", "duracion_dias": 15, "bbch_fase": "51-69" },
+            { "nombre": "Llenado de Grano (R2-R5)", "duracion_dias": 50, "bbch_fase": "71-85" },
+            { "nombre": "Madurez Fisiológica (R6)", "duracion_dias": 28, "bbch_fase": "87-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sinaloa (Otoño-Invierno)", "siembra_inicio": "Noviembre", "siembra_fin": "Enero", "cosecha_inicio": "Mayo", "cosecha_fin": "Junio" },
+            { "estado": "Jalisco (Primavera-Verano)", "siembra_inicio": "Mayo", "siembra_fin": "Junio", "cosecha_inicio": "Noviembre", "cosecha_fin": "Enero" }
+        ]
+      },
+      "labores": {
+          "VE-V3": ["Siembra", "Aplicación herbicida pre-emergente", "Riego de asiento"],
+          "V4-V8": ["Fertilización nitrogenada (Aporque)", "Control Cogollero", "Escarda mecánica"],
+          "VT-R1": ["Riego crítico (floración)", "Monitoreo de hongos", "Aplicación fungicida"],
+          "R6": ["Secado en campo", "Trilla/Cosecha", "Manejo de rastrojo"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Gusano Cogollero", "tipo": "Plaga", "descripcion": "Larva que consume el cogollo tierno (Spodoptera).",
+          "control": { "mecanismo": "Integrado", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol", "dosis_tipo": "Sistémico/Foliar" }, { "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Gusano Elotero", "tipo": "Plaga", "descripcion": "Daña los granos de la mazorca y facilita hongos.",
+          "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Trichogramma (Avispa)", "dosis_tipo": "Liberación" }, { "ingrediente": "Lambda Cihalotrina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Secamiento de hojas bajas por succión.",
+          "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Azufre", "dosis_tipo": "Espolvoreo" }] }
+        },
+        {
+          "nombre": "Diabrótica", "tipo": "Plaga", "descripcion": "Larva come raíces (acame), adulto come hojas.",
+          "control": { "mecanismo": "Tratamiento Semilla", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Semilla" }, { "ingrediente": "Bifentrina", "dosis_tipo": "Suelo" }] }
+        },
+        {
+          "nombre": "Pulgón del Maíz", "tipo": "Plaga", "descripcion": "Succiona savia de la espiga y hojas.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Sulfoxaflor", "dosis_tipo": "Foliar" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Carbón de la espiga", "tipo": "Enfermedad", "descripcion": "Masas negras (esporas) sustituyen granos.",
+          "control": { "mecanismo": "Genético", "productos_activos_mexico": [{ "ingrediente": "Híbridos Resistentes", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Tizón foliar (Exserohilum)", "tipo": "Enfermedad", "descripcion": "Manchas alargadas grises en hojas.",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina + Difenoconazol", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Pudrición de Tallo (Fusarium)", "tipo": "Enfermedad", "descripcion": "Caída de plantas (acame) y médula rosa.",
+          "control": { "mecanismo": "Cultural", "productos_activos_mexico": [{ "ingrediente": "Densidad adecuada", "dosis_tipo": "Manejo" }] }
+        },
+        {
+          "nombre": "Achaparramiento (Spiroplasma)", "tipo": "Enfermedad", "descripcion": "Plantas enanas y rojizas transmitidas por chicharrita.",
+          "control": { "mecanismo": "Control Vector", "productos_activos_mexico": [{ "ingrediente": "Control de Chicharrita", "dosis_tipo": "Insecticida" }] }
+        },
+        {
+          "nombre": "Roya Común", "tipo": "Enfermedad", "descripcion": "Pústulas color ladrillo en hojas.",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Epoxiconazol", "dosis_tipo": "Foliar" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 240, "P": 80, "K": 60 } }
+    },
+
+    "Jitomate": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 73.5,
+        "precio_medio_mxn_ton": 10038,
+        "superficie_sembrada_ha": 50000,
+        "superficie_cosechada_ha": 49000,
+        "produccion_miles_ton": 3637,
+        "variacion_anual_pct": 5.1,
+        "principales_estados": ["Sinaloa", "San Luis Potosí", "Michoacán", "Jalisco", "Zacatecas"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 3637,
+            "variacion_anual_pct": 5.1,
+            "ranking_mundial": "9º",
+            "consumo_per_capita": "13.4 kg",
+            "principales_estados_valor": "Sinaloa (20.5%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 68.5, "produccion_ton": 3320000 },
+            { "year": 2022, "rendimiento_t_ha": 70.1, "produccion_ton": 3450000 },
+            { "year": 2023, "rendimiento_t_ha": 73.5, "produccion_ton": 3637000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Saladette (Roma)", "Bola (Beef)", "Cherry", "Grape"],
+        "densidad_plantacion": {
+            "nota": "Alta densidad requiere poda a un solo tallo.",
+            "sistemas": [
+                { "nombre": "Invernadero/Hidroponía", "arboles_ha": 30000, "distancia_m": "0.25x1.6" },
+                { "nombre": "Malla Sombra/Tutorado", "arboles_ha": 22000, "distancia_m": "0.30x1.5" },
+                { "nombre": "Campo Abierto/Rastrero", "arboles_ha": 15000, "distancia_m": "0.40x1.8" }
+            ]
+        },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Establecimiento (Trasplante)", "duracion_dias": 10, "bbch_fase": "10-19" },
+            { "nombre": "Desarrollo Vegetativo", "duracion_dias": 25, "bbch_fase": "20-49" },
+            { "nombre": "Floración y Cuajado (Racimos)", "duracion_dias": 25, "bbch_fase": "50-69" },
+            { "nombre": "Llenado de Fruto", "duracion_dias": 30, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha (Inicio)", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sinaloa (Otoño-Invierno)", "siembra_inicio": "Septiembre", "siembra_fin": "Noviembre", "cosecha_inicio": "Enero", "cosecha_fin": "Mayo" },
+            { "estado": "San Luis Potosí (Ciclo Largo)", "siembra_inicio": "Marzo", "siembra_fin": "Mayo", "cosecha_inicio": "Julio", "cosecha_fin": "Diciembre" }
+        ]
+      },
+      "labores": {
+          "Establecimiento": ["Desinfección suelo/sustrato", "Trasplante", "Colocación de guías"],
+          "Vegetativo": ["Poda de chupones (Desbrote)", "Tutoreo (Anillado)", "Fertirriego de inicio"],
+          "Floración": ["Polinización (Abejorros)", "Poda de hojas bajas", "Monitoreo de virus"],
+          "Cosecha": ["Corte diario", "Clasificación por color", "Empaque"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Mosca Blanca (Bemisia)", "tipo": "Plaga", "descripcion": "Transmisor de Virus (TYLCV) y fumagina.",
+          "control": { "mecanismo": "Sistémico/Biológico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }, { "ingrediente": "Beauveria bassiana", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Minador de la Hoja (Liriomyza)", "tipo": "Plaga", "descripcion": "Larvas hacen galerías (serpentinas) en hojas.",
+          "control": { "mecanismo": "Translaminar", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Cipermetrina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Paratrioza", "tipo": "Plaga", "descripcion": "Transmite 'Permanente del Tomate'.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Spirotetramat", "dosis_tipo": "Sistémico" }] }
+        },
+        {
+          "nombre": "Tizón Tardío (Phytophthora)", "tipo": "Enfermedad", "descripcion": "Manchas negras y pudrición rápida (quemazón).",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Metalaxil + Mancozeb", "dosis_tipo": "Curativo" }, { "ingrediente": "Clorotalonil", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Fusarium (Marchitez)", "tipo": "Enfermedad", "descripcion": "Amarillamiento y necrosis vascular.",
+          "control": { "mecanismo": "Genético/Suelo", "productos_activos_mexico": [{ "ingrediente": "Variedades Resistentes (F3)", "dosis_tipo": "Preventivo" }, { "ingrediente": "Trichoderma harzianum", "dosis_tipo": "Drench" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 250, "P": 100, "K": 350 } }
+    },
+
+    "Chile": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 21.3,
+        "precio_medio_mxn_ton": 12490,
+        "superficie_sembrada_ha": 174000,
+        "superficie_cosechada_ha": 173000,
+        "produccion_miles_ton": 3681,
+        "variacion_anual_pct": 18.3,
+        "principales_estados": ["Sinaloa", "Chihuahua", "Zacatecas", "San Luis Potosí"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 3681,
+            "variacion_anual_pct": 18.3,
+            "ranking_mundial": "2º (Verde)",
+            "consumo_per_capita": "17.2 kg",
+            "principales_estados_valor": "Sinaloa (21.7%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 19.5, "produccion_ton": 3050000 },
+            { "year": 2022, "rendimiento_t_ha": 20.1, "produccion_ton": 3110000 },
+            { "year": 2023, "rendimiento_t_ha": 21.3, "produccion_ton": 3681000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Jalapeño", "Serrano", "Ancho (Poblano)", "Bell Pepper (Morrón)", "Habanero"],
+        "densidad_plantacion": {
+            "nota": "Depende si es campo abierto o malla.",
+            "sistemas": [
+                { "nombre": "Campo Abierto (Doble hilera)", "arboles_ha": 35000, "distancia_m": "0.30x1.2" },
+                { "nombre": "Malla Sombra/Invernadero", "arboles_ha": 25000, "distancia_m": "0.40x1.5" },
+                { "nombre": "Baja Densidad (Temporal)", "arboles_ha": 20000, "distancia_m": "0.50x1.0" }
+            ]
+        },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Trasplante y Enraizamiento", "duracion_dias": 15, "bbch_fase": "10-19" },
+            { "nombre": "Desarrollo Vegetativo", "duracion_dias": 45, "bbch_fase": "20-49" },
+            { "nombre": "Floración (Botón Floral)", "duracion_dias": 20, "bbch_fase": "50-69" },
+            { "nombre": "Fructificación y Llenado", "duracion_dias": 40, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha (Cortes múltiples)", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Chihuahua", "siembra_inicio": "Abril", "siembra_fin": "Mayo", "cosecha_inicio": "Agosto", "cosecha_fin": "Octubre" },
+            { "estado": "Sinaloa", "siembra_inicio": "Septiembre", "siembra_fin": "Noviembre", "cosecha_inicio": "Enero", "cosecha_fin": "Mayo" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Aporque (suelo)", "Fertilización nitrogenada", "Control de malezas"],
+          "Floración": ["Aplicación de calcio/boro", "Control de Picudo"],
+          "Fructificación": ["Fertilización potásica", "Soporte/Estacado (si aplica)"],
+          "Cosecha": ["Corte manual selectivo", "Secado (para chiles secos)"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Picudo del Chile (Anthonomus)", "tipo": "Plaga", "descripcion": "Larva come dentro del fruto, causa caída.",
+          "control": { "mecanismo": "Químico/Trampas", "productos_activos_mexico": [{ "ingrediente": "Fipronil", "dosis_tipo": "Foliar" }, { "ingrediente": "Oxamil", "dosis_tipo": "Sistémico" }] }
+        },
+        {
+          "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Transmite virus (Begomovirus).",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Drench/Riego" }] }
+        },
+        {
+          "nombre": "Trips", "tipo": "Plaga", "descripcion": "Raspa flores y deforma frutos.",
+          "control": { "mecanismo": "Biológico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Secadera (Complejo fúngico)", "tipo": "Enfermedad", "descripcion": "Phytophthora/Fusarium/Rhizoctonia atacan raíz.",
+          "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Drench al cuello" }, { "ingrediente": "Trichoderma", "dosis_tipo": "Biológico" }] }
+        },
+        {
+          "nombre": "Mancha Bacteriana (Xanthomonas)", "tipo": "Enfermedad", "descripcion": "Manchas necróticas en hojas y frutos.",
+          "control": { "mecanismo": "Antibiótico/Cobre", "productos_activos_mexico": [{ "ingrediente": "Gentamicina + Oxitetraciclina", "dosis_tipo": "Foliar" }, { "ingrediente": "Cobre", "dosis_tipo": "Preventivo" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 100, "K": 250 } }
+    },
+
+    "Cebolla": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 32.3,
+        "precio_medio_mxn_ton": 7410,
+        "superficie_sembrada_ha": 56000,
+        "superficie_cosechada_ha": 56000,
+        "produccion_miles_ton": 1801,
+        "variacion_anual_pct": 17.8,
+        "principales_estados": ["Chihuahua", "Zacatecas", "Guanajuato", "Tamaulipas"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 1801,
+            "variacion_anual_pct": 17.8,
+            "ranking_mundial": "13º",
+            "consumo_per_capita": "10.5 kg",
+            "principales_estados_valor": "Chihuahua (18.1%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 30.5, "produccion_ton": 1450000 },
+            { "year": 2022, "rendimiento_t_ha": 31.2, "produccion_ton": 1520000 },
+            { "year": 2023, "rendimiento_t_ha": 32.3, "produccion_ton": 1801000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Blanca (Sierra)", "Morada", "Amarilla (Grano)"],
+        "densidad_plantacion": {
+            "nota": "Se siembra a doble o triple hilera en cama.",
+            "sistemas": [
+                { "nombre": "Alta Densidad (Riego)", "arboles_ha": 350000, "distancia_m": "0.08x0.35" },
+                { "nombre": "Media Densidad", "arboles_ha": 280000, "distancia_m": "0.10x0.40" },
+                { "nombre": "Baja Densidad (Bulbo grande)", "arboles_ha": 220000, "distancia_m": "0.12x0.45" }
+            ]
+        },
+        "duracion_total_dias": 130,
+        "etapas": [
+            { "nombre": "Establecimiento (Siembra directa/Trasplante)", "duracion_dias": 20, "bbch_fase": "00-12" },
+            { "nombre": "Desarrollo de hojas", "duracion_dias": 40, "bbch_fase": "13-19" },
+            { "nombre": "Inicio de Bulbificación", "duracion_dias": 30, "bbch_fase": "41-45" },
+            { "nombre": "Llenado de Bulbo", "duracion_dias": 30, "bbch_fase": "46-48" },
+            { "nombre": "Madurez (Doblado)", "duracion_dias": 10, "bbch_fase": "49" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Chihuahua (Tardía)", "siembra_inicio": "Enero", "siembra_fin": "Marzo", "cosecha_inicio": "Julio", "cosecha_fin": "Septiembre" },
+            { "estado": "Tamaulipas (Temprana)", "siembra_inicio": "Agosto", "siembra_fin": "Octubre", "cosecha_inicio": "Enero", "cosecha_fin": "Marzo" }
+        ]
+      },
+      "labores": {
+          "Establecimiento": ["Preparación cama fina", "Siembra de precisión", "Riego ligero frecuente"],
+          "Desarrollo": ["Control de malezas (Crítico)", "Fertilización Nitrogenada"],
+          "Bulbificación": ["Fertilización Potásica", "Suspensión de N"],
+          "Cosecha": ["Corte de riego", "Arrancado y curado en campo"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Trips de la Cebolla (Thrips tabaci)", "tipo": "Plaga", "descripcion": "Raspa las hojas, color plateado, reduce fotosíntesis.",
+          "control": { "mecanismo": "Químico/Rotación", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }, { "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Gusano Soldado", "tipo": "Plaga", "descripcion": "Come hojas vorazmente.",
+          "control": { "mecanismo": "Ingestión", "productos_activos_mexico": [{ "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Mildiú Velloso (Peronospora)", "tipo": "Enfermedad", "descripcion": "Manchas púrpuras/grisáceas en hojas, destructor.",
+          "control": { "mecanismo": "Preventivo/Sistémico", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Foliar" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Raíz Rosada (Phoma)", "tipo": "Enfermedad", "descripcion": "Raíces se tornan rosas y mueren, bulbo pequeño.",
+          "control": { "mecanismo": "Resistencia/Suelo", "productos_activos_mexico": [{ "ingrediente": "Metam Sodio (Presiembra)", "dosis_tipo": "Fumigación" }, { "ingrediente": "Variedades Resistentes", "dosis_tipo": "Genética" }] }
+        },
+        {
+          "nombre": "Mancha Púrpura (Alternaria)", "tipo": "Enfermedad", "descripcion": "Lesiones hundidas púrpuras en hojas.",
+          "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Clorotalonil", "dosis_tipo": "Preventivo" }, { "ingrediente": "Iprodiona", "dosis_tipo": "Curativo" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 150 } }
+    },
+
+    "Papa": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 32.0,
+        "precio_medio_mxn_ton": 8774,
+        "superficie_sembrada_ha": 62000,
+        "superficie_cosechada_ha": 62000,
+        "produccion_miles_ton": 1986,
+        "variacion_anual_pct": 5.7,
+        "principales_estados": ["Sonora", "Sinaloa", "Estado de México", "Puebla", "Veracruz"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 1986,
+            "variacion_anual_pct": 5.7,
+            "ranking_mundial": "32º",
+            "consumo_per_capita": "15.1 kg",
+            "principales_estados_valor": "Sonora (29.0%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 29.8, "produccion_ton": 1750000 },
+            { "year": 2022, "rendimiento_t_ha": 30.5, "produccion_ton": 1820000 },
+            { "year": 2023, "rendimiento_t_ha": 32.0, "produccion_ton": 1986000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Alpha (Blanca)", "Fianna", "Agata", "Atlantic (Industrial)"],
+        "densidad_plantacion": {
+            "nota": "Distancia depende del tamaño de tubérculo deseado.",
+            "sistemas": [
+                { "nombre": "Semilla Certificada", "arboles_ha": 45000, "distancia_m": "0.25x0.90" },
+                { "nombre": "Consumo Fresco", "arboles_ha": 35000, "distancia_m": "0.30x0.90" },
+                { "nombre": "Industrial", "arboles_ha": 30000, "distancia_m": "0.35x0.90" }
+            ]
+        },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Brotación y Emergencia", "duracion_dias": 20, "bbch_fase": "00-09" },
+            { "nombre": "Desarrollo Vegetativo/Estolones", "duracion_dias": 30, "bbch_fase": "10-39" },
+            { "nombre": "Inicio de Tuberización", "duracion_dias": 20, "bbch_fase": "40-49" },
+            { "nombre": "Llenado de Tubérculo", "duracion_dias": 30, "bbch_fase": "45-48" },
+            { "nombre": "Madurez y Senescencia", "duracion_dias": 20, "bbch_fase": "90-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sonora/Sinaloa (O-I)", "siembra_inicio": "Octubre", "siembra_fin": "Diciembre", "cosecha_inicio": "Febrero", "cosecha_fin": "Abril" },
+            { "estado": "Edo. Mex (Temporal)", "siembra_inicio": "Mayo", "siembra_fin": "Junio", "cosecha_inicio": "Septiembre", "cosecha_fin": "Noviembre" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Tratamiento de semilla", "Preparación profunda"],
+          "Vegetativo": ["Aporque (tapar estolones)", "Control Paratrioza"],
+          "Tuberización": ["Riego constante (evitar estrés)", "Fertilización K"],
+          "Cosecha": ["Desecación (quema) de follaje", "Cosecha mecánica"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Paratrioza (Bactericera)", "tipo": "Plaga", "descripcion": "Transmite 'Punta Morada' (Zebra Chip), devasta calidad.",
+          "control": { "mecanismo": "Integrado/Químico", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Spirotetramat", "dosis_tipo": "Sistémico" }] }
+        },
+        {
+          "nombre": "Palomilla de la Papa (Phthorimaea)", "tipo": "Plaga", "descripcion": "Larva mina hojas y barrena tubérculos.",
+          "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Bacillus thuringiensis", "dosis_tipo": "Biológico" }, { "ingrediente": "Coragen", "dosis_tipo": "Químico" }] }
+        },
+        {
+          "nombre": "Tizón Tardío (Phytophthora)", "tipo": "Enfermedad", "descripcion": "Manchas negras en hojas y pudrición de tubérculo.",
+          "control": { "mecanismo": "Fungicida Sistémico", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Curativo" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Costra Negra (Rhizoctonia)", "tipo": "Enfermedad", "descripcion": "Esclerocios negros en piel de la papa.",
+          "control": { "mecanismo": "Tratamiento Semilla", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina (Al suelo)", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Nemátodo Dorado", "tipo": "Plaga", "descripcion": "Quistes en raíces, reduce rendimiento (Cuarentenario).",
+          "control": { "mecanismo": "Nematicida/Rotación", "productos_activos_mexico": [{ "ingrediente": "Fluopyram", "dosis_tipo": "Drench" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 150, "K": 300 } }
+    },
+
+    "Calabacita": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 21.2,
+        "precio_medio_mxn_ton": 6371,
+        "superficie_sembrada_ha": 26000,
+        "superficie_cosechada_ha": 26000,
+        "produccion_miles_ton": 553,
+        "variacion_anual_pct": 0.3,
+        "principales_estados": ["Sonora", "Sinaloa", "Puebla", "Michoacán"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 553,
+            "variacion_anual_pct": 0.3,
+            "ranking_mundial": "6º",
+            "consumo_per_capita": "4.8 kg",
+            "principales_estados_valor": "Sonora (31.3%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 19.8, "produccion_ton": 530000 },
+            { "year": 2022, "rendimiento_t_ha": 20.5, "produccion_ton": 545000 },
+            { "year": 2023, "rendimiento_t_ha": 21.2, "produccion_ton": 553000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Grey Zucchini (Italiana)", "Criolla (Redonda)", "Yellow Straightneck"],
+        "densidad_plantacion": {
+            "nota": "Marco amplio por crecimiento vigoroso.",
+            "sistemas": [
+                { "nombre": "Campo Abierto", "arboles_ha": 15000, "distancia_m": "0.60x1.2" },
+                { "nombre": "Acolchado/Goteo", "arboles_ha": 20000, "distancia_m": "0.50x1.0" }
+            ]
+        },
+        "duracion_total_dias": 60,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 5, "bbch_fase": "00-09" },
+            { "nombre": "Crecimiento Vegetativo", "duracion_dias": 25, "bbch_fase": "10-49" },
+            { "nombre": "Floración", "duracion_dias": 10, "bbch_fase": "50-69" },
+            { "nombre": "Desarrollo de Fruto", "duracion_dias": 10, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha", "duracion_dias": 15, "bbch_fase": "80-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sonora", "siembra_inicio": "Septiembre", "siembra_fin": "Noviembre", "cosecha_inicio": "Noviembre", "cosecha_fin": "Marzo" },
+            { "estado": "Puebla", "siembra_inicio": "Marzo", "siembra_fin": "Mayo", "cosecha_inicio": "Mayo", "cosecha_fin": "Julio" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Siembra directa", "Riego de asiento"],
+          "Vegetativo": ["Fertilización nitrogenada", "Control malezas"],
+          "Floración": ["Cuidado con abejas (polinización)", "Fungicida preventivo"],
+          "Cosecha": ["Corte diario (crecimiento muy rápido)"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Transmite virus y causa plateado en hojas.",
+          "control": { "mecanismo": "Químico/Jabones", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }, { "ingrediente": "Jabón Potásico", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Minador", "tipo": "Plaga", "descripcion": "Galerías en hojas.",
+          "control": { "mecanismo": "Translaminar", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Cenicilla (Erysiphe)", "tipo": "Enfermedad", "descripcion": "Polvo blanco en hojas.",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azufre", "dosis_tipo": "Preventivo" }, { "ingrediente": "Miclobutanil", "dosis_tipo": "Curativo" }] }
+        },
+        {
+          "nombre": "Virosis (CMV/WMV)", "tipo": "Enfermedad", "descripcion": "Mosaicos, deformación de fruto (Cuchara).",
+          "control": { "mecanismo": "Control Vector", "productos_activos_mexico": [{ "ingrediente": "Controlar Mosca Blanca/Pulgón", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Pudrición de Fruto", "tipo": "Enfermedad", "descripcion": "Humedad excesiva en contacto con suelo.",
+          "control": { "mecanismo": "Cultural", "productos_activos_mexico": [{ "ingrediente": "Acolchado plástico", "dosis_tipo": "Manejo" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 120 } }
+    },
+
+    "Pepino": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 54.1,
+        "precio_medio_mxn_ton": 8574,
+        "superficie_sembrada_ha": 19000,
+        "superficie_cosechada_ha": 19000,
+        "produccion_miles_ton": 1037,
+        "variacion_anual_pct": 0.8,
+        "principales_estados": ["Sinaloa", "Sonora", "Michoacán", "Morelos"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 1037,
+            "variacion_anual_pct": 0.8,
+            "ranking_mundial": "8º",
+            "consumo_per_capita": "4.2 kg",
+            "principales_estados_valor": "Sinaloa (23.1%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 52.0, "produccion_ton": 980000 },
+            { "year": 2022, "rendimiento_t_ha": 53.5, "produccion_ton": 1010000 },
+            { "year": 2023, "rendimiento_t_ha": 54.1, "produccion_ton": 1037000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Slicer (Americano)", "Pickle (Encurtido)", "Persa (Europeo)"],
+        "densidad_plantacion": {
+            "nota": "Generalmente tutorado para calidad.",
+            "sistemas": [
+                { "nombre": "Invernadero (Tutorado)", "arboles_ha": 25000, "distancia_m": "0.40x1.5" },
+                { "nombre": "Malla Sombra", "arboles_ha": 20000, "distancia_m": "0.50x1.5" },
+                { "nombre": "Suelo (Rastrero)", "arboles_ha": 15000, "distancia_m": "0.40x1.8" }
+            ]
+        },
+        "duracion_total_dias": 90,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 5, "bbch_fase": "00-09" },
+            { "nombre": "Crecimiento Vegetativo", "duracion_dias": 25, "bbch_fase": "10-49" },
+            { "nombre": "Floración", "duracion_dias": 10, "bbch_fase": "50-59" },
+            { "nombre": "Desarrollo Fruto", "duracion_dias": 10, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha Continua", "duracion_dias": 40, "bbch_fase": "80-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sinaloa", "siembra_inicio": "Septiembre", "siembra_fin": "Diciembre", "cosecha_inicio": "Noviembre", "cosecha_fin": "Abril" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Tutoreo (rafia)", "Poda de hojas bajas", "Fertirriego"],
+          "Floración": ["Manejo de temperatura (Invernadero)", "Aplicación K"],
+          "Cosecha": ["Corte cada 2 días", "Selección por tamaño"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Vector de virus.",
+          "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] }
+        },
+        {
+          "nombre": "Minador", "tipo": "Plaga", "descripcion": "Galerías en hojas.",
+          "control": { "mecanismo": "Translaminar", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Mildiu (Pseudoperonospora)", "tipo": "Enfermedad", "descripcion": "Manchas amarillas angulares en hojas (tipo ajedrez).",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Propamocarb", "dosis_tipo": "Curativo" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Cenicilla", "tipo": "Enfermedad", "descripcion": "Polvo blanco en hojas.",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azufre", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Fusarium", "tipo": "Enfermedad", "descripcion": "Pudrición del cuello y marchitez.",
+          "control": { "mecanismo": "Suelo", "productos_activos_mexico": [{ "ingrediente": "Trichoderma", "dosis_tipo": "Preventivo" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 80, "K": 250 } }
+    },
+
+    "Lechuga": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 24.2,
+        "precio_medio_mxn_ton": 5395,
+        "superficie_sembrada_ha": 23000,
+        "superficie_cosechada_ha": 23000,
+        "produccion_miles_ton": 553,
+        "variacion_anual_pct": -3.0,
+        "principales_estados": ["Guanajuato", "Puebla", "Zacatecas", "Aguascalientes"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 553,
+            "variacion_anual_pct": -3.0,
+            "ranking_mundial": "9º",
+            "consumo_per_capita": "3.5 kg",
+            "principales_estados_valor": "Guanajuato (25.6%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 23.5, "produccion_ton": 530000 },
+            { "year": 2022, "rendimiento_t_ha": 23.8, "produccion_ton": 540000 },
+            { "year": 2023, "rendimiento_t_ha": 24.2, "produccion_ton": 553000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Romana (Orejana)", "Iceberg (Bola)", "Sangría", "Italiana"],
+        "densidad_plantacion": {
+            "nota": "Alta densidad en camas anchas.",
+            "sistemas": [
+                { "nombre": "Campo (Doble hilera)", "arboles_ha": 60000, "distancia_m": "0.30x0.30" },
+                { "nombre": "Hidroponía (NFT)", "arboles_ha": 80000, "distancia_m": "0.20x0.20" }
+            ]
+        },
+        "duracion_total_dias": 80,
+        "etapas": [
+            { "nombre": "Trasplante", "duracion_dias": 5, "bbch_fase": "10-12" },
+            { "nombre": "Roseta (Vegetativo)", "duracion_dias": 30, "bbch_fase": "13-39" },
+            { "nombre": "Formación de Cabeza", "duracion_dias": 30, "bbch_fase": "40-48" },
+            { "nombre": "Cosecha", "duracion_dias": 15, "bbch_fase": "49" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Bajío (Guanajuato)", "siembra_inicio": "Todo el año (Escalonada)", "siembra_fin": "N/A", "cosecha_inicio": "Todo el año", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Trasplante": ["Riego constante", "Fertilizante arrancador (P)"],
+          "Roseta": ["Deshierbe manual/mecánico", "Control de insectos"],
+          "Cosecha": ["Corte manual", "Empaque en campo (caja encerada)"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Pulgón (Nasonovia)", "tipo": "Plaga", "descripcion": "Se mete dentro de la cabeza (difícil control).",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico temprano" }, { "ingrediente": "Pimetrozina", "dosis_tipo": "Específico" }] }
+        },
+        {
+          "nombre": "Gusano Falso Medidor", "tipo": "Plaga", "descripcion": "Come hojas.",
+          "control": { "mecanismo": "Ingestión", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Mildiú (Bremia)", "tipo": "Enfermedad", "descripcion": "Manchas amarillas en hojas viejas.",
+          "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Curativo" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Esclerotinia (Moho blanco)", "tipo": "Enfermedad", "descripcion": "Pudrición basal algodonosa.",
+          "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Iprodiona", "dosis_tipo": "Base de planta" }] }
+        },
+        {
+          "nombre": "Botrytis", "tipo": "Enfermedad", "descripcion": "Moho gris en hojas dañadas.",
+          "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Clorotalonil", "dosis_tipo": "Preventivo" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 120 } }
+    },
+
+    "Tomate verde": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 18.9,
+        "precio_medio_mxn_ton": 6749,
+        "superficie_sembrada_ha": 40000,
+        "superficie_cosechada_ha": 40000,
+        "produccion_miles_ton": 758,
+        "variacion_anual_pct": 0.2,
+        "principales_estados": ["Sinaloa", "Jalisco", "Zacatecas", "Puebla"],
+        "panorama_2023_summary": { "produccion_miles_ton": 758, "variacion_anual_pct": 0.2, "principales_estados_valor": "Sinaloa (21.3%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 18.9, "produccion_ton": 758000 }]
+      },
+      "ciclo_fenologico": {
+          "variedades_principales": ["Gran Esmeralda", "Tecozautla", "Querétaro"],
+          "densidad_plantacion": { "sistemas": [{ "nombre": "Campo", "arboles_ha": 20000, "distancia_m": "0.40x1.2" }] },
+          "duracion_total_dias": 90,
+          "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 15, "bbch_fase": "00-09" },
+            { "nombre": "Desarrollo hojas", "duracion_dias": 30, "bbch_fase": "10-19" },
+            { "nombre": "Floración", "duracion_dias": 30, "bbch_fase": "61-69" },
+            { "nombre": "Formación fruto", "duracion_dias": 40, "bbch_fase": "71-79" },
+            { "nombre": "Maduración", "duracion_dias": 20, "bbch_fase": "81-89" }
+          ]
+      },
+      "labores": { "Floración": ["Polinización"], "Cosecha": ["Manual con cáliz"] },
+      "plagas_y_enfermedades": [
+          { "nombre": "Barrenador del fruto", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Cenicilla", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azufre", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 150 } }
+    },
+
+    "Espárrago": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 9.3,
+        "precio_medio_mxn_ton": 44827,
+        "superficie_sembrada_ha": 40000,
+        "superficie_cosechada_ha": 37000,
+        "produccion_miles_ton": 347,
+        "variacion_anual_pct": -2.9,
+        "principales_estados": ["Sonora", "Guanajuato", "Baja California", "Baja California Sur"],
+        "panorama_2023_summary": { "produccion_miles_ton": 347, "variacion_anual_pct": -2.9, "principales_estados_valor": "Sonora (53.1%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 9.3, "produccion_ton": 347000 }]
+      },
+      "ciclo_fenologico": { 
+          "variedades_principales": ["UC 157", "Brock"],
+          "densidad_plantacion": { "sistemas": [{ "nombre": "Campo", "arboles_ha": 25000, "distancia_m": "0.30x1.5" }] },
+          "etapas": [] 
+      },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 50, "K": 200 } }
+    },
+
+    "Brócoli": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 17.8, "precio_medio_mxn_ton": 7207, "superficie_sembrada_ha": 37000, "superficie_cosechada_ha": 37000, "produccion_miles_ton": 663, "variacion_anual_pct": 4.9, "principales_estados": ["Guanajuato", "Sonora", "Michoacán", "Puebla"], "panorama_2023_summary": { "produccion_miles_ton": 663, "variacion_anual_pct": 4.9, "principales_estados_valor": "Guanajuato (61.6%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 17.8, "produccion_ton": 663000 }] },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Ironman", "Avenger"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Alta Densidad", "arboles_ha": 50000, "distancia_m": "0.25x0.8" }] },
+        "etapas": [{ "nombre": "Vegetativo", "duracion_dias": 40 }, { "nombre": "Formación Pella", "duracion_dias": 40 }, { "nombre": "Cosecha", "duracion_dias": 10 }]
+      },
+      "labores": {}, "plagas_y_enfermedades": [
+          { "nombre": "Palgomilla Dorso de Diamante", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }] } }
+      ], 
+      "calculo_fertilizacion": { "recomendada": { "N": 250, "P": 80, "K": 150 } }
+    },
+
+    "Coliflor": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 23.6, "precio_medio_mxn_ton": 6156, "superficie_sembrada_ha": 5000, "superficie_cosechada_ha": 4000, "produccion_miles_ton": 105, "variacion_anual_pct": -0.3, "principales_estados": ["Guanajuato", "Puebla", "Hidalgo"], "panorama_2023_summary": { "produccion_miles_ton": 105, "variacion_anual_pct": -0.3, "principales_estados_valor": "Guanajuato (29.4%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 23.6, "produccion_ton": 105000 }] },
+      "ciclo_fenologico": { "variedades_principales": ["Snow Crown"], "densidad_plantacion": { "sistemas": [{ "nombre": "Estándar", "arboles_ha": 35000, "distancia_m": "0.4x0.7" }] }, "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+
+    "Berenjena": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 52.9, "precio_medio_mxn_ton": 12272, "superficie_sembrada_ha": 2000, "superficie_cosechada_ha": 2000, "produccion_miles_ton": 90, "variacion_anual_pct": -15.5, "principales_estados": ["Sinaloa", "Nayarit", "San Luis Potosí"], "panorama_2023_summary": { "produccion_miles_ton": 90, "variacion_anual_pct": -15.5, "principales_estados_valor": "Sinaloa (74.1%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 52.9, "produccion_ton": 90000 }] },
+      "ciclo_fenologico": { "variedades_principales": ["Negra Larga"], "densidad_plantacion": { "sistemas": [{ "nombre": "Estándar", "arboles_ha": 15000, "distancia_m": "0.5x1.2" }] }, "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+
+    "Nopalitos": {
+      "categoria": "hortaliza",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 69.5, "precio_medio_mxn_ton": 3630, "superficie_sembrada_ha": 13000, "superficie_cosechada_ha": 12000, "produccion_miles_ton": 864, "variacion_anual_pct": -1.0, "principales_estados": ["Morelos", "CDMX", "Edo. Mex."], "panorama_2023_summary": { "produccion_miles_ton": 864, "variacion_anual_pct": -1.0, "principales_estados_valor": "Morelos (40.7%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 69.5, "produccion_ton": 864000 }] },
+      "ciclo_fenologico": { "variedades_principales": ["Milpa Alta"], "densidad_plantacion": { "sistemas": [{ "nombre": "Intensivo", "arboles_ha": 40000, "distancia_m": "0.3x0.8" }] }, "etapas": [] },
+      "labores": {}, "plagas_y_enfermedades": [
+          { "nombre": "Grana Cochinilla", "tipo": "Plaga", "control": { "mecanismo": "Mecánico/Químico", "productos_activos_mexico": [{ "ingrediente": "Lavado a presión", "dosis_tipo": "Físico" }] } }
+      ], 
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 100 } }
+    },
+
+    "Fresa": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 48.5,
+        "precio_medio_mxn_ton": 24135,
+        "superficie_sembrada_ha": 15000,
+        "superficie_cosechada_ha": 15000,
+        "produccion_miles_ton": 642,
+        "variacion_anual_pct": 11.0,
+        "principales_estados": ["Michoacán", "Baja California", "Guanajuato"],
+        "panorama_2023_summary": { "produccion_miles_ton": 642, "variacion_anual_pct": 11.0, "principales_estados_valor": "Michoacán (58.7%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 48.5, "produccion_ton": 642000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Festival", "Albion", "Camarosa", "San Andreas"],
+        "densidad_plantacion": {
+            "nota": "Se planta en camas acolchadas a doble hilera (tresbolillo).",
+            "sistemas": [
+                { "nombre": "Macrotúnel (Alta Densidad)", "arboles_ha": 65000, "distancia_m": "0.30x0.30 (Cama 1.4m)" },
+                { "nombre": "Campo Abierto", "arboles_ha": 50000, "distancia_m": "0.35x0.35" },
+                { "nombre": "Hidroponía Elevada", "arboles_ha": 90000, "distancia_m": "0.15x0.20" }
+            ]
+        },
+        "duracion_total_dias": 210,
+        "etapas": [
+            { "nombre": "Trasplante y Enraizamiento", "duracion_dias": 20, "bbch_fase": "10-19" },
+            { "nombre": "Desarrollo Vegetativo", "duracion_dias": 40, "bbch_fase": "20-49" },
+            { "nombre": "Floración Continua", "duracion_dias": 60, "bbch_fase": "50-69" },
+            { "nombre": "Cosecha Continua", "duracion_dias": 90, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Trasplante": ["Desinfección suelo", "Colocación acolchado", "Riego por goteo"],
+          "Floración": ["Poda de estolones", "Aplicación de Calcio"],
+          "Cosecha": ["Corte cada 3 días", "Refrigeración inmediata"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Araña Roja", "tipo": "Plaga", "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Bifenazato", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Botrytis (Moho Gris)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Fenhexamid", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 240 } }
+    },
+
+    "Limon": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 15.8,
+        "precio_medio_mxn_ton": 9630,
+        "superficie_sembrada_ha": 223000,
+        "superficie_cosechada_ha": 210000,
+        "produccion_miles_ton": 3240,
+        "variacion_anual_pct": 4.5,
+        "principales_estados": ["Michoacán", "Veracruz", "Colima", "Oaxaca"],
+        "panorama_2023_summary": { "produccion_miles_ton": 3240, "variacion_anual_pct": 4.5, "principales_estados_valor": "Michoacán (37.6%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 15.8, "produccion_ton": 3240000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Mexicano (Con semilla)", "Persa (Sin semilla)", "Italiano"],
+        "densidad_plantacion": {
+            "nota": "El limón Persa suele ir más amplio que el Mexicano.",
+            "sistemas": [
+                { "nombre": "Mexicano (Alta Densidad)", "arboles_ha": 400, "distancia_m": "5x5" },
+                { "nombre": "Persa (Exportación)", "arboles_ha": 277, "distancia_m": "6x6" },
+                { "nombre": "Seto (Ultra Alta)", "arboles_ha": 800, "distancia_m": "2.5x5" }
+            ]
+        },
+        "duracion_total_dias": 365,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Floración", "duracion_dias": 20, "bbch_fase": "60-69" },
+            { "nombre": "Cuajado", "duracion_dias": 30, "bbch_fase": "70-79" },
+            { "nombre": "Llenado de jugo", "duracion_dias": 90, "bbch_fase": "80-85" },
+            { "nombre": "Cosecha", "duracion_dias": 30, "bbch_fase": "87-89" }
+        ]
+      },
+      "labores": {
+          "Brotación": ["Fertilización foliar", "Control de Minador"],
+          "Cosecha": ["Corte con tijera (Persa)", "Arrancado (Mexicano para industria)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Psílido Asiático (Diaphorina)", "tipo": "Plaga", "descripcion": "Transmite HLB (Dragón Amarillo).", "control": { "mecanismo": "Químico/Biológico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "HLB (Huanglongbing)", "tipo": "Enfermedad", "descripcion": "Bacteria que mata el árbol.", "control": { "mecanismo": "Nutrición/Control Vector", "productos_activos_mexico": [{ "ingrediente": "No tiene cura", "dosis_tipo": "Manejo" }] } },
+          { "nombre": "Gomosis (Phytophthora)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Fosetil-Al", "dosis_tipo": "Inyección" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 180, "P": 60, "K": 180 } }
+    },
+
+    "Mango": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 10.8,
+        "precio_medio_mxn_ton": 5792,
+        "superficie_sembrada_ha": 225000,
+        "superficie_cosechada_ha": 213000,
+        "produccion_miles_ton": 2300,
+        "variacion_anual_pct": 5.7,
+        "principales_estados": ["Sinaloa", "Guerrero", "Nayarit", "Chiapas"],
+        "panorama_2023_summary": { "produccion_miles_ton": 2300, "variacion_anual_pct": 5.7, "principales_estados_valor": "Guerrero (25.9%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 10.8, "produccion_ton": 2300000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Ataulfo", "Kent", "Tommy Atkins", "Keitt"],
+        "densidad_plantacion": {
+            "nota": "Marcos amplios por el tamaño de la copa.",
+            "sistemas": [
+                { "nombre": "Tradicional", "arboles_ha": 100, "distancia_m": "10x10" },
+                { "nombre": "Alta Densidad (Poda)", "arboles_ha": 400, "distancia_m": "5x5" }
+            ]
+        },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Inducción Floral", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Floración", "duracion_dias": 30, "bbch_fase": "60-69" },
+            { "nombre": "Amarre de Fruto", "duracion_dias": 20, "bbch_fase": "70-79" },
+            { "nombre": "Llenado", "duracion_dias": 70, "bbch_fase": "80-85" },
+            { "nombre": "Cosecha", "duracion_dias": 30, "bbch_fase": "87-89" }
+        ]
+      },
+      "labores": {
+          "Inducción": ["Aplicación de Nitratos (KNO3)", "Estrés hídrico"],
+          "Cosecha": ["Tratamiento hidrotérmico (Exportación)", "Lavado"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Mosca de la Fruta", "tipo": "Plaga", "control": { "mecanismo": "Trampas", "productos_activos_mexico": [{ "ingrediente": "Spinosad (Cebo)", "dosis_tipo": "Aspersión gruesa" }] } },
+          { "nombre": "Antracnosis", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 40, "K": 100 } }
+    },
+
+    "Platano": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 30.7,
+        "precio_medio_mxn_ton": 4218,
+        "superficie_sembrada_ha": 87000,
+        "superficie_cosechada_ha": 86000,
+        "produccion_miles_ton": 2642,
+        "variacion_anual_pct": 1.9,
+        "principales_estados": ["Chiapas", "Tabasco", "Veracruz", "Colima"],
+        "panorama_2023_summary": { "produccion_miles_ton": 2642, "variacion_anual_pct": 1.9, "principales_estados_valor": "Tabasco (20.1%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 30.7, "produccion_ton": 2642000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Enano Gigante (Grand Naine)", "Macho", "Dominico"],
+        "densidad_plantacion": {
+            "nota": "Se maneja por 'matas' o unidades de producción.",
+            "sistemas": [
+                { "nombre": "Exportación (Grand Naine)", "arboles_ha": 1800, "distancia_m": "2.2x2.5" },
+                { "nombre": "Macho (Doble hilera)", "arboles_ha": 2500, "distancia_m": "2x2" }
+            ]
+        },
+        "duracion_total_dias": 365,
+        "etapas": [
+            { "nombre": "Desarrollo Hijuelo", "duracion_dias": 120, "bbch_fase": "10-19" },
+            { "nombre": "Floración (Bellota)", "duracion_dias": 30, "bbch_fase": "50-59" },
+            { "nombre": "Llenado de Dedos", "duracion_dias": 90, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha", "duracion_dias": 1, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Deshije (selección)", "Deshoje sanitario"],
+          "Floración": ["Embolsado", "Cintado (marcar edad)"],
+          "Cosecha": ["Corte de racimo", "Desmane"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Sigatoka Negra", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Mancozeb + Sistémico", "dosis_tipo": "Ciclos" }] } },
+          { "nombre": "Picudo Negro", "tipo": "Plaga", "control": { "mecanismo": "Trampas", "productos_activos_mexico": [{ "ingrediente": "Feromonas", "dosis_tipo": "Trampa" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 300, "P": 60, "K": 450 } }
+    },
+
+    "Zarzamora": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 21.9,
+        "precio_medio_mxn_ton": 23445,
+        "superficie_sembrada_ha": 11000,
+        "superficie_cosechada_ha": 11000,
+        "produccion_miles_ton": 238,
+        "variacion_anual_pct": 7.0,
+        "principales_estados": ["Michoacán", "Jalisco", "Colima"],
+        "panorama_2023_summary": { "produccion_miles_ton": 238, "variacion_anual_pct": 7.0, "principales_estados_valor": "Michoacán (80.0%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 21.9, "produccion_ton": 238000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Tupy", "Castilla", "Akala"],
+        "densidad_plantacion": {
+            "nota": "Requiere espaldera/tutoreo.",
+            "sistemas": [
+                { "nombre": "Espaldera", "arboles_ha": 4000, "distancia_m": "0.80x2.5" },
+                { "nombre": "Maceta (Sustrato)", "arboles_ha": 6000, "distancia_m": "0.50x2.0" }
+            ]
+        },
+        "duracion_total_dias": 180,
+        "etapas": [
+            { "nombre": "Brotación Forzada", "duracion_dias": 20, "bbch_fase": "00-09" },
+            { "nombre": "Floración", "duracion_dias": 40, "bbch_fase": "60-69" },
+            { "nombre": "Desarrollo Fruto", "duracion_dias": 40, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha", "duracion_dias": 60, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Poda": ["Estimulación con reguladores", "Poda de fructificación"],
+          "Cosecha": ["Manual delicada", "Refrigeración"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Drosophila suzukii", "tipo": "Plaga", "control": { "mecanismo": "Trampeo/Químico", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Roya", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 150 } }
+    },
+
+    "Papaya": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 56.5,
+        "precio_medio_mxn_ton": 6622,
+        "superficie_sembrada_ha": 21000,
+        "superficie_cosechada_ha": 20000,
+        "produccion_miles_ton": 1149,
+        "variacion_anual_pct": -4.0,
+        "principales_estados": ["Oaxaca", "Colima", "Chiapas", "Veracruz"],
+        "panorama_2023_summary": { "produccion_miles_ton": 1149, "variacion_anual_pct": -4.0, "principales_estados_valor": "Oaxaca (25.3%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 56.5, "produccion_ton": 1149000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Maradol", "Mulata", "Híbridos (Intenzza)"],
+        "densidad_plantacion": {
+            "nota": "Se plantan 3-4 semillas por golpe para sexado.",
+            "sistemas": [
+                { "nombre": "Intensivo", "arboles_ha": 2000, "distancia_m": "2.0x2.5" },
+                { "nombre": "Tradicional", "arboles_ha": 1600, "distancia_m": "2.5x2.5" }
+            ]
+        },
+        "duracion_total_dias": 240,
+        "etapas": [
+            { "nombre": "Crecimiento Vegetativo", "duracion_dias": 90, "bbch_fase": "10-39" },
+            { "nombre": "Sexado (Selección)", "duracion_dias": 15, "bbch_fase": "50-55" },
+            { "nombre": "Floración/Cuajado", "duracion_dias": 30, "bbch_fase": "60-69" },
+            { "nombre": "Cosecha Continua", "duracion_dias": 180, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Sexado (eliminar machos/hembras, dejar hermafroditas)"],
+          "Cosecha": ["Corte en punto de quiebre (color)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Virus de la Mancha Anular (PRSV)", "tipo": "Enfermedad", "control": { "mecanismo": "Vector/Erradicación", "productos_activos_mexico": [{ "ingrediente": "Control de Áfidos", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Ácaros", "tipo": "Plaga", "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Contacto" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 80, "K": 250 } }
+    },
+
+    "Manzana": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 11.8,
+        "precio_medio_mxn_ton": 12000,
+        "superficie_sembrada_ha": 57000,
+        "superficie_cosechada_ha": 55000,
+        "produccion_miles_ton": 650,
+        "variacion_anual_pct": 0,
+        "principales_estados": ["Chihuahua", "Durango", "Coahuila", "Puebla"],
+        "panorama_2023_summary": { "produccion_miles_ton": 650, "variacion_anual_pct": 0, "principales_estados_valor": "Chihuahua (82%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 11.8, "produccion_ton": 650000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Golden Delicious", "Red Delicious", "Gala"],
+        "densidad_plantacion": {
+            "nota": "Tendencia a alta densidad con portainjertos enanizantes.",
+            "sistemas": [
+                { "nombre": "Alta Densidad (Muro)", "arboles_ha": 2500, "distancia_m": "1.0x4.0" },
+                { "nombre": "Tradicional", "arboles_ha": 600, "distancia_m": "4.0x4.0" }
+            ]
+        },
+        "duracion_total_dias": 180,
+        "etapas": [
+            { "nombre": "Dormancia", "duracion_dias": 90, "bbch_fase": "00-09" },
+            { "nombre": "Floración", "duracion_dias": 20, "bbch_fase": "60-69" },
+            { "nombre": "Desarrollo Fruto", "duracion_dias": 120, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Dormancia": ["Poda de invierno", "Aplicación de aceite"],
+          "Floración": ["Raleo químico", "Polinización"],
+          "Cosecha": ["Manual cuidadosa"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Palomilla de la Manzana (Cydia)", "tipo": "Plaga", "control": { "mecanismo": "Confusión Sexual", "productos_activos_mexico": [{ "ingrediente": "Feromonas", "dosis_tipo": "Dispensadores" }] } },
+          { "nombre": "Tizón de Fuego (Erwinia)", "tipo": "Enfermedad", "control": { "mecanismo": "Antibiótico", "productos_activos_mexico": [{ "ingrediente": "Estreptomicina", "dosis_tipo": "Floración" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 120 } }
+    },
+
+    "Nuez": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.4,
+        "precio_medio_mxn_ton": 66392,
+        "superficie_sembrada_ha": 167000,
+        "superficie_cosechada_ha": 121000,
+        "produccion_miles_ton": 168,
+        "variacion_anual_pct": -5.5,
+        "principales_estados": ["Chihuahua", "Sonora", "Coahuila"],
+        "panorama_2023_summary": { "produccion_miles_ton": 168, "variacion_anual_pct": -5.5, "principales_estados_valor": "Chihuahua (56.6%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 1.4, "produccion_ton": 168000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Western", "Wichita"],
+        "densidad_plantacion": {
+            "nota": "Árboles muy grandes, requieren mucho espacio.",
+            "sistemas": [
+                { "nombre": "Estándar", "arboles_ha": 70, "distancia_m": "12x12" },
+                { "nombre": "Alta Densidad (Temporal)", "arboles_ha": 100, "distancia_m": "10x10" }
+            ]
+        },
+        "duracion_total_dias": 210,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Floración", "duracion_dias": 30, "bbch_fase": "60-69" },
+            { "nombre": "Llenado de Nuez (Acuoso/Lechoso)", "duracion_dias": 90, "bbch_fase": "70-79" },
+            { "nombre": "Apertura de Ruezno", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Llenado": ["Riego pesado", "Aplicación de Zinc (Foliar)"],
+          "Cosecha": ["Vibrado mecánico", "Barrido y recolección"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Barrenador del Ruezno", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Pulgón Amarillo", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 50, "K": 100 } }
+    },
+
+    "Sandía": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 33.5,
+        "precio_medio_mxn_ton": 5113,
+        "superficie_sembrada_ha": 43000,
+        "superficie_cosechada_ha": 43000,
+        "produccion_miles_ton": 1429,
+        "variacion_anual_pct": 21.4,
+        "principales_estados": ["Sonora", "Chihuahua", "Veracruz", "Jalisco"],
+        "panorama_2023_summary": { "produccion_miles_ton": 1429, "variacion_anual_pct": 21.4, "principales_estados_valor": "Sonora (32.8%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 33.5, "produccion_ton": 1429000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Sangría", "Jubilee", "Sin Semilla (Triploides)"],
+        "densidad_plantacion": {
+            "nota": "Requiere polinizadores si es variedad sin semilla.",
+            "sistemas": [
+                { "nombre": "Goteo/Acolchado", "arboles_ha": 3000, "distancia_m": "0.8x4.0" },
+                { "nombre": "Rodado", "arboles_ha": 2000, "distancia_m": "1.0x5.0" }
+            ]
+        },
+        "duracion_total_dias": 90,
+        "etapas": [
+            { "nombre": "Desarrollo Guía", "duracion_dias": 30, "bbch_fase": "10-39" },
+            { "nombre": "Floración", "duracion_dias": 20, "bbch_fase": "60-69" },
+            { "nombre": "Llenado Fruto", "duracion_dias": 30, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha", "duracion_dias": 15, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Floración": ["Introducción de colmenas", "Acomodo de guías"],
+          "Cosecha": ["Corte por sonido/zarcillo seco"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Fusarium", "tipo": "Enfermedad", "control": { "mecanismo": "Injerto", "productos_activos_mexico": [{ "ingrediente": "Patrón Resistente", "dosis_tipo": "Injerto" }] } },
+          { "nombre": "Minador", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 120 } }
+    },
+
+    "Maiz": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 4.3,
+        "precio_medio_mxn_ton": 6256,
+        "superficie_sembrada_ha": 6941000,
+        "superficie_cosechada_ha": 6436000,
+        "produccion_miles_ton": 27550,
+        "variacion_anual_pct": 3.8,
+        "principales_estados": ["Sinaloa", "Jalisco", "Edo. México", "Michoacán", "Guanajuato"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 27550,
+            "variacion_anual_pct": 3.8,
+            "ranking_mundial": "7º",
+            "consumo_per_capita": "345 kg",
+            "principales_estados_valor": "Sinaloa (22.0%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 4.2, "produccion_ton": 27000000 },
+            { "year": 2022, "rendimiento_t_ha": 4.1, "produccion_ton": 26500000 },
+            { "year": 2023, "rendimiento_t_ha": 4.3, "produccion_ton": 27550000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Híbridos Blancos", "Híbridos Amarillos", "Nativos/Criollos"],
+        "densidad_plantacion": {
+            "nota": "La densidad es clave para el rendimiento en riego.",
+            "sistemas": [
+                { "nombre": "Riego/Tecnificado", "arboles_ha": 90000, "distancia_m": "0.14x0.75" },
+                { "nombre": "Punteado Standard", "arboles_ha": 65000, "distancia_m": "0.20x0.75" },
+                { "nombre": "Temporal (Lluvias)", "arboles_ha": 45000, "distancia_m": "0.27x0.80" }
+            ]
+        },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Emergencia (VE)", "duracion_dias": 7, "bbch_fase": "00-09" },
+            { "nombre": "Desarrollo Vegetativo (V1-Vn)", "duracion_dias": 50, "bbch_fase": "10-39" },
+            { "nombre": "Floración/Espigado (VT-R1)", "duracion_dias": 15, "bbch_fase": "51-69" },
+            { "nombre": "Llenado de Grano (R2-R5)", "duracion_dias": 50, "bbch_fase": "71-85" },
+            { "nombre": "Madurez Fisiológica (R6)", "duracion_dias": 28, "bbch_fase": "87-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sinaloa (Otoño-Invierno)", "siembra_inicio": "Noviembre", "siembra_fin": "Enero", "cosecha_inicio": "Mayo", "cosecha_fin": "Junio" },
+            { "estado": "Jalisco (Primavera-Verano)", "siembra_inicio": "Mayo", "siembra_fin": "Junio", "cosecha_inicio": "Noviembre", "cosecha_fin": "Enero" }
+        ]
+      },
+      "labores": {
+          "VE-V3": ["Siembra de precisión", "Herbicida pre-emergente", "Riego de asiento"],
+          "V4-V8": ["Fertilización nitrogenada (Aporque)", "Control Cogollero", "Escarda"],
+          "VT-R1": ["Riego crítico (floración)", "Monitoreo de hongos"],
+          "R6": ["Secado en campo", "Trilla mecánica"]
+      },
+      "plagas_y_enfermedades": [
+        {
+          "nombre": "Gusano Cogollero (Spodoptera)", "tipo": "Plaga", "descripcion": "Consume el cogollo tierno y reduce área foliar.",
+          "control": { "mecanismo": "Manejo Integrado", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol", "dosis_tipo": "Sistémico/Foliar" }, { "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Secamiento de hojas bajas por succión de savia.",
+          "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Bifentrina", "dosis_tipo": "Contacto" }] }
+        },
+        {
+          "nombre": "Pulgón del Maíz", "tipo": "Plaga", "descripcion": "Succiona savia de la espiga, produce fumagina.",
+          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Sulfoxaflor", "dosis_tipo": "Foliar" }] }
+        },
+        {
+          "nombre": "Carbón de la espiga", "tipo": "Enfermedad", "descripcion": "Masas negras (esporas) sustituyen granos.",
+          "control": { "mecanismo": "Genético", "productos_activos_mexico": [{ "ingrediente": "Híbridos Resistentes", "dosis_tipo": "Preventivo" }] }
+        },
+        {
+          "nombre": "Fusarium (Pudrición)", "tipo": "Enfermedad", "descripcion": "Pudrición de tallo y raíz, coloración rosa.",
+          "control": { "mecanismo": "Cultural", "productos_activos_mexico": [{ "ingrediente": "Trichoderma (al suelo)", "dosis_tipo": "Biológico" }] }
+        }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 240, "P": 80, "K": 60 } }
+    },
+
+    "Trigo": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 6.2,
+        "precio_medio_mxn_ton": 8010,
+        "superficie_sembrada_ha": 565000,
+        "superficie_cosechada_ha": 560000,
+        "produccion_miles_ton": 3476,
+        "variacion_anual_pct": -3.7,
+        "principales_estados": ["Sonora", "Baja California", "Guanajuato", "Michoacán"],
+        "panorama_2023_summary": { "produccion_miles_ton": 3476, "variacion_anual_pct": -3.7, "principales_estados_valor": "Sonora (61.3%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 6.2, "produccion_ton": 3476000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Cristalino (Pasta)", "Panificable (Harina)"],
+        "densidad_plantacion": {
+            "nota": "Siembra a chorrillo o voleo.",
+            "sistemas": [
+                { "nombre": "Surcos (Riego)", "arboles_ha": 1500000, "distancia_m": "Chorrillo x 0.80m" },
+                { "nombre": "Camas (Alta densidad)", "arboles_ha": 3000000, "distancia_m": "3 hileras en cama 1.6m" }
+            ]
+        },
+        "duracion_total_dias": 140,
+        "etapas": [
+            { "nombre": "Germinación/Emergencia", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Macollamiento", "duracion_dias": 35, "bbch_fase": "20-29" },
+            { "nombre": "Encañe/Embuche", "duracion_dias": 30, "bbch_fase": "30-49" },
+            { "nombre": "Espigado/Floración", "duracion_dias": 15, "bbch_fase": "50-69" },
+            { "nombre": "Llenado/Madurez", "duracion_dias": 50, "bbch_fase": "70-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sonora (Valle del Yaqui)", "siembra_inicio": "Noviembre", "siembra_fin": "Diciembre", "cosecha_inicio": "Abril", "cosecha_fin": "Mayo" },
+            { "estado": "Bajío", "siembra_inicio": "Diciembre", "siembra_fin": "Enero", "cosecha_inicio": "Mayo", "cosecha_fin": "Junio" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Nivelación terreno", "Siembra mecánica"],
+          "Macollamiento": ["Primer riego de auxilio", "Fertilización N"],
+          "Espigado": ["Fungicidas preventivos", "Riego de llenado"],
+          "Cosecha": ["Trilla cuando humedad < 14%"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Pulgón del Follaje", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Roya de la Hoja (Puccinia)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Foliar" }, { "ingrediente": "Epoxiconazol", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Carbón Parcial", "tipo": "Enfermedad", "control": { "mecanismo": "Cuarentenario", "productos_activos_mexico": [{ "ingrediente": "Uso de semilla certificada", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 60, "K": 40 } }
+    },
+
+    "Sorgo": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 3.6,
+        "precio_medio_mxn_ton": 5408,
+        "superficie_sembrada_ha": 1360000,
+        "superficie_cosechada_ha": 1320000,
+        "produccion_miles_ton": 4816,
+        "variacion_anual_pct": 1.1,
+        "principales_estados": ["Tamaulipas", "Guanajuato", "Sinaloa", "Nayarit"],
+        "panorama_2023_summary": { "produccion_miles_ton": 4816, "variacion_anual_pct": 1.1, "principales_estados_valor": "Tamaulipas (37.1%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 3.6, "produccion_ton": 4816000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Híbridos Graníferos (Rojos/Blancos)"],
+        "densidad_plantacion": {
+            "nota": "Más denso que el maíz.",
+            "sistemas": [
+                { "nombre": "Riego", "arboles_ha": 250000, "distancia_m": "0.05x0.80" },
+                { "nombre": "Temporal", "arboles_ha": 150000, "distancia_m": "0.10x0.80" }
+            ]
+        },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Vegetativo (V)", "duracion_dias": 40, "bbch_fase": "10-39" },
+            { "nombre": "Embuche/Floración", "duracion_dias": 20, "bbch_fase": "40-69" },
+            { "nombre": "Llenado de Grano", "duracion_dias": 30, "bbch_fase": "70-85" },
+            { "nombre": "Madurez", "duracion_dias": 20, "bbch_fase": "86-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Tamaulipas (Norte)", "siembra_inicio": "Enero", "siembra_fin": "Marzo", "cosecha_inicio": "Junio", "cosecha_fin": "Agosto" },
+            { "estado": "Bajío (PV)", "siembra_inicio": "Mayo", "siembra_fin": "Junio", "cosecha_inicio": "Octubre", "cosecha_fin": "Diciembre" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Tratamiento semilla (Insecticida)", "Siembra directa"],
+          "Vegetativo": ["Cultivo mecánico", "Control Pulgón Amarillo (Clave)"],
+          "Cosecha": ["Trilla directa"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Pulgón Amarillo (Melanaphis)", "tipo": "Plaga", "descripcion": "Plaga devastadora, inyecta toxinas.", "control": { "mecanismo": "Sistémico Específico", "productos_activos_mexico": [{ "ingrediente": "Sulfoxaflor", "dosis_tipo": "Foliar" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Semilla" }] } },
+          { "nombre": "Mosca del Sorgo (Contarinia)", "tipo": "Plaga", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Ergot (Cornezuelo)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 40 } }
+    },
+
+    "Cebada": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 2.8,
+        "precio_medio_mxn_ton": 6001,
+        "superficie_sembrada_ha": 306000,
+        "superficie_cosechada_ha": 297000,
+        "produccion_miles_ton": 832,
+        "variacion_anual_pct": -18.7,
+        "principales_estados": ["Guanajuato", "Hidalgo", "Puebla", "Tlaxcala"],
+        "panorama_2023_summary": { "produccion_miles_ton": 832, "variacion_anual_pct": -18.7, "principales_estados_valor": "Guanajuato (36%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 2.8, "produccion_ton": 832000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Esmeralda (Maltera)", "Doña Josefa", "Alina"],
+        "densidad_plantacion": {
+            "nota": "Alta densidad para evitar acame.",
+            "sistemas": [
+                { "nombre": "Riego (Bajío)", "arboles_ha": 2500000, "distancia_m": "100-120 kg semilla/ha" },
+                { "nombre": "Temporal (Altiplano)", "arboles_ha": 2000000, "distancia_m": "80-100 kg semilla/ha" }
+            ]
+        },
+        "duracion_total_dias": 135,
+        "etapas": [
+            { "nombre": "Nascencia", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Macollamiento", "duracion_dias": 40, "bbch_fase": "20-29" },
+            { "nombre": "Encañado", "duracion_dias": 30, "bbch_fase": "30-39" },
+            { "nombre": "Espigado", "duracion_dias": 15, "bbch_fase": "50-59" },
+            { "nombre": "Maduración", "duracion_dias": 40, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Preparación de suelo", "Siembra directa"],
+          "Macollamiento": ["Control maleza hoja ancha", "Fertilización N"],
+          "Cosecha": ["Trilla con humedad <13% (Calidad Maltera)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Roya Lineal", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Pulgón", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Dimetoato", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 60, "K": 30 } }
+    },
+
+    "Arroz": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 6.9,
+        "precio_medio_mxn_ton": 5863,
+        "superficie_sembrada_ha": 37000,
+        "superficie_cosechada_ha": 37000,
+        "produccion_miles_ton": 252,
+        "variacion_anual_pct": 2.3,
+        "principales_estados": ["Nayarit", "Campeche", "Veracruz", "Michoacán"],
+        "panorama_2023_summary": { "produccion_miles_ton": 252, "variacion_anual_pct": 2.3, "principales_estados_valor": "Nayarit (31.4%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 6.9, "produccion_ton": 252000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Morelos A-98", "Milagro Filipino"],
+        "densidad_plantacion": {
+            "nota": "Inundación o secano favorecido.",
+            "sistemas": [
+                { "nombre": "Trasplante (Inundado)", "arboles_ha": 250000, "distancia_m": "0.20x0.20" },
+                { "nombre": "Siembra Directa", "arboles_ha": 1000000, "distancia_m": "Chorrillo 100kg/ha" }
+            ]
+        },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Plántula", "duracion_dias": 25, "bbch_fase": "00-19" },
+            { "nombre": "Macollamiento", "duracion_dias": 40, "bbch_fase": "20-29" },
+            { "nombre": "Paniculado/Embuche", "duracion_dias": 30, "bbch_fase": "30-49" },
+            { "nombre": "Floración", "duracion_dias": 20, "bbch_fase": "50-69" },
+            { "nombre": "Maduración", "duracion_dias": 35, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Inundación/Fangueo", "Nivelación láser"],
+          "Macollamiento": ["Control malezas acuáticas", "Fertilización N"],
+          "Madurez": ["Drenaje del campo", "Cosecha"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Sogata (Tagosodes)", "tipo": "Plaga", "descripcion": "Transmite virus de la hoja blanca.", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Piricularia (Quemazón)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Triciclazol", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 50, "K": 60 } }
+    },
+
+    "Avena": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 2.4,
+        "precio_medio_mxn_ton": 6460,
+        "superficie_sembrada_ha": 37000,
+        "superficie_cosechada_ha": 25000,
+        "produccion_miles_ton": 62,
+        "variacion_anual_pct": -42.0,
+        "principales_estados": ["Chihuahua", "Hidalgo", "Edo. Mex.", "Zacatecas"],
+        "panorama_2023_summary": { "produccion_miles_ton": 62, "variacion_anual_pct": -42.0, "principales_estados_valor": "Chihuahua (37.6%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 2.4, "produccion_ton": 62000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Chihuahua", "Obsidiana", "Turquesa"],
+        "densidad_plantacion": {
+            "nota": "Alta densidad para forraje o grano.",
+            "sistemas": [
+                { "nombre": "Grano", "arboles_ha": 2000000, "distancia_m": "80-100 kg/ha" },
+                { "nombre": "Forrajera", "arboles_ha": 2500000, "distancia_m": "100-120 kg/ha" }
+            ]
+        },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Macollamiento", "duracion_dias": 30, "bbch_fase": "20-29" },
+            { "nombre": "Espigado", "duracion_dias": 20, "bbch_fase": "50-59" },
+            { "nombre": "Llenado de Grano", "duracion_dias": 40, "bbch_fase": "70-89" },
+            { "nombre": "Cosecha", "duracion_dias": 20, "bbch_fase": "90-99" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Rastra", "Siembra al voleo/chorrillo"],
+          "Cosecha": ["Corte y empacado (Forraje)", "Trilla (Grano)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Roya del Tallo", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Propiconazol", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Pulgón", "tipo": "Plaga", "control": { "mecanismo": "Insecticida", "productos_activos_mexico": [{ "ingrediente": "Malatión", "dosis_tipo": "Contacto" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 80, "P": 40, "K": 30 } }
+    },
+
+    "Amaranto": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.8,
+        "precio_medio_mxn_ton": 10046,
+        "superficie_sembrada_ha": 3000,
+        "superficie_cosechada_ha": 3000,
+        "produccion_miles_ton": 6,
+        "variacion_anual_pct": 4.8,
+        "principales_estados": ["Tlaxcala", "Puebla", "Estado de México", "CDMX"],
+        "panorama_2023_summary": { "produccion_miles_ton": 6, "variacion_anual_pct": 4.8, "principales_estados_valor": "Tlaxcala (54.1%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 1.8, "produccion_ton": 6000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Revancha", "Nutrisol", "Areli"],
+        "densidad_plantacion": {
+            "nota": "Siembra tradicional o trasplante en cepellón.",
+            "sistemas": [
+                { "nombre": "Siembra Directa", "arboles_ha": 100000, "distancia_m": "0.30x0.80" },
+                { "nombre": "Trasplante", "arboles_ha": 60000, "distancia_m": "0.40x0.80" }
+            ]
+        },
+        "duracion_total_dias": 130,
+        "etapas": [
+            { "nombre": "Vegetativo", "duracion_dias": 50, "bbch_fase": "10-39" },
+            { "nombre": "Floración (Panoja)", "duracion_dias": 30, "bbch_fase": "50-69" },
+            { "nombre": "Maduración de Grano", "duracion_dias": 40, "bbch_fase": "70-89" },
+            { "nombre": "Cosecha", "duracion_dias": 10, "bbch_fase": "90-99" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Aclareo (raleo) manual"],
+          "Vegetativo": ["Aporque (calzar tierra)"],
+          "Cosecha": ["Corte de panojas", "Secado al sol", "Trilla/Garroteo"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Gusano Telarañero", "tipo": "Plaga", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Permetrina", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Carbón", "tipo": "Enfermedad", "control": { "mecanismo": "Cultural", "productos_activos_mexico": [{ "ingrediente": "Eliminación plantas enfermas", "dosis_tipo": "Manual" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 80, "P": 40, "K": 40 } }
+    },
+
+    "Frijol": {
+      "categoria": "leguminosa",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.0,
+        "precio_medio_mxn_ton": 19304,
+        "superficie_sembrada_ha": 1091000,
+        "superficie_cosechada_ha": 761000,
+        "produccion_miles_ton": 724,
+        "variacion_anual_pct": -25.0,
+        "principales_estados": ["Zacatecas", "Sinaloa", "Nayarit", "Chiapas", "Durango"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 724,
+            "variacion_anual_pct": -25.0,
+            "ranking_mundial": "8º",
+            "consumo_per_capita": "9.0 kg",
+            "principales_estados_valor": "Sinaloa (27.4%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 0.9, "produccion_ton": 1280000 },
+            { "year": 2022, "rendimiento_t_ha": 0.8, "produccion_ton": 960000 },
+            { "year": 2023, "rendimiento_t_ha": 1.0, "produccion_ton": 724000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Negro Jamapa", "Pinto Saltillo", "Azufrado Higuera", "Flor de Mayo"],
+        "densidad_plantacion": {
+            "nota": "En temporal la densidad es baja por falta de agua.",
+            "sistemas": [
+                { "nombre": "Riego (Alta Densidad)", "arboles_ha": 250000, "distancia_m": "0.05x0.80" },
+                { "nombre": "Temporal (Tradicional)", "arboles_ha": 120000, "distancia_m": "0.10x0.80" },
+                { "nombre": "Doble Hilera (Cama)", "arboles_ha": 300000, "distancia_m": "0.25x1.60 (doble)" }
+            ]
+        },
+        "duracion_total_dias": 105,
+        "etapas": [
+            { "nombre": "Emergencia (V0-V3)", "duracion_dias": 15, "bbch_fase": "00-19" },
+            { "nombre": "Vegetativo (V4)", "duracion_dias": 25, "bbch_fase": "20-49" },
+            { "nombre": "Floración (R5-R6)", "duracion_dias": 20, "bbch_fase": "50-69" },
+            { "nombre": "Formación de Vaina (R7)", "duracion_dias": 25, "bbch_fase": "70-79" },
+            { "nombre": "Maduración (R8-R9)", "duracion_dias": 20, "bbch_fase": "80-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Zacatecas (Primavera-Verano)", "siembra_inicio": "Julio", "siembra_fin": "Agosto", "cosecha_inicio": "Octubre", "cosecha_fin": "Noviembre" },
+            { "estado": "Sinaloa (Otoño-Invierno)", "siembra_inicio": "Octubre", "siembra_fin": "Diciembre", "cosecha_inicio": "Febrero", "cosecha_fin": "Marzo" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Tratamiento de semilla", "Siembra mecánica"],
+          "Vegetativo": ["Escarificación (Cultivo)", "Control maleza"],
+          "Floración": ["Riego crítico (evitar aborto)", "Control insectos"],
+          "Cosecha": ["Corte y hilerado", "Trilla"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Conchuela del Frijol (Epilachna)", "tipo": "Plaga", "descripcion": "Escarabajo comedor de hoja y vaina.", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Transmite Mosaico Dorado.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Semilla" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Picudo del Ejote", "tipo": "Plaga", "descripcion": "Perfora las vainas.", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Metomilo", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Roya (Uromyces)", "tipo": "Enfermedad", "descripcion": "Pústulas rojizas en hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina", "dosis_tipo": "Preventivo" }, { "ingrediente": "Tebuconazol", "dosis_tipo": "Curativo" }] } },
+          { "nombre": "Antracnosis", "tipo": "Enfermedad", "descripcion": "Manchas negras hundidas en vainas.", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Clorotalonil", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 60, "P": 60, "K": 30 } }
+    },
+
+    "Garbanzo": {
+      "categoria": "leguminosa",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.9,
+        "precio_medio_mxn_ton": 19111,
+        "superficie_sembrada_ha": 75000,
+        "superficie_cosechada_ha": 75000,
+        "produccion_miles_ton": 143,
+        "variacion_anual_pct": -24.3,
+        "principales_estados": ["Sinaloa", "Sonora", "Baja California Sur", "Michoacán"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 143,
+            "variacion_anual_pct": -24.3,
+            "ranking_mundial": "10º (Exportador)",
+            "consumo_per_capita": "0.5 kg",
+            "principales_estados_valor": "Sinaloa (72.9%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 1.8, "produccion_ton": 170000 },
+            { "year": 2022, "rendimiento_t_ha": 2.0, "produccion_ton": 189000 },
+            { "year": 2023, "rendimiento_t_ha": 1.9, "produccion_ton": 143000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Blanco Sinaloa 92", "Jumbo", "Macarena"],
+        "densidad_plantacion": {
+            "nota": "Se busca calibre grande para exportación.",
+            "sistemas": [
+                { "nombre": "Hilera Sencilla (Riego)", "arboles_ha": 120000, "distancia_m": "0.10x0.80" },
+                { "nombre": "Doble Hilera", "arboles_ha": 200000, "distancia_m": "0.25x1.60 (Cama)" }
+            ]
+        },
+        "duracion_total_dias": 140,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 12, "bbch_fase": "00-09" },
+            { "nombre": "Ramificación Vegetativa", "duracion_dias": 45, "bbch_fase": "10-39" },
+            { "nombre": "Floración", "duracion_dias": 30, "bbch_fase": "50-69" },
+            { "nombre": "Llenado de Vaina", "duracion_dias": 35, "bbch_fase": "70-79" },
+            { "nombre": "Madurez/Secado", "duracion_dias": 18, "bbch_fase": "80-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Sinaloa/Sonora", "siembra_inicio": "Noviembre", "siembra_fin": "Diciembre", "cosecha_inicio": "Abril", "cosecha_fin": "Mayo" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Humedad residual o riego", "Inoculación Rhizobium"],
+          "Vegetativo": ["Cultivo para aerear raíz", "Control Rabia"],
+          "Cosecha": ["Corte (hilerado)", "Trilla seca"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Gusano de la Cápsula (Heliothis)", "tipo": "Plaga", "descripcion": "Perfora la vaina y come el grano.", "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Bacillus thuringiensis", "dosis_tipo": "Biológico" }, { "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Minador de la Hoja", "tipo": "Plaga", "descripcion": "Galerías en foliolos.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Rabia (Ascochyta)", "tipo": "Enfermedad", "descripcion": "Manchas necróticas circulares, mata la planta rápido.", "control": { "mecanismo": "Fungicida Específico", "productos_activos_mexico": [{ "ingrediente": "Clorotalonil", "dosis_tipo": "Preventivo" }, { "ingrediente": "Azoxistrobina", "dosis_tipo": "Curativo" }] } },
+          { "nombre": "Fusarium (Marchitez)", "tipo": "Enfermedad", "descripcion": "Amarillamiento y muerte vascular.", "control": { "mecanismo": "Genético", "productos_activos_mexico": [{ "ingrediente": "Variedades Resistentes", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Moho Gris (Botrytis)", "tipo": "Enfermedad", "descripcion": "Pudrición en floración con alta humedad.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Carbendazim", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 40, "P": 60, "K": 40 } }
+    },
+
+    "Soya": {
+      "categoria": "leguminosa",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 2.2,
+        "precio_medio_mxn_ton": 9269,
+        "superficie_sembrada_ha": 96000,
+        "superficie_cosechada_ha": 91000,
+        "produccion_miles_ton": 199,
+        "variacion_anual_pct": 13.5,
+        "principales_estados": ["Campeche", "Tamaulipas", "San Luis Potosí", "Veracruz", "Chiapas"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 199,
+            "variacion_anual_pct": 13.5,
+            "ranking_mundial": "26º",
+            "consumo_per_capita": "Industria Aceitera",
+            "principales_estados_valor": "Campeche (60.3%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 1.9, "produccion_ton": 180000 },
+            { "year": 2022, "rendimiento_t_ha": 1.7, "produccion_ton": 175000 },
+            { "year": 2023, "rendimiento_t_ha": 2.2, "produccion_ton": 199000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Huasteca 100", "Huasteca 200", "Vernal"],
+        "densidad_plantacion": {
+            "nota": "Alta densidad para cierre rápido de surco.",
+            "sistemas": [
+                { "nombre": "Surco Estrecho", "arboles_ha": 350000, "distancia_m": "0.40m entre surcos" },
+                { "nombre": "Tradicional", "arboles_ha": 250000, "distancia_m": "0.76m entre surcos" }
+            ]
+        },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Emergencia (VE)", "duracion_dias": 7, "bbch_fase": "00-09" },
+            { "nombre": "Vegetativo (V1-Vn)", "duracion_dias": 45, "bbch_fase": "10-39" },
+            { "nombre": "Floración (R1-R2)", "duracion_dias": 20, "bbch_fase": "50-59" },
+            { "nombre": "Formación Vaina (R3-R4)", "duracion_dias": 15, "bbch_fase": "60-69" },
+            { "nombre": "Llenado de Grano (R5-R6)", "duracion_dias": 30, "bbch_fase": "70-79" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Tamaulipas (Guayalejo)", "siembra_inicio": "Junio", "siembra_fin": "Julio", "cosecha_inicio": "Octubre", "cosecha_fin": "Noviembre" },
+            { "estado": "Campeche (Temporal)", "siembra_inicio": "Julio", "siembra_fin": "Agosto", "cosecha_inicio": "Noviembre", "cosecha_fin": "Diciembre" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Inoculación Bradyrhizobium (Vital)", "Siembra directa"],
+          "Vegetativo": ["Control de malezas", "Monitoreo defoliadores"],
+          "Cosecha": ["Trilla con humedad <14%"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Gusano Terciopelo", "tipo": "Plaga", "descripcion": "Defoliador agresivo.", "control": { "mecanismo": "Ingestión", "productos_activos_mexico": [{ "ingrediente": "Metoxifenocida", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Chinche Lygus/Verde", "tipo": "Plaga", "descripcion": "Pica las vainas y daña el grano.", "control": { "mecanismo": "Sistémico/Contacto", "productos_activos_mexico": [{ "ingrediente": "Acefato", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Transmite virus.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Roya Asiática (Phakopsora)", "tipo": "Enfermedad", "descripcion": "Pústulas que causan defoliación total.", "control": { "mecanismo": "Fungicida Preventivo", "productos_activos_mexico": [{ "ingrediente": "Epoxiconazol + Piraclostrobina", "dosis_tipo": "Preventivo R1" }] } },
+          { "nombre": "Ojo de Rana (Cercospora)", "tipo": "Enfermedad", "descripcion": "Manchas circulares en hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Carbendazim", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 20, "P": 80, "K": 60 } }
+    },
+
+    "Rosa": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 65.0,
+        "precio_medio_mxn_ton": 15500,
+        "superficie_sembrada_ha": 2000,
+        "superficie_cosechada_ha": 2000,
+        "produccion_miles_ton": 130,
+        "variacion_anual_pct": 2.5,
+        "principales_estados": ["Estado de México", "Puebla", "Morelos", "Querétaro"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 130,
+            "variacion_anual_pct": 2.5,
+            "ranking_mundial": "Exportador clave a EE.UU.",
+            "consumo_per_capita": "N/A (Ornamental)",
+            "principales_estados_valor": "Edo. Mex. (Villa Guerrero) (78%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 62.0, "produccion_ton": 124000 },
+            { "year": 2022, "rendimiento_t_ha": 64.5, "produccion_ton": 129000 },
+            { "year": 2023, "rendimiento_t_ha": 65.0, "produccion_ton": 130000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Freedom (Roja)", "Mondial (Blanca)", "Topaz", "Titanic"],
+        "densidad_plantacion": {
+            "nota": "Invernadero en hidroponía o suelo.",
+            "sistemas": [
+                { "nombre": "Hidroponía (Canaleta)", "arboles_ha": 80000, "distancia_m": "7-8 plantas/m2" },
+                { "nombre": "Suelo (Cama)", "arboles_ha": 70000, "distancia_m": "0.20x0.30 en cama" }
+            ]
+        },
+        "duracion_total_dias": 365,
+        "etapas": [
+            { "nombre": "Brotación (Pinch)", "duracion_dias": 15, "bbch_fase": "00-09" },
+            { "nombre": "Crecimiento Vegetativo", "duracion_dias": 30, "bbch_fase": "10-39" },
+            { "nombre": "Botón Visible (Chícharo)", "duracion_dias": 15, "bbch_fase": "50-55" },
+            { "nombre": "Desarrollo de Botón", "duracion_dias": 20, "bbch_fase": "56-59" },
+            { "nombre": "Cosecha (Punto de corte)", "duracion_dias": 5, "bbch_fase": "60-69" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Edo. Mex (Programación)", "siembra_inicio": "Todo el año", "siembra_fin": "N/A", "cosecha_inicio": "Pico: 14 Feb / 10 Mayo", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Manejo": ["Poda de formación (Basal)", "Desyemado (eliminar botones laterales)"],
+          "Cosecha": ["Corte en 'Punto Arroz' o 'Garbanzo'", "Hidratación inmediata", "Cadena de frío"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Araña Roja (Tetranychus)", "tipo": "Plaga", "descripcion": "Principal problema, resistencia a químicos.", "control": { "mecanismo": "Rotación Acaricidas", "productos_activos_mexico": [{ "ingrediente": "Bifenazato", "dosis_tipo": "Contacto" }, { "ingrediente": "Abamectina", "dosis_tipo": "Translaminar" }] } },
+          { "nombre": "Trips", "tipo": "Plaga", "descripcion": "Mancha y deforma los pétalos.", "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Ingestión" }, { "ingrediente": "Amblyseius swirskii", "dosis_tipo": "Depredador" }] } },
+          { "nombre": "Mildiú Velloso (Peronospora)", "tipo": "Enfermedad", "descripcion": "Manchas púrpuras en hojas y caída.", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Curativo" }, { "ingrediente": "Propamocarb", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Cenicilla (Sphaerotheca)", "tipo": "Enfermedad", "descripcion": "Polvo blanco, deforma hojas.", "control": { "mecanismo": "Sublimación/Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azufre (Quemador)", "dosis_tipo": "Vapor" }, { "ingrediente": "Triflumizol", "dosis_tipo": "Curativo" }] } },
+          { "nombre": "Botrytis", "tipo": "Enfermedad", "descripcion": "Pudrición de la flor en postcosecha.", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Fenhexamid", "dosis_tipo": "Botriticida" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 80, "K": 300 } }
+    },
+
+    "Gerbera": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 120.0,
+        "precio_medio_mxn_ton": 25000,
+        "superficie_sembrada_ha": 1000,
+        "superficie_cosechada_ha": 1000,
+        "produccion_miles_ton": 120,
+        "variacion_anual_pct": -1.0,
+        "principales_estados": ["Estado de México", "Puebla", "Morelos"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 120,
+            "variacion_anual_pct": -1.0,
+            "ranking_mundial": "Importante en mercado nacional",
+            "consumo_per_capita": "N/A",
+            "principales_estados_valor": "Edo. Mex. (90%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 120.0, "produccion_ton": 120000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Festival (Mix)", "Revolution", "Jaguar"],
+        "densidad_plantacion": {
+            "nota": "Cultivo en maceta o contenedor hidropónico.",
+            "sistemas": [
+                { "nombre": "Hidroponía (Maceta Coco)", "arboles_ha": 60000, "distancia_m": "6-7 plantas/m2" },
+                { "nombre": "Suelo (Cama elevada)", "arboles_ha": 50000, "distancia_m": "0.35x0.35" }
+            ]
+        },
+        "duracion_total_dias": 1095,
+        "etapas": [
+            { "nombre": "Establecimiento", "duracion_dias": 30, "bbch_fase": "10-19" },
+            { "nombre": "Vegetativo", "duracion_dias": 60, "bbch_fase": "20-39" },
+            { "nombre": "Floración (Inicio)", "duracion_dias": 30, "bbch_fase": "50-69" },
+            { "nombre": "Producción Continua", "duracion_dias": 900, "bbch_fase": "70-89" }
+        ],
+        "fechas_por_estado": []
+      },
+      "labores": {
+          "Manejo": ["Deshoje sanitario (base)", "Fertirriego estricto"],
+          "Cosecha": ["Jalón (Pull) del tallo", "Empaque vertical"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Minador (Liriomyza)", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Cyromazina", "dosis_tipo": "Regulador crecimiento" }] } },
+          { "nombre": "Fusarium", "tipo": "Enfermedad", "control": { "mecanismo": "Suelo", "productos_activos_mexico": [{ "ingrediente": "Trichoderma", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 180, "P": 60, "K": 250 } }
+    },
+
+    "Nochebuena": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 40.0,
+        "precio_medio_mxn_ton": 45000,
+        "superficie_sembrada_ha": 300,
+        "superficie_cosechada_ha": 300,
+        "produccion_miles_ton": 21,
+        "variacion_anual_pct": 3.2,
+        "principales_estados": ["Morelos", "Michoacán", "CDMX (Xochimilco)", "Puebla", "Jalisco"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 21,
+            "variacion_anual_pct": 3.2,
+            "ranking_mundial": "4º (Origen México)",
+            "consumo_per_capita": "Estacional (Navidad)",
+            "principales_estados_valor": "Morelos (40.2%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 38.5, "produccion_ton": 19000 },
+            { "year": 2022, "rendimiento_t_ha": 39.0, "produccion_ton": 20000 },
+            { "year": 2023, "rendimiento_t_ha": 40.0, "produccion_ton": 21000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Prestige Red", "Freedom", "Subjibi", "Monet"],
+        "densidad_plantacion": {
+            "nota": "Se mide en macetas por m2 de invernadero.",
+            "sistemas": [
+                { "nombre": "Maceta 6 pulgadas", "arboles_ha": 90000, "distancia_m": "9-11 plantas/m2" },
+                { "nombre": "Maceta 7 pulgadas", "arboles_ha": 60000, "distancia_m": "6-7 plantas/m2" },
+                { "nombre": "Colgante", "arboles_ha": 40000, "distancia_m": "4 plantas/m2" }
+            ]
+        },
+        "duracion_total_dias": 180,
+        "etapas": [
+            { "nombre": "Esqueje y Enraizamiento", "duracion_dias": 30, "bbch_fase": "00-10" },
+            { "nombre": "Crecimiento Vegetativo", "duracion_dias": 60, "bbch_fase": "11-39" },
+            { "nombre": "Inducción (Días Cortos)", "duracion_dias": 45, "bbch_fase": "40-55" },
+            { "nombre": "Pigmentación Brácteas", "duracion_dias": 45, "bbch_fase": "56-69" },
+            { "nombre": "Venta", "duracion_dias": 15, "bbch_fase": "70-79" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Morelos/CDMX", "siembra_inicio": "Mayo (Madre) / Julio (Esqueje)", "siembra_fin": "Agosto", "cosecha_inicio": "Noviembre", "cosecha_fin": "Diciembre" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Pinchado (Poda apical) para ramificar", "Aplicación reguladores crecimiento (CCC)"],
+          "Inducción": ["Control de luz (14h oscuridad)", "Fertilización Potásica"],
+          "Cosecha": ["Manejo de temperatura nocturna", "Empaque en capacillo"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Extremadamente resistente, mancha brácteas.", "control": { "mecanismo": "Rotación Estricta", "productos_activos_mexico": [{ "ingrediente": "Spiromesifen", "dosis_tipo": "Contacto" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Fungus Gnat", "tipo": "Plaga", "descripcion": "Larva come raíz, adulto molesto.", "control": { "mecanismo": "Biológico", "productos_activos_mexico": [{ "ingrediente": "Steinernema feltiae (Nematodo)", "dosis_tipo": "Drench" }] } },
+          { "nombre": "Pudrición de Raíz (Pythium/Rhizoctonia)", "tipo": "Enfermedad", "descripcion": "Raíces negras, planta se 'desmaya'.", "control": { "mecanismo": "Fungicida Suelo", "productos_activos_mexico": [{ "ingrediente": "Propamocarb", "dosis_tipo": "Drench" }, { "ingrediente": "Fludioxonil", "dosis_tipo": "Drench" }] } },
+          { "nombre": "Botrytis", "tipo": "Enfermedad", "descripcion": "Moho gris en brácteas por humedad.", "control": { "mecanismo": "Ventilación/Químico", "productos_activos_mexico": [{ "ingrediente": "Fenhexamid", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Trips", "tipo": "Plaga", "descripcion": "Deforma las hojas nuevas.", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 50, "K": 200 } }
+    },
+
+    "Crisantemo": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 95.0,
+        "precio_medio_mxn_ton": 9800,
+        "superficie_sembrada_ha": 2800,
+        "superficie_cosechada_ha": 2800,
+        "produccion_miles_ton": 266,
+        "variacion_anual_pct": 1.5,
+        "principales_estados": ["Estado de México", "Puebla"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 266,
+            "variacion_anual_pct": 1.5,
+            "ranking_mundial": "Top productores",
+            "consumo_per_capita": "Alta demanda (Día de Muertos)",
+            "principales_estados_valor": "Edo. Mex. (92%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 95.0, "produccion_ton": 266000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Polaris (Blanca)", "Puma (Amarilla)", "Reagan", "Spider"],
+        "densidad_plantacion": {
+            "nota": "Camas de siembra al suelo.",
+            "sistemas": [
+                { "nombre": "Invernadero Estándar", "arboles_ha": 280000, "distancia_m": "64-80 plantas/m2 (Malla)" },
+                { "nombre": "Campo Abierto", "arboles_ha": 200000, "distancia_m": "Variable" }
+            ]
+        },
+        "duracion_total_dias": 90,
+        "etapas": [
+            { "nombre": "Enraizamiento (Días Largos)", "duracion_dias": 15, "bbch_fase": "00-10" },
+            { "nombre": "Vegetativo (Iluminación)", "duracion_dias": 25, "bbch_fase": "11-39" },
+            { "nombre": "Inducción (Apagón/Días Cortos)", "duracion_dias": 10, "bbch_fase": "40-49" },
+            { "nombre": "Desarrollo Botón", "duracion_dias": 30, "bbch_fase": "50-59" },
+            { "nombre": "Cosecha", "duracion_dias": 10, "bbch_fase": "60-69" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Edo. Mex", "siembra_inicio": "Programada semanalmente", "siembra_fin": "N/A", "cosecha_inicio": "Todo el año", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Iluminación nocturna (evitar floración)", "Despunte (si es spray)"],
+          "Inducción": ["Colocación plástico negro (Apagón)", "Reducción de N"],
+          "Cosecha": ["Corte de tallo", "Enmallado (red)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Roya Blanca (Puccinia)", "tipo": "Enfermedad", "descripcion": "Cuarentenaria. Pústulas blancas en envés.", "control": { "mecanismo": "Preventivo Estricto", "productos_activos_mexico": [{ "ingrediente": "Propiconazol", "dosis_tipo": "Sistémico" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Minador (Liriomyza)", "tipo": "Plaga", "descripcion": "Galerías en hojas.", "control": { "mecanismo": "Translaminar", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Trips", "tipo": "Plaga", "descripcion": "Vector de virus TSWV.", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Ingestión" }] } },
+          { "nombre": "Pythium", "tipo": "Enfermedad", "descripcion": "Pudrición de raíz en zonas húmedas.", "control": { "mecanismo": "Drench", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Al suelo" }] } },
+          { "nombre": "Pulgón", "tipo": "Plaga", "descripcion": "En brotes tiernos.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 80, "K": 200 } }
+    },
+
+    "Gladiolo": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 3500.0,
+        "precio_medio_mxn_ton": 350,
+        "superficie_sembrada_ha": 4500,
+        "superficie_cosechada_ha": 4500,
+        "produccion_miles_ton": 15,
+        "variacion_anual_pct": 0.5,
+        "principales_estados": ["Puebla", "Estado de México", "Morelos"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 15,
+            "variacion_anual_pct": 0.5,
+            "ranking_mundial": "N/A",
+            "consumo_per_capita": "Eventos/Religioso",
+            "principales_estados_valor": "Puebla (45%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 3500.0, "produccion_ton": 15000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Red Beauty", "White Friendship", "Borneo"],
+        "densidad_plantacion": {
+            "nota": "Medida en gruesas (144 tallos) o bulbos/ha.",
+            "sistemas": [
+                { "nombre": "Campo Abierto", "arboles_ha": 250000, "distancia_m": "25-30 bulbos/m2" },
+                { "nombre": "Alta Densidad", "arboles_ha": 300000, "distancia_m": "30-40 bulbos/m2" }
+            ]
+        },
+        "duracion_total_dias": 100,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 15, "bbch_fase": "00-09" },
+            { "nombre": "Desarrollo Hojas (2-4)", "duracion_dias": 30, "bbch_fase": "10-19" },
+            { "nombre": "Espigado (Visible)", "duracion_dias": 30, "bbch_fase": "50-55" },
+            { "nombre": "Floración (Corte)", "duracion_dias": 25, "bbch_fase": "60-69" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Puebla (San Martín)", "siembra_inicio": "Escalonada", "siembra_fin": "N/A", "cosecha_inicio": "Todo el año", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Desinfección de bulbos (cormos)", "Surcado"],
+          "Espigado": ["Aporque (sostener planta)", "Fertilización K"],
+          "Cosecha": ["Corte en botón de color", "Manejo vertical"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Trips (Thrips simplex)", "tipo": "Plaga", "descripcion": "Mancha la flor (plateado) antes de abrir.", "control": { "mecanismo": "Químico Estricto", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Foliar" }, { "ingrediente": "Metomilo", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Fusarium (Pudrición cormo)", "tipo": "Enfermedad", "descripcion": "Amarillamiento y curvatura.", "control": { "mecanismo": "Preventivo Bulbo", "productos_activos_mexico": [{ "ingrediente": "Tiabendazol", "dosis_tipo": "Inmersión" }] } },
+          { "nombre": "Roya (Uromyces)", "tipo": "Enfermedad", "descripcion": "Pústulas en hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Botrytis", "tipo": "Enfermedad", "descripcion": "Manchas en pétalos.", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Clorotalonil", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Generalista.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 80, "K": 180 } }
+    },
+
+    "Agave tequilero": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 80.6,
+        "precio_medio_mxn_ton": 21270,
+        "superficie_sembrada_ha": 215000,
+        "superficie_cosechada_ha": 26364,
+        "produccion_miles_ton": 2125,
+        "variacion_anual_pct": 29.9,
+        "principales_estados": ["Jalisco", "Guanajuato", "Nayarit", "Michoacán", "Tamaulipas"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 2125,
+            "variacion_anual_pct": 29.9,
+            "ranking_mundial": "1º (Denominación de Origen)",
+            "consumo_per_capita": "Industrial (Tequila/Jarabe)",
+            "principales_estados_valor": "Jalisco (74.3%)"
+        },
+        "historial_produccion": [
+            { "year": 2021, "rendimiento_t_ha": 75.0, "produccion_ton": 1800000 },
+            { "year": 2022, "rendimiento_t_ha": 78.5, "produccion_ton": 2000000 },
+            { "year": 2023, "rendimiento_t_ha": 80.6, "produccion_ton": 2125000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Azul (Tequilana Weber)"],
+        "densidad_plantacion": {
+            "nota": "Ciclo largo (5-7 años). Se planta por hijuelos.",
+            "sistemas": [
+                { "nombre": "Alta Densidad", "arboles_ha": 3300, "distancia_m": "1.0x3.0" },
+                { "nombre": "Tradicional", "arboles_ha": 2500, "distancia_m": "1.2x3.2" },
+                { "nombre": "Intercalado (Maíz)", "arboles_ha": 2000, "distancia_m": "1.0x5.0" }
+            ]
+        },
+        "duracion_total_dias": 2190,
+        "etapas": [
+            { "nombre": "Establecimiento", "duracion_dias": 120, "bbch_fase": "00-19" },
+            { "nombre": "Desarrollo Roseta (Años 1-3)", "duracion_dias": 1095, "bbch_fase": "20-39" },
+            { "nombre": "Maduración de Piña (Años 4-6)", "duracion_dias": 900, "bbch_fase": "40-49" },
+            { "nombre": "Quiote (Floración - Indeseable)", "duracion_dias": 30, "bbch_fase": "50-59" },
+            { "nombre": "Jima (Cosecha)", "duracion_dias": 1, "bbch_fase": "99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Jalisco (Altos)", "siembra_inicio": "Junio (Lluvias)", "siembra_fin": "Agosto", "cosecha_inicio": "Todo el año", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Establecimiento": ["Barbecho profundo", "Plantación manual de hijuelos"],
+          "Desarrollo": ["Control de malezas (crítico)", "Aporque"],
+          "Madurez": ["Desquiote (cortar flor)", "Muestreo de grados Brix"],
+          "Cosecha": ["Jima (corte de pencas)", "Transporte a fábrica"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Picudo del Agave (Scyphophorus)", "tipo": "Plaga", "descripcion": "Perfora la piña y causa pudrición.", "control": { "mecanismo": "Trampeo Feromona", "productos_activos_mexico": [{ "ingrediente": "Fipronil", "dosis_tipo": "Base de planta" }, { "ingrediente": "Trampas con feromona", "dosis_tipo": "Trampeo" }] } },
+          { "nombre": "Cercospora (Mancha gris)", "tipo": "Enfermedad", "descripcion": "Manchas grises en pencas, reduce fotosíntesis.", "control": { "mecanismo": "Fungicida Sistémico", "productos_activos_mexico": [{ "ingrediente": "Benomilo", "dosis_tipo": "Foliar" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Erwinia (Pudrición blanda)", "tipo": "Enfermedad", "descripcion": "Pudrición olorosa del cogollo.", "control": { "mecanismo": "Cobre/Antibiótico", "productos_activos_mexico": [{ "ingrediente": "Sulfato de Cobre", "dosis_tipo": "Preventivo" }, { "ingrediente": "Gentamicina", "dosis_tipo": "Curativo" }] } },
+          { "nombre": "Fusarium (Marchitez)", "tipo": "Enfermedad", "descripcion": "Amarillamiento y muerte de la planta.", "control": { "mecanismo": "Suelo", "productos_activos_mexico": [{ "ingrediente": "Trichoderma", "dosis_tipo": "Biológico" }] } },
+          { "nombre": "Escarabajo Rinoceronte", "tipo": "Plaga", "descripcion": "Barrena la base.", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Clorpirifos (Restringido)", "dosis_tipo": "Suelo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 60, "K": 150 } }
+    },
+
+    "Caña de azúcar": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 69.3,
+        "precio_medio_mxn_ton": 952,
+        "superficie_sembrada_ha": 854000,
+        "superficie_cosechada_ha": 802000,
+        "produccion_miles_ton": 55590,
+        "variacion_anual_pct": 0.1,
+        "principales_estados": ["Veracruz", "Jalisco", "San Luis Potosí", "Oaxaca"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 55590,
+            "variacion_anual_pct": 0.1,
+            "ranking_mundial": "7º",
+            "consumo_per_capita": "36 kg (Azúcar)",
+            "principales_estados_valor": "Veracruz (38.3%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 69.3, "produccion_ton": 55590000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["CP 72-2086", "Mex 69-290", "Colmex"],
+        "densidad_plantacion": {
+            "nota": "Se planta por trozos de tallo (esquejes) en surco corrido.",
+            "sistemas": [
+                { "nombre": "Surco Sencillo", "arboles_ha": 15000, "distancia_m": "1.3 - 1.5m entre surcos" },
+                { "nombre": "Doble Hilera (Piña)", "arboles_ha": 20000, "distancia_m": "1.8m entre centros" }
+            ]
+        },
+        "duracion_total_dias": 365,
+        "etapas": [
+            { "nombre": "Brotación (Plantilla/Soca)", "duracion_dias": 40, "bbch_fase": "00-09" },
+            { "nombre": "Ahijamiento (Macollaje)", "duracion_dias": 60, "bbch_fase": "20-29" },
+            { "nombre": "Gran Crecimiento (Elongación)", "duracion_dias": 150, "bbch_fase": "30-39" },
+            { "nombre": "Maduración (Sacarosa)", "duracion_dias": 90, "bbch_fase": "80-89" },
+            { "nombre": "Cosecha (Zafra)", "duracion_dias": 30, "bbch_fase": "90-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Veracruz (Zafra)", "siembra_inicio": "N/A (Perenne)", "siembra_fin": "N/A", "cosecha_inicio": "Noviembre", "cosecha_fin": "Mayo" }
+        ]
+      },
+      "labores": {
+          "Brotación": ["Subsuelo (Socas)", "Fertilización NPK"],
+          "Crecimiento": ["Cultivo (aporque)", "Control de barrenadores"],
+          "Maduración": ["Suspensión de riego (agoste)", "Muestreo sacarosa"],
+          "Cosecha": ["Quema (si aplica)", "Corte manual/mecánico", "Transporte al ingenio (<24h)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Barrenador del Tallo (Diatraea)", "tipo": "Plaga", "descripcion": "Larvas perforan tallos, invierten sacarosa.", "control": { "mecanismo": "Biológico", "productos_activos_mexico": [{ "ingrediente": "Trichogramma", "dosis_tipo": "Liberación" }, { "ingrediente": "Cotesia flavipes", "dosis_tipo": "Liberación" }] } },
+          { "nombre": "Mosca Pinta (Aeneolamia)", "tipo": "Plaga", "descripcion": "Salivazo en raíces, seca el follaje.", "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Metarhizium anisopliae", "dosis_tipo": "Foliar" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Rata de Caña", "tipo": "Plaga", "descripcion": "Roe los tallos.", "control": { "mecanismo": "Cebos", "productos_activos_mexico": [{ "ingrediente": "Anticoagulantes", "dosis_tipo": "Cebo" }] } },
+          { "nombre": "Carbón (Ustilago)", "tipo": "Enfermedad", "descripcion": "Látigo negro en el cogollo.", "control": { "mecanismo": "Variedades Resistentes", "productos_activos_mexico": [{ "ingrediente": "Resistencia Genética", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Roya Naranja", "tipo": "Enfermedad", "descripcion": "Pústulas naranjas en hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Epoxiconazol", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 180, "P": 60, "K": 120 } }
+    },
+
+    "Café cereza": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.6,
+        "precio_medio_mxn_ton": 6727,
+        "superficie_sembrada_ha": 700000,
+        "superficie_cosechada_ha": 655000,
+        "produccion_miles_ton": 1059,
+        "variacion_anual_pct": 3.3,
+        "principales_estados": ["Chiapas", "Veracruz", "Puebla", "Oaxaca"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 1059,
+            "variacion_anual_pct": 3.3,
+            "ranking_mundial": "11º",
+            "consumo_per_capita": "1.7 kg",
+            "principales_estados_valor": "Chiapas (38.6%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 1.6, "produccion_ton": 1059000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Typica", "Bourbon", "Caturra", "Marsellesa", "Costa Rica 95 (Resistente)"],
+        "densidad_plantacion": {
+            "nota": "Bajo sombra o a pleno sol (Robusta).",
+            "sistemas": [
+                { "nombre": "Tradicional (Sombra)", "arboles_ha": 2000, "distancia_m": "2.0x2.5" },
+                { "nombre": "Intensivo (Sol/Robusta)", "arboles_ha": 3300, "distancia_m": "1.5x2.0" },
+                { "nombre": "Renovación (Tejido)", "arboles_ha": 4000, "distancia_m": "1.0x2.5" }
+            ]
+        },
+        "duracion_total_dias": 240,
+        "etapas": [
+            { "nombre": "Floración (Lluvias)", "duracion_dias": 15, "bbch_fase": "50-59" },
+            { "nombre": "Cabeza de Alfiler (Cuajado)", "duracion_dias": 45, "bbch_fase": "60-69" },
+            { "nombre": "Llenado de Grano", "duracion_dias": 120, "bbch_fase": "70-79" },
+            { "nombre": "Maduración (Cereza)", "duracion_dias": 60, "bbch_fase": "80-89" },
+            { "nombre": "Cosecha", "duracion_dias": 90, "bbch_fase": "90-99" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Chiapas (Altura)", "siembra_inicio": "Junio", "siembra_fin": "Agosto", "cosecha_inicio": "Diciembre", "cosecha_fin": "Marzo" },
+            { "estado": "Veracruz (Baja)", "siembra_inicio": "N/A", "siembra_fin": "N/A", "cosecha_inicio": "Octubre", "cosecha_fin": "Enero" }
+        ]
+      },
+      "labores": {
+          "Floración": ["Fertilización suelo", "Regulación de sombra"],
+          "Llenado": ["Control de Broca y Roya (Crítico)"],
+          "Cosecha": ["Corte selectivo (solo rojos)", "Beneficiado húmedo/seco"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Broca del Café (Hypothenemus)", "tipo": "Plaga", "descripcion": "Perfora el grano, baja calidad taza.", "control": { "mecanismo": "Trampeo/Biológico", "productos_activos_mexico": [{ "ingrediente": "Beauveria bassiana", "dosis_tipo": "Foliar" }, { "ingrediente": "Trampas Alcohol", "dosis_tipo": "Etológico" }] } },
+          { "nombre": "Roya del Café (Hemileia)", "tipo": "Enfermedad", "descripcion": "Polvo naranja en hojas, defoliación total.", "control": { "mecanismo": "Fungicida Sistémico", "productos_activos_mexico": [{ "ingrediente": "Ciproconazol + Azoxistrobina", "dosis_tipo": "Foliar" }, { "ingrediente": "Cobre", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Ojo de Gallo (Mycena)", "tipo": "Enfermedad", "descripcion": "Manchas circulares, tira hojas y frutos.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Minador de la Hoja", "tipo": "Plaga", "descripcion": "Daña área fotosintética.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Nemátodos", "tipo": "Plaga", "descripcion": "Nudos en raíces, planta amarilla.", "control": { "mecanismo": "Nematicida", "productos_activos_mexico": [{ "ingrediente": "Oxamil", "dosis_tipo": "Drench" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 40, "K": 150 } }
+    },
+
+    "Algodón hueso": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 4.5,
+        "precio_medio_mxn_ton": 15971,
+        "superficie_sembrada_ha": 134000,
+        "superficie_cosechada_ha": 134000,
+        "produccion_miles_ton": 604,
+        "variacion_anual_pct": -33.6,
+        "principales_estados": ["Chihuahua", "Coahuila", "Baja California", "Sonora"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 604,
+            "variacion_anual_pct": -33.6,
+            "ranking_mundial": "9º",
+            "consumo_per_capita": "Industrial Textil",
+            "principales_estados_valor": "Chihuahua (78.5%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 4.5, "produccion_ton": 604000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Delta Pine (Transgénicas)", "FiberMax"],
+        "densidad_plantacion": {
+            "nota": "Alta tecnología en el norte.",
+            "sistemas": [
+                { "nombre": "Surco Estándar", "arboles_ha": 100000, "distancia_m": "0.10x0.96" },
+                { "nombre": "Ultra Estrecho", "arboles_ha": 180000, "distancia_m": "0.08x0.76" }
+            ]
+        },
+        "duracion_total_dias": 160,
+        "etapas": [
+            { "nombre": "Emergencia", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Cuadreo (Botones)", "duracion_dias": 40, "bbch_fase": "50-59" },
+            { "nombre": "Floración", "duracion_dias": 30, "bbch_fase": "60-69" },
+            { "nombre": "Formación de Bellota", "duracion_dias": 50, "bbch_fase": "70-79" },
+            { "nombre": "Apertura Bellota", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Chihuahua", "siembra_inicio": "Abril", "siembra_fin": "Mayo", "cosecha_inicio": "Octubre", "cosecha_fin": "Diciembre" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Tratamiento semilla", "Siembra precisión"],
+          "Desarrollo": ["Aplicación regulador crecimiento", "Control picudo"],
+          "Cosecha": ["Defoliación química", "Pizca mecánica (Pacas)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Picudo del Algodonero", "tipo": "Plaga", "descripcion": "Daña botones y bellotas. Programa Binacional.", "control": { "mecanismo": "Químico/Trampas", "productos_activos_mexico": [{ "ingrediente": "Malatión", "dosis_tipo": "Foliar" }, { "ingrediente": "Trampas Feromona", "dosis_tipo": "Monitoreo" }] } },
+          { "nombre": "Gusano Rosado", "tipo": "Plaga", "descripcion": "Come semilla y mancha fibra.", "control": { "mecanismo": "Genético/Cultural", "productos_activos_mexico": [{ "ingrediente": "Algodón Bt (Transgénico)", "dosis_tipo": "Semilla" }] } },
+          { "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Mancha la fibra (algodón pegajoso).", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Acetamiprid", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Complejo de Manchas Foliares", "tipo": "Enfermedad", "descripcion": "Alternaria/Cercospora.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Verticillium", "tipo": "Enfermedad", "descripcion": "Marchitez vascular.", "control": { "mecanismo": "Genético", "productos_activos_mexico": [{ "ingrediente": "Variedades Tolerantes", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 60, "K": 60 } }
+    },
+
+    "Cacao": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 0.6,
+        "precio_medio_mxn_ton": 41138,
+        "superficie_sembrada_ha": 52000,
+        "superficie_cosechada_ha": 52000,
+        "produccion_miles_ton": 29,
+        "variacion_anual_pct": 3.3,
+        "principales_estados": ["Tabasco", "Chiapas", "Guerrero"],
+        "panorama_2023_summary": { "produccion_miles_ton": 29, "variacion_anual_pct": 3.3, "principales_estados_valor": "Tabasco (68.1%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 0.6, "produccion_ton": 29000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Criollo (Fino)", "Forastero", "Trinitario (Híbrido)"],
+        "densidad_plantacion": {
+            "nota": "Requiere sombra (Madre del Cacao).",
+            "sistemas": [
+                { "nombre": "Tradicional Sombra", "arboles_ha": 600, "distancia_m": "4.0x4.0" },
+                { "nombre": "Intensivo", "arboles_ha": 1100, "distancia_m": "3.0x3.0" }
+            ]
+        },
+        "duracion_total_dias": 180,
+        "etapas": [
+            { "nombre": "Floración", "duracion_dias": 30, "bbch_fase": "60-69" },
+            { "nombre": "Desarrollo Chilillo", "duracion_dias": 60, "bbch_fase": "70-75" },
+            { "nombre": "Llenado de Mazorca", "duracion_dias": 60, "bbch_fase": "76-79" },
+            { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Mantenimiento": ["Poda de formación", "Regulación de sombra"],
+          "Cosecha": ["Corte manual", "Desgrane y fermentación (clave)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Moniliasis (Moniliophthora)", "tipo": "Enfermedad", "descripcion": "Polvo blanco sobre mazorca, pudrición total.", "control": { "mecanismo": "Cultural/Químico", "productos_activos_mexico": [{ "ingrediente": "Cobre + Poda", "dosis_tipo": "Preventivo" }, { "ingrediente": "Remoción de frutos enfermos", "dosis_tipo": "Manual" }] } },
+          { "nombre": "Mancha Negra (Phytophthora)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Fosetil-Al", "dosis_tipo": "Sistémico" }] } },
+          { "nombre": "Trips", "tipo": "Plaga", "control": { "mecanismo": "Insecticida", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 80, "P": 40, "K": 90 } }
+    },
+
+    "Tabaco": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 2.5,
+        "precio_medio_mxn_ton": 39858,
+        "superficie_sembrada_ha": 7000,
+        "superficie_cosechada_ha": 7000,
+        "produccion_miles_ton": 18,
+        "variacion_anual_pct": 19.6,
+        "principales_estados": ["Nayarit", "Veracruz", "Chiapas"],
+        "panorama_2023_summary": { "produccion_miles_ton": 18, "variacion_anual_pct": 19.6, "principales_estados_valor": "Nayarit (85.7%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 2.5, "produccion_ton": 18000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Burley", "Virginia", "Negro San Andrés"],
+        "densidad_plantacion": {
+            "nota": "Depende si es para capa o tripa.",
+            "sistemas": [
+                { "nombre": "Estándar", "arboles_ha": 20000, "distancia_m": "0.50x1.0" }
+            ]
+        },
+        "duracion_total_dias": 120,
+        "etapas": [
+            { "nombre": "Semillero/Trasplante", "duracion_dias": 45, "bbch_fase": "00-19" },
+            { "nombre": "Crecimiento Rápido", "duracion_dias": 40, "bbch_fase": "20-49" },
+            { "nombre": "Floración (Desbotonado)", "duracion_dias": 10, "bbch_fase": "50-59" },
+            { "nombre": "Maduración Hojas", "duracion_dias": 25, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Desbotonado (capado)", "Deshije"],
+          "Cosecha": ["Corte por pisos foliares", "Sartado y secado"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Moho Azul (Peronospora)", "tipo": "Enfermedad", "descripcion": "Devastadora, manchas en hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Gusano del Cuerno", "tipo": "Plaga", "control": { "mecanismo": "Ingestión", "productos_activos_mexico": [{ "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 60, "K": 150 } }
+    },
+
+    "Cártamo": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.9,
+        "precio_medio_mxn_ton": 11248,
+        "superficie_sembrada_ha": 35000,
+        "superficie_cosechada_ha": 34000,
+        "produccion_miles_ton": 66,
+        "variacion_anual_pct": -14.7,
+        "principales_estados": ["Sonora", "Jalisco", "Sinaloa"],
+        "panorama_2023_summary": { "produccion_miles_ton": 66, "variacion_anual_pct": -14.7, "principales_estados_valor": "Sonora (53.1%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 1.9, "produccion_ton": 66000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Ciano-Lin", "Gila", "S-518"],
+        "densidad_plantacion": {
+            "sistemas": [
+                { "nombre": "Hilera (Riego)", "arboles_ha": 200000, "distancia_m": "20-25 kg semilla/ha" }
+            ]
+        },
+        "duracion_total_dias": 150,
+        "etapas": [
+            { "nombre": "Roseta", "duracion_dias": 40, "bbch_fase": "10-19" },
+            { "nombre": "Elongación", "duracion_dias": 30, "bbch_fase": "30-39" },
+            { "nombre": "Ramificación/Botón", "duracion_dias": 30, "bbch_fase": "40-59" },
+            { "nombre": "Floración", "duracion_dias": 20, "bbch_fase": "60-69" },
+            { "nombre": "Maduración", "duracion_dias": 30, "bbch_fase": "80-89" }
+        ]
+      },
+      "labores": { "Siembra": ["Tierra venida"], "Cosecha": ["Trilla directa"] },
+      "plagas_y_enfermedades": [
+          { "nombre": "Falsa Chicharrita", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Alternaria", "tipo": "Enfermedad", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Mancozeb", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 50, "K": 30 } }
+    },
+
+    "Ajonjolí": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 0.8,
+        "precio_medio_mxn_ton": 22617,
+        "superficie_sembrada_ha": 71000,
+        "superficie_cosechada_ha": 65000,
+        "produccion_miles_ton": 51,
+        "variacion_anual_pct": -10.0,
+        "principales_estados": ["Guerrero", "Sinaloa", "Oaxaca", "Michoacán"],
+        "panorama_2023_summary": { "produccion_miles_ton": 51, "variacion_anual_pct": -10.0, "principales_estados_valor": "Guerrero (23.8%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 0.8, "produccion_ton": 51000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Pachequeño", "Río Mayo", "Blanco"],
+        "densidad_plantacion": {
+            "sistemas": [
+                { "nombre": "Temporal", "arboles_ha": 200000, "distancia_m": "4-6 kg semilla/ha" }
+            ]
+        },
+        "duracion_total_dias": 100,
+        "etapas": [{ "nombre": "Vegetativo", "duracion_dias": 35 }, { "nombre": "Floración", "duracion_dias": 30 }, { "nombre": "Maduración", "duracion_dias": 35 }]
+      },
+      "labores": { "Cosecha": ["Corte y formación de 'monas' (secado)", "Sacudido manual"] },
+      "plagas_y_enfermedades": [
+          { "nombre": "Gusano Telarañero", "tipo": "Plaga", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 60, "P": 40, "K": 30 } }
+    },
+
+    "Alfalfa": {
+      "categoria": "leguminosa",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 80.0,
+        "precio_medio_mxn_ton": 950,
+        "superficie_sembrada_ha": 390000,
+        "superficie_cosechada_ha": 390000,
+        "produccion_miles_ton": 31000,
+        "variacion_anual_pct": 1.2,
+        "principales_estados": ["Chihuahua", "Guanajuato", "Durango", "Hidalgo"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 31000,
+            "variacion_anual_pct": 1.2,
+            "ranking_mundial": "N/A (Consumo interno)",
+            "consumo_per_capita": "Forraje (Ganado Lechero)",
+            "principales_estados_valor": "Chihuahua (22%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 80.0, "produccion_ton": 31000000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Cuf-101", "Moapa", "Júpiter", "Vía Láctea"],
+        "densidad_plantacion": {
+            "nota": "Cultivo perenne (3-4 años). Se siembra al voleo.",
+            "sistemas": [
+                { "nombre": "Riego (Gravedad/Pivote)", "arboles_ha": 3000000, "distancia_m": "30-35 kg semilla/ha" },
+                { "nombre": "Goteo Subsuperficial", "arboles_ha": 2500000, "distancia_m": "25-30 kg semilla/ha" }
+            ]
+        },
+        "duracion_total_dias": 1460,
+        "etapas": [
+            { "nombre": "Establecimiento", "duracion_dias": 90, "bbch_fase": "00-19" },
+            { "nombre": "Cortes Periódicos", "duracion_dias": 30, "bbch_fase": "40-49" },
+            { "nombre": "Rebrote", "duracion_dias": 5, "bbch_fase": "09-30" },
+            { "nombre": "Floración (Indicador corte)", "duracion_dias": 25, "bbch_fase": "50-60" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Norte/Bajío", "siembra_inicio": "Octubre", "siembra_fin": "Diciembre", "cosecha_inicio": "Todo el año (Cortes)", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Establecimiento": ["Nivelación láser (Crítico)", "Siembra tupida"],
+          "Mantenimiento": ["Corte cada 28-32 días (Verano)", "Rastreo en invierno"],
+          "Cosecha": ["Segado", "Empacado (Heno)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Pulgón Manchado", "tipo": "Plaga", "descripcion": "Inyecta toxinas, amarillamiento.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Gusano Soldado", "tipo": "Plaga", "descripcion": "Defoliador rápido después del corte.", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Metomilo", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Pudrición Texana", "tipo": "Enfermedad", "descripcion": "Mata manchones circulares en el campo.", "control": { "mecanismo": "Cultural", "productos_activos_mexico": [{ "ingrediente": "Rotación de cultivos", "dosis_tipo": "Manejo" }] } },
+          { "nombre": "Cuscuta", "tipo": "Maleza", "descripcion": "Planta parásita (hilos amarillos).", "control": { "mecanismo": "Herbicida/Quema", "productos_activos_mexico": [{ "ingrediente": "Glifosato (Focalizado)", "dosis_tipo": "Manchoneo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 30, "P": 120, "K": 80 } }
+    },
+
+    "Chayote": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 65.0,
+        "precio_medio_mxn_ton": 3500,
+        "superficie_sembrada_ha": 3000,
+        "superficie_cosechada_ha": 3000,
+        "produccion_miles_ton": 195,
+        "variacion_anual_pct": 2.0,
+        "principales_estados": ["Veracruz", "Michoacán", "Jalisco"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 195,
+            "variacion_anual_pct": 2.0,
+            "ranking_mundial": "1º Exportador",
+            "consumo_per_capita": "3.2 kg",
+            "principales_estados_valor": "Veracruz (85%)"
+        },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 65.0, "produccion_ton": 195000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Verde Liso (Exportación)", "Espinoso"],
+        "densidad_plantacion": {
+            "nota": "Requiere emparrado (tapesco) permanente.",
+            "sistemas": [
+                { "nombre": "Emparrado Comercial", "arboles_ha": 100, "distancia_m": "10x10m (Extensivo)" },
+                { "nombre": "Alta Densidad", "arboles_ha": 200, "distancia_m": "7x7m" }
+            ]
+        },
+        "duracion_total_dias": 365,
+        "etapas": [
+            { "nombre": "Brotación", "duracion_dias": 30, "bbch_fase": "00-09" },
+            { "nombre": "Crecimiento Guía", "duracion_dias": 90, "bbch_fase": "10-39" },
+            { "nombre": "Floración Continua", "duracion_dias": 200, "bbch_fase": "60-69" },
+            { "nombre": "Cosecha", "duracion_dias": 180, "bbch_fase": "70-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Veracruz (Orizaba)", "siembra_inicio": "Marzo", "siembra_fin": "Mayo", "cosecha_inicio": "Todo el año", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Estructura": ["Construcción de tapesco", "Guiado de la planta"],
+          "Cosecha": ["Corte manual diario", "Selección (Cero espinas para export)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Araña Roja", "tipo": "Plaga", "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] } },
+          { "nombre": "Fusarium", "tipo": "Enfermedad", "control": { "mecanismo": "Suelo", "productos_activos_mexico": [{ "ingrediente": "Trichoderma", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 200 } }
+    },
+
+    "Cempasúchil": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 10.5,
+        "precio_medio_mxn_ton": 4500,
+        "superficie_sembrada_ha": 2000,
+        "superficie_cosechada_ha": 2000,
+        "produccion_miles_ton": 21,
+        "variacion_anual_pct": 5.0,
+        "principales_estados": ["Puebla", "Estado de México", "Oaxaca", "Guerrero"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 21,
+            "variacion_anual_pct": 5.0,
+            "ranking_mundial": "N/A (Cultural)",
+            "consumo_per_capita": "Estacional (Noviembre)",
+            "principales_estados_valor": "Puebla (42%)"
+        },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 10.5, "produccion_ton": 21000 }]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Pumila (Maceta)", "Erecta (Corte/Ramo)", "Clemole"],
+        "densidad_plantacion": {
+            "nota": "Depende si es para maceta o flor de corte.",
+            "sistemas": [
+                { "nombre": "Flor de Corte (Surco)", "arboles_ha": 40000, "distancia_m": "0.30x0.80" },
+                { "nombre": "Maceta", "arboles_ha": 60000, "distancia_m": "10-12 macetas/m2" }
+            ]
+        },
+        "duracion_total_dias": 100,
+        "etapas": [
+            { "nombre": "Germinación", "duracion_dias": 10, "bbch_fase": "00-09" },
+            { "nombre": "Vegetativo", "duracion_dias": 40, "bbch_fase": "10-39" },
+            { "nombre": "Botonización", "duracion_dias": 30, "bbch_fase": "50-59" },
+            { "nombre": "Floración (Venta)", "duracion_dias": 20, "bbch_fase": "60-69" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Puebla/CDMX", "siembra_inicio": "Julio", "siembra_fin": "Agosto", "cosecha_inicio": "Finales Octubre", "cosecha_fin": "2 Noviembre" }
+        ]
+      },
+      "labores": {
+          "Siembra": ["Semillero/Almácigo", "Trasplante"],
+          "Vegetativo": ["Despunte (Pinch) para ramificar", "Aporque"],
+          "Cosecha": ["Corte de tallo", "Manojos (Maletas)"]
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Tizón (Alternaria)", "tipo": "Enfermedad", "descripcion": "Manchas cafés en hojas y pétalos.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }, { "ingrediente": "Iprodiona", "dosis_tipo": "Curativo" }] } },
+          { "nombre": "Araña Roja", "tipo": "Plaga", "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 120 } }
+    }
+  }
+}

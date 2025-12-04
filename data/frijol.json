@@ -1,0 +1,173 @@
+{
+  "principales_estados_productores_frijol": [
+    {
+      "estado": "Zacatecas",
+      "posicion_historica": 1,
+      "variedades": [
+        {
+          "nombre": "Pinto Villa",
+          "tipo": "Pinto",
+          "caracteristicas_generales": "Color crema con manchas café-rojizas. De grano mediano. Preferido por su alto rendimiento y calidad culinaria.",
+          "ciclo_vegetativo": "Intermedio (90-105 días, dependiendo de las condiciones de temporal).",
+          "enfermedades_plagas_comunes": "Susceptible a la roya (*Uromyces appendiculatus*).",
+          "usos_principales": "Consumo en grano."
+        },
+        {
+          "nombre": "Negro Zacatecas",
+          "tipo": "Negro",
+          "caracteristicas_generales": "Grano pequeño, redondo y de color negro brillante. Destaca por su adaptación a condiciones de secano y buena calidad de cocción.",
+          "ciclo_vegetativo": "Intermedio a tardío (95-110 días).",
+          "enfermedades_plagas_comunes": "Puede ser afectado por el virus del mosaico común del frijol (BCMV).",
+          "usos_principales": "Consumo en grano."
+        },
+        {
+          "nombre": "Flor de Mayo Sol",
+          "tipo": "Flor de Mayo",
+          "caracteristicas_generales": "Grano de color rosa pálido con manchas claras. De sabor suave y textura cremosa. Buena adaptación a zonas de temporal.",
+          "ciclo_vegetativo": "Intermedio (90-100 días).",
+          "enfermedades_plagas_comunes": "Afectado por tizón común (*Xanthomonas axonopodis* pv. *phaseoli*).",
+          "usos_principales": "Consumo en grano."
+        }
+      ]
+    },
+    {
+      "estado": "Durango",
+      "posicion_historica": 2,
+      "variedades": [
+        {
+          "nombre": "Pinto Saltillo",
+          "tipo": "Pinto",
+          "caracteristicas_generales": "Similar al Pinto Villa, pero a menudo con mejor adaptación a siembras de riego y temporal en el Valle de Guadiana.",
+          "ciclo_vegetativo": "Intermedio (90-105 días).",
+          "enfermedades_plagas_comunes": "Susceptible a la roya. Las plagas de suelo (gusano de alambre) son comunes en la región.",
+          "usos_principales": "Consumo en grano."
+        },
+        {
+          "nombre": "Negro San Luis",
+          "tipo": "Negro",
+          "caracteristicas_generales": "Variedad de alto rendimiento, resistente al acame (caída de la planta). Grano negro opaco.",
+          "ciclo_vegetativo": "Intermedio a tardío (95-110 días).",
+          "enfermedades_plagas_comunes": "Tizón de halo (*Pseudomonas syringae* pv. *phaseolicola*).",
+          "usos_principales": "Consumo en grano."
+        },
+        {
+          "nombre": "Flor de Junio Marcela",
+          "tipo": "Flor de Junio",
+          "caracteristicas_generales": "Grano grande y ovalado, de color rosa intenso. Ampliamente cultivada en el estado.",
+          "ciclo_vegetativo": "Intermedio (90-100 días).",
+          "enfermedades_plagas_comunes": "Antracnosis (*Colletotrichum lindemuthianum*).",
+          "usos_principales": "Consumo en grano."
+        }
+      ]
+    },
+    {
+      "estado": "Chihuahua",
+      "posicion_historica": 3,
+      "variedades": [
+        {
+          "nombre": "Pinto Saltillo",
+          "tipo": "Pinto",
+          "caracteristicas_generales": "Principal variedad cultivada. Planta de porte semi-erecto, apta para mecanización. Adaptada a las condiciones de temporal del estado.",
+          "ciclo_vegetativo": "Intermedio (90-100 días).",
+          "enfermedades_plagas_comunes": "Roya y tizón común. Plagas como la **conchuela del frijol** (*Epilachna varivestis*).",
+          "usos_principales": "Consumo en grano."
+        },
+        {
+          "nombre": "Azufrado Namiquipa",
+          "tipo": "Azufrado",
+          "caracteristicas_generales": "Grano de color amarillo azufre, de cocción rápida y textura suave. Variedad adaptada a la Sierra Tarahumara.",
+          "ciclo_vegetativo": "Precoz a intermedio (85-95 días).",
+          "enfermedades_plagas_comunes": "Altamente susceptible al **virus del mosaico amarillo del frijol** (BYMV).",
+          "usos_principales": "Consumo en grano."
+        },
+        {
+          "nombre": "Flor de Mayo M-38",
+          "tipo": "Flor de Mayo",
+          "caracteristicas_generales": "Variedad mejorada con buena calidad de grano y resistencia a algunas enfermedades foliares. Grano color rosa pálido.",
+          "ciclo_vegetativo": "Intermedio (90-100 días).",
+          "enfermedades_plagas_comunes": "Tizón de halo.",
+          "usos_principales": "Consumo en grano."
+        }
+      ]
+    }
+  ],
+  "principales_estados_productores_maiz": [
+    {
+      "estado": "Sinaloa",
+      "posicion_historica": 1,
+      "tipo_maiz_dominante": "Maíz Blanco (99% de la superficie)",
+      "variedades": [
+        {
+          "nombre": "Híbridos Comerciales (Dekalb, Asgrow, Corteva, etc.)",
+          "tipo": "Híbrido (Blanco y Amarillo)",
+          "caracteristicas_generales": "Alto rendimiento, grano uniforme, respuesta eficiente a riego y alta tecnología. El maíz blanco se destina a consumo humano.",
+          "ciclo_vegetativo": "Intermedio a Precoz (105-130 días, en riego puede ser más corto).",
+          "enfermedades_plagas_comunes": "Roya, Tizón (Exserohilum turcicum), Gusano Cogollero (*Spodoptera frugiperda*), Gusano Elotero (*Helicoverpa zea*)."
+        },
+        {
+          "nombre": "Elotero de Sinaloa (Criollo/Nativo)",
+          "tipo": "Nativo (Harinoso a Semicristalino)",
+          "caracteristicas_generales": "Mazorcas alargadas y grano azul. Adaptado a las condiciones locales. Utilizado tradicionalmente para elote y tortilla.",
+          "ciclo_vegetativo": "Variable (Depende de la raza, generalmente Intermedio a Tardío).",
+          "enfermedades_plagas_comunes": "Menor resistencia a plagas en comparación con híbridos, puede ser susceptible a Tizón y Pulgón."
+        }
+      ]
+    },
+    {
+      "estado": "Jalisco",
+      "posicion_historica": 2,
+      "tipo_maiz_dominante": "Maíz Blanco (Para consumo humano)",
+      "variedades": [
+        {
+          "nombre": "H-383, H-391, H-392 (Híbridos INIFAP)",
+          "tipo": "Híbrido (Blanco)",
+          "caracteristicas_generales": "Híbridos de alta adaptación a Valles Altos y Bajos. Buen potencial de rendimiento y estabilidad.",
+          "ciclo_vegetativo": "Intermedio (110-140 días, dependiendo de la altitud).",
+          "enfermedades_plagas_comunes": "Roya de la Hoja (*Puccinia sorghi*), Tizón, Podredumbre de Pie (Fusarium), Gusano Cogollero."
+        },
+        {
+          "nombre": "H-380A, H-381A (Híbridos Amarillos)",
+          "tipo": "Híbrido (Amarillo)",
+          "caracteristicas_generales": "Destinado a alimentación animal e industria. Adaptado a condiciones similares a los híbridos blancos.",
+          "ciclo_vegetativo": "Intermedio (110-140 días).",
+          "enfermedades_plagas_comunes": "Las mismas que para maíz blanco; es común el control de Araña Roja y Ácaro de Banks en condiciones de estrés hídrico."
+        },
+        {
+          "nombre": "Raza Jala (Criollo/Nativo)",
+          "tipo": "Nativo (Cristalino/Dentado)",
+          "caracteristicas_generales": "Produce una de las mazorcas más grandes del mundo. Cultivo tradicional en zonas específicas, grano de excelente calidad para elotes y tostadas.",
+          "ciclo_vegetativo": "Tardío (140-180 días).",
+          "enfermedades_plagas_comunes": "Sujeto a las plagas y enfermedades comunes, pero su cultivo suele ser menos intensivo."
+        }
+      ]
+    },
+    {
+      "estado": "Michoacán",
+      "posicion_historica": 3,
+      "tipo_maiz_dominante": "Maíz Blanco y gran diversidad de razas nativas",
+      "variedades": [
+        {
+          "nombre": "Celaya (Híbrido/Raza Mejorada)",
+          "tipo": "Híbrido/Raza (Blanco)",
+          "caracteristicas_generales": "Una de las razas más productivas de México. De grano blanco harinoso/dentado, muy utilizado para tortillas en la Ciénega de Chapala y Centro.",
+          "ciclo_vegetativo": "Intermedio (110-130 días).",
+          "enfermedades_plagas_comunes": "Susceptible a Tizón de la Hoja y Pudrición de la Mazorca."
+        },
+        {
+          "nombre": "Cónico Occidental (Criollo/Nativo)",
+          "tipo": "Nativo (Cónico)",
+          "caracteristicas_generales": "Adaptado a las zonas de Valles Altos y Meseta Purépecha. Grano de diversos colores (blanco, azul, rojo), utilizado para pinole y tortillas.",
+          "ciclo_vegetativo": "Tardío (140-160 días).",
+          "enfermedades_plagas_comunes": "Mildiu Lanuginoso, Virus del Mosaico Enano del Maíz (MDMV), Gusano Cogollero."
+        },
+        {
+          "nombre": "Zamorano Amarillo (Criollo/Nativo)",
+          "tipo": "Nativo (Harinoso)",
+          "caracteristicas_generales": "Grano de color amarillo/naranja. Adaptado a Tierra Caliente y zonas de riego. Se utiliza para forraje y elotes.",
+          "ciclo_vegetativo": "Intermedio a Tardío (120-140 días).",
+          "enfermedades_plagas_comunes": "Barrenador del Tallo (*Diatraea saccharalis*), Gusano Cogollero."
+        }
+      ]
+    }
+  ]
+}
