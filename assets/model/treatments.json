@@ -1,0 +1,138 @@
+{
+  "Tomato___Bacterial_spot": {
+    "name": "Mancha Bacteriana (Xanthomonas)",
+    "severity": "high",
+    "description": "Manchas pequeñas, oscuras y acuosas en hojas y frutos. Causa caída prematura de hojas.",
+    "organic": "📍 Aplicar fungicidas a base de Cobre (Caldo Bordeles) cada 7-10 días.\n📍 Evitar riego por aspersión.",
+    "chemical": "💊 Bactericidas con Sulfato de Estreptomicina o Cobre + Mancozeb.",
+    "prevention": "Usar semillas certificadas y rotar cultivos (no plantar donde hubo pimientos o tomates antes)."
+  },
+  "Tomato___Early_blight": {
+    "name": "Tizón Temprano (Alternaria)",
+    "severity": "medium",
+    "description": "Anillos concéntricos oscuros en hojas viejas (forma de diana). Amarillamiento alrededor de la mancha.",
+    "organic": "📍 Poda de hojas inferiores afectadas.\n📍 Bicarbonato de sodio (1 cda/litro) o Caldo Bordeles.",
+    "chemical": "💊 Fungicidas: Clorotalonil, Mancozeb o Azoxistrobina.",
+    "prevention": "Aumentar espacio entre plantas para mejorar ventilación. Mulching (acolchado) para evitar salpicaduras del suelo."
+  },
+  "Tomato___Late_blight": {
+    "name": "Tizón Tardío (Gota)",
+    "severity": "critical",
+    "description": "Manchas grandes, irregulares y de aspecto aceitoso/negro. Moho blanco en el envés con humedad.",
+    "organic": "📍 Destruir plantas infectadas inmediatamente (quemar o enterrar lejos).\n📍 Extracto de cola de caballo.",
+    "chemical": "💊 Sistémicos: Metalaxil, Cimoxanilo o Propamocarb.",
+    "prevention": "Evitar humedad excesiva en las hojas. Monitoreo constante en días nublados y frescos."
+  },
+  "Tomato___Leaf_Mold": {
+    "name": "Moho de la Hoja (Cladosporium)",
+    "severity": "medium",
+    "description": "Manchas amarillas en la cara superior y moho verde-oliva aterciopelado en la inferior.",
+    "organic": "📍 Mejorar circulación de aire (poda).\n📍 Aceite de Neem o Azufre humectable.",
+    "chemical": "💊 Difenoconazol o Tiofanato-metílico.",
+    "prevention": "Controlar la humedad en invernaderos. Ventilación adecuada."
+  },
+  "Tomato___Septoria_leaf_spot": {
+    "name": "Septoriosis (Mancha de la hoja)",
+    "severity": "medium",
+    "description": "Muchas manchas circulares pequeñas con centro gris/blanco y borde oscuro.",
+    "organic": "📍 Retirar hojas infectadas y no compostarlas.\n📍 Fungicidas de Cobre.",
+    "chemical": "💊 Clorotalonil o Mancozeb.",
+    "prevention": "Eliminar malas hierbas y restos de cultivos anteriores."
+  },
+  "Tomato___Spider_mites Two-spotted_spider_mite": {
+    "name": "Araña Roja (Ácaros)",
+    "severity": "medium",
+    "description": "Puntos amarillos minúsculos en hojas (punteado). Telarañas finas en casos avanzados.",
+    "organic": "📍 Jabón potásico + Aceite de Neem.\n📍 Azufre en polvo (si no hace calor extremo).",
+    "chemical": "💊 Acaricidas específicos (Abamectina).",
+    "prevention": "Evitar sequedad excesiva y polvo. Riego adecuado."
+  },
+  "Tomato___Target_Spot": {
+    "name": "Mancha Objetivo (Corynespora)",
+    "severity": "medium",
+    "description": "Lesiones marrones con anillos concéntricos, similar al Tizón Temprano pero afecta también frutos maduros.",
+    "organic": "📍 Fungicidas a base de Cobre.",
+    "chemical": "💊 Azoxistrobina o Clorotalonil.",
+    "prevention": "Eliminar residuos de cosecha. Rotación de cultivos."
+  },
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+    "name": "Virus de la Cuchara (TYLCV)",
+    "severity": "critical",
+    "description": "Hojas se enrollan hacia arriba (forma de cuchara), se ponen amarillas y la planta deja de crecer.",
+    "organic": "📍 No tiene cura. Eliminar planta.\n📍 Controlar la Mosca Blanca (vector) con trampas amarillas y Jabón Potásico.",
+    "chemical": "💊 Insecticidas sistémicos (Imidacloprid) para controlar al vector (mosca blanca).",
+    "prevention": "Uso de mallas anti-áfidos. Variedades resistentes."
+  },
+  "Tomato___Tomato_mosaic_virus": {
+    "name": "Virus del Mosaico (ToMV)",
+    "severity": "high",
+    "description": "Manchas verde claro y oscuro alternadas (mosaico). Hojas deformadas.",
+    "organic": "📍 No tiene cura. Desinfectar herramientas con cloro o leche desnatada.",
+    "chemical": "-",
+    "prevention": "Lavarse las manos (se transmite por tabaco). Usar semillas desinfectadas."
+  },
+  "Tomato___healthy": {
+    "name": "Planta Saludable (Tomate)",
+    "severity": "none",
+    "description": "¡Excelente! Tu planta de tomate se ve vigorosa y libre de enfermedades visibles.",
+    "organic": "Continúa con buen riego y fertilización orgánica.",
+    "chemical": "-",
+    "prevention": "Monitoreo semanal."
+  },
+  "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+    "name": "Mancha Gris (Cercospora)",
+    "severity": "medium",
+    "description": "Lesiones rectangulares y alargadas de color gris/café paralelas a las venas.",
+    "organic": "📍 Rotación de cultivos.\n📍 Uso de variedades resistentes.",
+    "chemical": "💊 Fungicidas a base de Estrobilurinas o Triazoles.",
+    "prevention": "Manejo de residuos de cosecha (el hongo vive en rastrojos)."
+  },
+  "Corn_(maize)___Common_rust_": {
+    "name": "Roya Común del Maíz",
+    "severity": "medium",
+    "description": "Pústulas (bultitos) color rojo ladrillo u óxido en ambas caras de la hoja.",
+    "organic": "📍 Variedades resistentes.\n📍 Aplicación temprana de Trichoderma (hongo benéfico).",
+    "chemical": "💊 Fungicidas: Tebuconazol + Azoxistrobina.",
+    "prevention": "Siembra en fechas adecuadas para evitar picos de infección."
+  },
+  "Corn_(maize)___Northern_Leaf_Blight": {
+    "name": "Tizón Norteño (Exserohilum)",
+    "severity": "high",
+    "description": "Manchas largas en forma de cigarro (elípticas), grisáceas o marrones.",
+    "organic": "📍 Rotación con cultivos no hospedantes.\n📍 Biofungicidas (Bacillus subtilis).",
+    "chemical": "💊 Maneb, Mancozeb o Clorotalonil.",
+    "prevention": "Enterrar rastrojos infectados profundamente."
+  },
+  "Corn_(maize)___healthy": {
+    "name": "Planta Saludable (Maíz)",
+    "severity": "none",
+    "description": "El cultivo de maíz se ve sano, hojas verdes y sin lesiones.",
+    "organic": "Mantener nutrición balanceada (Nitrógeno).",
+    "chemical": "-",
+    "prevention": "Revisar cogollos regularmente."
+  },
+  "Potato___Early_blight": {
+    "name": "Tizón Temprano (Alternaria)",
+    "severity": "medium",
+    "description": "Manchas oscuras con anillos concéntricos, usualmente inicia en hojas bajas.",
+    "organic": "📍 Caldo Bordeles o Sulfocálcico.\n📍 Evitar estrés hídrico.",
+    "chemical": "💊 Mancozeb o Clorotalonil.",
+    "prevention": "Fertilización adecuada (el tizón temprano ataca plantas débiles)."
+  },
+  "Potato___Late_blight": {
+    "name": "Tizón Tardío (Gota)",
+    "severity": "critical",
+    "description": "Manchas negras húmedas que avanzan rápido. Puede podrir el tubérculo.",
+    "organic": "📍 Eliminar follaje antes de cosecha.\n📍 Cobre preventivo.",
+    "chemical": "💊 Metalaxil (Sistémico) en etapas críticas.",
+    "prevention": "Usar semilla certificada libre de virus y hongos. Aporque alto."
+  },
+  "Potato___healthy": {
+    "name": "Planta Saludable (Papa)",
+    "severity": "none",
+    "description": "Follaje sano sin signos de Tizón.",
+    "organic": "Aporque adecuado para proteger tubérculos.",
+    "chemical": "-",
+    "prevention": "Vigilancia en época de lluvias."
+  }
+}
