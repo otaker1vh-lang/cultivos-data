@@ -76,6 +76,10 @@ export default function App() {
             component={RecordatoriosScreen}
             options={({ route }) => ({ title: `Agenda: ${route.params?.cultivo || ''}` })}
         />
+        <Stack.Screen 
+            name="About" 
+            component={AboutScreen} 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

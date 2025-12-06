@@ -6,6 +6,7 @@ import { useTensorflowModel } from 'react-native-fast-tflite';
 import { useAssets } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { Asset } from 'expo-asset';
 
 // 1. IMPORTAR EL COMPONENTE DE TRATAMIENTOS
 import { TreatmentCard } from '../components/TreatmentCard';
@@ -23,20 +24,26 @@ export default function PlagasScreen() {
   
   const model = useTensorflowModel(modelAssets ? modelAssets[0] : null);
 
-  useEffect(() => {
-    async function loadLabels() {
-      try {
-        // Asegúrate de que labels.txt esté en assets/model/
-        const response = await fetch(require('../assets/model/labels.txt'));
-        const text = await response.text();
-        setLabels(text.split('\n').map(l => l.trim()).filter(l => l));
-      } catch (error) {
-        console.error("Error cargando etiquetas:", error);
-        Alert.alert("Error", "No se pudo cargar la base de datos de plagas.");
-      }
+ useEffect(() => {
+  async function loadLabels() {
+    try {
+      // 1. Resolver el archivo como un Asset nativo
+      const asset = Asset.fromModule(require('../assets/model/labels.txt'));
+      
+      // 2. Asegurar que esté descargado/disponible en el sistema de archivos
+      await asset.downloadAsync();
+      
+      // 3. Leer el contenido usando FileSystem
+      const text = await FileSystem.readAsStringAsync(asset.localUri || asset.uri);
+      
+      setLabels(text.split('\n').map(l => l.trim()).filter(l => l));
+    } catch (error) {
+      console.error("Error cargando etiquetas:", error);
+      Alert.alert("Error", "No se pudo cargar la base de datos de etiquetas.");
     }
-    loadLabels();
-  }, []);
+  }
+  loadLabels();
+}, []);
 
   if (!permission) {
     return <View />;

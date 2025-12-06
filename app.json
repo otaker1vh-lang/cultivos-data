@@ -16,12 +16,13 @@
       "supportsTablet": true
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.otaker.MiApp"
+      "package": "com.otaker.MiApp2"
     },
     "web": {
       "favicon": "./assets/favicon.png"
