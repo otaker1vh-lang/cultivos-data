@@ -26,11 +26,7 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
     setErrorMsg(null);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Sin permiso');
-        setLoading(false);
-        return;
-      }
+      if (status !== 'granted') { /* ... error ... */ return; }
 
       let location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude, altitude } = location.coords;
@@ -51,7 +47,7 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
 
         const now = new Date();
         const tomorrowLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-        const tomorrowStr = tomorrowLocal.toISOString().split("T")[0];
+        const tomorrowStr = tomorrowUTC.toISOString().split("T")[0];
 
         const listaManana = dataForecast.list.filter(item =>
           item.dt_txt.startsWith(tomorrowStr)

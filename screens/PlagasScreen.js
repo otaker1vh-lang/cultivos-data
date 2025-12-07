@@ -54,6 +54,7 @@ export default function PlagasScreen({ route }) {
   const [loadingIA, setLoadingIA] = useState(false);
   const [labels, setLabels] = useState([]);
   const [isModelReady, setIsModelReady] = useState(false);
+  const [areLabelsReady, setAreLabelsReady] = useState(false);
 
   // --- CARGA DE DATOS ESTÁTICOS Y USUARIO ---
   const cultivoDataJson = cultivosData?.cultivos?.[cultivo];
@@ -78,7 +79,12 @@ export default function PlagasScreen({ route }) {
           const text = await FileSystem.readAsStringAsync(uri);
           const lista = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
           setLabels(lista);
-        } catch (e) { console.error("Error labels:", e); }
+          setAreLabelsReady(true); // <--- MARCAMOS COMO LISTO
+          console.log("Etiquetas cargadas OK:", lista.length);
+        } catch (e) { 
+            console.error("Error labels:", e); 
+            Alert.alert("Error Crítico", "No se pudo leer el archivo de etiquetas.");
+        }
       };
       loadTxt();
     }
@@ -331,16 +337,22 @@ export default function PlagasScreen({ route }) {
           <View style={styles.actionButtons}>
             {!prediction && (
                 <TouchableOpacity 
-                    style={[styles.buttonModal, styles.analyzeButton, (!isModelReady || loadingIA) && {opacity:0.5}]} 
+                    // DESHABILITAMOS SI NO ESTÁN LISTAS LAS ETIQUETAS O EL MODELO
+                    style={[styles.buttonModal, styles.analyzeButton, (!isModelReady || !areLabelsReady || loadingIA) && {opacity:0.5}]} 
                     onPress={classifyImage}
-                    disabled={!isModelReady || loadingIA}
+                    disabled={!isModelReady || !areLabelsReady || loadingIA}
                 >
-                    {loadingIA ? <ActivityIndicator color="#fff"/> : <Text style={styles.buttonText}>{isModelReady ? "🔍 Diagnosticar" : "Cargando IA..."}</Text>}
+                    {loadingIA ? (
+                        <ActivityIndicator color="#fff"/>
+                    ) : (
+                        // MENSAJE DINÁMICO SEGÚN EL ESTADO
+                        <Text style={styles.buttonText}>
+                            {!isModelReady || !areLabelsReady ? "⏳ Cargando IA..." : "🔍 Diagnosticar"}
+                        </Text>
+                    )}
                 </TouchableOpacity>
             )}
-            <TouchableOpacity style={[styles.buttonModal, styles.closeButton]} onPress={resetStateIA}>
-              <Text style={styles.buttonText}>Cerrar</Text>
-            </TouchableOpacity>
+            {/* ... botón cerrar ... */}
           </View>
           {prediction && (
             <View style={styles.resultContainer}>

@@ -94,10 +94,11 @@ export default function RecordatoriosScreen({ route }) {
       return;
     }
     
-    // Validar que la fecha sea futura
+    // 1. Validar que la fecha sea futura
     const ahora = new Date();
-    if (fecha <= ahora) {
-      Alert.alert("Fecha inválida", "La fecha debe ser en el futuro.");
+    // Agregamos un minuto de margen para evitar problemas si se selecciona la hora actual exacta
+    if (fecha.getTime() < (ahora.getTime() + 60000)) {
+      Alert.alert("Fecha inválida", "Por favor, selecciona una hora al menos 1 minuto en el futuro.");
       return;
     }
 
@@ -105,13 +106,16 @@ export default function RecordatoriosScreen({ route }) {
       // USAMOS 'date' DIRECTAMENTE. Esto es mucho más preciso.
       const trigger = { date: fecha }; 
 
+      // --- USO DEL DISPARADOR POR FECHA EXACTA ---
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: `🚜 ${cultivo}: ${titulo}`,
           body: `Es hora de realizar tu actividad programada.`,
           sound: true,
         },
-        trigger, // Pasamos el objeto trigger con la fecha exacta
+        trigger: { 
+            date: fecha // <--- ESTA ES LA CLAVE
+        },
       });
 
       // ... Resto del código de guardado en AsyncStorage igual ...
