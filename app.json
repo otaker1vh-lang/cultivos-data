@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "MiApp",
+    "name": "RoślinApp",
     "slug": "MiApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.otaker.MiApp2"
+      "package": "com.otaker.roslinapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

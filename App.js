@@ -13,6 +13,9 @@ import CalculoScreen from './screens/CalculoScreen';
 import BitacoraScreen from './screens/BitacoraScreen';
 import RecordatoriosScreen from './screens/RecordatoriosScreen';
 
+// 👇 ESTA ERA LA LÍNEA QUE FALTABA Y CAUSABA EL ERROR
+import AboutScreen from './screens/AboutScreen'; 
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -76,6 +79,8 @@ export default function App() {
             component={RecordatoriosScreen}
             options={({ route }) => ({ title: `Agenda: ${route.params?.cultivo || ''}` })}
         />
+        
+        {/* Esta pantalla ahora funcionará porque ya está importada arriba */}
         <Stack.Screen 
             name="About" 
             component={AboutScreen} 

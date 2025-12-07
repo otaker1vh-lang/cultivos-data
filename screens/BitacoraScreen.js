@@ -4,7 +4,9 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import * as ImagePicker from 'expo-image-picker'; // <--- IMPORTANTE
+import * as ImagePicker from 'expo-image-picker'; 
+import * as Print from 'expo-print'; // <--- NUEVO
+import * as Sharing from 'expo-sharing'; // <--- NUEVO
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const CATALOGO_ETAPAS = {
@@ -22,7 +24,7 @@ export default function BitacoraScreen({ route }) {
   const [nota, setNota] = useState('');
   const [etapa, setEtapa] = useState(etapasDisponibles[0]);
   const [fechaObservacion, setFechaObservacion] = useState(new Date());
-  const [imagen, setImagen] = useState(null); // <--- Estado para la foto temporal
+  const [imagen, setImagen] = useState(null); 
   const [registros, setRegistros] = useState([]);
   
   // UI
@@ -52,11 +54,11 @@ export default function BitacoraScreen({ route }) {
     const resultado = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
-      quality: 0.5, // Calidad media para no llenar la memoria rápido
+      quality: 0.5, 
     });
 
     if (!resultado.canceled) {
-      setImagen(resultado.assets[0].uri); // Guardamos la ruta de la foto
+      setImagen(resultado.assets[0].uri); 
     }
   };
 
@@ -71,7 +73,7 @@ export default function BitacoraScreen({ route }) {
       fechaSuceso: fechaObservacion.toISOString(),
       etapa: etapa,
       texto: nota,
-      fotoUri: imagen // <--- Guardamos la ruta de la foto en el registro
+      fotoUri: imagen 
     };
 
     const nuevosRegistros = [nuevoRegistro, ...registros];
@@ -79,7 +81,6 @@ export default function BitacoraScreen({ route }) {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nuevosRegistros));
       setRegistros(nuevosRegistros);
-      // Limpiar
       setNota('');
       setImagen(null);
       Keyboard.dismiss();
@@ -95,7 +96,50 @@ export default function BitacoraScreen({ route }) {
 
   const formatearFecha = (date) => {
     if (!date) return "";
-    return new Date(date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+    return new Date(date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  // NUEVA FUNCIÓN: EXPORTAR A PDF
+  const exportarBitacoraPDF = async () => {
+      if(registros.length === 0) {
+          Alert.alert("Vacío", "No hay registros para exportar.");
+          return;
+      }
+      try {
+        const filasHTML = registros.map(item => `
+          <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+             <div style="background-color: #E8F5E9; padding: 5px; font-weight: bold; color: #2E7D32; display: flex; justify-content: space-between;">
+                <span>${item.etapa}</span>
+                <span>${formatearFecha(item.fechaSuceso)}</span>
+             </div>
+             <p style="margin-top: 10px; font-size: 14px;">${item.texto || 'Sin observaciones.'}</p>
+             ${item.fotoUri ? `<img src="${item.fotoUri}" style="width: 150px; height: auto; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc;" />` : ''}
+          </div>
+        `).join('');
+
+        const htmlContent = `
+          <html>
+            <head>
+              <style>
+                body { font-family: Helvetica, sans-serif; padding: 20px; }
+                h1 { color: #2E7D32; text-align: center; }
+                .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #666; }
+              </style>
+            </head>
+            <body>
+              <h1>Bitácora de Campo: ${cultivo}</h1>
+              <p>Historial de actividades y monitoreo.</p>
+              ${filasHTML}
+              <div class="footer">Generado por App de Cultivos</div>
+            </body>
+          </html>
+        `;
+
+        const { uri } = await Print.printToFileAsync({ html: htmlContent });
+        await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      } catch (error) {
+          Alert.alert("Error", "No se pudo crear el PDF.");
+      }
   };
 
   return (
@@ -127,7 +171,7 @@ export default function BitacoraScreen({ route }) {
             ))}
           </ScrollView>
 
-          <TextInput style={styles.inputArea} placeholder="Observaciones..." value={nota} onChangeText={setNota} multiline />
+          <TextInput style={styles.inputArea} placeholder="Observaciones / Comentarios..." value={nota} onChangeText={setNota} multiline />
 
           {/* BOTÓN CÁMARA Y PREVIEW */}
           <View style={styles.camaraRow}>
@@ -144,9 +188,15 @@ export default function BitacoraScreen({ route }) {
         </View>
       )}
 
+      {/* BOTON EXPORTAR PDF */}
+      <TouchableOpacity style={styles.botonPdf} onPress={exportarBitacoraPDF}>
+          <Text style={styles.textoPdf}>📄 Exportar Bitácora a PDF</Text>
+      </TouchableOpacity>
+
       <FlatList
         data={registros}
         keyExtractor={item => item.id}
+        contentContainerStyle={{paddingBottom: 20}}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
@@ -155,7 +205,6 @@ export default function BitacoraScreen({ route }) {
             </View>
             {item.texto ? <Text style={styles.textoNota}>{item.texto}</Text> : null}
             
-            {/* MOSTRAR FOTO SI EXISTE */}
             {item.fotoUri && (
               <Image source={{ uri: item.fotoUri }} style={styles.fotoGrande} />
             )}
@@ -186,6 +235,8 @@ const styles = StyleSheet.create({
   miniPreview: { width: 40, height: 40, borderRadius: 5, marginLeft: 10, borderWidth:1, borderColor:'#ddd' },
   botonGuardar: { backgroundColor: '#2E7D32', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 15 },
   textoBoton: { color: '#fff', fontWeight: 'bold' },
+  botonPdf: { backgroundColor: '#D32F2F', padding: 10, borderRadius: 8, alignItems: 'center', marginBottom: 10 },
+  textoPdf: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
   card: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 10, elevation: 1 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
   badgeText: { color: '#2E7D32', fontWeight: 'bold', backgroundColor: '#E8F5E9', paddingHorizontal:6, borderRadius:4, fontSize:12 },

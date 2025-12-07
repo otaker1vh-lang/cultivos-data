@@ -76,36 +76,45 @@ export default function RecordatoriosScreen({ route }) {
     setMostrarPicker(false);
     if (event.type !== 'set' || !selectedDate) return;
 
+    // Actualizamos la fecha seleccionada
     const fechaActual = selectedDate;
     setFecha(fechaActual);
 
+    // Si estábamos eligiendo fecha, ahora abrimos el reloj
     if (modo === 'date') {
       setModo('time');
       setTimeout(() => setMostrarPicker(true), 100);
     }
   };
 
-  // 3. PROGRAMAR Y GUARDAR
+  // 3. PROGRAMAR Y GUARDAR (LÓGICA CORREGIDA)
   const programarRecordatorio = async () => {
     if (titulo.trim() === '') {
       Alert.alert("Falta información", "Escribe la actividad.");
       return;
     }
     
+    // Calculamos la diferencia en segundos para usar un trigger más robusto
     const ahora = new Date();
-    if (fecha.getTime() < (ahora.getTime() - 60000)) {
-      Alert.alert("Fecha inválida", "La fecha debe ser futura.");
+    const diferenciaSegundos = (fecha.getTime() - ahora.getTime()) / 1000;
+
+    if (diferenciaSegundos <= 0) {
+      Alert.alert("Fecha inválida", "La fecha debe ser futura (al menos un minuto adelante).");
       return;
     }
 
     try {
+      // Usamos 'seconds' en lugar de 'date' para evitar conflictos de interpretación de zonas horarias
+      // o problemas donde el dispositivo piensa que la fecha ya pasó.
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: `🚜 ${cultivo}: ${titulo}`,
           body: `Es hora de realizar tu actividad programada.`,
           sound: true,
         },
-        trigger: { date: fecha },
+        trigger: { 
+            seconds: Math.floor(diferenciaSegundos) // Ejecutar en X segundos
+        },
       });
 
       const nuevaTarea = {
@@ -120,7 +129,7 @@ export default function RecordatoriosScreen({ route }) {
       setListaRecordatorios(nuevaLista);
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nuevaLista));
 
-      Alert.alert("¡Agendado!", "La actividad se guardó y te avisaremos.");
+      Alert.alert("¡Agendado!", "Te avisaremos a la hora exacta.");
       setTitulo('');
       Keyboard.dismiss();
 

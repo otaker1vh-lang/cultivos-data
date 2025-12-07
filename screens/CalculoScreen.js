@@ -27,8 +27,6 @@ const NOMBRE_NUTRIENTE_BASE = {
     'K': 'Potasio (K₂O)'
 };
 
-
-
 export default function CalculoScreen({ route }) {
   const { cultivo } = route.params || {};
   
@@ -44,8 +42,8 @@ export default function CalculoScreen({ route }) {
   const [openCalculo, setOpenCalculo] = useState(true);
   const [openResultados, setOpenResultados] = useState(true);
   const [openAgro, setOpenAgro] = useState(false);
+  const [openComentarios, setOpenComentarios] = useState(true); // Nuevo estado
 
-  // Función para animar el despliegue
   const toggleSection = (setter, value) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setter(!value);
@@ -59,7 +57,6 @@ export default function CalculoScreen({ route }) {
   const [hectareas, setHectareas] = useState('1');
   const [totalPlantas, setTotalPlantas] = useState(0);
   
-  // Opciones Avanzadas Densidad
   const [esDobleHilera, setEsDobleHilera] = useState(false);
   const [esTresbolillo, setEsTresbolillo] = useState(false);
 
@@ -67,7 +64,7 @@ export default function CalculoScreen({ route }) {
   const [aplicaciones, setAplicaciones] = useState([]);
   const [fertilizantesPersonalizados, setFertilizantesPersonalizados] = useState([]);
   const [nutrientesExtras, setNutrientesExtras] = useState([]); 
-  const [mostrarFuentesLista, setMostrarFuentesLista] = useState(false); // Lista interna de fuentes
+  const [mostrarFuentesLista, setMostrarFuentesLista] = useState(false);
 
   const [fertilizanteSeleccionado, setFertilizanteSeleccionado] = useState(FERTILIZANTES_BASE[0]);
   const [dosisNutrientePura, setDosisNutrientePura] = useState(''); 
@@ -76,10 +73,16 @@ export default function CalculoScreen({ route }) {
   const [nuevoNutrienteInput, setNuevoNutrienteInput] = useState({ simbolo: '', dosisMeta: '' });
   const [nuevaFuente, setNuevaFuente] = useState({ nombre: '' });
   
+  // --- ESTADOS LÍQUIDOS (MODIFICADO) ---
+  const [nombreProductoLiquido, setNombreProductoLiquido] = useState(''); // Nuevo Campo
   const [dosisAgroquimico, setDosisAgroquimico] = useState('');
   const [volumenTanque, setVolumenTanque] = useState('');
   const [dosisResultado, setDosisResultado] = useState(null);
   const [dosisPorPlantaLiquido, setDosisPorPlantaLiquido] = useState(null);
+
+  // --- ESTADO COMENTARIOS (NUEVO) ---
+  const [comentariosFinales, setComentariosFinales] = useState('');
+
   const COMPOSICION_QUIMICA = {};
   const REGLAS_QUIMICAS = [];
   const dosisRecomendada = dataFertilizacion?.recomendada || { N: 0, P: 0, K: 0 };
@@ -88,6 +91,7 @@ export default function CalculoScreen({ route }) {
       P: dosisRecomendada.P || 0,
       K: dosisRecomendada.K || 0,
   }));
+
   // --- EFECTOS ---
   useEffect(() => {
     if (datosDensidad.length > 0) {
@@ -97,7 +101,6 @@ export default function CalculoScreen({ route }) {
     }
   }, [cultivo]);
 
-  // Lógica de Cálculo de Densidad
   useEffect(() => {
     const ha = parseFloat(hectareas) || 0;
     if (esManual) {
@@ -105,13 +108,8 @@ export default function CalculoScreen({ route }) {
         const ds = parseFloat(distanciaSurcos);
         if (dp > 0 && ds > 0) {
             let densidadCalculada = 10000 / (dp * ds);
-            
-            // Ajuste Tresbolillo (+15.47%)
             if (esTresbolillo) densidadCalculada = densidadCalculada * 1.1547;
-            
-            // Ajuste Doble Hilera (x2)
             if (esDobleHilera) densidadCalculada = densidadCalculada * 2;
-            
             setTotalPlantas(Math.round(ha * densidadCalculada));
         } else {
             setTotalPlantas(0);
@@ -154,7 +152,6 @@ export default function CalculoScreen({ route }) {
   }, [aplicaciones, dosisObjetivoPersonalizada]);
 
   // --- HANDLERS ---
-  
   const agregarNutrienteExtra = () => {
     const { simbolo, dosisMeta } = nuevoNutrienteInput;
     const simbLimpio = simbolo.trim();
@@ -216,78 +213,48 @@ export default function CalculoScreen({ route }) {
     ]);
   };
 
-  // --- FUNCIÓN INTELIGENTE: VERIFICAR INCOMPATIBILIDAD QUÍMICA ---
   const verificarIncompatibilidad = (nuevoFert) => {
     const nombreNuevo = nuevoFert.nombre;
-    // Obtenemos los componentes químicos del nuevo (o array vacío si no está registrado)
     const componentesNuevo = COMPOSICION_QUIMICA[nombreNuevo] || [];
-
-    // Recorremos lo que YA está en el tanque/plan
     for (let app of aplicaciones) {
         const nombreExistente = app.nombre;
         const componentesExistente = COMPOSICION_QUIMICA[nombreExistente] || [];
-
-        // Comparamos los componentes contra las reglas químicas
         for (let regla of REGLAS_QUIMICAS) {
-            // Revisamos si se cumple la regla: (Nuevo tiene A Y Existente tiene B) O (Nuevo tiene B Y Existente tiene A)
-            
             const nuevoTieneElem1 = componentesNuevo.some(c => c.includes(regla.elem1));
             const existTieneElem2 = componentesExistente.some(c => c.includes(regla.elem2));
-            
             const nuevoTieneElem2 = componentesNuevo.some(c => c.includes(regla.elem2));
             const existTieneElem1 = componentesExistente.some(c => c.includes(regla.elem1));
-
             if ((nuevoTieneElem1 && existTieneElem2) || (nuevoTieneElem2 && existTieneElem1)) {
-                return { 
-                    a: nombreNuevo, 
-                    b: nombreExistente, 
-                    razon: `${regla.razon}\n\n(Conflicto detectado: ${regla.elem1} + ${regla.elem2})` 
-                };
+                return { a: nombreNuevo, b: nombreExistente, razon: `${regla.razon}\n\n(Conflicto: ${regla.elem1} + ${regla.elem2})` };
             }
         }
     }
-    return null; // Todo limpio
+    return null; 
   };
 
-  // --- HANDLER PRINCIPAL ---
   const calcularYAgregarAplicacion = () => {
     const dosisPuraDeseada = parseFloat(dosisNutrientePura);
     if (!dosisPuraDeseada || dosisPuraDeseada <= 0) return;
-    
     const conc = fertilizanteSeleccionado[nutrienteAcalcular];
-    
-    // Validaciones básicas
     if (!conc || conc === 0) {
         Alert.alert("Error", `El fertilizante ${fertilizanteSeleccionado.nombre} no contiene ${nutrienteAcalcular}.`);
         return;
     }
-
     if (aplicaciones.some(app => app.nombre === fertilizanteSeleccionado.nombre)) {
         Alert.alert("Duplicado", "Ya has agregado este fertilizante.");
         return;
     }
-
-    // ⚠️ VALIDACIÓN QUÍMICA
     const conflicto = verificarIncompatibilidad(fertilizanteSeleccionado);
-    
     if (conflicto) {
-        Alert.alert(
-            "⚠️ ¡PELIGRO DE MEZCLA!",
-            `Estás intentando mezclar ${conflicto.a} con ${conflicto.b}.\n\n${conflicto.razon}\n\n¿Deseas continuar bajo tu propio riesgo?`,
-            [
+        Alert.alert("⚠️ ¡PELIGRO!", `${conflicto.razon}\n\n¿Continuar?`, [
                 { text: "Cancelar", style: "cancel" },
-                { text: "Sí, agregar igual", onPress: () => procesarAgregado(dosisPuraDeseada, conc) }
-            ]
-        );
+                { text: "Sí", onPress: () => procesarAgregado(dosisPuraDeseada, conc) }
+        ]);
     } else {
-        // Si no hay conflicto, pasamos directo
         procesarAgregado(dosisPuraDeseada, conc);
     }
   };
 
-  const kgFertilizanteTotalLote = (kgHa) => kgHa * parseFloat(hectareas || 1);
-
-  // Función auxiliar para no repetir código
   const procesarAgregado = (dosisPuraDeseada, concentracion) => {
     const kgFertilizantePorHa = (dosisPuraDeseada / concentracion) * 100;
     const nutrientesAportados = {};
@@ -299,13 +266,11 @@ export default function CalculoScreen({ route }) {
         if (c > 0) {
             const aporte = kgFertilizantePorHa * (c / 100);
             nutrientesAportados[nutriente] = aporte;
-            
             const acumulado = balance.aportes[nutriente] || 0;
             const meta = balance.dosisMaximas[nutriente] || 0;
-
             if (meta > 0 && (acumulado + aporte) > (meta + 0.5)) {
                 excedeLimite = true;
-                mensajeError = `Cuidado: El ${nutriente} excede la meta de ${meta} kg.`;
+                mensajeError = `El ${nutriente} excede la meta de ${meta} kg.`;
             }
         }
     });
@@ -338,7 +303,7 @@ export default function CalculoScreen({ route }) {
 
   const exportarPDF = async () => {
     try {
-      // Generar filas de la tabla
+      // Filas fertilizantes
       const filasHTML = aplicaciones.map(app => `
         <tr>
           <td style="padding:8px; border:1px solid #ddd;">${app.nombre}</td>
@@ -350,7 +315,23 @@ export default function CalculoScreen({ route }) {
         </tr>
       `).join('');
 
-      // Plantilla HTML del reporte
+      // Sección HTML Líquidos
+      let htmlLiquidos = '';
+      if (dosisResultado) {
+          htmlLiquidos = `
+            <h3>Aplicación Líquida (Foliar/Drench)</h3>
+            <div style="background-color: #E3F2FD; padding: 10px; border-radius: 5px; border: 1px solid #BBDEFB;">
+                <p><strong>Producto:</strong> ${nombreProductoLiquido || 'Sin nombre'}</p>
+                <p><strong>Dosis:</strong> ${dosisAgroquimico} ml/L</p>
+                <p><strong>Capacidad Tanque:</strong> ${volumenTanque} L</p>
+                <hr style="border: 0; border-top: 1px solid #ccc;">
+                <p style="color: #0D47A1; font-weight: bold; font-size: 14px;">${dosisResultado}</p>
+                ${dosisPorPlantaLiquido ? `<p style="font-size: 12px;">Por planta: ${dosisPorPlantaLiquido}</p>` : ''}
+            </div>
+          `;
+      }
+
+      // HTML del reporte
       const htmlContent = `
         <html>
           <head>
@@ -358,9 +339,10 @@ export default function CalculoScreen({ route }) {
               body { font-family: Helvetica, sans-serif; padding: 20px; }
               h1 { color: #2E7D32; text-align: center; }
               .header { background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-              table { width: 100%; border-collapse: collapse; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
               th { background-color: #2E7D32; color: white; padding: 10px; text-align: left; }
               .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #666; }
+              .comentarios-box { border: 1px solid #999; padding: 10px; min-height: 50px; border-radius: 4px; background-color: #fff; }
             </style>
           </head>
           <body>
@@ -368,17 +350,16 @@ export default function CalculoScreen({ route }) {
             
             <div class="header">
               <p><strong>Superficie:</strong> ${hectareas} hectáreas</p>
-              <p><strong>Población:</strong> ${totalPlantas.toLocaleString()} plantas</p>
+              <p><strong>Densidad:</strong> ${totalPlantas.toLocaleString()} plantas</p>
               <p><strong>Sistema:</strong> ${esManual ? 'Manual' : (sistemaSeleccionado?.nombre || 'N/A')}</p>
-              ${esDobleHilera ? '<p>⚠️ Configuración: Doble Hilera</p>' : ''}
             </div>
 
-            <h3>Detalle de Aplicación</h3>
+            <h3>Nutrición Edáfica (Suelo)</h3>
             <table>
               <tr>
                 <th>Fuente</th>
                 <th>Dosis/Ha</th>
-                <th>Total Lote</th>
+                <th>Total sup</th>
                 <th>Aportes</th>
               </tr>
               ${filasHTML || '<tr><td colspan="4">Sin aplicaciones registradas</td></tr>'}
@@ -391,23 +372,28 @@ export default function CalculoScreen({ route }) {
               `).join('')}
             </ul>
 
+            ${htmlLiquidos}
+
+            <h3>Comentarios / Observaciones</h3>
+            <div class="comentarios-box">
+                ${comentariosFinales ? comentariosFinales.replace(/\n/g, '<br>') : 'Sin comentarios adicionales.'}
+            </div>
+
             <div class="footer">
-              Generado el ${new Date().toLocaleDateString()} por App de Cultivos
+              Generado el ${new Date().toLocaleDateString()} por RóslinaApp
             </div>
           </body>
         </html>
       `;
 
-      // Generar y Compartir
       const { uri } = await Print.printToFileAsync({ html: htmlContent });
       await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
 
     } catch (error) {
-      Alert.alert("Error", "No se pudo generar el PDF. Verifica que tengas una app para abrir PDFs.");
+      Alert.alert("Error", "No se pudo generar el PDF.");
     }
   };
 
-  // Componente Header para Acordeón
   const SectionHeader = ({ title, isOpen, toggle }) => (
     <TouchableOpacity onPress={toggle} style={styles.accordionHeader}>
       <Text style={styles.accordionTitle}>{isOpen ? "▼" : "▶"} {title}</Text>
@@ -418,13 +404,11 @@ export default function CalculoScreen({ route }) {
     <ScrollView style={styles.container}>
       <Text style={styles.titulo}>🧮 Calculadora: {cultivo}</Text>
 
-      {/* --- 1. DENSIDAD --- */}
+      {/* 1. DENSIDAD */}
       <View style={styles.cardContainer}>
         <SectionHeader title="1. Densidad y Plantas" isOpen={openDensidad} toggle={() => toggleSection(setOpenDensidad, openDensidad)} />
-        
         {openDensidad && (
           <View style={styles.cardContent}>
-            <Text style={styles.label}>Sistema de Plantación:</Text>
             <View style={styles.pickerWrapper}>
                 <Picker
                     selectedValue={esManual ? "manual" : sistemaSeleccionado}
@@ -451,16 +435,14 @@ export default function CalculoScreen({ route }) {
                             <TextInput style={styles.inputWhite} keyboardType="numeric" placeholder="Ej. 5" value={distanciaSurcos} onChangeText={setDistanciaSurcos}/>
                         </View>
                     </View>
-
-                    {/* Switches */}
                     <View style={styles.switchesContainer}>
                         <View style={styles.switchRow}>
                             <Text style={styles.labelSwitch}>🌱 Doble Hilera (x2)</Text>
-                            <Switch value={esDobleHilera} onValueChange={setEsDobleHilera} trackColor={{ false: "#ccc", true: "#81b0ff" }} thumbColor={esDobleHilera ? "#2E7D32" : "#f4f3f4"}/>
+                            <Switch value={esDobleHilera} onValueChange={setEsDobleHilera}/>
                         </View>
                         <View style={[styles.switchRow, {borderTopWidth: 1, borderColor: '#eee'}]}>
                             <Text style={styles.labelSwitch}>📐 Tresbolillo (+15%)</Text>
-                            <Switch value={esTresbolillo} onValueChange={setEsTresbolillo} trackColor={{ false: "#ccc", true: "#81b0ff" }} thumbColor={esTresbolillo ? "#2E7D32" : "#f4f3f4"}/>
+                            <Switch value={esTresbolillo} onValueChange={setEsTresbolillo}/>
                         </View>
                     </View>
                 </View>
@@ -472,19 +454,15 @@ export default function CalculoScreen({ route }) {
                     <TextInput style={styles.inputWhite} keyboardType="numeric" value={hectareas} onChangeText={setHectareas}/>
                 </View>
                 <View style={{flex: 1}}>
-                    <Text style={styles.label}>Densidad Calc:</Text>
-                    <Text style={styles.datoFijo}>{totalPlantas > 0 ? `${Math.round(totalPlantas / (parseFloat(hectareas)||1))} pl/ha` : '-'}</Text>
+                    <Text style={styles.label}>Total Plantas:</Text>
+                    <Text style={styles.resultadoNumero}>{totalPlantas.toLocaleString()}</Text>
                 </View>
-            </View>
-            <View style={styles.resultadoBox}>
-                <Text style={styles.resultadoLabel}>Total Plantas Lote:</Text>
-                <Text style={styles.resultadoNumero}>{totalPlantas.toLocaleString()}</Text>
             </View>
           </View>
         )}
       </View>
 
-      {/* --- 2. OBJETIVO --- */}
+      {/* 2. OBJETIVO */}
       <View style={styles.cardContainer}>
         <SectionHeader title="2. Objetivo Nutricional" isOpen={openObjetivo} toggle={() => toggleSection(setOpenObjetivo, openObjetivo)} />
         {openObjetivo && (
@@ -507,7 +485,7 @@ export default function CalculoScreen({ route }) {
         )}
       </View>
 
-      {/* --- 3. AGREGAR NUTRIENTE --- */}
+      {/* 3. AGREGAR NUTRIENTE EXTRA */}
       <View style={styles.cardContainer}>
          <SectionHeader title="3. Agregar Nutriente Extra" isOpen={openExtra} toggle={() => toggleSection(setOpenExtra, openExtra)} />
          {openExtra && (
@@ -515,9 +493,7 @@ export default function CalculoScreen({ route }) {
              <View style={styles.addExtensionRow}>
                 <TextInput style={[styles.inputExtension, {flex:1}]} placeholder="Símbolo (Ej. Ca)" value={nuevoNutrienteInput.simbolo} onChangeText={v=>setNuevoNutrienteInput({...nuevoNutrienteInput, simbolo: v})} />
                 <TextInput style={[styles.inputExtension, {flex:1}]} placeholder="Meta (kg/ha)" keyboardType="numeric" value={nuevoNutrienteInput.dosisMeta} onChangeText={v=>setNuevoNutrienteInput({...nuevoNutrienteInput, dosisMeta: v})} />
-                <TouchableOpacity style={styles.addBtn} onPress={agregarNutrienteExtra}>
-                    <Text style={styles.addBtnText}>+</Text>
-                </TouchableOpacity>
+                <TouchableOpacity style={styles.addBtn} onPress={agregarNutrienteExtra}><Text style={styles.addBtnText}>+</Text></TouchableOpacity>
              </View>
              <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
                  {nutrientesExtras.map((nut) => (
@@ -530,14 +506,12 @@ export default function CalculoScreen({ route }) {
          )}
       </View>
       
-      {/* --- 4. CREAR FUENTE --- */}
+      {/* 4. FUENTES */}
       <View style={styles.cardContainer}>
          <SectionHeader title="4. Registrar Fuente Nueva" isOpen={openFuente} toggle={() => toggleSection(setOpenFuente, openFuente)} />
          {openFuente && (
            <View style={styles.cardContent}>
-             <Text style={styles.nota}>Crea un fertilizante con los nutrientes activos.</Text>
              <TextInput style={[styles.inputExtension, {marginBottom: 10, width: '100%'}]} placeholder="Nombre (ej. Nitrato de Calcio)" value={nuevaFuente.nombre} onChangeText={v=>setNuevaFuente({...nuevaFuente, nombre: v})} />
-             
              <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                 {todosLosNutrientes.map((nut) => (
                     <View key={nut} style={{width: '33%', padding: 2}}>
@@ -546,18 +520,14 @@ export default function CalculoScreen({ route }) {
                     </View>
                 ))}
              </View>
-
              <TouchableOpacity style={[styles.addBtn, {marginTop: 10, width: '100%'}]} onPress={agregarFertilizantePersonalizado}>
                 <Text style={styles.addBtnText}>Guardar Fuente</Text>
              </TouchableOpacity>
-
-             {/* Lista Desplegable Interna */}
              {fertilizantesPersonalizados.length > 0 && (
                  <View style={{marginTop: 15}}>
                      <TouchableOpacity onPress={() => setMostrarFuentesLista(!mostrarFuentesLista)} style={styles.dropdownHeader}>
                         <Text style={styles.dropdownTitle}>{mostrarFuentesLista ? "▼ Ocultar" : "▶ Ver"} Mis Fuentes ({fertilizantesPersonalizados.length})</Text>
                      </TouchableOpacity>
-                     
                      {mostrarFuentesLista && (
                          <View style={styles.listContainer}>
                              {fertilizantesPersonalizados.map((f, i) => (
@@ -576,7 +546,7 @@ export default function CalculoScreen({ route }) {
          )}
       </View>
 
-      {/* --- 5. CÁLCULO --- */}
+      {/* 5. CÁLCULO */}
       <View style={styles.cardContainer}>
         <SectionHeader title="5. Balanceo de Fuentes" isOpen={openCalculo} toggle={() => toggleSection(setOpenCalculo, openCalculo)} />
         {openCalculo && (
@@ -613,7 +583,7 @@ export default function CalculoScreen({ route }) {
         )}
       </View>
 
-      {/* --- 6. RESULTADOS --- */}
+      {/* 6. RESULTADOS */}
       <View style={styles.cardContainer}>
         <SectionHeader title="6. Plan de Aplicación" isOpen={openResultados} toggle={() => toggleSection(setOpenResultados, openResultados)} />
         {openResultados && (
@@ -624,13 +594,12 @@ export default function CalculoScreen({ route }) {
                 aplicaciones.map((app, index) => {
                   const gramosPorPlanta = totalPlantas > 0 ? ((app.dosisTotalLote * 1000) / totalPlantas).toFixed(1) : 0;
                   const textoAportes = Object.keys(app.aportes || {}).map(k => `${app.aportes[k].toFixed(1)}kg ${k}`).join(', ');
-
                   return (
                     <View key={index} style={styles.aplicacionRow}>
                       <View style={{flex:1}}>
                           <Text style={styles.aplicacionTextBold}>{app.dosisAplicada.toFixed(1)} kg/ha de {app.nombre}</Text>
                           <Text style={styles.aplicacionSubtext}>Aporta: {textoAportes}</Text>
-                          <Text style={styles.aplicacionSubtext}>Total Lote: {app.dosisTotalLote.toFixed(1)} kg</Text>
+                          <Text style={styles.aplicacionSubtext}>Total sup: {app.dosisTotalLote.toFixed(1)} kg</Text>
                           {totalPlantas > 0 && <Text style={styles.aplicacionDosisPlanta}>🌱 Dosis/Planta: {gramosPorPlanta} gr</Text>}
                       </View>
                       <TouchableOpacity onPress={() => eliminarAplicacion(index)} style={styles.deleteBtn}><Text style={styles.deleteText}>X</Text></TouchableOpacity>
@@ -642,11 +611,19 @@ export default function CalculoScreen({ route }) {
         )}
       </View>
 
-      {/* --- 7. AGROQUÍMICOS --- */}
+      {/* 7. AGROQUÍMICOS */}
       <View style={styles.cardContainer}>
           <SectionHeader title="7. Dosis Líquidos" isOpen={openAgro} toggle={() => toggleSection(setOpenAgro, openAgro)} />
           {openAgro && (
             <View style={styles.cardContent}>
+              <Text style={styles.label}>Producto / Ingrediente Activo:</Text>
+              <TextInput 
+                  style={[styles.inputWhite, {marginBottom: 10}]} 
+                  placeholder="Ej. Insecticida X, Foliares..." 
+                  value={nombreProductoLiquido} 
+                  onChangeText={setNombreProductoLiquido}
+              />
+
               <View style={styles.row}>
                   <TextInput style={[styles.inputWhite, {flex:1, marginRight:5}]} placeholder="Dosis ml/L" keyboardType="numeric" value={dosisAgroquimico} onChangeText={setDosisAgroquimico}/>
                   <TextInput style={[styles.inputWhite, {flex:1}]} placeholder="Litros Tanque" keyboardType="numeric" value={volumenTanque} onChangeText={setVolumenTanque}/>
@@ -661,8 +638,24 @@ export default function CalculoScreen({ route }) {
             </View>
           )}
       </View>
+
+      {/* 8. COMENTARIOS (NUEVO SECCIÓN) */}
+      <View style={styles.cardContainer}>
+        <SectionHeader title="8. Notas / Comentarios" isOpen={openComentarios} toggle={() => toggleSection(setOpenComentarios, openComentarios)} />
+        {openComentarios && (
+            <View style={styles.cardContent}>
+                <TextInput 
+                    style={[styles.inputWhite, {height: 80, textAlignVertical: 'top'}]} 
+                    multiline 
+                    placeholder="Escribe aquí observaciones generales para el reporte..." 
+                    value={comentariosFinales}
+                    onChangeText={setComentariosFinales}
+                />
+            </View>
+        )}
+      </View>
+
       <View style={{height: 50}} />
-      {/* BOTÓN DE EXPORTACIÓN */}
       <TouchableOpacity 
         style={[styles.btn, { backgroundColor: '#D32F2F', marginTop: 20, marginBottom: 30 }]} 
         onPress={exportarPDF}
@@ -672,76 +665,51 @@ export default function CalculoScreen({ route }) {
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 15, backgroundColor: "#f4f4f4" },
   titulo: { fontSize: 24, fontWeight: "bold", marginBottom: 15, color: '#2E7D32', textAlign: 'center' },
-  
-  // Accordion Styles
   cardContainer: { backgroundColor: '#fff', borderRadius: 10, marginBottom: 10, overflow: 'hidden', elevation: 2 },
   accordionHeader: { padding: 15, backgroundColor: '#E8F5E9', borderBottomWidth: 1, borderBottomColor: '#C8E6C9' },
   accordionTitle: { fontSize: 16, fontWeight: 'bold', color: '#2E7D32' },
   cardContent: { padding: 15 },
-
-  subtitulo: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: "#333" },
   row: { flexDirection: 'row', alignItems: 'center' },
   nota: { fontSize: 12, color: '#777', marginBottom: 10, fontStyle: 'italic' },
-  
-  // Pickers & Inputs
-  pickerWrapperWhite: { backgroundColor: '#fff', borderRadius: 5, borderWidth: 1, borderColor: '#ccc', marginBottom: 10, justifyContent: 'center' },
   pickerWrapper: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, marginBottom: 10, justifyContent: 'center', backgroundColor: '#fff' },
   inputWhite: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, height: 45 },
   input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, padding: 10, marginBottom: 10, height: 45 },
-  
-  // Manual & Switches
   manualInputsContainer: { flexDirection: 'row', marginBottom: 10 },
   switchesContainer: { backgroundColor: '#FAFAFA', padding: 10, borderRadius: 5, marginTop: 5, borderWidth: 1, borderColor: '#eee' },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
   labelSwitch: { fontSize: 14, color: '#555', fontWeight: 'bold' },
-
-  // Labels & Text
   label: { fontSize: 13, fontWeight: '600', marginBottom: 5, color: '#555' },
   labelSmall: { fontSize: 12, color: '#666', marginBottom: 2 },
-  datoFijo: { fontSize: 16, fontWeight: 'bold', paddingTop: 10, color: '#555' },
   remanenteText: { fontSize: 14, color: '#D32F2F', fontWeight: 'bold', marginBottom: 10, textAlign: 'right' },
   emptyText: { textAlign: 'center', fontStyle: 'italic', color: '#999', padding: 10 },
-
-  // Results
-  resultadoBox: { marginTop: 15, backgroundColor: '#FAFAFA', padding: 10, borderRadius: 5, alignItems: 'center', borderWidth: 1, borderColor: '#eee' },
-  resultadoLabel: { fontSize: 14, color: '#666' },
   resultadoNumero: { fontSize: 24, fontWeight: 'bold', color: '#E65100' },
   resultadoAporte: { marginTop: 10, fontSize: 16, fontWeight: 'bold', color: '#0D47A1', textAlign: 'center' },
   resultadoAporteSmall: { fontSize: 14, fontWeight: 'bold', color: '#1565C0', textAlign: 'center', marginTop: 5 },
-
-  // NPK Inputs
   npkContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   dosisMaxInputContainer: { flexDirection: 'row', alignItems: 'center', width: '48%', marginBottom: 10, backgroundColor: '#FAFAFA', borderRadius: 5, padding: 5, borderWidth: 1, borderColor: '#eee' },
   npkItemSmall: { fontSize: 14, fontWeight: '600', marginRight: 5, color: '#2E7D32' },
   dosisMaxInput: { borderBottomWidth: 1, borderColor: '#aaa', width: 60, textAlign: 'center', fontSize: 16, fontWeight: 'bold' },
-
-  // App List Row
   aplicacionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FAFAFA', padding: 10, borderRadius: 5, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: '#2E7D32' },
   aplicacionTextBold: { fontWeight: 'bold', fontSize: 15, color: '#333' },
   aplicacionSubtext: { fontSize: 12, color: '#666' },
   aplicacionDosisPlanta: { fontSize: 13, color: '#1B5E20', fontWeight: 'bold', marginTop: 2 },
-
-  // Buttons & Chips
   btn: { backgroundColor: "#2E7D32", padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 5 },
   btnText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   btnSmall: { backgroundColor: '#1976D2', padding: 10, borderRadius: 5, marginTop: 10, alignItems: 'center' },
   btnTextSmall: { color: '#fff', fontWeight: 'bold' },
   deleteBtn: { backgroundColor: '#FFEBEE', padding: 8, borderRadius: 5 },
   deleteText: { color: '#D32F2F', fontWeight: 'bold' },
-  
-  // Extension Card specific
   addExtensionRow: { flexDirection: 'row', marginTop: 5 },
   inputExtension: { flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 5, padding: 8, marginRight: 5 },
   inputSmall: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 5, padding: 5, height: 35, textAlign: 'center' },
   addBtn: { backgroundColor: '#555', padding: 10, borderRadius: 5, justifyContent: 'center', alignItems: 'center' },
   addBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-  
   chip: { backgroundColor: '#E0E0E0', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 15, marginRight: 5, marginBottom: 5 },
   chipText: { color: '#333', fontSize: 12, fontWeight: 'bold' },
-  
   dropdownHeader: { padding: 10, backgroundColor: '#eee', borderRadius: 5, marginBottom: 5 },
   dropdownTitle: { color: '#2E7D32', fontWeight: 'bold', textAlign: 'center' },
   listContainer: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#eee', borderRadius: 5, padding: 5 },
