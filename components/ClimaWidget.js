@@ -49,14 +49,17 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
       if (responseCurrent.ok && responseForecast.ok) {
         setWeather(dataCurrent);
 
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowDateString = tomorrow.toISOString().split('T')[0];
-        const listaManana = dataForecast.list.filter(item => item.dt_txt.includes(tomorrowDateString));
-        
+        const now = new Date();
+        const tomorrowLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        const tomorrowStr = tomorrowLocal.toISOString().split("T")[0];
+
+        const listaManana = dataForecast.list.filter(item =>
+          item.dt_txt.startsWith(tomorrowStr)
+        );
+
         setForecastsManana(listaManana);
         if (listaManana.length > 0) {
-            const defaultSelection = listaManana.find(item => item.dt_txt.includes("12:00")) || listaManana[0];
+            const defaultSelection = listaManana.find(i => i.dt_txt.includes("12:00")) || listaManana.find(i => i.dt_txt.includes("15:00")) || listaManana[0];
             setSelectedForecast(defaultSelection);
         }
 

@@ -94,29 +94,27 @@ export default function RecordatoriosScreen({ route }) {
       return;
     }
     
-    // Calculamos la diferencia en segundos para usar un trigger más robusto
+    // Validar que la fecha sea futura
     const ahora = new Date();
-    const diferenciaSegundos = (fecha.getTime() - ahora.getTime()) / 1000;
-
-    if (diferenciaSegundos <= 0) {
-      Alert.alert("Fecha inválida", "La fecha debe ser futura (al menos un minuto adelante).");
+    if (fecha <= ahora) {
+      Alert.alert("Fecha inválida", "La fecha debe ser en el futuro.");
       return;
     }
 
     try {
-      // Usamos 'seconds' en lugar de 'date' para evitar conflictos de interpretación de zonas horarias
-      // o problemas donde el dispositivo piensa que la fecha ya pasó.
+      // USAMOS 'date' DIRECTAMENTE. Esto es mucho más preciso.
+      const trigger = { date: fecha }; 
+
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: `🚜 ${cultivo}: ${titulo}`,
           body: `Es hora de realizar tu actividad programada.`,
           sound: true,
         },
-        trigger: { 
-            seconds: Math.floor(diferenciaSegundos) // Ejecutar en X segundos
-        },
+        trigger, // Pasamos el objeto trigger con la fecha exacta
       });
 
+      // ... Resto del código de guardado en AsyncStorage igual ...
       const nuevaTarea = {
         id: Date.now().toString(),
         notificationId: notificationId,
