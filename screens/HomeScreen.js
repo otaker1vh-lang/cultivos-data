@@ -9,7 +9,8 @@ import {
   Alert, 
   Image,
   FlatList,
-  Keyboard
+  Keyboard,
+  StatusBar
 } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import cultivosData from "../data/cultivos.json"; 
@@ -17,7 +18,23 @@ import cultivosData from "../data/cultivos.json";
 const LOGO_SOURCE = require('../assets/logo_roslin.png'); 
 const APP_NAME = "RoślinApp";
 
-// MENÚS ACTUALIZADOS
+// --- NUEVA PALETA DE COLORES (Identidad Visual) ---
+const colors = {
+  background: '#FDFBF7',    // Crema suave (Papel)
+  primaryGreen: '#4A7C59',  // Verde hoja oscuro (Logo)
+  secondaryBrown: '#8C6239', // Marrón tierra (Logo)
+  accentLight: '#E9F2EB',   // Verde muy claro (Fondos de iconos)
+  textDark: '#2C3E50',      // Texto principal
+  textLight: '#FFFFFF',     // Texto sobre fondos oscuros
+  textGray: '#7f8c8d',      // Textos secundarios
+  border: '#E0E0E0',        // Bordes sutiles
+  cardBg: '#FFFFFF',        // Fondo de tarjetas
+  alertRed: '#D32F2F',      // Alertas negativas
+  alertGreen: '#2E7D32',    // Alertas positivas
+  infoBg: '#FFF8E1',        // Fondo barra info (amarillo pálido)
+};
+
+// MENÚS
 const menus = [
     { titulo: '📊 Estadísticas', descripcion: 'Rendimiento y precios.', icono: 'chart-bar', ruta: 'Estadisticas' },
     { titulo: '📅 Ciclo Fenológico', descripcion: 'Etapas y calendario.', icono: 'calendar-clock', ruta: 'Fenologia' },
@@ -26,7 +43,6 @@ const menus = [
     { titulo: '🧮 Cálculo de Dosis', descripcion: 'Balanceo NPK.', icono: 'calculator-variant', ruta: 'Calculo' },
     { titulo: '📝 Bitácora de Campo', descripcion: 'Registro de actividades.', icono: 'notebook', ruta: 'Bitacora' },
     { titulo: '🔔 Programar Actividad', descripcion: 'Recordatorios y alertas.', icono: 'alarm-check', ruta: 'Recordatorios' },
-    // 👇 NUEVA OPCIÓN AGREGADA
     { titulo: 'ℹ️ Acerca de', descripcion: 'Información y créditos.', icono: 'information', ruta: 'About' },
 ];
 
@@ -111,7 +127,7 @@ export default function HomeScreen({ navigation, route }) {
               tipo: 'bueno',
               texto: 'Condiciones ideales para realizar aplicaciones',
               icono: 'check-circle',
-              color: '#2E7D32',
+              color: colors.alertGreen,
               bg: '#E8F5E9'
           });
       } else {
@@ -119,7 +135,7 @@ export default function HomeScreen({ navigation, route }) {
               tipo: 'malo',
               texto: 'Se recomienda no realizar aplicaciones',
               icono: 'alert-octagon',
-              color: '#D32F2F',
+              color: colors.alertRed,
               bg: '#FFEBEE'
           });
       }
@@ -127,6 +143,9 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={colors.primaryGreen} barStyle="light-content" />
+      
+      {/* HEADER ACTUALIZADO */}
       <View style={styles.header}>
         <Image source={LOGO_SOURCE} style={styles.logo} resizeMode="contain" />
         <Text style={styles.headerTitle}>{APP_NAME}</Text>
@@ -148,10 +167,11 @@ export default function HomeScreen({ navigation, route }) {
         <View style={styles.searchSection}>
             <Text style={styles.label}>¿Qué cultivo vas a elegir hoy?</Text>
             <View style={styles.searchBar}>
-                <MaterialCommunityIcons name="magnify" size={24} color="#666" style={{marginLeft: 10}} />
+                <MaterialCommunityIcons name="magnify" size={24} color={colors.secondaryBrown} style={{marginLeft: 15}} />
                 <TextInput
                     style={styles.input}
                     placeholder="Escribe para buscar (ej. Maíz)"
+                    placeholderTextColor="#999"
                     value={busqueda}
                     onChangeText={alEscribir}
                     onFocus={() => setMostrarLista(true)}
@@ -176,7 +196,7 @@ export default function HomeScreen({ navigation, route }) {
                         onPress={() => seleccionarCultivo(item)}
                     >
                         <Text style={styles.listItemText}>{item}</Text>
-                        <MaterialCommunityIcons name="arrow-top-left" size={20} color="#ccc" />
+                        <MaterialCommunityIcons name="arrow-top-left" size={20} color={colors.secondaryBrown} />
                     </TouchableOpacity>
                 )}
                 ListEmptyComponent={
@@ -186,6 +206,7 @@ export default function HomeScreen({ navigation, route }) {
         ) : (
             cultivoSeleccionado && (
                 <View style={{flex: 1}}>
+                    {/* INFO BAR ACTUALIZADA */}
                     <View style={styles.infoBar}>
                         <Text style={styles.infoText}>🌱 Cultivo: <Text style={{fontWeight:'bold'}}>{cultivoSeleccionado}</Text></Text>
                         <View style={styles.badge}>
@@ -199,13 +220,14 @@ export default function HomeScreen({ navigation, route }) {
                         numColumns={2}
                         columnWrapperStyle={{justifyContent: 'space-between'}}
                         contentContainerStyle={{paddingTop: 10, paddingBottom: 20}}
+                        showsVerticalScrollIndicator={false}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 style={styles.menuCard}
                                 onPress={() => navegarA(item.ruta)}
                             >
-                                <View style={[styles.iconCircle, {backgroundColor: '#E8F5E9'}]}>
-                                    <MaterialCommunityIcons name={item.icono} size={32} color="#2E7D32" />
+                                <View style={[styles.iconCircle, {backgroundColor: colors.accentLight}]}>
+                                    <MaterialCommunityIcons name={item.icono} size={32} color={colors.primaryGreen} />
                                 </View>
                                 <Text style={styles.menuTitle}>{item.titulo}</Text>
                                 <Text style={styles.menuDesc}>{item.descripcion}</Text>
@@ -218,7 +240,7 @@ export default function HomeScreen({ navigation, route }) {
 
         {!mostrarLista && !cultivoSeleccionado && (
              <View style={styles.welcomeContainer}>
-                 <MaterialCommunityIcons name="sprout" size={60} color="#ddd" />
+                 <MaterialCommunityIcons name="sprout" size={80} color={colors.secondaryBrown} style={{opacity: 0.3}} />
                  <Text style={styles.welcomeText}>Selecciona la lupa para buscar un cultivo</Text>
              </View>
         )}
@@ -228,43 +250,103 @@ export default function HomeScreen({ navigation, route }) {
   );
 }
 
+// --- NUEVOS ESTILOS (Look & Feel Orgánico) ---
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9' },
+  container: { flex: 1, backgroundColor: colors.background },
+  
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 50, 
-    paddingBottom: 15,
+    paddingBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: '#4CAF50',
-    elevation: 4,
-    shadowColor: '#000', 
-    shadowOpacity: 0.2,
+    backgroundColor: colors.primaryGreen,
+    borderBottomRightRadius: 25,
+    borderBottomLeftRadius: 25,
+    elevation: 6,
+    shadowColor: '#2a402e', 
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+  },
+  
+  logo: { width: 35, height: 35, marginRight: 12 },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: colors.textLight, letterSpacing: 0.5 },
+  
+  content: { flex: 1, paddingHorizontal: 20, paddingTop: 15 },
+  
+  alertaContainer: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, marginBottom: 20, borderWidth: 1 },
+  alertaTexto: { marginLeft: 10, fontWeight: 'bold', fontSize: 14, flex: 1 },
+  
+  searchSection: { marginBottom: 15 },
+  label: { fontSize: 16, fontWeight: '700', color: colors.secondaryBrown, marginBottom: 10, marginLeft: 5 },
+  
+  searchBar: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#fff', 
+    borderRadius: 25, 
+    borderWidth: 1, 
+    borderColor: colors.border, 
+    height: 50, 
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 }
   },
-  logo: { width: 30, height: 30, marginRight: 10 },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#fff' },
-  content: { flex: 1, paddingHorizontal: 20, paddingTop: 10 },
-  alertaContainer: { flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: 10, marginBottom: 15, borderWidth: 1 },
-  alertaTexto: { marginLeft: 10, fontWeight: 'bold', fontSize: 14, flex: 1 },
-  searchSection: { marginBottom: 10 },
-  label: { fontSize: 16, fontWeight: '600', color: '#444', marginBottom: 10, marginLeft: 5 },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#ddd', height: 50, elevation: 3 },
-  input: { flex: 1, height: '100%', paddingHorizontal: 10, fontSize: 16, color: '#333' },
+  input: { flex: 1, height: '100%', paddingHorizontal: 15, fontSize: 16, color: colors.textDark },
+  
   listContainer: { flex: 1, marginTop: 5 },
-  listItem: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f0f0', borderRadius: 8, marginBottom: 5 },
-  listItemText: { fontSize: 16, color: '#333' },
+  listItem: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    padding: 16, 
+    backgroundColor: '#fff', 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#f0f0f0', 
+    borderRadius: 12, 
+    marginBottom: 8 
+  },
+  listItemText: { fontSize: 16, color: colors.textDark },
   emptyText: { textAlign: 'center', marginTop: 20, color: '#999', fontStyle: 'italic' },
-  infoBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, padding: 10, backgroundColor: '#E3F2FD', borderRadius: 8, borderWidth: 1, borderColor: '#BBDEFB' },
-  infoText: { fontSize: 16, color: '#0D47A1' },
-  badge: { backgroundColor: '#1976D2', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  menuCard: { width: '48%', backgroundColor: '#fff', borderRadius: 15, padding: 15, marginBottom: 15, alignItems: 'center', borderWidth: 1, borderColor: '#eee', elevation: 2 },
-  iconCircle: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  menuTitle: { fontSize: 14, fontWeight: 'bold', textAlign: 'center', color: '#333', marginBottom: 4 },
-  menuDesc: { fontSize: 11, textAlign: 'center', color: '#777' },
-  welcomeContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', opacity: 0.7 },
-  welcomeText: { marginTop: 10, fontSize: 16, color: '#999' },
+  
+  infoBar: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: 20, 
+    padding: 15, 
+    backgroundColor: colors.infoBg, 
+    borderRadius: 12, 
+    borderWidth: 1, 
+    borderColor: colors.secondaryBrown,
+    borderLeftWidth: 5, 
+  },
+  infoText: { fontSize: 16, color: colors.secondaryBrown, fontWeight: '600' },
+  
+  badge: { backgroundColor: colors.primaryGreen, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 15 },
+  badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
+  
+  menuCard: { 
+    width: '48%', 
+    backgroundColor: colors.cardBg, 
+    borderRadius: 20, 
+    padding: 15, 
+    marginBottom: 15, 
+    alignItems: 'center', 
+    elevation: 3, 
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6
+  },
+  iconCircle: { width: 55, height: 55, borderRadius: 27.5, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
+  menuTitle: { fontSize: 15, fontWeight: 'bold', textAlign: 'center', color: colors.textDark, marginBottom: 4 },
+  menuDesc: { fontSize: 12, textAlign: 'center', color: colors.textGray },
+  
+  welcomeContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', opacity: 0.8 },
+  welcomeText: { marginTop: 15, fontSize: 16, color: colors.secondaryBrown, fontWeight: '500' },
+  
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   errorText: { color: 'red', fontSize: 16 }
 });

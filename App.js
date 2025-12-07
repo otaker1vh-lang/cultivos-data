@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack'; 
 
 // Importa todas las pantallas
+// Asegúrate de mover tu archivo WelcomeScreen.js a la carpeta 'screens'
+import WelcomeScreen from './screens/WelcomeScreen'; // <--- NUEVA IMPORTACIÓN
 import HomeScreen from './screens/HomeScreen';
 import MenuDetalleScreen from './screens/MenuDetalleScreen';
 import EstadisticasScreen from './screens/EstadisticasScreen';
@@ -12,8 +14,6 @@ import PlagasScreen from './screens/PlagasScreen';
 import CalculoScreen from './screens/CalculoScreen';
 import BitacoraScreen from './screens/BitacoraScreen';
 import RecordatoriosScreen from './screens/RecordatoriosScreen';
-
-// 👇 ESTA ERA LA LÍNEA QUE FALTABA Y CAUSABA EL ERROR
 import AboutScreen from './screens/AboutScreen'; 
 
 const Stack = createStackNavigator();
@@ -22,13 +22,20 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="Home"
+        initialRouteName="Welcome" // <--- CAMBIO AQUÍ: Arranca con la Bienvenida
         screenOptions={{
           headerStyle: { backgroundColor: '#4CAF50' }, 
           headerTintColor: '#fff', 
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       >
+        {/* 0. Pantalla de Bienvenida (Nueva) */}
+        <Stack.Screen 
+            name="Welcome" 
+            component={WelcomeScreen} 
+            options={{ headerShown: false }} // Sin cabecera para que luzca el diseño
+        />
+
         {/* 1. Pantalla Principal: Listado con Filtro */}
         <Stack.Screen 
             name="Home" 
@@ -80,7 +87,6 @@ export default function App() {
             options={({ route }) => ({ title: `Agenda: ${route.params?.cultivo || ''}` })}
         />
         
-        {/* Esta pantalla ahora funcionará porque ya está importada arriba */}
         <Stack.Screen 
             name="About" 
             component={AboutScreen} 

@@ -7,7 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTensorflowModel } from 'react-native-fast-tflite';
-import { useAssets } from 'expo-asset';
+import { Asset } from 'expo-asset'; // Usamos la clase Asset directamente
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import cultivosData from "../data/cultivos.json";
@@ -15,7 +15,6 @@ import { TreatmentCard } from '../components/TreatmentCard';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-// --- FUNCIONES AUXILIARES ---
 const getRiesgo = (plagaTipo) => {
     const tipo = plagaTipo || 'Desconocido';
     if (tipo.includes('Plaga') || tipo.includes('Insecto')) return { color: '#FF9800', nivel: 'Moderado (Monitoreo)' };
@@ -27,26 +26,21 @@ const getRiesgo = (plagaTipo) => {
 export default function PlagasScreen({ route }) {
   const { cultivo } = route.params || { cultivo: 'General' };
   
-  // CLAVES DE ALMACENAMIENTO
   const STORAGE_KEY_CUSTOM = `@plagas_nuevas_${cultivo}`;
   const STORAGE_KEY_DETAILS = `@plagas_detalles_${cultivo}`;
 
-  // --- ESTADOS DE GESTIÓN (LISTA Y EDICIÓN) ---
   const [listaCompleta, setListaCompleta] = useState([]);
-  const [vistaIA, setVistaIA] = useState(false); // Toggle entre Lista Manual y Diagnóstico IA
+  const [vistaIA, setVistaIA] = useState(false);
   
-  // Modal y Edición
   const [modalVisible, setModalVisible] = useState(false);
   const [plagaEditando, setPlagaEditando] = useState(null);
   const [editIngrediente, setEditIngrediente] = useState('');
   const [editDosis, setEditDosis] = useState('');
   const [editFoto, setEditFoto] = useState(null);
 
-  // Crear Plaga Manual
   const [mostrarFormularioNuevo, setMostrarFormularioNuevo] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState('');
 
-  // --- ESTADOS DE IA (CÁMARA Y MODELO) ---
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
   const [imageIA, setImageIA] = useState(null);
@@ -54,132 +48,60 @@ export default function PlagasScreen({ route }) {
   const [loadingIA, setLoadingIA] = useState(false);
   const [labels, setLabels] = useState([]);
   const [isModelReady, setIsModelReady] = useState(false);
-  const [areLabelsReady, setAreLabelsReady] = useState(false);
+  const [areLabelsReady, setAreLabelsReady] = useState(false); // Nuevo estado
 
-  // --- CARGA DE DATOS ESTÁTICOS Y USUARIO ---
   const cultivoDataJson = cultivosData?.cultivos?.[cultivo];
   const cicloMensual = cultivoDataJson?.ciclo_fenologico?.ciclo_mensual_principal;
   const mesActual = new Date().toLocaleString('es-ES', { month: 'long' });
   const etapaActual = cicloMensual ? (cicloMensual[mesActual.charAt(0).toUpperCase() + mesActual.slice(1)] || 'Fuera de Ciclo') : 'N/A';
 
-  // --- CARGA DE MODELO TFLITE ---
+  // CARGA DE MODELO
   const tensorflow = useTensorflowModel(require('../assets/model/roslin_model.tflite'));
-  const [assetsLabels] = useAssets([require('../assets/model/labels.txt')]);
 
   useEffect(() => {
     cargarYFusionarDatos();
   }, [cultivo, modalVisible]);
 
-  // Efecto para etiquetas IA
+  // --- CORRECCIÓN DE CARGA DE ETIQUETAS ---
   useEffect(() => {
-    if (assetsLabels && assetsLabels[0]) {
-      const loadTxt = async () => {
-        try {
-          const uri = assetsLabels[0].localUri || assetsLabels[0].uri;
-          const text = await FileSystem.readAsStringAsync(uri);
-          const lista = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-          setLabels(lista);
-          setAreLabelsReady(true); // <--- MARCAMOS COMO LISTO
-          console.log("Etiquetas cargadas OK:", lista.length);
-        } catch (e) { 
-            console.error("Error labels:", e); 
-            Alert.alert("Error Crítico", "No se pudo leer el archivo de etiquetas.");
-        }
-      };
-      loadTxt();
+    async function loadLabels() {
+      try {
+        // 1. Resolver el asset explícitamente
+        const asset = Asset.fromModule(require('../assets/model/labels.txt'));
+        
+        // 2. Forzar descarga para asegurar que existe localmente
+        await asset.downloadAsync();
+        
+        // 3. Leer usando la URI local segura
+        const uri = asset.localUri || asset.uri;
+        const text = await FileSystem.readAsStringAsync(uri);
+        
+        const lista = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        setLabels(lista);
+        setAreLabelsReady(true);
+      } catch (e) { 
+        console.error("Error labels:", e); 
+        // No alertar aquí para no bloquear la UI al inicio
+      }
     }
-  }, [assetsLabels]);
+    loadLabels();
+  }, []);
 
-  // Efecto para estado del modelo
   useEffect(() => {
     if (tensorflow.model) setIsModelReady(true);
   }, [tensorflow.model]);
 
-  // --- FUNCIONES DE GESTIÓN DE DATOS ---
-  const cargarYFusionarDatos = async () => {
-    try {
-      const datosEstaticos = cultivoDataJson?.plagas_y_enfermedades || [];
-      const rawCustom = await AsyncStorage.getItem(STORAGE_KEY_CUSTOM);
-      const datosUsuario = rawCustom ? JSON.parse(rawCustom) : [];
-      const rawDetails = await AsyncStorage.getItem(STORAGE_KEY_DETAILS);
-      const detallesExtra = rawDetails ? JSON.parse(rawDetails) : {};
-
-      const baseCombinada = [...datosEstaticos, ...datosUsuario];
-
-      const listaFinal = baseCombinada.map(plaga => {
-        const extras = detallesExtra[plaga.nombre] || {};
-        return { ...plaga, ...extras };
-      });
-
-      setListaCompleta(listaFinal);
-    } catch (e) { console.log("Error cargando datos", e); }
-  };
-
-  const plagaCritica = listaCompleta.reduce((masCritica, plaga) => {
-      const riesgoActual = getRiesgo(plaga.tipo);
-      const riesgoCritico = getRiesgo(masCritica ? masCritica.tipo : null);
-      return (riesgoActual.nivel.includes('Crítico') || riesgoActual.nivel.includes('Alto')) ? plaga : masCritica;
-  }, null);
-
+  // ... (RESTO DE FUNCIONES IGUALES: cargarYFusionarDatos, plagaCritica, semaforo, gestionarImagenManual, guardarDetalles, abrirEditor, crearPlagaNueva)
+  const cargarYFusionarDatos = async () => { try { const datosEstaticos = cultivoDataJson?.plagas_y_enfermedades || []; const rawCustom = await AsyncStorage.getItem(STORAGE_KEY_CUSTOM); const datosUsuario = rawCustom ? JSON.parse(rawCustom) : []; const rawDetails = await AsyncStorage.getItem(STORAGE_KEY_DETAILS); const detallesExtra = rawDetails ? JSON.parse(rawDetails) : {}; const baseCombinada = [...datosEstaticos, ...datosUsuario]; const listaFinal = baseCombinada.map(plaga => { const extras = detallesExtra[plaga.nombre] || {}; return { ...plaga, ...extras }; }); setListaCompleta(listaFinal); } catch (e) { console.log(e); } };
+  const plagaCritica = listaCompleta.reduce((masCritica, plaga) => { const riesgoActual = getRiesgo(plaga.tipo); const riesgoCritico = getRiesgo(masCritica ? masCritica.tipo : null); return (riesgoActual.nivel.includes('Crítico') || riesgoActual.nivel.includes('Alto')) ? plaga : masCritica; }, null);
   const semaforo = plagaCritica ? getRiesgo(plagaCritica.tipo) : { color: '#4CAF50', nivel: 'Bajo Riesgo' };
+  const gestionarImagenManual = async () => { Alert.alert("Subir Evidencia", "Fuente:", [ { text: "Cancelar", style: "cancel" }, { text: "📸 Cámara", onPress: () => lanzarPickerManual('camara') }, { text: "🖼️ Galería", onPress: () => lanzarPickerManual('galeria') }, ] ); };
+  const lanzarPickerManual = async (modo) => { const { status } = await ImagePicker.requestCameraPermissionsAsync(); if (status !== 'granted') return Alert.alert("Permiso denegado"); let resultado; const opts = { mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [4, 3], quality: 0.6 }; if (modo === 'camara') resultado = await ImagePicker.launchCameraAsync(opts); else resultado = await ImagePicker.launchImageLibraryAsync(opts); if (!resultado.canceled) setEditFoto(resultado.assets[0].uri); };
+  const guardarDetalles = async () => { if (!plagaEditando) return; try { const rawDetails = await AsyncStorage.getItem(STORAGE_KEY_DETAILS); const detallesActuales = rawDetails ? JSON.parse(rawDetails) : {}; detallesActuales[plagaEditando.nombre] = { userIngrediente: editIngrediente, userDosis: editDosis, userFoto: editFoto }; await AsyncStorage.setItem(STORAGE_KEY_DETAILS, JSON.stringify(detallesActuales)); setModalVisible(false); cargarYFusionarDatos(); Alert.alert("Guardado", "Información actualizada."); } catch (e) { Alert.alert("Error"); } };
+  const abrirEditor = (plaga) => { setPlagaEditando(plaga); setEditIngrediente(plaga.userIngrediente || ''); setEditDosis(plaga.userDosis || ''); setEditFoto(plaga.userFoto || null); setModalVisible(true); };
+  const crearPlagaNueva = async () => { if (!nuevoNombre.trim()) return Alert.alert("Falta Nombre"); const nueva = { id: Date.now().toString(), nombre: nuevoNombre, tipo: 'Plaga Registrada', descripcion: "Personalizado", control: { mecanismo: "Manual", productos_activos_mexico: [] }, esUsuario: true }; try { const rawCustom = await AsyncStorage.getItem(STORAGE_KEY_CUSTOM); const list = rawCustom ? JSON.parse(rawCustom) : []; await AsyncStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify([nueva, ...list])); setNuevoNombre(''); setMostrarFormularioNuevo(false); cargarYFusionarDatos(); setTimeout(() => abrirEditor(nueva), 500); } catch (e) { Alert.alert("Error"); } };
 
-  // --- FUNCIONES DE IMAGEN Y EDICIÓN (MANUAL) ---
-  const gestionarImagenManual = async () => {
-    Alert.alert("Subir Evidencia", "Fuente:", [
-        { text: "Cancelar", style: "cancel" },
-        { text: "📸 Cámara", onPress: () => lanzarPickerManual('camara') },
-        { text: "🖼️ Galería", onPress: () => lanzarPickerManual('galeria') },
-      ]
-    );
-  };
-
-  const lanzarPickerManual = async (modo) => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') return Alert.alert("Permiso denegado");
-    
-    let resultado;
-    const opts = { mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [4, 3], quality: 0.6 };
-    
-    if (modo === 'camara') resultado = await ImagePicker.launchCameraAsync(opts);
-    else resultado = await ImagePicker.launchImageLibraryAsync(opts);
-
-    if (!resultado.canceled) setEditFoto(resultado.assets[0].uri);
-  };
-
-  const guardarDetalles = async () => {
-    if (!plagaEditando) return;
-    try {
-      const rawDetails = await AsyncStorage.getItem(STORAGE_KEY_DETAILS);
-      const detallesActuales = rawDetails ? JSON.parse(rawDetails) : {};
-      detallesActuales[plagaEditando.nombre] = { userIngrediente: editIngrediente, userDosis: editDosis, userFoto: editFoto };
-      await AsyncStorage.setItem(STORAGE_KEY_DETAILS, JSON.stringify(detallesActuales));
-      setModalVisible(false);
-      cargarYFusionarDatos(); // Recargar para ver cambios
-      Alert.alert("Guardado", "Información actualizada.");
-    } catch (e) { Alert.alert("Error"); }
-  };
-
-  const abrirEditor = (plaga) => {
-    setPlagaEditando(plaga);
-    setEditIngrediente(plaga.userIngrediente || ''); 
-    setEditDosis(plaga.userDosis || '');
-    setEditFoto(plaga.userFoto || null);
-    setModalVisible(true);
-  };
-
-  const crearPlagaNueva = async () => {
-    if (!nuevoNombre.trim()) return Alert.alert("Falta Nombre");
-    const nueva = { id: Date.now().toString(), nombre: nuevoNombre, tipo: 'Plaga Registrada', descripcion: "Personalizado", control: { mecanismo: "Manual", productos_activos_mexico: [] }, esUsuario: true };
-    try {
-      const rawCustom = await AsyncStorage.getItem(STORAGE_KEY_CUSTOM);
-      const list = rawCustom ? JSON.parse(rawCustom) : [];
-      await AsyncStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify([nueva, ...list]));
-      setNuevoNombre(''); setMostrarFormularioNuevo(false); cargarYFusionarDatos();
-      setTimeout(() => abrirEditor(nueva), 500);
-    } catch (e) { Alert.alert("Error"); }
-  };
-
-  // --- FUNCIONES IA (DIAGNÓSTICO) ---
+  // --- FUNCIONES IA ---
   const takePictureIA = async () => {
     if (cameraRef.current) {
       try {
@@ -198,11 +120,13 @@ export default function PlagasScreen({ route }) {
 
   const classifyImage = async () => {
     if (!imageIA) return;
-    if (!isModelReady || !tensorflow.model) {
-        Alert.alert("Cargando IA...", "Espera unos segundos."); return;
+    
+    // VALIDACIÓN ESTRICTA
+    if (!isModelReady) {
+        Alert.alert("Cargando IA...", "Espera unos segundos, el modelo se está iniciando."); return;
     }
-    if (labels.length === 0) {
-        Alert.alert("Error", "Etiquetas no cargadas."); return;
+    if (!areLabelsReady || labels.length === 0) {
+        Alert.alert("Error Crítico", "No se pudo leer el archivo de etiquetas."); return;
     }
 
     setLoadingIA(true);
@@ -230,7 +154,6 @@ export default function PlagasScreen({ route }) {
 
   const resetStateIA = () => { setImageIA(null); setPrediction(null); setLoadingIA(false); };
 
-  // --- PERMISOS CÁMARA ---
   if (!permission) return <View />;
   if (!permission.granted && vistaIA) {
     return (
@@ -244,7 +167,6 @@ export default function PlagasScreen({ route }) {
 
   return (
     <View style={styles.mainContainer}>
-      {/* HEADER */}
       <View style={styles.headerRow}>
         <Text style={styles.titulo}>🛡️ {cultivo}</Text>
         <View style={styles.switchContainer}>
@@ -259,10 +181,8 @@ export default function PlagasScreen({ route }) {
         </View>
       </View>
 
-      {/* CONTENIDO PRINCIPAL */}
       {!vistaIA ? (
         <ScrollView contentContainerStyle={styles.scrollContent}>
-           {/* SEMÁFORO */}
            <View style={[styles.semaforoCard, { borderColor: semaforo.color, backgroundColor: semaforo.color + '15' }]}>
                <Text style={styles.semaforoEtapa}>Fase Actual: <Text style={{fontWeight:'bold'}}>{etapaActual}</Text></Text>
                <View style={styles.semaforoRiesgoContainer}>
@@ -272,7 +192,6 @@ export default function PlagasScreen({ route }) {
                {plagaCritica && <Text style={styles.semaforoAlerta}>⚠️ Alerta: {plagaCritica.nombre}</Text>}
            </View>
 
-           {/* BOTÓN NUEVA PLAGA */}
            {!mostrarFormularioNuevo ? (
              <TouchableOpacity style={styles.btnNuevo} onPress={() => setMostrarFormularioNuevo(true)}>
                <Text style={styles.btnText}>+ Registrar Plaga Manual</Text>
@@ -287,7 +206,6 @@ export default function PlagasScreen({ route }) {
              </View>
            )}
 
-           {/* LISTA DE PLAGAS */}
            {listaCompleta.map((plaga, index) => (
              <View key={index} style={styles.card}>
                <View style={styles.cardHeader}>
@@ -319,7 +237,6 @@ export default function PlagasScreen({ route }) {
            ))}
         </ScrollView>
       ) : (
-        /* VISTA DIAGNÓSTICO IA */
         <View style={{flex:1, backgroundColor:'#000'}}>
              <CameraView style={{flex:1}} ref={cameraRef}>
                 <View style={styles.cameraControls}>
@@ -330,29 +247,22 @@ export default function PlagasScreen({ route }) {
         </View>
       )}
 
-      {/* MODAL RESULTADO IA */}
       <Modal visible={!!imageIA} animationType="slide">
         <ScrollView contentContainerStyle={styles.modalScroll}>
           <Image source={{ uri: imageIA }} style={styles.previewImage} />
           <View style={styles.actionButtons}>
             {!prediction && (
                 <TouchableOpacity 
-                    // DESHABILITAMOS SI NO ESTÁN LISTAS LAS ETIQUETAS O EL MODELO
                     style={[styles.buttonModal, styles.analyzeButton, (!isModelReady || !areLabelsReady || loadingIA) && {opacity:0.5}]} 
                     onPress={classifyImage}
                     disabled={!isModelReady || !areLabelsReady || loadingIA}
                 >
-                    {loadingIA ? (
-                        <ActivityIndicator color="#fff"/>
-                    ) : (
-                        // MENSAJE DINÁMICO SEGÚN EL ESTADO
-                        <Text style={styles.buttonText}>
-                            {!isModelReady || !areLabelsReady ? "⏳ Cargando IA..." : "🔍 Diagnosticar"}
-                        </Text>
-                    )}
+                    {loadingIA ? <ActivityIndicator color="#fff"/> : <Text style={styles.buttonText}>{isModelReady && areLabelsReady ? "🔍 Diagnosticar" : "Cargando IA..."}</Text>}
                 </TouchableOpacity>
             )}
-            {/* ... botón cerrar ... */}
+            <TouchableOpacity style={[styles.buttonModal, styles.closeButton]} onPress={resetStateIA}>
+              <Text style={styles.buttonText}>Cerrar</Text>
+            </TouchableOpacity>
           </View>
           {prediction && (
             <View style={styles.resultContainer}>
@@ -363,7 +273,6 @@ export default function PlagasScreen({ route }) {
         </ScrollView>
       </Modal>
 
-      {/* MODAL EDICIÓN MANUAL */}
       <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -399,23 +308,17 @@ const styles = StyleSheet.create({
   switchBtn: { flexDirection:'row', padding: 8, borderRadius: 6, alignItems:'center' },
   switchActive: { backgroundColor: '#2E7D32' },
   switchText: { fontSize:12, fontWeight:'bold', color:'#666' },
-
-  // Semáforo
   semaforoCard: { padding: 15, borderRadius: 12, marginBottom: 20, borderWidth: 2 },
   semaforoRiesgoContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
   semaforoLuz: { width: 16, height: 16, borderRadius: 8, marginRight: 10, borderWidth:1, borderColor:'rgba(0,0,0,0.1)' },
   semaforoEtapa: { fontSize: 15, marginBottom: 5, color:'#444' },
   semaforoRiesgoText: { fontSize: 16, fontWeight: 'bold', color:'#333' },
   semaforoAlerta: { fontSize: 14, marginTop: 5, color: '#D32F2F', fontWeight:'bold' },
-
-  // Botones y Forms
   btnNuevo: { backgroundColor: '#1976D2', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom:15 },
   btnText: { color: 'white', fontWeight: 'bold' },
   formNuevo: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15 },
   btnSmall: { padding: 8, borderRadius: 5, backgroundColor: '#2E7D32', width:'45%', alignItems:'center' },
   input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 10, marginTop: 5, backgroundColor: '#FAFAFA' },
-
-  // Tarjetas Lista
   card: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 1, borderLeftWidth: 4, borderLeftColor: '#8BC34A' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom:5 },
   nombrePlaga: { fontSize: 18, fontWeight: 'bold', color: '#333' },
@@ -424,8 +327,6 @@ const styles = StyleSheet.create({
   datosContainer: { backgroundColor: '#F9F9F9', padding: 10, borderRadius: 8, marginTop:5 },
   textoUser: { fontSize: 15, color: '#2E7D32' },
   textoRef: { fontSize: 13, color: '#777', marginLeft: 10, marginBottom:2 },
-
-  // Modal IA
   cameraControls: { flexDirection: 'row', justifyContent: 'space-around', paddingBottom: 40, backgroundColor: 'rgba(0,0,0,0.3)', paddingTop: 20, position:'absolute', bottom:0, width:'100%' },
   captureButton: { width: 70, height: 70, borderRadius: 35, backgroundColor: 'rgba(255,255,255,0.3)', justifyContent: 'center', alignItems: 'center' },
   captureInner: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff' },
@@ -440,8 +341,6 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   resultContainer: { width: '100%', alignItems: 'center' },
   confidenceText: { fontSize: 14, color: '#666', marginBottom: 5 },
-
-  // Modal Edición
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalContent: { backgroundColor: 'white', borderRadius: 15, padding: 20, elevation: 5 },
   modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: '#1B5E20' },
