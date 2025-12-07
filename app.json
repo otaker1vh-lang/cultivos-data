@@ -1,54 +1,46 @@
 {
   "expo": {
     "name": "RoślinApp",
-    "slug": "MiApp", 
+    "slug": "MiApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    
-    // 1. CAMBIO PRINCIPAL: El icono general (iOS y Menú)
     "icon": "./assets/roslin_icon.png",
-    
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    
     "splash": {
-      // Nota: Aquí podrías usar la imagen del "Granero" si la guardas como splash.png
-      "image": "./assets/splash-icon.png", 
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
+      }
     },
-    
     "android": {
-      "usesCleartextTraffic": true,
-      
-      // 2. CAMBIO ANDROID: Icono adaptativo
       "adaptiveIcon": {
         "foregroundImage": "./assets/roslin_icon.png",
-        // He puesto el color verde de tu logo para evitar bordes blancos feos
-        "backgroundColor": "#4A7C59" 
+        "backgroundColor": "#4A7C59"
       },
-      
       "edgeToEdgeEnabled": true,
-      "package": "com.otaker.roslinapp"
+      "package": "com.otaker.roslinapp",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
-    
     "web": {
-      // 3. CAMBIO WEB: El icono pequeño en la pestaña del navegador
       "favicon": "./assets/roslin_icon.png"
-    },
-    
-    "extra": {
-      "eas": {
-        "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
-      }
     },
     "plugins": [
       "react-native-fast-tflite",
-      "react-native-vision-camera"
-    ]
+      "react-native-vision-camera",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "256d62de-adb3-4e6d-b071-e30421de4102"
+      }
+    }
   }
 }
