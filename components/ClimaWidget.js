@@ -3,12 +3,11 @@ import { View, Text, StyleSheet, ActivityIndicator, Image, TouchableOpacity, Scr
 import * as Location from 'expo-location';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-// Habilitar animaciones en Android
+// Habilitar animaciones
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// TU API KEY
 const API_KEY = '8dd59ff1da764345cdd89f05c6326380'; 
 
 export default function ClimaWidget({ onEvaluarCondiciones }) {
@@ -18,8 +17,13 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
   const [altitude, setAltitude] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
-  
   const [expanded, setExpanded] = useState(false);
+
+  // Función para convertir TIMESTAMP a HORA LOCAL legible (ej: "14:00")
+  const getHoraLocal = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  };
 
   const fetchWeather = async () => {
     setLoading(true);
@@ -38,7 +42,7 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
       );
       const dataCurrent = await responseCurrent.json();
 
-      // 2. Pronóstico
+      // 2. Pronóstico 5 días / 3 horas
       const responseForecast = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`
       );
@@ -47,23 +51,30 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
       if (responseCurrent.ok && responseForecast.ok) {
         setWeather(dataCurrent);
 
-        // --- CORRECCIÓN AQUÍ ---
-        const now = new Date();
-        // Generamos la fecha de mañana sumando 1 día (24 horas)
-        const manana = new Date(now);
-        manana.setDate(manana.getDate() + 1);
+        // --- LÓGICA DE FECHAS CORREGIDA ---
+        const hoy = new Date();
+        const manana = new Date(hoy);
+        manana.setDate(hoy.getDate() + 1); // Sumamos 1 día exacto
         
-        // Formato YYYY-MM-DD para filtrar
-        const tomorrowStr = manana.toISOString().split("T")[0];
+        // Obtenemos el día del mes de mañana (ej: si hoy es 7, mañana es 8)
+        const diaManana = manana.getDate();
 
-        const listaManana = dataForecast.list.filter(item =>
-          item.dt_txt.startsWith(tomorrowStr)
-        );
+        const listaManana = dataForecast.list.filter(item => {
+           // Convertimos el timestamp de la API a fecha LOCAL del celular
+           const fechaItem = new Date(item.dt * 1000);
+           // Comparamos si el día del mes coincide con mañana
+           return fechaItem.getDate() === diaManana;
+        });
 
         setForecastsManana(listaManana);
+        
         if (listaManana.length > 0) {
-            const defaultSelection = listaManana.find(i => i.dt_txt.includes("12:00")) || listaManana.find(i => i.dt_txt.includes("15:00")) || listaManana[0];
-            setSelectedForecast(defaultSelection);
+            // Buscamos seleccionar por defecto una hora central (ej: mediodía)
+            const porDefecto = listaManana.find(i => {
+                const h = new Date(i.dt * 1000).getHours();
+                return h >= 12 && h <= 14; 
+            }) || listaManana[0];
+            setSelectedForecast(porDefecto);
         }
 
         if (onEvaluarCondiciones) {
@@ -95,12 +106,17 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
       const temp = data.main.temp;
       const viento = data.wind.speed * 3.6;
       const mainCond = data.weather[0].main;
-      const lluvia = mainCond === 'Rain' || mainCond === 'Thunderstorm' || mainCond === 'Drizzle';
+      const lluvia = mainCond === 'Rain' || mainCond === 'Thunderstorm' || mainCond === 'Drizzle' || mainCond === 'Snow';
       
       if (viento < 15 && temp < 30 && !lluvia) {
           return { apto: true, texto: "APTO ✅", color: "#2E7D32" };
       } else {
-          return { apto: false, texto: "NO APTO ⚠️", color: "#D32F2F" };
+          let razon = "";
+          if (lluvia) razon = "Lluvia";
+          else if (viento >= 15) razon = "Viento";
+          else if (temp >= 30) razon = "Calor";
+          
+          return { apto: false, texto: `NO APTO (${razon}) ⚠️`, color: "#D32F2F" };
       }
   };
 
@@ -109,52 +125,58 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
     setExpanded(!expanded);
   };
 
-  if (loading) return <View style={styles.cardSmall}><ActivityIndicator size="small" color="#4CAF50"/></View>;
-  if (errorMsg || !weather) return <TouchableOpacity onPress={fetchWeather} style={styles.cardSmall}><Text style={{color:'red'}}>Error Clima (Toque para reintentar)</Text></TouchableOpacity>;
+  if (loading) return <View style={styles.cardSmall}><ActivityIndicator size="large" color="#4CAF50"/></View>;
+  if (errorMsg || !weather) return <TouchableOpacity onPress={fetchWeather} style={styles.cardSmall}><Text style={{color:'red', fontSize: 16}}>Error Clima (Toque para reintentar)</Text></TouchableOpacity>;
 
   const { main, weather: details, wind, name } = weather;
-  const iconUrl = `https://openweathermap.org/img/wn/${details[0].icon}.png`;
+  const iconUrl = `https://openweathermap.org/img/wn/${details[0].icon}@2x.png`; // Icono más grande (@2x)
   const evalActual = evaluarData(weather);
 
   return (
     <TouchableOpacity activeOpacity={0.9} onPress={toggleExpand} style={styles.card}>
+      
+      {/* CABECERA (RESUMEN) */}
       <View style={styles.compactRow}>
-         <View style={{flexDirection: 'row', alignItems: 'center', width: '30%'}}>
-            <Image source={{ uri: iconUrl }} style={{width: 35, height: 35}} />
+         <View style={{flexDirection: 'row', alignItems: 'center', width: '35%'}}>
+            <Image source={{ uri: iconUrl }} style={{width: 50, height: 50}} />
             <View>
                 <Text style={styles.cityText} numberOfLines={1}>{name}</Text>
-                <Text style={styles.altText}>{altitude} m</Text>
+                <Text style={styles.altText}>{altitude} msnm</Text>
             </View>
          </View>
+         
          <View style={styles.statsRow}>
             <View style={styles.statItem}>
-                <MaterialCommunityIcons name="thermometer" size={14} color="#333"/>
+                <MaterialCommunityIcons name="thermometer" size={18} color="#333"/>
                 <Text style={styles.statVal}>{Math.round(main.temp)}°</Text>
             </View>
             <View style={styles.statItem}>
-                <MaterialCommunityIcons name="weather-windy" size={14} color="#333"/>
-                <Text style={styles.statVal}>{Math.round(wind.speed * 3.6)}k/h</Text>
+                <MaterialCommunityIcons name="weather-windy" size={18} color="#333"/>
+                <Text style={styles.statVal}>{Math.round(wind.speed * 3.6)}</Text>
             </View>
             <View style={styles.statItem}>
-                <MaterialCommunityIcons name="water" size={14} color="#1976D2"/>
+                <MaterialCommunityIcons name="water" size={18} color="#1976D2"/>
                 <Text style={styles.statVal}>{main.humidity}%</Text>
             </View>
          </View>
+
          <View style={[styles.badge, {backgroundColor: evalActual.color}]}>
             <Text style={styles.badgeText}>{evalActual.apto ? 'APTO' : 'NO'}</Text>
          </View>
-         <MaterialCommunityIcons name={expanded ? "chevron-up" : "chevron-down"} size={20} color="#777" />
       </View>
 
+      {/* ÁREA EXPANDIBLE (PRONÓSTICO MAÑANA) */}
       {expanded && forecastsManana.length > 0 && (
           <View style={styles.expandedContent}>
               <View style={styles.divider} />
-              <Text style={styles.expandTitle}>📅 Planificar para Mañana:</Text>
+              <Text style={styles.expandTitle}>📅 Pronóstico para Mañana:</Text>
+              
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
                   {forecastsManana.map((item, index) => {
-                      const hora = item.dt_txt.split(' ')[1].substring(0, 5); 
+                      const hora = getHoraLocal(item.dt);
                       const isSelected = selectedForecast && selectedForecast.dt === item.dt;
                       const evalItem = evaluarData(item);
+                      
                       return (
                           <TouchableOpacity 
                             key={index} 
@@ -167,14 +189,31 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
                       );
                   })}
               </ScrollView>
+
               {selectedForecast && (
                   <View style={styles.forecastDetail}>
+                       <View style={{flexDirection:'row', alignItems:'center', marginBottom: 8}}>
+                           <Image 
+                               source={{ uri: `https://openweathermap.org/img/wn/${selectedForecast.weather[0].icon}.png` }} 
+                               style={{width: 40, height: 40, marginRight: 10}} 
+                           />
+                           <Text style={{fontSize:16, fontWeight:'bold', color:'#333', textTransform:'capitalize'}}>
+                               {selectedForecast.weather[0].description}
+                           </Text>
+                       </View>
+
                        <Text style={styles.detailText}>
-                           🌡 {Math.round(selectedForecast.main.temp)}°C   💨 {(selectedForecast.wind.speed * 3.6).toFixed(1)} km/h   💧 {selectedForecast.main.humidity}%
+                           🌡 {Math.round(selectedForecast.main.temp)}°C    💨 {(selectedForecast.wind.speed * 3.6).toFixed(1)} km/h
                        </Text>
-                       <Text style={[styles.detailRecom, { color: evaluarData(selectedForecast).color }]}>
-                           {evaluarData(selectedForecast).texto} para aplicar
+                       <Text style={styles.detailText}>
+                           💧 Humedad: {selectedForecast.main.humidity}%
                        </Text>
+
+                       <View style={[styles.recomendacionBox, { backgroundColor: evaluarData(selectedForecast).apto ? '#E8F5E9' : '#FFEBEE' }]}>
+                           <Text style={[styles.detailRecom, { color: evaluarData(selectedForecast).color }]}>
+                               {evaluarData(selectedForecast).texto} para aplicar
+                           </Text>
+                       </View>
                   </View>
               )}
           </View>
@@ -183,27 +222,38 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
   );
 }
 
+// ESTILOS CON FUENTE AUMENTADA
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 10, elevation: 2, borderWidth: 1, borderColor: '#eee' },
-  cardSmall: { padding: 10, alignItems: 'center' },
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 4, borderWidth: 1, borderColor: '#ddd' },
+  cardSmall: { padding: 20, alignItems: 'center' },
   compactRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cityText: { fontWeight: 'bold', fontSize: 13, color: '#333' },
-  altText: { fontSize: 10, color: '#777' },
-  statsRow: { flexDirection: 'row', gap: 8 },
+  
+  // Textos más grandes
+  cityText: { fontWeight: 'bold', fontSize: 18, color: '#222', flex:1 },
+  altText: { fontSize: 13, color: '#666' },
+  
+  statsRow: { flexDirection: 'row', gap: 12 },
   statItem: { alignItems: 'center' },
-  statVal: { fontSize: 12, fontWeight: 'bold', color: '#444' },
-  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  expandedContent: { marginTop: 5 },
-  divider: { height: 1, backgroundColor: '#eee', marginVertical: 5 },
-  expandTitle: { fontSize: 11, fontWeight: 'bold', color: '#555', marginBottom: 5 },
-  chipsContainer: { flexDirection: 'row', marginBottom: 5 },
-  chip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9f9f9', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12, marginRight: 6, borderWidth: 1 },
-  chipSelected: { backgroundColor: '#E0F2F1' },
-  chipText: { fontSize: 11, color: '#333' },
-  chipTextSelected: { fontWeight: 'bold', color: '#00695C' },
-  dot: { width: 6, height: 6, borderRadius: 3, marginLeft: 4 },
-  forecastDetail: { backgroundColor: '#FAFAFA', padding: 8, borderRadius: 5, alignItems: 'center' },
-  detailText: { fontSize: 12, color: '#333' },
-  detailRecom: { fontSize: 12, fontWeight: 'bold', marginTop: 2 }
+  statVal: { fontSize: 16, fontWeight: 'bold', color: '#444', marginTop: 2 },
+  
+  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, marginLeft: 5 },
+  badgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  
+  expandedContent: { marginTop: 15 },
+  divider: { height: 1, backgroundColor: '#eee', marginVertical: 10 },
+  expandTitle: { fontSize: 16, fontWeight: 'bold', color: '#444', marginBottom: 10 },
+  
+  chipsContainer: { flexDirection: 'row', marginBottom: 15 },
+  chip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f5f5f5', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, marginRight: 8, borderWidth: 1.5 },
+  chipSelected: { backgroundColor: '#E0F2F1', borderColor: '#00695C', borderWidth: 2 },
+  
+  chipText: { fontSize: 14, color: '#555' },
+  chipTextSelected: { fontWeight: 'bold', color: '#00695C', fontSize: 15 },
+  dot: { width: 10, height: 10, borderRadius: 5, marginLeft: 6 },
+  
+  forecastDetail: { backgroundColor: '#FAFAFA', padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#eee' },
+  detailText: { fontSize: 16, color: '#333', marginVertical: 3 },
+  
+  recomendacionBox: { marginTop: 10, padding: 8, borderRadius: 5, alignItems: 'center', width: '100%' },
+  detailRecom: { fontSize: 16, fontWeight: 'bold' }
 });

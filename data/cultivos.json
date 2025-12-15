@@ -5,11 +5,11 @@
     "description": "Base de datos completa con estadísticas históricas, calendarios regionales y sanidad detallada."
   },
   "categorias": {
-    "hortalizas": ["Jitomate", "Chile", "Cebolla", "Lechuga", "Pepino", "Calabacita", "Berenjena", "Brócoli", "Coliflor", "Nopalitos", "Papa", "Tomate verde", "Espárrago"],
-    "frutales": ["Fresa", "Zarzamora", "Frambuesa", "Arándano", "Piña", "Mango", "Platano", "Aguacate", "Limon", "Naranja", "Durazno", "Guayaba", "Manzana", "Melón", "Papaya", "Pera", "Sandía", "Toronja", "Uva fruta", "Uva industrial", "Uva pasa", "Copra y coco", "Nuez"],
+    "hortalizas": ["Jitomate", "Chile", "Cebolla", "Lechuga", "Pepino", "Calabacita", "Berenjena", "Brócoli", "Coliflor", "Nopalitos", "Papa", "Tomate verde", "Espárrago", "Chayote"],
+    "frutales": ["Fresa", "Zarzamora", "Frambuesa", "Granada china", "Arándano", "Piña", "Mango", "Platano", "Aguacate", "Limon", "Naranja", "Durazno", "Guayaba", "Manzana", "Melón", "Papaya", "Pera", "Sandía", "Toronja", "Uva fruta", "Uva industrial", "Uva pasa", "Copra y coco", "Nuez"],
     "cereales": ["Maiz", "Trigo", "Sorgo", "Cebada", "Arroz", "Avena", "Avena forrajera", "Maiz forrajero", "Sorgo forrajero", "Amaranto"],
-    "leguminosas": ["Frijol", "Garbanzo", "Soya"],
-    "ornamentales": ["Rosa", "Gerbera"],
+    "leguminosas": ["Frijol", "Garbanzo", "Soya", "Alfalfa"],
+    "ornamentales": ["Rosa", "Gerbera", "Nochebuena", "Crisantemo", "Gladiolo", "Cempasúchil", "Orquidea"],
     "agroindustriales": ["Agave tequilero", "Cacao", "Café cereza", "Caña de azúcar", "Cártamo", "Tabaco", "Ajonjolí", "Algodón hueso"]
   },
   "cultivos": {
@@ -66,6 +66,13 @@
           "Crecimiento": ["Raleo de frutos (manual/químico)", "Fertilización NPK", "Riego pesado"],
           "Cosecha": ["Recolección manual", "Selección y empaque", "Poda en verde"] 
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 24 °C (Verano seco y cálido)",
+        "altitud": "1,600 - 2,800 msnm",
+        "precipitacion": "600 - 900 mm",
+        "suelo": "Franco, profundo, no calcáreo",
+        "ph": "6.0 - 7.0 (Sufre clorosis férrica en pH alto)"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Ácaros que causan bronceado en hojas y defoliación.",
@@ -110,7 +117,249 @@
       ],
       "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 150 } }
     },
-    
+    "Frambuesa": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 20.5,
+        "precio_medio_mxn_ton": 45000,
+        "superficie_sembrada_ha": 9000,
+        "produccion_miles_ton": 180,
+        "principales_estados": ["Jalisco", "Michoacán", "Baja California"],
+        "panorama_2023_summary": { "produccion_miles_ton": 180, "principales_estados_valor": "Jalisco (70%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Adelita", "Clarivela"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Macrotúnel", "arboles_ha": 12000, "distancia_m": "Macetas" }] },
+        "etapas": []
+      },
+      "labores": { "Cosecha": ["Recolección manual diaria", "Cadena de frío"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "14 - 24 °C (Climas templados)",
+        "altitud": "1,500 - 2,800 msnm",
+        "precipitacion": "700 - 900 mm",
+        "suelo": "Franco a franco-arenoso, alto contenido de materia orgánica",
+        "ph": "6.0 - 6.8"
+      },
+      "plagas_y_enfermedades": [],
+      "calculo_fertilizacion": {}
+    },
+
+    "Granada china": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 14.0,
+        "precio_medio_mxn_ton": 22000,
+        "superficie_sembrada_ha": 850,
+        "produccion_miles_ton": 12,
+        "variacion_anual_pct": 2.1,
+        "principales_estados": ["Puebla", "Veracruz", "Chiapas", "Estado de México"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 12,
+            "variacion_anual_pct": 2.1,
+            "ranking_mundial": "N/A (Cultivo exótico)",
+            "consumo_per_capita": "0.3 kg",
+            "principales_estados_valor": "Puebla (Principal productor en Sierra Nororiental)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 14.0, "produccion_ton": 12000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Criolla (Común)", "Colombiana (Mejorada)"],
+        "densidad_plantacion": {
+            "nota": "Requiere estructura de soporte (emparrado o espaldera).",
+            "sistemas": [
+                { "nombre": "Emparrado (Tapesco)", "arboles_ha": 400, "distancia_m": "5x5m" },
+                { "nombre": "Espaldera (T)", "arboles_ha": 600, "distancia_m": "3x5m" }
+            ]
+        },
+        "duracion_total_dias": 1095,
+        "etapas": [
+            { "nombre": "Establecimiento y Crecimiento", "duracion_dias": 240, "bbch_fase": "10-39" },
+            { "nombre": "Inicio de Floración", "duracion_dias": 30, "bbch_fase": "60-69" },
+            { "nombre": "Desarrollo de Fruto", "duracion_dias": 70, "bbch_fase": "70-79" },
+            { "nombre": "Cosecha (Primer ciclo)", "duracion_dias": 60, "bbch_fase": "80-89" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Puebla/Veracruz", "siembra_inicio": "Junio", "siembra_fin": "Agosto", "cosecha_inicio": "Septiembre (Año sig.)", "cosecha_fin": "Diciembre" }
+        ]
+      },
+      "labores": {
+          "Establecimiento": ["Construcción de emparrado", "Tutoreo de guía principal"],
+          "Poda": ["Poda de formación (un solo tallo al alambre)", "Poda de cortina (fructificación)"],
+          "Fertilización": ["Aplicación rica en Potasio y Calcio en floración"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 20 °C (Clima templado húmedo, no tolera heladas)",
+        "altitud": "1,500 - 2,600 msnm (Bosque de niebla)",
+        "precipitacion": "1,000 - 1,500 mm (Humedad relativa alta requerida)",
+        "suelo": "Franco a franco-arenoso, rico en materia orgánica, buen drenaje",
+        "ph": "5.5 - 6.5"
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Araña Roja (Tetranychus)", "tipo": "Plaga", "descripcion": "Decolora las hojas en época seca.", "control": { "mecanismo": "Acaricida/Humedad", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Azufre", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Oruga de Espejitos (Dione juno)", "tipo": "Plaga", "descripcion": "Larvas gregarias que defolian la planta rápidamente.", "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Bacillus thuringiensis", "dosis_tipo": "Biológico" }, { "ingrediente": "Spinosad", "dosis_tipo": "Ingestión" }] } },
+          { "nombre": "Mosca del Botón Floral (Dasiops)", "tipo": "Plaga", "descripcion": "Causa caída de botones florales.", "control": { "mecanismo": "Trampeo", "productos_activos_mexico": [{ "ingrediente": "Proteína hidrolizada", "dosis_tipo": "Cebo" }] } },
+          { "nombre": "Antracnosis (Colletotrichum)", "tipo": "Enfermedad", "descripcion": "Manchas hundidas en frutos y hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }, { "ingrediente": "Azoxistrobina", "dosis_tipo": "Curativo" }] } },
+          { "nombre": "Ojo de Gallo (Cercospora)", "tipo": "Enfermedad", "descripcion": "Manchas circulares con centro claro en hojas.", "control": { "mecanismo": "Fungicida Cúprico", "productos_activos_mexico": [{ "ingrediente": "Oxicloruro de Cobre", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 80, "K": 200 } }
+    },
+
+    "Arándano": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 18.0,
+        "precio_medio_mxn_ton": 70000,
+        "superficie_sembrada_ha": 8000,
+        "produccion_miles_ton": 140,
+        "principales_estados": ["Jalisco", "Michoacán", "Sinaloa"],
+        "panorama_2023_summary": { "produccion_miles_ton": 140, "principales_estados_valor": "Jalisco (50%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Biloxi", "Ventura", "Atlas"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Hidroponía", "arboles_ha": 10000, "distancia_m": "Bolsa/Maceta" }] },
+        "etapas": []
+      },
+      "labores": { "Suelo": ["Acidificación de agua/sustrato"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "12 - 22 °C (Acumulación de horas frío es crítica)",
+        "altitud": "0 - 2,800 msnm (Depende variedad Low/High Chill)",
+        "precipitacion": "800 - 1,200 mm",
+        "suelo": "Suelto, poroso, arenoso (Estricto)",
+        "ph": "4.5 - 5.5 (Ácido estricto, factor limitante)"
+      },
+      "plagas_y_enfermedades": [],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 40, "K": 100 } }
+    },
+    "Naranja": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 14.2,
+        "precio_medio_mxn_ton": 4500,
+        "superficie_sembrada_ha": 340000,
+        "produccion_miles_ton": 4800,
+        "principales_estados": ["Veracruz", "Tamaulipas", "San Luis Potosí"],
+        "panorama_2023_summary": { "produccion_miles_ton": 4800, "principales_estados_valor": "Veracruz (50%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Valencia", "Navel", "Hamlin"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Estándar", "arboles_ha": 300, "distancia_m": "6x6m" }] },
+        "etapas": [{ "nombre": "Floración (Azahar)", "duracion_dias": 30 }, { "nombre": "Llenado", "duracion_dias": 180 }, { "nombre": "Maduración", "duracion_dias": 60 }]
+      },
+      "labores": { "Floración": ["Control de Diaphorina (HLB)"], "Cosecha": ["Corte manual"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "23 - 29 °C",
+        "altitud": "0 - 1,600 msnm",
+        "precipitacion": "1,000 - 1,500 mm",
+        "suelo": "Franco-arcilloso a arenoso, profundo",
+        "ph": "5.5 - 7.0"
+      },
+      "plagas_y_enfermedades": [
+         { "nombre": "HLB (Dragón Amarillo)", "tipo": "Enfermedad", "control": { "mecanismo": "Vector", "productos_activos_mexico": [{ "ingrediente": "Control Psílido", "dosis_tipo": "Químico" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 60, "K": 200 } }
+    },
+
+    "Toronja": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 25.0,
+        "precio_medio_mxn_ton": 3800,
+        "superficie_sembrada_ha": 21000,
+        "produccion_miles_ton": 480,
+        "principales_estados": ["Veracruz", "Michoacán", "Tamaulipas"],
+        "panorama_2023_summary": { "produccion_miles_ton": 480, "principales_estados_valor": "Veracruz (60%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Ruby Red", "Rio Red", "Doble Roja"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Estándar", "arboles_ha": 270, "distancia_m": "7x6m" }] },
+        "etapas": []
+      },
+      "labores": {},
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 30 °C (Requiere calor para calidad de jugo)",
+        "altitud": "0 - 1,000 msnm",
+        "precipitacion": "900 - 1,200 mm",
+        "suelo": "Franco a ligero, bien drenado",
+        "ph": "6.0 - 7.5"
+      },
+      "plagas_y_enfermedades": [],
+      "calculo_fertilizacion": {}
+    },
+    "Uva fruta": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 22.0,
+        "precio_medio_mxn_ton": 25000,
+        "superficie_sembrada_ha": 25000,
+        "produccion_miles_ton": 450,
+        "principales_estados": ["Sonora", "Zacatecas", "Baja California"],
+        "panorama_2023_summary": { "produccion_miles_ton": 450, "principales_estados_valor": "Sonora (80%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Flame Seedless", "Sugraone", "Red Globe", "Cotton Candy"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Parral (Open Gable)", "arboles_ha": 1500, "distancia_m": "3x2m" }] },
+        "duracion_total_dias": 150,
+        "etapas": [
+           { "nombre": "Brotación", "duracion_dias": 20 },
+           { "nombre": "Floración", "duracion_dias": 15 },
+           { "nombre": "Cuajado/Envero", "duracion_dias": 60 },
+           { "nombre": "Cosecha", "duracion_dias": 30 }
+        ]
+      },
+      "labores": {
+          "Invierno": ["Poda de sarmientos", "Aplicación Cianamida (Brotación)"],
+          "Verano": ["Poda de racimos", "Aplicación Giberelinas (Tamaño)"],
+          "Cosecha": ["Corte y empaque en campo"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 28 °C (Veranos cálidos y secos)",
+        "altitud": "0 - 2,400 msnm",
+        "precipitacion": "500 - 800 mm (Riego controlado)",
+        "suelo": "Franco a franco-arenoso, pedregoso",
+        "ph": "6.0 - 7.5"
+      },
+      "plagas_y_enfermedades": [
+         { "nombre": "Oídio (Cenicilla)", "tipo": "Enfermedad", "control": { "mecanismo": "Azufre", "productos_activos_mexico": [{ "ingrediente": "Azufre polvo", "dosis_tipo": "Preventivo" }] } },
+         { "nombre": "Nematodos", "tipo": "Plaga", "control": { "mecanismo": "Portainjertos", "productos_activos_mexico": [{ "ingrediente": "Patrón Freedom/Salt Creek", "dosis_tipo": "Genético" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 40, "K": 150 } }
+    },
+
+    "Uva industrial": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+         "rendimiento_promedio_t_por_ha": 10.0,
+         "uso": "Vino / Brandy",
+         "principales_estados": ["Baja California", "Coahuila", "Querétaro"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 25 °C (Acumulación calor para grados Brix)",
+        "altitud": "500 - 2,000 msnm",
+        "precipitacion": "300 - 600 mm (Estrés hídrico controlado)",
+        "suelo": "Pobre, calcáreo o pedregoso favorece calidad de vino",
+        "ph": "6.0 - 8.0"
+      },
+      "ciclo_fenologico": { "etapas": [] }, "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+
+    "Uva pasa": {
+      "categoria": "agroindustriales",
+      "estadisticas": {
+         "rendimiento_promedio_t_por_ha": 25.0,
+         "principales_estados": ["Sonora (Caborca)"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 35 °C (Calor intenso para secado natural)",
+        "altitud": "0 - 1,000 msnm (Zonas desérticas)",
+        "precipitacion": "<300 mm (Nula lluvia en maduración)",
+        "suelo": "Franco-arenoso",
+        "ph": "6.0 - 7.5"
+      },
+      "ciclo_fenologico": { "etapas": [] }, "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+    },
+  
     "Aguacate": {
       "categoria": "frutal",
       "estadisticas": {
@@ -163,6 +412,13 @@
           "Floración": ["Introducción de colmenas (abejas)", "Riego constante", "Monitoreo de Trips"],
           "Cuajado": ["Fertilización foliar (Boro/Zinc)", "Riego crítico"],
           "Cosecha": ["Análisis de materia seca", "Corte con tijera", "Transporte en frío"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "17 - 24 °C (Hass)",
+        "altitud": "1,500 - 2,200 msnm (Para Hass, menores para criollos)",
+        "precipitacion": "1,200 - 1,600 mm anuales",
+        "suelo": "Franco, permeable, buen drenaje (No soporta asfixia radicular)",
+        "ph": "5.5 - 6.5"
       },
       "plagas_y_enfermedades": [
         {
@@ -261,6 +517,15 @@
           "VT-R1": ["Riego crítico (floración)", "Monitoreo de hongos", "Aplicación fungicida"],
           "R6": ["Secado en campo", "Trilla/Cosecha", "Manejo de rastrojo"]
       },
+      
+      "requerimientos_agroclimaticos": {
+        "temperatura": "20 - 30 °C (Germinación óptima >10°C)",
+        "altitud": "0 - 2,800 msnm (Variedades específicas por altura)",
+        "precipitacion": "600 - 1,000 mm (Crítico en floración)",
+        "suelo": "Franco, profundo, rico en materia orgánica, bien drenado",
+        "ph": "5.5 - 7.5 (Tolera ligera acidez)"
+      },
+
       "plagas_y_enfermedades": [
         {
           "nombre": "Gusano Cogollero", "tipo": "Plaga", "descripcion": "Larva que consume el cogollo tierno (Spodoptera).",
@@ -358,6 +623,13 @@
           "Floración": ["Polinización (Abejorros)", "Poda de hojas bajas", "Monitoreo de virus"],
           "Cosecha": ["Corte diario", "Clasificación por color", "Empaque"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 25 °C (Óptima diurna: 22-25°C)",
+        "altitud": "100 - 1,500 msnm (Se adapta hasta 2,500 msnm bajo invernadero)",
+        "precipitacion": "600 - 1,000 mm anuales (Si es temporal)",
+        "suelo": "Profundo, bien drenado, textura franco-arenosa o franco-arcillosa",
+        "ph": "6.0 - 7.0 (Tolera hasta 5.5)"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Mosca Blanca (Bemisia)", "tipo": "Plaga", "descripcion": "Transmisor de Virus (TYLCV) y fumagina.",
@@ -434,6 +706,13 @@
           "Floración": ["Aplicación de calcio/boro", "Control de Picudo"],
           "Fructificación": ["Fertilización potásica", "Soporte/Estacado (si aplica)"],
           "Cosecha": ["Corte manual selectivo", "Secado (para chiles secos)"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 32 °C (Sensible a heladas)",
+        "altitud": "0 - 2,500 msnm (Depende de variedad)",
+        "precipitacion": "600 - 1,200 mm (Bien distribuidos)",
+        "suelo": "Franco-arenoso, ligero, con excelente drenaje (Evitar encharcamientos)",
+        "ph": "5.5 - 7.0"
       },
       "plagas_y_enfermedades": [
         {
@@ -512,6 +791,13 @@
           "Bulbificación": ["Fertilización Potásica", "Suspensión de N"],
           "Cosecha": ["Corte de riego", "Arrancado y curado en campo"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "12 - 24 °C (Requiere frío para inducir bulbo)",
+        "altitud": "800 - 2,800 msnm",
+        "precipitacion": "350 - 600 mm (Baja humedad relativa preferible)",
+        "suelo": "Franco a franco-arcilloso, friable y sin piedras",
+        "ph": "6.0 - 7.5 (Muy sensible a acidez)"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Trips de la Cebolla (Thrips tabaci)", "tipo": "Plaga", "descripcion": "Raspa las hojas, color plateado, reduce fotosíntesis.",
@@ -589,6 +875,13 @@
           "Tuberización": ["Riego constante (evitar estrés)", "Fertilización K"],
           "Cosecha": ["Desecación (quema) de follaje", "Cosecha mecánica"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "12 - 20 °C (Tuberización requiere noches frescas)",
+        "altitud": "1,500 - 3,200 msnm (Zonas altas) o Invierno en costa",
+        "precipitacion": "600 - 800 mm (Bien distribuidos)",
+        "suelo": "Franco-arenoso, suelto, aireado (Para evitar deformación)",
+        "ph": "5.0 - 6.0 (Tolera acidez)"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Paratrioza (Bactericera)", "tipo": "Plaga", "descripcion": "Transmite 'Punta Morada' (Zebra Chip), devasta calidad.",
@@ -665,6 +958,13 @@
           "Floración": ["Cuidado con abejas (polinización)", "Fungicida preventivo"],
           "Cosecha": ["Corte diario (crecimiento muy rápido)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "20 - 30 °C (Muy sensible a heladas)",
+        "altitud": "0 - 2,200 msnm",
+        "precipitacion": "Riego frecuente (Sensible a sequía)",
+        "suelo": "Franco, profundo y rico en materia orgánica",
+        "ph": "5.5 - 6.8"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Transmite virus y causa plateado en hojas.",
@@ -740,6 +1040,13 @@
           "Floración": ["Manejo de temperatura (Invernadero)", "Aplicación K"],
           "Cosecha": ["Corte cada 2 días", "Selección por tamaño"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 28 °C (Crecimiento se detiene <10°C)",
+        "altitud": "0 - 1,200 msnm (Climas cálidos)",
+        "precipitacion": "400 - 800 mm (Alta humedad relativa favorece hongos)",
+        "suelo": "Franco o franco-arenoso, fértil y bien drenado",
+        "ph": "5.5 - 7.0"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Vector de virus.",
@@ -813,6 +1120,13 @@
           "Roseta": ["Deshierbe manual/mecánico", "Control de insectos"],
           "Cosecha": ["Corte manual", "Empaque en campo (caja encerada)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 20 °C (Climas frescos)",
+        "altitud": "1,500 - 2,800 msnm (Para producción todo el año)",
+        "precipitacion": "Riego constante y ligero (Alta demanda hídrica)",
+        "suelo": "Franco-arenoso, rico en materia orgánica y buen drenaje",
+        "ph": "6.0 - 7.2"
+      },
       "plagas_y_enfermedades": [
         {
           "nombre": "Pulgón (Nasonovia)", "tipo": "Plaga", "descripcion": "Se mete dentro de la cabeza (difícil control).",
@@ -864,6 +1178,13 @@
           ]
       },
       "labores": { "Floración": ["Polinización"], "Cosecha": ["Manual con cáliz"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "20 - 26 °C (Clima templado a cálido)",
+        "altitud": "0 - 2,600 msnm (Muy adaptable)",
+        "precipitacion": "500 - 900 mm",
+        "suelo": "Franco a franco-arcilloso, bien drenado",
+        "ph": "5.5 - 7.3"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Barrenador del fruto", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol", "dosis_tipo": "Sistémico" }] } },
           { "nombre": "Cenicilla", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azufre", "dosis_tipo": "Preventivo" }] } }
@@ -894,15 +1215,33 @@
 
     "Brócoli": {
       "categoria": "hortaliza",
-      "estadisticas": { "rendimiento_promedio_t_por_ha": 17.8, "precio_medio_mxn_ton": 7207, "superficie_sembrada_ha": 37000, "superficie_cosechada_ha": 37000, "produccion_miles_ton": 663, "variacion_anual_pct": 4.9, "principales_estados": ["Guanajuato", "Sonora", "Michoacán", "Puebla"], "panorama_2023_summary": { "produccion_miles_ton": 663, "variacion_anual_pct": 4.9, "principales_estados_valor": "Guanajuato (61.6%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 17.8, "produccion_ton": 663000 }] },
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 17.8,
+        "precio_medio_mxn_ton": 7207,
+        "superficie_sembrada_ha": 37000,
+        "superficie_cosechada_ha": 37000,
+        "produccion_miles_ton": 663,
+        "variacion_anual_pct": 4.9,
+        "principales_estados": ["Guanajuato", "Sonora", "Michoacán", "Puebla"],
+        "panorama_2023_summary": { "produccion_miles_ton": 663, "variacion_anual_pct": 4.9, "principales_estados_valor": "Guanajuato (61.6%)" },
+        "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 17.8, "produccion_ton": 663000 }]
+      },
       "ciclo_fenologico": {
         "variedades_principales": ["Ironman", "Avenger"],
         "densidad_plantacion": { "sistemas": [{ "nombre": "Alta Densidad", "arboles_ha": 50000, "distancia_m": "0.25x0.8" }] },
         "etapas": [{ "nombre": "Vegetativo", "duracion_dias": 40 }, { "nombre": "Formación Pella", "duracion_dias": 40 }, { "nombre": "Cosecha", "duracion_dias": 10 }]
       },
-      "labores": {}, "plagas_y_enfermedades": [
-          { "nombre": "Palgomilla Dorso de Diamante", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }] } }
-      ], 
+      "labores": {},
+      "plagas_y_enfermedades": [
+          { "nombre": "Palomilla Dorso de Diamante", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }] } }
+      ],
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 20 °C (Inducción floral requiere frío)",
+        "altitud": "1,500 - 2,800 msnm",
+        "precipitacion": "Riego constante, humedad ambiental media",
+        "suelo": "Franco a franco-arcilloso, buena retención de humedad",
+        "ph": "6.0 - 7.0"
+      },
       "calculo_fertilizacion": { "recomendada": { "N": 250, "P": 80, "K": 150 } }
     },
 
@@ -910,14 +1249,31 @@
       "categoria": "hortaliza",
       "estadisticas": { "rendimiento_promedio_t_por_ha": 23.6, "precio_medio_mxn_ton": 6156, "superficie_sembrada_ha": 5000, "superficie_cosechada_ha": 4000, "produccion_miles_ton": 105, "variacion_anual_pct": -0.3, "principales_estados": ["Guanajuato", "Puebla", "Hidalgo"], "panorama_2023_summary": { "produccion_miles_ton": 105, "variacion_anual_pct": -0.3, "principales_estados_valor": "Guanajuato (29.4%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 23.6, "produccion_ton": 105000 }] },
       "ciclo_fenologico": { "variedades_principales": ["Snow Crown"], "densidad_plantacion": { "sistemas": [{ "nombre": "Estándar", "arboles_ha": 35000, "distancia_m": "0.4x0.7" }] }, "etapas": [] },
-      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+      "labores": {},
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 20 °C (Más sensible al calor que el brócoli)",
+        "altitud": "1,500 - 2,800 msnm",
+        "precipitacion": "Alta demanda hídrica constante",
+        "suelo": "Profundo, franco-limoso o arcilloso con buen drenaje",
+        "ph": "6.0 - 7.0 (Sensible a deficiencia de Boro y Molibdeno)"
+      },
+      "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
     },
+    
 
     "Berenjena": {
       "categoria": "hortaliza",
       "estadisticas": { "rendimiento_promedio_t_por_ha": 52.9, "precio_medio_mxn_ton": 12272, "superficie_sembrada_ha": 2000, "superficie_cosechada_ha": 2000, "produccion_miles_ton": 90, "variacion_anual_pct": -15.5, "principales_estados": ["Sinaloa", "Nayarit", "San Luis Potosí"], "panorama_2023_summary": { "produccion_miles_ton": 90, "variacion_anual_pct": -15.5, "principales_estados_valor": "Sinaloa (74.1%)" }, "historial_produccion": [{ "year": 2023, "rendimiento_t_ha": 52.9, "produccion_ton": 90000 }] },
       "ciclo_fenologico": { "variedades_principales": ["Negra Larga"], "densidad_plantacion": { "sistemas": [{ "nombre": "Estándar", "arboles_ha": 15000, "distancia_m": "0.5x1.2" }] }, "etapas": [] },
-      "labores": {}, "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
+      "labores": {},
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 30 °C (Requiere calor constante)",
+        "altitud": "0 - 1,200 msnm",
+        "precipitacion": "Riego regular (Tolera poco el exceso de humedad)",
+        "suelo": "Franco-arenoso, profundo y permeable",
+        "ph": "5.5 - 6.8"
+      }, 
+      "plagas_y_enfermedades": [], "calculo_fertilizacion": {}
     },
 
     "Nopalitos": {
@@ -927,6 +1283,13 @@
       "labores": {}, "plagas_y_enfermedades": [
           { "nombre": "Grana Cochinilla", "tipo": "Plaga", "control": { "mecanismo": "Mecánico/Químico", "productos_activos_mexico": [{ "ingrediente": "Lavado a presión", "dosis_tipo": "Físico" }] } }
       ], 
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 25 °C (Tolera extremos pero baja producción)",
+        "altitud": "1,500 - 2,600 msnm",
+        "precipitacion": "400 - 800 mm (Muy resistente a sequía)",
+        "suelo": "Franco, calcáreo, volcánico (Tezontle), excelente drenaje",
+        "ph": "6.0 - 8.5"
+      },
       "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 100 } }
     },
 
@@ -965,6 +1328,13 @@
           "Trasplante": ["Desinfección suelo", "Colocación acolchado", "Riego por goteo"],
           "Floración": ["Poda de estolones", "Aplicación de Calcio"],
           "Cosecha": ["Corte cada 3 días", "Refrigeración inmediata"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 25 °C (Días soleados y noches frescas)",
+        "altitud": "1,300 - 2,500 msnm",
+        "precipitacion": "600 - 800 mm (Muy sensible a exceso de humedad)",
+        "suelo": "Franco-arenoso, rico en materia orgánica (>3%), buen drenaje",
+        "ph": "5.5 - 6.5 (Sensible a la salinidad)"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Araña Roja", "tipo": "Plaga", "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Bifenazato", "dosis_tipo": "Contacto" }] } },
@@ -1009,6 +1379,13 @@
           "Brotación": ["Fertilización foliar", "Control de Minador"],
           "Cosecha": ["Corte con tijera (Persa)", "Arrancado (Mexicano para industria)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "22 - 28 °C (Sensible a heladas)",
+        "altitud": "0 - 1,400 msnm",
+        "precipitacion": "900 - 1,200 mm",
+        "suelo": "Franco a franco-arenoso, ligero",
+        "ph": "5.5 - 7.0"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Psílido Asiático (Diaphorina)", "tipo": "Plaga", "descripcion": "Transmite HLB (Dragón Amarillo).", "control": { "mecanismo": "Químico/Biológico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } },
           { "nombre": "HLB (Huanglongbing)", "tipo": "Enfermedad", "descripcion": "Bacteria que mata el árbol.", "control": { "mecanismo": "Nutrición/Control Vector", "productos_activos_mexico": [{ "ingrediente": "No tiene cura", "dosis_tipo": "Manejo" }] } },
@@ -1052,6 +1429,13 @@
           "Inducción": ["Aplicación de Nitratos (KNO3)", "Estrés hídrico"],
           "Cosecha": ["Tratamiento hidrotérmico (Exportación)", "Lavado"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "24 - 30 °C (Requiere estación seca para floración)",
+        "altitud": "0 - 1,000 msnm",
+        "precipitacion": "1,000 - 1,500 mm (Marcada estacionalidad)",
+        "suelo": "Franco-limoso a arenoso, profundo (>1m)",
+        "ph": "5.5 - 7.5"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Mosca de la Fruta", "tipo": "Plaga", "control": { "mecanismo": "Trampas", "productos_activos_mexico": [{ "ingrediente": "Spinosad (Cebo)", "dosis_tipo": "Aspersión gruesa" }] } },
           { "nombre": "Antracnosis", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Azoxistrobina", "dosis_tipo": "Preventivo" }] } }
@@ -1094,6 +1478,13 @@
           "Floración": ["Embolsado", "Cintado (marcar edad)"],
           "Cosecha": ["Corte de racimo", "Desmane"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "26 - 30 °C (Se detiene crecimiento <15°C)",
+        "altitud": "0 - 800 msnm (Trópico húmedo)",
+        "precipitacion": "2,000 - 3,000 mm (Altamente demandante de agua)",
+        "suelo": "Franco, profundo, fértil y rico en potasio",
+        "ph": "6.0 - 7.5"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Sigatoka Negra", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Mancozeb + Sistémico", "dosis_tipo": "Ciclos" }] } },
           { "nombre": "Picudo Negro", "tipo": "Plaga", "control": { "mecanismo": "Trampas", "productos_activos_mexico": [{ "ingrediente": "Feromonas", "dosis_tipo": "Trampa" }] } }
@@ -1135,6 +1526,13 @@
           "Poda": ["Estimulación con reguladores", "Poda de fructificación"],
           "Cosecha": ["Manual delicada", "Refrigeración"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "16 - 25 °C (Requiere horas frío: 200-800 según variedad)",
+        "altitud": "1,200 - 2,600 msnm",
+        "precipitacion": "800 - 1,200 mm (Riego suplementario en floración)",
+        "suelo": "Franco a franco-arcilloso, profundo y aireado",
+        "ph": "5.2 - 6.7"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Drosophila suzukii", "tipo": "Plaga", "control": { "mecanismo": "Trampeo/Químico", "productos_activos_mexico": [{ "ingrediente": "Spinetoram", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Roya", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Preventivo" }] } }
@@ -1175,6 +1573,13 @@
       "labores": {
           "Vegetativo": ["Sexado (eliminar machos/hembras, dejar hermafroditas)"],
           "Cosecha": ["Corte en punto de quiebre (color)"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "22 - 28 °C (Nunca <15°C para dulzura)",
+        "altitud": "0 - 800 msnm (Costa y trópico)",
+        "precipitacion": "1,500 - 2,000 mm (Humedad constante)",
+        "suelo": "Franco, rico en materia orgánica, muy buen drenaje",
+        "ph": "6.0 - 7.0"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Virus de la Mancha Anular (PRSV)", "tipo": "Enfermedad", "control": { "mecanismo": "Vector/Erradicación", "productos_activos_mexico": [{ "ingrediente": "Control de Áfidos", "dosis_tipo": "Preventivo" }] } },
@@ -1218,6 +1623,13 @@
           "Floración": ["Raleo químico", "Polinización"],
           "Cosecha": ["Manual cuidadosa"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 22 °C (Requiere horas frío: 400-1000)",
+        "altitud": "1,800 - 2,600 msnm",
+        "precipitacion": "600 - 900 mm (Evitar lluvia en cosecha)",
+        "suelo": "Franco a franco-arcilloso, drenado",
+        "ph": "6.0 - 7.0"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Palomilla de la Manzana (Cydia)", "tipo": "Plaga", "control": { "mecanismo": "Confusión Sexual", "productos_activos_mexico": [{ "ingrediente": "Feromonas", "dosis_tipo": "Dispensadores" }] } },
           { "nombre": "Tizón de Fuego (Erwinia)", "tipo": "Enfermedad", "control": { "mecanismo": "Antibiótico", "productos_activos_mexico": [{ "ingrediente": "Estreptomicina", "dosis_tipo": "Floración" }] } }
@@ -1258,6 +1670,13 @@
       "labores": {
           "Llenado": ["Riego pesado", "Aplicación de Zinc (Foliar)"],
           "Cosecha": ["Vibrado mecánico", "Barrido y recolección"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "20 - 30 °C (Veranos largos y cálidos)",
+        "altitud": "0 - 1,200 msnm",
+        "precipitacion": "800 - 1,200 mm (Alta demanda hídrica)",
+        "suelo": "Profundo (>2m), franco a franco-arcilloso, permeable",
+        "ph": "6.0 - 8.0 (Corregir Zinc en suelos alcalinos)"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Barrenador del Ruezno", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Foliar" }] } },
@@ -1300,88 +1719,18 @@
           "Floración": ["Introducción de colmenas", "Acomodo de guías"],
           "Cosecha": ["Corte por sonido/zarcillo seco"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "23 - 32 °C (Desarrollo óptimo con calor)",
+        "altitud": "0 - 1,000 msnm",
+        "precipitacion": "400 - 600 mm (Baja humedad relativa ideal)",
+        "suelo": "Franco-arenoso, profundo y bien drenado",
+        "ph": "6.0 - 7.0"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Fusarium", "tipo": "Enfermedad", "control": { "mecanismo": "Injerto", "productos_activos_mexico": [{ "ingrediente": "Patrón Resistente", "dosis_tipo": "Injerto" }] } },
           { "nombre": "Minador", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }] } }
       ],
       "calculo_fertilizacion": { "recomendada": { "N": 120, "P": 60, "K": 120 } }
-    },
-
-    "Maiz": {
-      "categoria": "cereales",
-      "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 4.3,
-        "precio_medio_mxn_ton": 6256,
-        "superficie_sembrada_ha": 6941000,
-        "superficie_cosechada_ha": 6436000,
-        "produccion_miles_ton": 27550,
-        "variacion_anual_pct": 3.8,
-        "principales_estados": ["Sinaloa", "Jalisco", "Edo. México", "Michoacán", "Guanajuato"],
-        "panorama_2023_summary": {
-            "produccion_miles_ton": 27550,
-            "variacion_anual_pct": 3.8,
-            "ranking_mundial": "7º",
-            "consumo_per_capita": "345 kg",
-            "principales_estados_valor": "Sinaloa (22.0%)"
-        },
-        "historial_produccion": [
-            { "year": 2021, "rendimiento_t_ha": 4.2, "produccion_ton": 27000000 },
-            { "year": 2022, "rendimiento_t_ha": 4.1, "produccion_ton": 26500000 },
-            { "year": 2023, "rendimiento_t_ha": 4.3, "produccion_ton": 27550000 }
-        ]
-      },
-      "ciclo_fenologico": {
-        "variedades_principales": ["Híbridos Blancos", "Híbridos Amarillos", "Nativos/Criollos"],
-        "densidad_plantacion": {
-            "nota": "La densidad es clave para el rendimiento en riego.",
-            "sistemas": [
-                { "nombre": "Riego/Tecnificado", "arboles_ha": 90000, "distancia_m": "0.14x0.75" },
-                { "nombre": "Punteado Standard", "arboles_ha": 65000, "distancia_m": "0.20x0.75" },
-                { "nombre": "Temporal (Lluvias)", "arboles_ha": 45000, "distancia_m": "0.27x0.80" }
-            ]
-        },
-        "duracion_total_dias": 150,
-        "etapas": [
-            { "nombre": "Emergencia (VE)", "duracion_dias": 7, "bbch_fase": "00-09" },
-            { "nombre": "Desarrollo Vegetativo (V1-Vn)", "duracion_dias": 50, "bbch_fase": "10-39" },
-            { "nombre": "Floración/Espigado (VT-R1)", "duracion_dias": 15, "bbch_fase": "51-69" },
-            { "nombre": "Llenado de Grano (R2-R5)", "duracion_dias": 50, "bbch_fase": "71-85" },
-            { "nombre": "Madurez Fisiológica (R6)", "duracion_dias": 28, "bbch_fase": "87-99" }
-        ],
-        "fechas_por_estado": [
-            { "estado": "Sinaloa (Otoño-Invierno)", "siembra_inicio": "Noviembre", "siembra_fin": "Enero", "cosecha_inicio": "Mayo", "cosecha_fin": "Junio" },
-            { "estado": "Jalisco (Primavera-Verano)", "siembra_inicio": "Mayo", "siembra_fin": "Junio", "cosecha_inicio": "Noviembre", "cosecha_fin": "Enero" }
-        ]
-      },
-      "labores": {
-          "VE-V3": ["Siembra de precisión", "Herbicida pre-emergente", "Riego de asiento"],
-          "V4-V8": ["Fertilización nitrogenada (Aporque)", "Control Cogollero", "Escarda"],
-          "VT-R1": ["Riego crítico (floración)", "Monitoreo de hongos"],
-          "R6": ["Secado en campo", "Trilla mecánica"]
-      },
-      "plagas_y_enfermedades": [
-        {
-          "nombre": "Gusano Cogollero (Spodoptera)", "tipo": "Plaga", "descripcion": "Consume el cogollo tierno y reduce área foliar.",
-          "control": { "mecanismo": "Manejo Integrado", "productos_activos_mexico": [{ "ingrediente": "Clorantraniliprol", "dosis_tipo": "Sistémico/Foliar" }, { "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Contacto" }] }
-        },
-        {
-          "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Secamiento de hojas bajas por succión de savia.",
-          "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Bifentrina", "dosis_tipo": "Contacto" }] }
-        },
-        {
-          "nombre": "Pulgón del Maíz", "tipo": "Plaga", "descripcion": "Succiona savia de la espiga, produce fumagina.",
-          "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Sulfoxaflor", "dosis_tipo": "Foliar" }] }
-        },
-        {
-          "nombre": "Carbón de la espiga", "tipo": "Enfermedad", "descripcion": "Masas negras (esporas) sustituyen granos.",
-          "control": { "mecanismo": "Genético", "productos_activos_mexico": [{ "ingrediente": "Híbridos Resistentes", "dosis_tipo": "Preventivo" }] }
-        },
-        {
-          "nombre": "Fusarium (Pudrición)", "tipo": "Enfermedad", "descripcion": "Pudrición de tallo y raíz, coloración rosa.",
-          "control": { "mecanismo": "Cultural", "productos_activos_mexico": [{ "ingrediente": "Trichoderma (al suelo)", "dosis_tipo": "Biológico" }] }
-        }
-      ],
-      "calculo_fertilizacion": { "recomendada": { "N": 240, "P": 80, "K": 60 } }
     },
 
     "Trigo": {
@@ -1425,6 +1774,15 @@
           "Espigado": ["Fungicidas preventivos", "Riego de llenado"],
           "Cosecha": ["Trilla cuando humedad < 14%"]
       },
+
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 24 °C (Requiere horas frío para amacollar)",
+        "altitud": "0 - 2,800 msnm (Invierno en el norte / Verano en zonas altas)",
+        "precipitacion": "450 - 800 mm (Baja humedad ambiental preferible)",
+        "suelo": "Franco-arcilloso o limoso, nivelado",
+        "ph": "6.0 - 7.5"
+      },
+
       "plagas_y_enfermedades": [
           { "nombre": "Pulgón del Follaje", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Roya de la Hoja (Puccinia)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Foliar" }, { "ingrediente": "Epoxiconazol", "dosis_tipo": "Preventivo" }] } },
@@ -1473,6 +1831,13 @@
           "Vegetativo": ["Cultivo mecánico", "Control Pulgón Amarillo (Clave)"],
           "Cosecha": ["Trilla directa"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 32 °C (Muy tolerante al calor)",
+        "altitud": "0 - 1,800 msnm (Mejor en zonas bajas y cálidas)",
+        "precipitacion": "400 - 600 mm (Alta resistencia a sequía)",
+        "suelo": "Arcilloso o franco, tolera salinidad moderada",
+        "ph": "6.0 - 8.5"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Pulgón Amarillo (Melanaphis)", "tipo": "Plaga", "descripcion": "Plaga devastadora, inyecta toxinas.", "control": { "mecanismo": "Sistémico Específico", "productos_activos_mexico": [{ "ingrediente": "Sulfoxaflor", "dosis_tipo": "Foliar" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Semilla" }] } },
           { "nombre": "Mosca del Sorgo (Contarinia)", "tipo": "Plaga", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Foliar" }] } },
@@ -1517,6 +1882,13 @@
           "Macollamiento": ["Control maleza hoja ancha", "Fertilización N"],
           "Cosecha": ["Trilla con humedad <13% (Calidad Maltera)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 22 °C (Ciclo más corto que el trigo)",
+        "altitud": "1,500 - 2,800 msnm (Bajío y Altiplano)",
+        "precipitacion": "400 - 700 mm",
+        "suelo": "Franco, bien drenado (Muy sensible a encharcamiento)",
+        "ph": "6.0 - 8.0 (Tolera salinidad)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Roya Lineal", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Tebuconazol", "dosis_tipo": "Sistémico" }] } },
           { "nombre": "Pulgón", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Dimetoato", "dosis_tipo": "Foliar" }] } }
@@ -1560,6 +1932,13 @@
           "Macollamiento": ["Control malezas acuáticas", "Fertilización N"],
           "Madurez": ["Drenaje del campo", "Cosecha"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "22 - 32 °C (Requiere calor constante)",
+        "altitud": "0 - 800 msnm (Trópico húmedo o seco con riego)",
+        "precipitacion": ">1,200 mm o Riego por inundación",
+        "suelo": "Arcilloso (Pesado) con capacidad de retención de agua",
+        "ph": "5.0 - 7.0 (Tolera acidez)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Sogata (Tagosodes)", "tipo": "Plaga", "descripcion": "Transmite virus de la hoja blanca.", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Piricularia (Quemazón)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Triciclazol", "dosis_tipo": "Preventivo" }] } }
@@ -1602,6 +1981,13 @@
           "Siembra": ["Rastra", "Siembra al voleo/chorrillo"],
           "Cosecha": ["Corte y empacado (Forraje)", "Trilla (Grano)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 22 °C (Climas frescos)",
+        "altitud": "1,800 - 3,000 msnm",
+        "precipitacion": "500 - 800 mm",
+        "suelo": "Franco-arenoso a limoso, bien drenado",
+        "ph": "5.0 - 7.0 (Tolerante a suelos ácidos)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Roya del Tallo", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Propiconazol", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Pulgón", "tipo": "Plaga", "control": { "mecanismo": "Insecticida", "productos_activos_mexico": [{ "ingrediente": "Malatión", "dosis_tipo": "Contacto" }] } }
@@ -1609,6 +1995,83 @@
       "calculo_fertilizacion": { "recomendada": { "N": 80, "P": 40, "K": 30 } }
     },
 
+    "Maiz forrajero": {
+      "categoria": "cereales",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 45.0,
+        "produccion_miles_ton": 15000,
+        "panorama_2023_summary": { "produccion_miles_ton": 15000, "uso": "Ensilaje para ganado lechero/carne" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Híbridos de alta biomasa", "Variedades locales"],
+        "densidad_plantacion": {
+            "nota": "Mayor densidad que para grano para maximizar biomasa.",
+            "sistemas": [{ "nombre": "Alta Densidad", "arboles_ha": 90000, "distancia_m": "0.11x0.75" }]
+        },
+        "etapas": [
+            { "nombre": "Vegetativo Rápido", "duracion_dias": 50, "bbch_fase": "10-39" },
+            { "nombre": "Espigado", "duracion_dias": 15, "bbch_fase": "50-59" },
+            { "nombre": "Cosecha (Grano Masoso)", "duracion_dias": 1, "bbch_fase": "83-85" }
+        ]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 28 °C",
+        "altitud": "0 - 2,600 msnm",
+        "precipitacion": "700 - 900 mm (Alta demanda hídrica)",
+        "suelo": "Franco, profundo, fértil",
+        "ph": "5.8 - 7.5"
+      },
+      "labores": {
+        "Cosecha": ["Corte picado (ensilaje) cuando línea de leche del grano está a 1/2 o 3/4"]
+      },
+      "plagas_y_enfermedades": []
+    },
+
+    "Sorgo forrajero": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 30.0, "uso": "Pastoreo directo o paca" },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Sudán", "Híbridos dulces"],
+        "densidad_plantacion": {
+            "sistemas": [{ "nombre": "Voleo o Surco estrecho", "arboles_ha": 250000, "distancia_m": "Chorrillo denso" }]
+        },
+        "etapas": [{ "nombre": "Corte 1", "duracion_dias": 60 }, { "nombre": "Rebrote", "duracion_dias": 45 }]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 35 °C (Excelente rebrote con calor)",
+        "altitud": "0 - 1,800 msnm",
+        "precipitacion": "400 - 600 mm (Resistente a sequía)",
+        "suelo": "Adaptable, tolera suelos arcillosos y salinos",
+        "ph": "6.0 - 8.5"
+      },
+      "labores": {
+        "Manejo": ["Corte antes de floración para evitar toxicidad (ácido cianhídrico)", "Fertilización nitrogenada tras cada corte"]
+      },
+      "plagas_y_enfermedades": []
+    },
+
+    "Avena forrajera": {
+      "categoria": "cereales",
+      "estadisticas": { "rendimiento_promedio_t_por_ha": 25.0, "uso": "Heno o verde" },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Chihuahua", "Cuauhtémoc"],
+        "densidad_plantacion": {
+            "sistemas": [{ "nombre": "Voleo", "arboles_ha": 3000000, "distancia_m": "100-120 kg semilla/ha" }]
+        },
+        "etapas": [{ "nombre": "Desarrollo", "duracion_dias": 70 }, { "nombre": "Cosecha (Embuche/Espigado)", "duracion_dias": 10 }]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "10 - 22 °C (Resiste heladas ligeras)",
+        "altitud": "1,600 - 3,200 msnm",
+        "precipitacion": "450 - 750 mm",
+        "suelo": "Rústica, se adapta a suelos delgados",
+        "ph": "5.0 - 7.5"
+      },
+      "labores": {
+        "Cosecha": ["Corte y empacado en etapa de floración-leche para máxima calidad"]
+      },
+      "plagas_y_enfermedades": []
+    },
     "Amaranto": {
       "categoria": "cereales",
       "estadisticas": {
@@ -1643,6 +2106,13 @@
           "Siembra": ["Aclareo (raleo) manual"],
           "Vegetativo": ["Aporque (calzar tierra)"],
           "Cosecha": ["Corte de panojas", "Secado al sol", "Trilla/Garroteo"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "16 - 28 °C (Planta C4 eficiente)",
+        "altitud": "1,500 - 2,600 msnm",
+        "precipitacion": "400 - 800 mm (Resistente a sequía)",
+        "suelo": "Franco a franco-arenoso, suelto",
+        "ph": "6.0 - 7.5"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Gusano Telarañero", "tipo": "Plaga", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Permetrina", "dosis_tipo": "Foliar" }] } },
@@ -1703,6 +2173,13 @@
           "Floración": ["Riego crítico (evitar aborto)", "Control insectos"],
           "Cosecha": ["Corte y hilerado", "Trilla"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 25 °C (Óptima 18-24°C, se detiene <10°C)",
+        "altitud": "0 - 2,600 msnm (Depende variedad arbustiva o trepadora)",
+        "precipitacion": "400 - 800 mm (Bien distribuidos, sensible a exceso)",
+        "suelo": "Franco a franco-arenoso, buen drenaje (No tolera encharcamiento)",
+        "ph": "6.0 - 7.5 (Tolera hasta 5.5)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Conchuela del Frijol (Epilachna)", "tipo": "Plaga", "descripcion": "Escarabajo comedor de hoja y vaina.", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Contacto" }] } },
           { "nombre": "Mosca Blanca", "tipo": "Plaga", "descripcion": "Transmite Mosaico Dorado.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Semilla" }, { "ingrediente": "Imidacloprid", "dosis_tipo": "Foliar" }] } },
@@ -1761,6 +2238,13 @@
           "Siembra": ["Humedad residual o riego", "Inoculación Rhizobium"],
           "Vegetativo": ["Cultivo para aerear raíz", "Control Rabia"],
           "Cosecha": ["Corte (hilerado)", "Trilla seca"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "10 - 25 °C (Desarrollo óptimo en clima fresco)",
+        "altitud": "0 - 1,800 msnm (Costa y Bajío)",
+        "precipitacion": "300 - 600 mm (Aprovecha humedad residual)",
+        "suelo": "Franco-arcilloso a arenoso, profundo (Raíz pivotante fuerte)",
+        "ph": "6.0 - 8.0 (No tolera suelos ácidos)"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Gusano de la Cápsula (Heliothis)", "tipo": "Plaga", "descripcion": "Perfora la vaina y come el grano.", "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Bacillus thuringiensis", "dosis_tipo": "Biológico" }, { "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Foliar" }] } },
@@ -1822,6 +2306,13 @@
           "Vegetativo": ["Control de malezas", "Monitoreo defoliadores"],
           "Cosecha": ["Trilla con humedad <14%"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "20 - 30 °C (Sensible a bajas temperaturas <15°C)",
+        "altitud": "0 - 1,200 msnm (Principalmente trópico y subtrópico)",
+        "precipitacion": "600 - 1,000 mm (Alta demanda en llenado de grano)",
+        "suelo": "Franco a arcilloso, fértil y con buen drenaje",
+        "ph": "6.0 - 7.0 (Ligeramente ácido a neutro)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Gusano Terciopelo", "tipo": "Plaga", "descripcion": "Defoliador agresivo.", "control": { "mecanismo": "Ingestión", "productos_activos_mexico": [{ "ingrediente": "Metoxifenocida", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Chinche Lygus/Verde", "tipo": "Plaga", "descripcion": "Pica las vainas y daña el grano.", "control": { "mecanismo": "Sistémico/Contacto", "productos_activos_mexico": [{ "ingrediente": "Acefato", "dosis_tipo": "Foliar" }] } },
@@ -1880,6 +2371,13 @@
           "Manejo": ["Poda de formación (Basal)", "Desyemado (eliminar botones laterales)"],
           "Cosecha": ["Corte en 'Punto Arroz' o 'Garbanzo'", "Hidratación inmediata", "Cadena de frío"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 24 °C (Día: 21-24°C / Noche: 15-18°C)",
+        "altitud": "1,800 - 2,800 msnm (La altura favorece tallos largos y color intenso)",
+        "precipitacion": "Riego por goteo/hidroponía (La lluvia directa mancha la flor)",
+        "suelo": "Franco-arenoso, rico en materia orgánica, excelente drenaje",
+        "ph": "5.5 - 6.5 (Ligeramente ácido)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Araña Roja (Tetranychus)", "tipo": "Plaga", "descripcion": "Principal problema, resistencia a químicos.", "control": { "mecanismo": "Rotación Acaricidas", "productos_activos_mexico": [{ "ingrediente": "Bifenazato", "dosis_tipo": "Contacto" }, { "ingrediente": "Abamectina", "dosis_tipo": "Translaminar" }] } },
           { "nombre": "Trips", "tipo": "Plaga", "descripcion": "Mancha y deforma los pétalos.", "control": { "mecanismo": "Biológico/Químico", "productos_activos_mexico": [{ "ingrediente": "Spinosad", "dosis_tipo": "Ingestión" }, { "ingrediente": "Amblyseius swirskii", "dosis_tipo": "Depredador" }] } },
@@ -1888,6 +2386,70 @@
           { "nombre": "Botrytis", "tipo": "Enfermedad", "descripcion": "Pudrición de la flor en postcosecha.", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Fenhexamid", "dosis_tipo": "Botriticida" }] } }
       ],
       "calculo_fertilizacion": { "recomendada": { "N": 200, "P": 80, "K": 300 } }
+    },
+
+    "Orquidea": {
+      "categoria": "ornamental",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 45.0,
+        "precio_medio_mxn_ton": 180000,
+        "superficie_sembrada_ha": 350,
+        "superficie_cosechada_ha": 350,
+        "produccion_miles_ton": 15,
+        "variacion_anual_pct": 4.5,
+        "principales_estados": ["Jalisco", "Estado de México", "Morelos", "Veracruz"],
+        "panorama_2023_summary": {
+            "produccion_miles_ton": 15,
+            "variacion_anual_pct": 4.5,
+            "ranking_mundial": "Mercado de lujo en crecimiento",
+            "consumo_per_capita": "Regalo/Decoración",
+            "principales_estados_valor": "Jalisco (40%)"
+        },
+        "historial_produccion": [
+            { "year": 2023, "rendimiento_t_ha": 45.0, "produccion_ton": 15000 }
+        ]
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Phalaenopsis (Mariposa)", "Cymbidium", "Dendrobium", "Cattleya"],
+        "densidad_plantacion": {
+            "nota": "Producción intensiva en mesas/bancos.",
+            "sistemas": [
+                { "nombre": "Maceta 6'' (Invernadero)", "arboles_ha": 150000, "distancia_m": "15-20 plantas/m2" },
+                { "nombre": "Maceta 4'' (Mini)", "arboles_ha": 200000, "distancia_m": "20-25 plantas/m2" }
+            ]
+        },
+        "duracion_total_dias": 540,
+        "etapas": [
+            { "nombre": "Aclimatación (In-vitro)", "duracion_dias": 180, "bbch_fase": "00-09" },
+            { "nombre": "Crecimiento Vegetativo", "duracion_dias": 240, "bbch_fase": "10-39" },
+            { "nombre": "Inducción Floral (Enfriamiento)", "duracion_dias": 45, "bbch_fase": "50-55" },
+            { "nombre": "Desarrollo de Vara", "duracion_dias": 60, "bbch_fase": "56-59" },
+            { "nombre": "Floración (Venta)", "duracion_dias": 15, "bbch_fase": "60-69" }
+        ],
+        "fechas_por_estado": [
+            { "estado": "Jalisco/Edo. Mex", "siembra_inicio": "Todo el año (Laboratorio)", "siembra_fin": "N/A", "cosecha_inicio": "Todo el año (Programada)", "cosecha_fin": "N/A" }
+        ]
+      },
+      "labores": {
+          "Vegetativo": ["Riego cuidadoso (evitar pudrición)", "Fertilización foliar baja en sales"],
+          "Inducción": ["Choque térmico (bajar T° nocturna)", "Cambio formulación a K"],
+          "Floración": ["Tutoreo de vara (clips)", "Limpieza de hojas"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 28 °C (Vegetativo) / 16 - 20 °C (Inducción floral)",
+        "altitud": "800 - 2,200 msnm (Requiere invernadero controlado)",
+        "precipitacion": "Riego controlado (Sustrato debe secar entre riegos)",
+        "suelo": "NO usa suelo. Sustrato epífito (Corteza de pino, fibra de coco, musgo)",
+        "ph": "5.5 - 6.5 (Agua de alta calidad requerida)"
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Erwinia (Pudrición blanda)", "tipo": "Enfermedad", "descripcion": "Bacteria que causa pudrición húmeda y mal olor.", "control": { "mecanismo": "Cultural/Antibiótico", "productos_activos_mexico": [{ "ingrediente": "Kasugamicina", "dosis_tipo": "Preventivo" }, { "ingrediente": "Desinfección herramientas", "dosis_tipo": "Cultural" }] } },
+          { "nombre": "Araña Roja", "tipo": "Plaga", "descripcion": "Ataca con baja humedad ambiental.", "control": { "mecanismo": "Acaricida", "productos_activos_mexico": [{ "ingrediente": "Abamectina", "dosis_tipo": "Foliar" }, { "ingrediente": "Bifenazato", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Cochinilla Algodonosa", "tipo": "Plaga", "descripcion": "Se esconde en axilas de hojas.", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Riego" }, { "ingrediente": "Aceite Mineral", "dosis_tipo": "Contacto" }] } },
+          { "nombre": "Botrytis", "tipo": "Enfermedad", "descripcion": "Puntos negros en pétalos (Flor de peca).", "control": { "mecanismo": "Ventilación/Químico", "productos_activos_mexico": [{ "ingrediente": "Iprodiona", "dosis_tipo": "Preventivo" }] } },
+          { "nombre": "Virus (CymMV / ORSV)", "tipo": "Enfermedad", "descripcion": "Manchas cloróticas o necrosis.", "control": { "mecanismo": "Eliminación", "productos_activos_mexico": [{ "ingrediente": "Incineración de planta", "dosis_tipo": "Erradicación" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 100 } }
     },
 
     "Gerbera": {
@@ -1932,6 +2494,13 @@
       "labores": {
           "Manejo": ["Deshoje sanitario (base)", "Fertirriego estricto"],
           "Cosecha": ["Jalón (Pull) del tallo", "Empaque vertical"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "18 - 25 °C (Día) y 12 - 15 °C (Noche para inducción)",
+        "altitud": "1,500 - 2,600 msnm",
+        "precipitacion": "Riego localizado estricto (Muy sensible a pudrición de corona)",
+        "suelo": "Sustrato muy poroso (Fibra de coco/Tezontle) o suelo arenoso muy suelto",
+        "ph": "5.5 - 6.2 (Sensible a clorosis por pH alto)"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Minador (Liriomyza)", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Cyromazina", "dosis_tipo": "Regulador crecimiento" }] } },
@@ -2164,6 +2733,13 @@
           "Madurez": ["Desquiote (cortar flor)", "Muestreo de grados Brix"],
           "Cosecha": ["Jima (corte de pencas)", "Transporte a fábrica"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 25 °C (Tolera sequía, pero no encharcamiento)",
+        "altitud": "600 - 2,500 msnm (Denominación de Origen)",
+        "precipitacion": "600 - 1,200 mm (Semiarido a templado)",
+        "suelo": "Franco-arcilloso o arenoso, permeable, rico en Hierro (Suelos rojos)",
+        "ph": "6.0 - 8.0"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Picudo del Agave (Scyphophorus)", "tipo": "Plaga", "descripcion": "Perfora la piña y causa pudrición.", "control": { "mecanismo": "Trampeo Feromona", "productos_activos_mexico": [{ "ingrediente": "Fipronil", "dosis_tipo": "Base de planta" }, { "ingrediente": "Trampas con feromona", "dosis_tipo": "Trampeo" }] } },
           { "nombre": "Cercospora (Mancha gris)", "tipo": "Enfermedad", "descripcion": "Manchas grises en pencas, reduce fotosíntesis.", "control": { "mecanismo": "Fungicida Sistémico", "productos_activos_mexico": [{ "ingrediente": "Benomilo", "dosis_tipo": "Foliar" }, { "ingrediente": "Mancozeb", "dosis_tipo": "Preventivo" }] } },
@@ -2172,6 +2748,160 @@
           { "nombre": "Escarabajo Rinoceronte", "tipo": "Plaga", "descripcion": "Barrena la base.", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Clorpirifos (Restringido)", "dosis_tipo": "Suelo" }] } }
       ],
       "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 60, "K": 150 } }
+    },
+    "Piña": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 48.0,
+        "precio_medio_mxn_ton": 6500,
+        "superficie_sembrada_ha": 44000,
+        "superficie_cosechada_ha": 42000,
+        "produccion_miles_ton": 1200,
+        "variacion_anual_pct": 5.2,
+        "principales_estados": ["Veracruz", "Oaxaca", "Tabasco", "Quintana Roo"],
+        "panorama_2023_summary": { "produccion_miles_ton": 1200, "principales_estados_valor": "Veracruz (65%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["MD2 (Miel)", "Cayena Lisa", "Champaka"],
+        "densidad_plantacion": {
+            "sistemas": [{ "nombre": "Alta Densidad", "arboles_ha": 45000, "distancia_m": "Doble hilera" }]
+        },
+        "etapas": [
+            { "nombre": "Desarrollo Vegetativo", "duracion_dias": 300 },
+            { "nombre": "Inducción Floral (Forzamiento)", "duracion_dias": 5 },
+            { "nombre": "Desarrollo de Fruto", "duracion_dias": 150 },
+            { "nombre": "Cosecha", "duracion_dias": 30 }
+        ]
+      },
+      "labores": {
+          "Inducción": ["Aplicación de Carburo/Etefón para uniformizar floración"],
+          "Cosecha": ["Corte manual con machete", "Desinfección de pedúnculo"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "23 - 30 °C (Sensible a bajas temperaturas)",
+        "altitud": "0 - 800 msnm (Zonas tropicales)",
+        "precipitacion": "1,200 - 2,000 mm anuales",
+        "suelo": "Franco-arenoso, excelente drenaje, sin encharcamientos",
+        "ph": "4.5 - 6.0"
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Cochinilla Harinosa", "tipo": "Plaga", "control": { "mecanismo": "Químico", "productos_activos_mexico": [{ "ingrediente": "Imidacloprid", "dosis_tipo": "Sistémico" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 350, "P": 100, "K": 400 } }
+    },
+
+    "Copra y coco": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 1.1,
+        "precio_medio_mxn_ton": 14000,
+        "superficie_sembrada_ha": 190000,
+        "produccion_miles_ton": 220,
+        "principales_estados": ["Guerrero", "Colima", "Tabasco"],
+        "panorama_2023_summary": { "produccion_miles_ton": 220, "principales_estados_valor": "Guerrero (80%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Alto del Pacífico", "Enano Malayo", "Híbridos"],
+        "densidad_plantacion": {
+            "sistemas": [{ "nombre": "Tresbolillo", "arboles_ha": 140, "distancia_m": "9x9m" }]
+        },
+        "duracion_total_dias": 365,
+        "etapas": [{ "nombre": "Producción Continua", "duracion_dias": 365 }]
+      },
+      "labores": { "Cosecha": ["Corte cada 3 meses", "Jimado (quitar estopa)"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "26 - 30 °C (Media anual 27°C)",
+        "altitud": "0 - 400 msnm (Costas)",
+        "precipitacion": "1,500 - 2,500 mm (O nivel freático alto)",
+        "suelo": "Arenoso, salino, costero (Tolera salinidad)",
+        "ph": "6.0 - 8.0"
+      },
+      "plagas_y_enfermedades": [
+          { "nombre": "Picudo Negro", "tipo": "Plaga", "control": { "mecanismo": "Trampeo", "productos_activos_mexico": [{ "ingrediente": "Feromonas", "dosis_tipo": "Trampa" }] } },
+          { "nombre": "Amarillamiento Letal", "tipo": "Enfermedad", "control": { "mecanismo": "Resistencia Genética", "productos_activos_mexico": [{ "ingrediente": "Uso de Híbridos/Enanos", "dosis_tipo": "Preventivo" }] } }
+      ],
+      "calculo_fertilizacion": { "recomendada": { "N": 100, "P": 50, "K": 150 } }
+    },
+
+    "Melón": {
+      "categoria": "hortaliza",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 28.5,
+        "precio_medio_mxn_ton": 7200,
+        "superficie_sembrada_ha": 18000,
+        "produccion_miles_ton": 580,
+        "principales_estados": ["Coahuila", "Sonora", "Guerrero"],
+        "panorama_2023_summary": { "produccion_miles_ton": 580, "principales_estados_valor": "Coahuila (25%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Cantaloupe (Chino)", "Honeydew"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Acolchado", "arboles_ha": 15000, "distancia_m": "0.3x1.8m" }] },
+        "duracion_total_dias": 80,
+        "etapas": [{ "nombre": "Vegetativo", "duracion_dias": 30 }, { "nombre": "Floración", "duracion_dias": 15 }, { "nombre": "Llenado", "duracion_dias": 35 }]
+      },
+      "labores": { "Floración": ["Introducción de abejas"], "Cosecha": ["Corte en punto de desprendimiento"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 35 °C (Requiere mucho sol)",
+        "altitud": "0 - 1,200 msnm",
+        "precipitacion": "Baja (Climas secos para evitar hongos)",
+        "suelo": "Franco-arenoso, suelto y aireado",
+        "ph": "6.0 - 7.5"
+      },
+      "plagas_y_enfermedades": [],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 80, "K": 150 } }
+    },
+
+    "Guayaba": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 16.0,
+        "precio_medio_mxn_ton": 8500,
+        "superficie_sembrada_ha": 23000,
+        "produccion_miles_ton": 310,
+        "principales_estados": ["Michoacán", "Aguascalientes", "Zacatecas"],
+        "panorama_2023_summary": { "produccion_miles_ton": 310, "principales_estados_valor": "Michoacán (65%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Media China", "Criolla"],
+        "densidad_plantacion": { "sistemas": [{ "nombre": "Tradicional", "arboles_ha": 400, "distancia_m": "5x5m" }] },
+        "etapas": []
+      },
+      "labores": { "Producción": ["Calveo (Poda forzada)", "Embolsado de fruto"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "23 - 28 °C",
+        "altitud": "0 - 1,600 msnm",
+        "precipitacion": "1,000 - 1,800 mm",
+        "suelo": "Franco, profundo y rico en materia orgánica",
+        "ph": "5.0 - 7.0"
+      },
+      "plagas_y_enfermedades": [],
+      "calculo_fertilizacion": { "recomendada": { "N": 150, "P": 60, "K": 100 } }
+    },
+
+    "Pera": {
+      "categoria": "frutal",
+      "estadisticas": {
+        "rendimiento_promedio_t_por_ha": 6.5,
+        "precio_medio_mxn_ton": 9000,
+        "superficie_sembrada_ha": 3500,
+        "produccion_miles_ton": 25,
+        "principales_estados": ["Puebla", "Michoacán", "Morelos"],
+        "panorama_2023_summary": { "produccion_miles_ton": 25, "principales_estados_valor": "Puebla (45%)" }
+      },
+      "ciclo_fenologico": {
+        "variedades_principales": ["Kieffer", "Paraíso", "Bartlett"],
+        "etapas": [{ "nombre": "Dormancia", "duracion_dias": 90 }, { "nombre": "Floración", "duracion_dias": 30 }, { "nombre": "Cosecha", "duracion_dias": 120 }]
+      },
+      "labores": { "Invierno": ["Poda", "Compensadores de frío"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "14 - 22 °C (Horas frío: 500-900)",
+        "altitud": "1,800 - 2,600 msnm",
+        "precipitacion": "700 - 1,000 mm",
+        "suelo": "Franco-limoso o arcilloso",
+        "ph": "6.0 - 7.5"
+      },
+      "plagas_y_enfermedades": [],
+      "calculo_fertilizacion": {}
     },
 
     "Caña de azúcar": {
@@ -2221,6 +2951,13 @@
           "Crecimiento": ["Cultivo (aporque)", "Control de barrenadores"],
           "Maduración": ["Suspensión de riego (agoste)", "Muestreo sacarosa"],
           "Cosecha": ["Quema (si aplica)", "Corte manual/mecánico", "Transporte al ingenio (<24h)"]
+      },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "22 - 30 °C (Requiere alta radiación solar)",
+        "altitud": "0 - 1,500 msnm",
+        "precipitacion": "1,200 - 1,500 mm (O riego de auxilio)",
+        "suelo": "Franco a arcilloso, profundo (Tolera pesados)",
+        "ph": "5.5 - 7.5"
       },
       "plagas_y_enfermedades": [
           { "nombre": "Barrenador del Tallo (Diatraea)", "tipo": "Plaga", "descripcion": "Larvas perforan tallos, invierten sacarosa.", "control": { "mecanismo": "Biológico", "productos_activos_mexico": [{ "ingrediente": "Trichogramma", "dosis_tipo": "Liberación" }, { "ingrediente": "Cotesia flavipes", "dosis_tipo": "Liberación" }] } },
@@ -2281,6 +3018,13 @@
           "Llenado": ["Control de Broca y Roya (Crítico)"],
           "Cosecha": ["Corte selectivo (solo rojos)", "Beneficiado húmedo/seco"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "17 - 24 °C (Arábica) / 22 - 30 °C (Robusta)",
+        "altitud": "600 - 1,600+ msnm (Altura define calidad de taza)",
+        "precipitacion": "1,200 - 2,000 mm (Bien distribuidos)",
+        "suelo": "Franco, origen volcánico, profundo y rico en MO",
+        "ph": "5.0 - 6.0 (Suelos ácidos)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Broca del Café (Hypothenemus)", "tipo": "Plaga", "descripcion": "Perfora el grano, baja calidad taza.", "control": { "mecanismo": "Trampeo/Biológico", "productos_activos_mexico": [{ "ingrediente": "Beauveria bassiana", "dosis_tipo": "Foliar" }, { "ingrediente": "Trampas Alcohol", "dosis_tipo": "Etológico" }] } },
           { "nombre": "Roya del Café (Hemileia)", "tipo": "Enfermedad", "descripcion": "Polvo naranja en hojas, defoliación total.", "control": { "mecanismo": "Fungicida Sistémico", "productos_activos_mexico": [{ "ingrediente": "Ciproconazol + Azoxistrobina", "dosis_tipo": "Foliar" }, { "ingrediente": "Cobre", "dosis_tipo": "Preventivo" }] } },
@@ -2338,6 +3082,13 @@
           "Desarrollo": ["Aplicación regulador crecimiento", "Control picudo"],
           "Cosecha": ["Defoliación química", "Pizca mecánica (Pacas)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 35 °C (Requiere largos periodos libres de heladas)",
+        "altitud": "0 - 1,200 msnm",
+        "precipitacion": "Riego controlado (Lluvia en cosecha daña la fibra)",
+        "suelo": "Profundo, permeable, tolera salinidad moderada",
+        "ph": "6.0 - 8.0"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Picudo del Algodonero", "tipo": "Plaga", "descripcion": "Daña botones y bellotas. Programa Binacional.", "control": { "mecanismo": "Químico/Trampas", "productos_activos_mexico": [{ "ingrediente": "Malatión", "dosis_tipo": "Foliar" }, { "ingrediente": "Trampas Feromona", "dosis_tipo": "Monitoreo" }] } },
           { "nombre": "Gusano Rosado", "tipo": "Plaga", "descripcion": "Come semilla y mancha fibra.", "control": { "mecanismo": "Genético/Cultural", "productos_activos_mexico": [{ "ingrediente": "Algodón Bt (Transgénico)", "dosis_tipo": "Semilla" }] } },
@@ -2382,6 +3133,13 @@
           "Mantenimiento": ["Poda de formación", "Regulación de sombra"],
           "Cosecha": ["Corte manual", "Desgrane y fermentación (clave)"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "23 - 30 °C (Clima tropical húmedo estricto)",
+        "altitud": "0 - 500 msnm",
+        "precipitacion": "1,500 - 2,500 mm (Requiere alta humedad ambiental)",
+        "suelo": "Profundo, rico en materia orgánica y buen drenaje",
+        "ph": "6.0 - 7.0 (Ligeramente ácido)"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Moniliasis (Moniliophthora)", "tipo": "Enfermedad", "descripcion": "Polvo blanco sobre mazorca, pudrición total.", "control": { "mecanismo": "Cultural/Químico", "productos_activos_mexico": [{ "ingrediente": "Cobre + Poda", "dosis_tipo": "Preventivo" }, { "ingrediente": "Remoción de frutos enfermos", "dosis_tipo": "Manual" }] } },
           { "nombre": "Mancha Negra (Phytophthora)", "tipo": "Enfermedad", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Fosetil-Al", "dosis_tipo": "Sistémico" }] } },
@@ -2423,6 +3181,13 @@
           "Vegetativo": ["Desbotonado (capado)", "Deshije"],
           "Cosecha": ["Corte por pisos foliares", "Sartado y secado"]
       },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "20 - 30 °C (Sensible a heladas)",
+        "altitud": "0 - 1,000 msnm (Zonas costeras húmedas)",
+        "precipitacion": "1,000 - 1,200 mm (Necesita periodo seco para cosecha)",
+        "suelo": "Franco-arenoso a franco-limoso, buen drenaje",
+        "ph": "5.5 - 6.5"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Moho Azul (Peronospora)", "tipo": "Enfermedad", "descripcion": "Devastadora, manchas en hojas.", "control": { "mecanismo": "Fungicida", "productos_activos_mexico": [{ "ingrediente": "Metalaxil", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Gusano del Cuerno", "tipo": "Plaga", "control": { "mecanismo": "Ingestión", "productos_activos_mexico": [{ "ingrediente": "Benzoato de Emamectina", "dosis_tipo": "Foliar" }] } }
@@ -2460,6 +3225,13 @@
         ]
       },
       "labores": { "Siembra": ["Tierra venida"], "Cosecha": ["Trilla directa"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "15 - 30 °C (Resiste frío en roseta, requiere calor en llenado)",
+        "altitud": "0 - 1,500 msnm",
+        "precipitacion": "300 - 600 mm (Baja demanda, sistema radicular profundo)",
+        "suelo": "Profundo, bien drenado (Susceptible a asfixia)",
+        "ph": "6.0 - 8.0"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Falsa Chicharrita", "tipo": "Plaga", "control": { "mecanismo": "Sistémico", "productos_activos_mexico": [{ "ingrediente": "Tiametoxam", "dosis_tipo": "Foliar" }] } },
           { "nombre": "Alternaria", "tipo": "Enfermedad", "control": { "mecanismo": "Preventivo", "productos_activos_mexico": [{ "ingrediente": "Mancozeb", "dosis_tipo": "Foliar" }] } }
@@ -2491,6 +3263,13 @@
         "etapas": [{ "nombre": "Vegetativo", "duracion_dias": 35 }, { "nombre": "Floración", "duracion_dias": 30 }, { "nombre": "Maduración", "duracion_dias": 35 }]
       },
       "labores": { "Cosecha": ["Corte y formación de 'monas' (secado)", "Sacudido manual"] },
+      "requerimientos_agroclimaticos": {
+        "temperatura": "25 - 30 °C (Exigente en calor)",
+        "altitud": "0 - 600 msnm (Trópico seco)",
+        "precipitacion": "400 - 800 mm (Muy resistente a sequía)",
+        "suelo": "Franco-arenoso, ligero, nunca encharcado",
+        "ph": "5.5 - 7.5"
+      },
       "plagas_y_enfermedades": [
           { "nombre": "Gusano Telarañero", "tipo": "Plaga", "control": { "mecanismo": "Contacto", "productos_activos_mexico": [{ "ingrediente": "Cipermetrina", "dosis_tipo": "Foliar" }] } }
       ],

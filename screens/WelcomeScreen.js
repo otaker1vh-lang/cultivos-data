@@ -48,7 +48,7 @@ const WelcomeScreen = ({ navigation }) => {
 
         {/* --- SECCIÓN DE TEXTO --- */}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>RóslinApp</Text>
+          <Text style={styles.title}></Text>
           <Text style={styles.subtitle}>
             Conectando productores, cultivando el futuro.
           </Text>
