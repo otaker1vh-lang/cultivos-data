@@ -1,0 +1,321 @@
+{
+  "categoria": "cereales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 30.0,
+    "uso": "Pastoreo directo o paca"
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Sudán",
+      "Híbridos dulces"
+    ],
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Voleo o Surco estrecho",
+          "arboles_ha": 250000,
+          "distancia_m": "Chorrillo denso"
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Corte 1",
+        "duracion_dias": 60
+      },
+      {
+        "nombre": "Rebrote",
+        "duracion_dias": 45
+      }
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "25 - 35 °C (Excelente rebrote con calor)",
+    "altitud": "0 - 1,800 msnm",
+    "precipitacion": "400 - 600 mm (Resistente a sequía)",
+    "suelo": "Adaptable, tolera suelos arcillosos y salinos",
+    "ph": "6.0 - 8.5"
+  },
+  "labores": {
+    "Manejo": [
+      "Corte antes de floración para evitar toxicidad (ácido cianhídrico)",
+      "Fertilización nitrogenada tras cada corte"
+    ]
+  },
+  "plagas_y_enfermedades": [],
+  "economia_expandida": {
+    "precio_min_mxn_ton": 2800,
+    "precio_max_mxn_ton": 4200,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Julio-Septiembre",
+    "valor_produccion_millones_mxn": 8500,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 15000,
+      "total": 21300
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 2100,
+      "riego_energia": 3800,
+      "mano_obra": 5500,
+      "cosecha": 4800,
+      "total": 20400
+    },
+    "costo_por_kg_produccion": 0.68,
+    "punto_equilibrio_ton_ha": 18.5
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Tamaulipas",
+      "altitud_msnm": "0-300",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Julio",
+      "cosecha_fin": "Septiembre",
+      "rendimiento_esperado_t_ha": 35,
+      "ventana_comercial": "Forraje fresco y ensilaje"
+    },
+    {
+      "region": "Sinaloa",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Abril",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 32,
+      "ventana_comercial": "Forraje verde y henificado"
+    },
+    {
+      "region": "Guanajuato",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 28,
+      "ventana_comercial": "Ensilaje y forraje seco"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Gusano cogollero",
+      "nombre_cientifico": "Spodoptera frugiperda",
+      "tipo": "Plaga",
+      "descripcion": "Daña hojas y cogollo, reduce rendimiento hasta 40%",
+      "umbral_economico": "2-3 larvas por planta en 20% de plantas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorantraniliprol",
+          "nombre_comercial": "Coragen",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Trichogramma pretiosum, Bacillus thuringiensis",
+      "epoca_mayor_incidencia": "Junio-Agosto"
+    },
+    {
+      "nombre": "Pulgón verde",
+      "nombre_cientifico": "Schizaphis graminum",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, amarillamiento",
+      "umbral_economico": "50-100 pulgones por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 420
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Mayo-Julio"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "30 días después siembra",
+      "formula": "46-00-00 (Urea)",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Al voleo con riego",
+      "costo_ha": 1400
+    },
+    {
+      "etapa": "60 días después siembra",
+      "formula": "46-00-00 + 00-00-60",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 1000
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 4200,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Terrenos planos, cultivo extensivo"
+    },
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 500,
+      "recomendacion": "Agua limitada, terrenos irregulares"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Ganaderos locales",
+        "participacion_pct": 60,
+        "precio_promedio_kg": 1.2,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Empresas pecuarias",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 1.35,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Cooperativas",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 1.15,
+        "condiciones_pago": "15 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 1.45
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 1.25
+      },
+      {
+        "meses": "Junio-Noviembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 1.1
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 18
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Estado lechoso-masoso del grano, 65-70% humedad",
+    "vida_util_dias": 3,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-70%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Ensilaje o henificación inmediata"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 41700,
+    "ingreso_anual_esperado_ha": 36000,
+    "utilidad_neta_anual_ha": 15600,
+    "roi_pct": 37.4,
+    "años_recuperacion": 2.7,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Sequías prolongadas durante floración",
+      "probabilidad": "Media",
+      "impacto": "Reducción 30-50% rendimiento",
+      "mitigacion": "Sistema riego eficiente, variedades tolerantes"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Infestación masiva gusano cogollero",
+      "probabilidad": "Alta",
+      "impacto": "Pérdidas hasta $8,000/ha",
+      "mitigacion": "Monitoreo constante, control biológico preventivo"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios forraje",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±25% ingresos",
+      "mitigacion": "Contratos anticipados, diversificación mercados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asistencia técnica",
+          "Variedades mejoradas",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Garantías",
+          "Asistencia técnica"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Vigilancia fitosanitaria"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento Ganadero",
+      "PROAGRO Productivo",
+      "Programa de Concurrencia"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región y resistentes a sequía como RB-Patrón y Silo Miel",
+    "Implementar rotación con leguminosas para mejorar fertilidad del suelo y reducir costos de nitrógeno",
+    "Establecer contratos de venta anticipada con ganaderos locales para asegurar mercado y precio estable"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:49:54.903756",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0481,
+    "requiere_validacion": true
+  }
+}

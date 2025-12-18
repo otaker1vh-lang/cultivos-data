@@ -1,0 +1,558 @@
+{
+  "categoria": "leguminosa",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 1.0,
+    "precio_medio_mxn_ton": 19304,
+    "superficie_sembrada_ha": 1091000,
+    "superficie_cosechada_ha": 761000,
+    "produccion_miles_ton": 724,
+    "variacion_anual_pct": -25.0,
+    "principales_estados": [
+      "Zacatecas",
+      "Sinaloa",
+      "Nayarit",
+      "Chiapas",
+      "Durango"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 724,
+      "variacion_anual_pct": -25.0,
+      "ranking_mundial": "8º",
+      "consumo_per_capita": "9.0 kg",
+      "principales_estados_valor": "Sinaloa (27.4%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 0.9,
+        "produccion_ton": 1280000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 0.8,
+        "produccion_ton": 960000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 1.0,
+        "produccion_ton": 724000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Negro Jamapa",
+      "Pinto Saltillo",
+      "Azufrado Higuera",
+      "Flor de Mayo"
+    ],
+    "densidad_plantacion": {
+      "nota": "En temporal la densidad es baja por falta de agua.",
+      "sistemas": [
+        {
+          "nombre": "Riego (Alta Densidad)",
+          "arboles_ha": 250000,
+          "distancia_m": "0.05x0.80"
+        },
+        {
+          "nombre": "Temporal (Tradicional)",
+          "arboles_ha": 120000,
+          "distancia_m": "0.10x0.80"
+        },
+        {
+          "nombre": "Doble Hilera (Cama)",
+          "arboles_ha": 300000,
+          "distancia_m": "0.25x1.60 (doble)"
+        }
+      ]
+    },
+    "duracion_total_dias": 105,
+    "etapas": [
+      {
+        "nombre": "Emergencia (V0-V3)",
+        "duracion_dias": 15,
+        "bbch_fase": "00-19"
+      },
+      {
+        "nombre": "Vegetativo (V4)",
+        "duracion_dias": 25,
+        "bbch_fase": "20-49"
+      },
+      {
+        "nombre": "Floración (R5-R6)",
+        "duracion_dias": 20,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Formación de Vaina (R7)",
+        "duracion_dias": 25,
+        "bbch_fase": "70-79"
+      },
+      {
+        "nombre": "Maduración (R8-R9)",
+        "duracion_dias": 20,
+        "bbch_fase": "80-99"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Zacatecas (Primavera-Verano)",
+        "siembra_inicio": "Julio",
+        "siembra_fin": "Agosto",
+        "cosecha_inicio": "Octubre",
+        "cosecha_fin": "Noviembre"
+      },
+      {
+        "estado": "Sinaloa (Otoño-Invierno)",
+        "siembra_inicio": "Octubre",
+        "siembra_fin": "Diciembre",
+        "cosecha_inicio": "Febrero",
+        "cosecha_fin": "Marzo"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Tratamiento de semilla",
+      "Siembra mecánica"
+    ],
+    "Vegetativo": [
+      "Escarificación (Cultivo)",
+      "Control maleza"
+    ],
+    "Floración": [
+      "Riego crítico (evitar aborto)",
+      "Control insectos"
+    ],
+    "Cosecha": [
+      "Corte y hilerado",
+      "Trilla"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 25 °C (Óptima 18-24°C, se detiene <10°C)",
+    "altitud": "0 - 2,600 msnm (Depende variedad arbustiva o trepadora)",
+    "precipitacion": "400 - 800 mm (Bien distribuidos, sensible a exceso)",
+    "suelo": "Franco a franco-arenoso, buen drenaje (No tolera encharcamiento)",
+    "ph": "6.0 - 7.5 (Tolera hasta 5.5)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Conchuela del Frijol (Epilachna)",
+      "tipo": "Plaga",
+      "descripcion": "Escarabajo comedor de hoja y vaina.",
+      "control": {
+        "mecanismo": "Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Cipermetrina",
+            "dosis_tipo": "Contacto"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mosca Blanca",
+      "tipo": "Plaga",
+      "descripcion": "Transmite Mosaico Dorado.",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Tiametoxam",
+            "dosis_tipo": "Semilla"
+          },
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Picudo del Ejote",
+      "tipo": "Plaga",
+      "descripcion": "Perfora las vainas.",
+      "control": {
+        "mecanismo": "Contacto",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metomilo",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Roya (Uromyces)",
+      "tipo": "Enfermedad",
+      "descripcion": "Pústulas rojizas en hojas.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Azoxistrobina",
+            "dosis_tipo": "Preventivo"
+          },
+          {
+            "ingrediente": "Tebuconazol",
+            "dosis_tipo": "Curativo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Antracnosis",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas negras hundidas en vainas.",
+      "control": {
+        "mecanismo": "Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Clorotalonil",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 60,
+      "P": 60,
+      "K": 30
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 12000,
+    "precio_max_mxn_ton": 28000,
+    "epoca_mejor_precio": "Marzo-Mayo",
+    "epoca_peor_precio": "Octubre-Diciembre",
+    "valor_produccion_millones_mxn": 13976,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 8000,
+      "total": 14300
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 2800,
+      "riego_energia": 1800,
+      "mano_obra": 3500,
+      "cosecha": 2200,
+      "total": 14500
+    },
+    "costo_por_kg_produccion": 14.5,
+    "punto_equilibrio_ton_ha": 0.75
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Zacatecas",
+      "altitud_msnm": "2000-2500",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 1.2,
+      "ventana_comercial": "Mercado nacional noviembre-febrero"
+    },
+    {
+      "region": "Sinaloa",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Marzo",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 1.8,
+      "ventana_comercial": "Exportación y mercado nacional marzo-junio"
+    },
+    {
+      "region": "Nayarit",
+      "altitud_msnm": "0-800",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Febrero",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 1.5,
+      "ventana_comercial": "Mercado nacional febrero-mayo"
+    },
+    {
+      "region": "Chiapas",
+      "altitud_msnm": "500-1500",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 0.8,
+      "ventana_comercial": "Mercado regional septiembre-enero"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Conchuela del frijol",
+      "nombre_cientifico": "Epilachna varivestis",
+      "tipo": "Plaga",
+      "descripcion": "Defoliación severa en hojas, reduce rendimiento hasta 40%",
+      "umbral_economico": "2-3 adultos por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Cipermetrina",
+          "nombre_comercial": "Sherpa",
+          "dosis": "300 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Liberación de Pediobius foveolatus",
+      "epoca_mayor_incidencia": "Julio-Septiembre"
+    },
+    {
+      "nombre": "Roya del frijol",
+      "nombre_cientifico": "Uromyces appendiculatus",
+      "tipo": "Enfermedad",
+      "descripcion": "Pústulas anaranjadas en hojas, defoliación prematura",
+      "umbral_economico": "5% de severidad en floración",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Tebuconazole",
+          "nombre_comercial": "Folicur",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Variedades resistentes, rotación de cultivos",
+      "epoca_mayor_incidencia": "Agosto-Octubre"
+    },
+    {
+      "nombre": "Mosquita blanca",
+      "nombre_cientifico": "Bemisia tabaci",
+      "tipo": "Plaga",
+      "descripcion": "Transmite virus del mosaico dorado, debilita plantas",
+      "umbral_economico": "1 adulto por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 520
+        }
+      ],
+      "control_biologico": "Encarsia formosa, trampas amarillas",
+      "epoca_mayor_incidencia": "Junio-Agosto"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Primera escarda (30 días)",
+      "formula": "46-00-00",
+      "dosis_kg_ha": 50,
+      "metodo_aplicacion": "Banda lateral",
+      "costo_ha": 800
+    },
+    {
+      "etapa": "Prefloración (45 días)",
+      "formula": "00-00-60 + micronutrientes",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Foliar",
+      "costo_ha": 950
+    },
+    {
+      "etapa": "Llenado de vaina",
+      "formula": "Fertilizante foliar completo",
+      "dosis_kg_ha": 2,
+      "metodo_aplicacion": "Aspersión foliar",
+      "costo_ha": 350
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 3500,
+      "lamina_anual_mm": 400,
+      "recomendacion": "Zonas áridas, cultivo intensivo"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 15000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Terrenos planos, mediana tecnificación"
+    },
+    {
+      "sistema": "Gravedad/Rodado",
+      "eficiencia_pct": 50,
+      "costo_instalacion_ha": 3000,
+      "costo_operacion_anual": 800,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Disponibilidad abundante de agua"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 18,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Acopiadores rurales",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 16,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 20,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 22,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 22
+      },
+      {
+        "meses": "Junio-Septiembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 19
+      },
+      {
+        "meses": "Octubre-Febrero",
+        "oferta": "Alta",
+        "precio_mxn_kg": 16
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 8
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Vainas secas, grano con 14-16% humedad",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "10-15°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 50 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 28800,
+    "ingreso_anual_esperado_ha": 19304,
+    "utilidad_neta_anual_ha": 4804,
+    "roi_pct": 16.7,
+    "años_recuperacion": 6,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Sequías prolongadas durante floración",
+      "probabilidad": "Media",
+      "impacto": "Reducción 30-50% rendimiento",
+      "mitigacion": "Riego suplementario, variedades tolerantes"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Brotes de roya en condiciones húmedas",
+      "probabilidad": "Alta",
+      "impacto": "Pérdidas hasta 40%",
+      "mitigacion": "Monitoreo, aplicaciones preventivas"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad de precios por sobreoferta",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 20-30% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Vigilancia fitosanitaria"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "Crédito Simple FIRA"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región y resistentes a enfermedades locales",
+    "Implementar rotación con cereales para mejorar fertilidad del suelo y romper ciclos de plagas",
+    "Establecer sistema de riego eficiente para asegurar agua en etapas críticas de floración y llenado",
+    "Realizar análisis de suelo previo para ajustar programa de fertilización",
+    "Monitorear constantemente plagas y enfermedades para aplicaciones oportunas",
+    "Diversificar canales de comercialización para reducir riesgo de precios",
+    "Mantener registros detallados de costos para análisis de rentabilidad"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:51:56.258885",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0579,
+    "requiere_validacion": true
+  }
+}

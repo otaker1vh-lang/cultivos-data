@@ -1,0 +1,509 @@
+{
+  "categoria": "hortaliza",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 32.3,
+    "precio_medio_mxn_ton": 7410,
+    "superficie_sembrada_ha": 56000,
+    "superficie_cosechada_ha": 56000,
+    "produccion_miles_ton": 1801,
+    "variacion_anual_pct": 17.8,
+    "principales_estados": [
+      "Chihuahua",
+      "Zacatecas",
+      "Guanajuato",
+      "Tamaulipas"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 1801,
+      "variacion_anual_pct": 17.8,
+      "ranking_mundial": "13º",
+      "consumo_per_capita": "10.5 kg",
+      "principales_estados_valor": "Chihuahua (18.1%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 30.5,
+        "produccion_ton": 1450000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 31.2,
+        "produccion_ton": 1520000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 32.3,
+        "produccion_ton": 1801000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Blanca (Sierra)",
+      "Morada",
+      "Amarilla (Grano)"
+    ],
+    "densidad_plantacion": {
+      "nota": "Se siembra a doble o triple hilera en cama.",
+      "sistemas": [
+        {
+          "nombre": "Alta Densidad (Riego)",
+          "arboles_ha": 350000,
+          "distancia_m": "0.08x0.35"
+        },
+        {
+          "nombre": "Media Densidad",
+          "arboles_ha": 280000,
+          "distancia_m": "0.10x0.40"
+        },
+        {
+          "nombre": "Baja Densidad (Bulbo grande)",
+          "arboles_ha": 220000,
+          "distancia_m": "0.12x0.45"
+        }
+      ]
+    },
+    "duracion_total_dias": 130,
+    "etapas": [
+      {
+        "nombre": "Establecimiento (Siembra directa/Trasplante)",
+        "duracion_dias": 20,
+        "bbch_fase": "00-12"
+      },
+      {
+        "nombre": "Desarrollo de hojas",
+        "duracion_dias": 40,
+        "bbch_fase": "13-19"
+      },
+      {
+        "nombre": "Inicio de Bulbificación",
+        "duracion_dias": 30,
+        "bbch_fase": "41-45"
+      },
+      {
+        "nombre": "Llenado de Bulbo",
+        "duracion_dias": 30,
+        "bbch_fase": "46-48"
+      },
+      {
+        "nombre": "Madurez (Doblado)",
+        "duracion_dias": 10,
+        "bbch_fase": "49"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Chihuahua (Tardía)",
+        "siembra_inicio": "Enero",
+        "siembra_fin": "Marzo",
+        "cosecha_inicio": "Julio",
+        "cosecha_fin": "Septiembre"
+      },
+      {
+        "estado": "Tamaulipas (Temprana)",
+        "siembra_inicio": "Agosto",
+        "siembra_fin": "Octubre",
+        "cosecha_inicio": "Enero",
+        "cosecha_fin": "Marzo"
+      }
+    ]
+  },
+  "labores": {
+    "Establecimiento": [
+      "Preparación cama fina",
+      "Siembra de precisión",
+      "Riego ligero frecuente"
+    ],
+    "Desarrollo": [
+      "Control de malezas (Crítico)",
+      "Fertilización Nitrogenada"
+    ],
+    "Bulbificación": [
+      "Fertilización Potásica",
+      "Suspensión de N"
+    ],
+    "Cosecha": [
+      "Corte de riego",
+      "Arrancado y curado en campo"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "12 - 24 °C (Requiere frío para inducir bulbo)",
+    "altitud": "800 - 2,800 msnm",
+    "precipitacion": "350 - 600 mm (Baja humedad relativa preferible)",
+    "suelo": "Franco a franco-arcilloso, friable y sin piedras",
+    "ph": "6.0 - 7.5 (Muy sensible a acidez)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Trips de la Cebolla (Thrips tabaci)",
+      "tipo": "Plaga",
+      "descripcion": "Raspa las hojas, color plateado, reduce fotosíntesis.",
+      "control": {
+        "mecanismo": "Químico/Rotación",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Spinetoram",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Gusano Soldado",
+      "tipo": "Plaga",
+      "descripcion": "Come hojas vorazmente.",
+      "control": {
+        "mecanismo": "Ingestión",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Benzoato de Emamectina",
+            "dosis_tipo": "Contacto"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mildiú Velloso (Peronospora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas púrpuras/grisáceas en hojas, destructor.",
+      "control": {
+        "mecanismo": "Preventivo/Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metalaxil",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Mancozeb",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Raíz Rosada (Phoma)",
+      "tipo": "Enfermedad",
+      "descripcion": "Raíces se tornan rosas y mueren, bulbo pequeño.",
+      "control": {
+        "mecanismo": "Resistencia/Suelo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metam Sodio (Presiembra)",
+            "dosis_tipo": "Fumigación"
+          },
+          {
+            "ingrediente": "Variedades Resistentes",
+            "dosis_tipo": "Genética"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mancha Púrpura (Alternaria)",
+      "tipo": "Enfermedad",
+      "descripcion": "Lesiones hundidas púrpuras en hojas.",
+      "control": {
+        "mecanismo": "Contacto",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Clorotalonil",
+            "dosis_tipo": "Preventivo"
+          },
+          {
+            "ingrediente": "Iprodiona",
+            "dosis_tipo": "Curativo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 150,
+      "P": 80,
+      "K": 150
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 4200,
+    "precio_max_mxn_ton": 12800,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Junio-Agosto",
+    "valor_produccion_millones_mxn": 13347,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 45000,
+      "total": 65500
+    },
+    "operacion_anual": {
+      "fertilizantes": 18500,
+      "control_plagas": 12000,
+      "riego_energia": 8500,
+      "mano_obra": 35000,
+      "cosecha": 15000,
+      "total": 89000
+    },
+    "costo_por_kg_produccion": 2.75,
+    "punto_equilibrio_ton_ha": 12.0
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Chihuahua (Delicias)",
+      "altitud_msnm": "1100-1200",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Marzo",
+      "cosecha_inicio": "Julio",
+      "cosecha_fin": "Agosto",
+      "rendimiento_esperado_t_ha": 45,
+      "ventana_comercial": "Mercado nacional verano"
+    },
+    {
+      "region": "Zacatecas (Fresnillo)",
+      "altitud_msnm": "2000-2200",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Septiembre",
+      "rendimiento_esperado_t_ha": 38,
+      "ventana_comercial": "Mercado nacional otoño"
+    },
+    {
+      "region": "Guanajuato (Bajío)",
+      "altitud_msnm": "1700-1900",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Noviembre",
+      "cosecha_inicio": "Abril",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 42,
+      "ventana_comercial": "Precios altos primavera"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Trips de la cebolla",
+      "nombre_cientifico": "Thrips tabaci",
+      "tipo": "Plaga",
+      "descripcion": "Daño directo en hojas, transmite virus",
+      "umbral_economico": "5 trips por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Orius insidiosus, trampas azules",
+      "epoca_mayor_incidencia": "Abril-Junio"
+    },
+    {
+      "nombre": "Cenicilla",
+      "nombre_cientifico": "Peronospora destructor",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas amarillas en hojas, pudrición",
+      "umbral_economico": "5% plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Metalaxil + Mancozeb",
+          "nombre_comercial": "Ridomil Gold",
+          "dosis": "2.5 kg/ha",
+          "costo_aplicacion_ha": 1200
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Mayo-Julio"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Preparación suelo",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 3200
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-10-10 + Zn",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirriego",
+      "costo_ha": 4800
+    },
+    {
+      "etapa": "Formación bulbo",
+      "formula": "15-05-30",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirriego",
+      "costo_ha": 5200
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 45000,
+      "costo_operacion_anual": 8500,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Suelos arenosos, alta tecnificación"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 12000,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Suelos arcillosos, menor inversión"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 6.8,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 8.5,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 5.2,
+        "condiciones_pago": "45 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 9.5
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 7.8
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 5.2
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 18
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Doblado natural del follaje, bulbo firme",
+    "vida_util_dias": 180,
+    "temperatura_almacen": "0-2°C",
+    "humedad_relativa": "65-70%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Sacos de malla 25 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 65500,
+    "ingreso_anual_esperado_ha": 239343,
+    "utilidad_neta_anual_ha": 61843,
+    "roi_pct": 94,
+    "años_recuperacion": 1.1,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías en formación de bulbo",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% rendimiento",
+      "mitigacion": "Riego por aspersión, variedades resistentes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios por sobreoferta",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 40% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación mercados"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Pudrición blanca (Sclerotium cepivorum)",
+      "probabilidad": "Media",
+      "impacto": "Pérdida total lote afectado",
+      "mitigacion": "Rotación cultivos, desinfección suelo"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Bajío",
+        "servicios": [
+          "Análisis suelo",
+          "Capacitación técnica",
+          "Variedades mejoradas"
+        ],
+        "contacto": "01-461-611-5323"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Seguros agrícolas"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Vigilancia epidemiológica"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura (SADER)",
+      "Componente de Desarrollo de Capacidades y Extensionismo Rural",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Implementar rotación con leguminosas para mejorar fertilidad del suelo y romper ciclos de plagas",
+    "Establecer contratos de compra-venta antes de siembra para asegurar mercado y precio",
+    "Monitorear constantemente trips y cenicilla durante desarrollo del cultivo para control oportuno",
+    "Curar bulbos al sol 7-10 días después de cosecha para mejorar conservación",
+    "Diversificar épocas de siembra para escalonar cosechas y reducir riesgo de mercado"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:32:10.545559",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0491,
+    "requiere_validacion": true
+  }
+}

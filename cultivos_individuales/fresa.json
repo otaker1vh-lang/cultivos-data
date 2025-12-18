@@ -1,0 +1,459 @@
+{
+  "categoria": "frutal",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 48.5,
+    "precio_medio_mxn_ton": 24135,
+    "superficie_sembrada_ha": 15000,
+    "superficie_cosechada_ha": 15000,
+    "produccion_miles_ton": 642,
+    "variacion_anual_pct": 11.0,
+    "principales_estados": [
+      "Michoacán",
+      "Baja California",
+      "Guanajuato"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 642,
+      "variacion_anual_pct": 11.0,
+      "principales_estados_valor": "Michoacán (58.7%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 48.5,
+        "produccion_ton": 642000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Festival",
+      "Albion",
+      "Camarosa",
+      "San Andreas"
+    ],
+    "densidad_plantacion": {
+      "nota": "Se planta en camas acolchadas a doble hilera (tresbolillo).",
+      "sistemas": [
+        {
+          "nombre": "Macrotúnel (Alta Densidad)",
+          "arboles_ha": 65000,
+          "distancia_m": "0.30x0.30 (Cama 1.4m)"
+        },
+        {
+          "nombre": "Campo Abierto",
+          "arboles_ha": 50000,
+          "distancia_m": "0.35x0.35"
+        },
+        {
+          "nombre": "Hidroponía Elevada",
+          "arboles_ha": 90000,
+          "distancia_m": "0.15x0.20"
+        }
+      ]
+    },
+    "duracion_total_dias": 210,
+    "etapas": [
+      {
+        "nombre": "Trasplante y Enraizamiento",
+        "duracion_dias": 20,
+        "bbch_fase": "10-19"
+      },
+      {
+        "nombre": "Desarrollo Vegetativo",
+        "duracion_dias": 40,
+        "bbch_fase": "20-49"
+      },
+      {
+        "nombre": "Floración Continua",
+        "duracion_dias": 60,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Cosecha Continua",
+        "duracion_dias": 90,
+        "bbch_fase": "80-89"
+      }
+    ]
+  },
+  "labores": {
+    "Trasplante": [
+      "Desinfección suelo",
+      "Colocación acolchado",
+      "Riego por goteo"
+    ],
+    "Floración": [
+      "Poda de estolones",
+      "Aplicación de Calcio"
+    ],
+    "Cosecha": [
+      "Corte cada 3 días",
+      "Refrigeración inmediata"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 25 °C (Días soleados y noches frescas)",
+    "altitud": "1,300 - 2,500 msnm",
+    "precipitacion": "600 - 800 mm (Muy sensible a exceso de humedad)",
+    "suelo": "Franco-arenoso, rico en materia orgánica (>3%), buen drenaje",
+    "ph": "5.5 - 6.5 (Sensible a la salinidad)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Araña Roja",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Acaricida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Bifenazato",
+            "dosis_tipo": "Contacto"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Botrytis (Moho Gris)",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fenhexamid",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 150,
+      "P": 80,
+      "K": 240
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 18500,
+    "precio_max_mxn_ton": 32000,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Abril-Junio",
+    "valor_produccion_millones_mxn": 15495,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 25000,
+      "material_vegetal": 180000,
+      "infraestructura_riego": 85000,
+      "total": 290000
+    },
+    "operacion_anual": {
+      "fertilizantes": 45000,
+      "control_plagas": 35000,
+      "riego_energia": 28000,
+      "mano_obra": 120000,
+      "cosecha": 95000,
+      "total": 323000
+    },
+    "costo_por_kg_produccion": 6.66,
+    "punto_equilibrio_ton_ha": 13.4
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Michoacán (Zamora)",
+      "altitud_msnm": "1500-1800",
+      "siembra_inicio": "Septiembre",
+      "siembra_fin": "Octubre",
+      "cosecha_inicio": "Diciembre",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 55,
+      "ventana_comercial": "Mercado nacional alta demanda"
+    },
+    {
+      "region": "Baja California (Ensenada)",
+      "altitud_msnm": "50-200",
+      "siembra_inicio": "Agosto",
+      "siembra_fin": "Septiembre",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 45,
+      "ventana_comercial": "Exportación EUA"
+    },
+    {
+      "region": "Guanajuato (Irapuato)",
+      "altitud_msnm": "1700-1900",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Noviembre",
+      "cosecha_inicio": "Enero",
+      "cosecha_fin": "Julio",
+      "rendimiento_esperado_t_ha": 42,
+      "ventana_comercial": "Mercado nacional centro"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Araña roja",
+      "nombre_cientifico": "Tetranychus urticae",
+      "tipo": "Plaga",
+      "descripcion": "Decoloración y bronceado de hojas, reducción fotosíntesis",
+      "umbral_economico": "5-8 ácaros por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Abamectina",
+          "nombre_comercial": "Vertimec",
+          "dosis": "0.5-1.0 L/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Phytoseiulus persimilis, Neoseiulus californicus",
+      "epoca_mayor_incidencia": "Marzo-Mayo"
+    },
+    {
+      "nombre": "Trips",
+      "nombre_cientifico": "Frankliniella occidentalis",
+      "tipo": "Plaga",
+      "descripcion": "Deformación de frutos, transmisión de virus",
+      "umbral_economico": "5 trips por flor",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Tracer",
+          "dosis": "0.15-0.25 L/ha",
+          "costo_aplicacion_ha": 720
+        }
+      ],
+      "control_biologico": "Orius insidiosus, Amblyseius cucumeris",
+      "epoca_mayor_incidencia": "Febrero-Abril"
+    },
+    {
+      "nombre": "Cenicilla polvorienta",
+      "nombre_cientifico": "Sphaerotheca macularis",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco en hojas, reducción calidad fruto",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azufre",
+          "nombre_comercial": "Kumulus",
+          "dosis": "3-4 kg/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Bacillus subtilis, aceites vegetales",
+      "epoca_mayor_incidencia": "Enero-Marzo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + microelementos",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 4500
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-20-20 + Ca + Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación semanal",
+      "costo_ha": 8000
+    },
+    {
+      "etapa": "Floración-Fructificación",
+      "formula": "15-15-30 + B + Ca",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Fertirrigación bisemanal",
+      "costo_ha": 9500
+    },
+    {
+      "etapa": "Producción continua",
+      "formula": "12-12-36 + microelementos",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Fertirrigación semanal",
+      "costo_ha": 11000
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo con cintilla",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 45000,
+      "costo_operacion_anual": 18000,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Suelos bien drenados, producción intensiva"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 38000,
+      "costo_operacion_anual": 22000,
+      "lamina_anual_mm": 650,
+      "recomendacion": "Climas secos, control temperatura"
+    },
+    {
+      "sistema": "Goteo enterrado",
+      "eficiencia_pct": 95,
+      "costo_instalacion_ha": 65000,
+      "costo_operacion_anual": 15000,
+      "lamina_anual_mm": 550,
+      "recomendacion": "Cultivos perennes, ahorro agua máximo"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 22,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 28,
+        "condiciones_pago": "30-45 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 35,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Procesadoras",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 18,
+        "condiciones_pago": "15-30 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 32
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Alta",
+        "precio_mxn_kg": 20
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Media",
+        "precio_mxn_kg": 25
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Estados Unidos",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Otros",
+        "porcentaje": 15
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "75% coloración roja, firmeza adecuada",
+    "vida_util_dias": 7,
+    "temperatura_almacen": "0-2°C",
+    "humedad_relativa": "90-95%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Charolas PET con tapa, cajas ventiladas"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 290000,
+    "ingreso_anual_esperado_ha": 1170975,
+    "utilidad_neta_anual_ha": 557975,
+    "roi_pct": 192,
+    "años_recuperacion": 0.52,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% producción",
+      "mitigacion": "Mallas térmicas, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Botrytis en alta humedad",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida calidad 20-40%",
+      "mitigacion": "Ventilación, fungicidas preventivos"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación mercado nacional",
+      "probabilidad": "Media",
+      "impacto": "Caída precios 25-35%",
+      "mitigacion": "Diversificar canales, valor agregado"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Uruapan",
+        "servicios": [
+          "Asistencia técnica",
+          "Análisis suelo",
+          "Capacitación"
+        ],
+        "contacto": "452-523-7414"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Inocuidad"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "Crédito FIRA Agropecuario"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Implementar sistema de fertirrigación para optimizar nutrición y rendimiento",
+    "Establecer programa MIP con monitoreo semanal de plagas y enfermedades",
+    "Diversificar canales comercialización incluyendo venta directa y procesamiento",
+    "Considerar producción bajo invernadero para mayor control y calidad",
+    "Mantener cadena frío desde cosecha hasta consumidor final"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:39:49.154951",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0561,
+    "requiere_validacion": true
+  }
+}

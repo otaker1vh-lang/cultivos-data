@@ -1,0 +1,405 @@
+{
+  "categoria": "frutal",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 14.2,
+    "precio_medio_mxn_ton": 4500,
+    "superficie_sembrada_ha": 340000,
+    "produccion_miles_ton": 4800,
+    "principales_estados": [
+      "Veracruz",
+      "Tamaulipas",
+      "San Luis Potosí"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 4800,
+      "principales_estados_valor": "Veracruz (50%)"
+    }
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Valencia",
+      "Navel",
+      "Hamlin"
+    ],
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Estándar",
+          "arboles_ha": 300,
+          "distancia_m": "6x6m"
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Floración (Azahar)",
+        "duracion_dias": 30
+      },
+      {
+        "nombre": "Llenado",
+        "duracion_dias": 180
+      },
+      {
+        "nombre": "Maduración",
+        "duracion_dias": 60
+      }
+    ]
+  },
+  "labores": {
+    "Floración": [
+      "Control de Diaphorina (HLB)"
+    ],
+    "Cosecha": [
+      "Corte manual"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "23 - 29 °C",
+    "altitud": "0 - 1,600 msnm",
+    "precipitacion": "1,000 - 1,500 mm",
+    "suelo": "Franco-arcilloso a arenoso, profundo",
+    "ph": "5.5 - 7.0"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "HLB (Dragón Amarillo)",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Vector",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Control Psílido",
+            "dosis_tipo": "Químico"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 200,
+      "P": 60,
+      "K": 200
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 2800,
+    "precio_max_mxn_ton": 6200,
+    "epoca_mejor_precio": "Abril-Junio",
+    "epoca_peor_precio": "Noviembre-Enero",
+    "valor_produccion_millones_mxn": 21600,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 25000,
+      "total": 45500
+    },
+    "operacion_anual": {
+      "fertilizantes": 8500,
+      "control_plagas": 6200,
+      "riego_energia": 4800,
+      "mano_obra": 15000,
+      "cosecha": 7500,
+      "total": 42000
+    },
+    "costo_por_kg_produccion": 2.96,
+    "punto_equilibrio_ton_ha": 9.3
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Veracruz (Costa)",
+      "altitud_msnm": "0-400",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Febrero",
+      "rendimiento_esperado_t_ha": 16.5,
+      "ventana_comercial": "Mercado nacional e internacional"
+    },
+    {
+      "region": "Tamaulipas (Norte)",
+      "altitud_msnm": "50-300",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Enero",
+      "rendimiento_esperado_t_ha": 14.8,
+      "ventana_comercial": "Mercado fronterizo y nacional"
+    },
+    {
+      "region": "San Luis Potosí (Huasteca)",
+      "altitud_msnm": "100-500",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Diciembre",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 12.5,
+      "ventana_comercial": "Mercado regional y nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Mosca de la fruta",
+      "nombre_cientifico": "Anastrepha ludens",
+      "tipo": "Plaga",
+      "descripcion": "Daña frutos causando pudrición y caída prematura",
+      "umbral_economico": "2 moscas/trampa/semana",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Success",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Trampas McPhail con atrayentes",
+      "epoca_mayor_incidencia": "Julio-Octubre"
+    },
+    {
+      "nombre": "Minador de los cítricos",
+      "nombre_cientifico": "Phyllocnistis citrella",
+      "tipo": "Plaga",
+      "descripcion": "Daña hojas jóvenes reduciendo fotosíntesis",
+      "umbral_economico": "25% de brotes infestados",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Ageniaspis citricola",
+      "epoca_mayor_incidencia": "Mayo-Agosto"
+    },
+    {
+      "nombre": "Gomosis",
+      "nombre_cientifico": "Phytophthora spp.",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición de raíces y base del tronco",
+      "umbral_economico": "Primeros síntomas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Fosetil aluminio",
+          "nombre_comercial": "Aliette",
+          "dosis": "2.5 kg/ha",
+          "costo_aplicacion_ha": 520
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Junio-Septiembre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Brotación",
+      "formula": "20-10-10 + Zn",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "Floración",
+      "formula": "15-15-15 + B",
+      "dosis_kg_ha": 120,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 1650
+    },
+    {
+      "etapa": "Cuajado",
+      "formula": "12-12-17 + Ca",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Llenado",
+      "formula": "10-5-20 + Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 2400
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 4800,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Zonas con agua limitada y terrenos planos"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 22000,
+      "costo_operacion_anual": 5200,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Suelos arenosos y climas secos"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 6000,
+      "lamina_anual_mm": 1000,
+      "recomendacion": "Huertos establecidos con disponibilidad de agua"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 4.2,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 5.8,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Industria jugos",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 3.8,
+        "condiciones_pago": "45 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 6.5,
+        "condiciones_pago": "Carta crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Abril-Junio",
+        "oferta": "Baja",
+        "precio_mxn_kg": 5.8
+      },
+      {
+        "meses": "Julio-Octubre",
+        "oferta": "Media",
+        "precio_mxn_kg": 4.5
+      },
+      {
+        "meses": "Noviembre-Marzo",
+        "oferta": "Alta",
+        "precio_mxn_kg": 3.2
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 18
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 12
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "75% coloración, firmeza adecuada, °Brix 9-11",
+    "vida_util_dias": 45,
+    "temperatura_almacen": "4-8°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón 18-20 kg con liner"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 87500,
+    "ingreso_anual_esperado_ha": 63900,
+    "utilidad_neta_anual_ha": 21900,
+    "roi_pct": 25,
+    "años_recuperacion": 4,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías y huracanes",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-70% producción",
+      "mitigacion": "Seguro agrícola, sistemas antihelada"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "HLB (Huanglongbing)",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida total plantación",
+      "mitigacion": "Control vector, material certificado"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 20-40% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnología",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "800-347-2872"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Cuarentena"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Plantaciones Frutícolas",
+      "Programa de Sanidades",
+      "Seguro Agrícola Catastrófico"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer sistema de riego tecnificado desde el inicio para optimizar uso del agua y fertilizantes",
+    "Implementar programa preventivo contra HLB con control del psílido asiático y uso de material certificado",
+    "Diversificar canales de comercialización incluyendo contratos con industria para reducir riesgo de precios",
+    "Mantener registros detallados de costos y rendimientos para optimizar rentabilidad por lote",
+    "Establecer cortinas rompevientos en zonas expuestas para proteger contra huracanes y vientos fuertes"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:26:16.636257",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0555,
+    "requiere_validacion": true
+  }
+}

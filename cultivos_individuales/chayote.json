@@ -1,0 +1,455 @@
+{
+  "categoria": "hortaliza",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 65.0,
+    "precio_medio_mxn_ton": 3500,
+    "superficie_sembrada_ha": 3000,
+    "superficie_cosechada_ha": 3000,
+    "produccion_miles_ton": 195,
+    "variacion_anual_pct": 2.0,
+    "principales_estados": [
+      "Veracruz",
+      "Michoacán",
+      "Jalisco"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 195,
+      "variacion_anual_pct": 2.0,
+      "ranking_mundial": "1º Exportador",
+      "consumo_per_capita": "3.2 kg",
+      "principales_estados_valor": "Veracruz (85%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 65.0,
+        "produccion_ton": 195000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Verde Liso (Exportación)",
+      "Espinoso"
+    ],
+    "densidad_plantacion": {
+      "nota": "Requiere emparrado (tapesco) permanente.",
+      "sistemas": [
+        {
+          "nombre": "Emparrado Comercial",
+          "arboles_ha": 100,
+          "distancia_m": "10x10m (Extensivo)"
+        },
+        {
+          "nombre": "Alta Densidad",
+          "arboles_ha": 200,
+          "distancia_m": "7x7m"
+        }
+      ]
+    },
+    "duracion_total_dias": 365,
+    "etapas": [
+      {
+        "nombre": "Brotación",
+        "duracion_dias": 30,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Crecimiento Guía",
+        "duracion_dias": 90,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Floración Continua",
+        "duracion_dias": 200,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Cosecha",
+        "duracion_dias": 180,
+        "bbch_fase": "70-89"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Veracruz (Orizaba)",
+        "siembra_inicio": "Marzo",
+        "siembra_fin": "Mayo",
+        "cosecha_inicio": "Todo el año",
+        "cosecha_fin": "N/A"
+      }
+    ]
+  },
+  "labores": {
+    "Estructura": [
+      "Construcción de tapesco",
+      "Guiado de la planta"
+    ],
+    "Cosecha": [
+      "Corte manual diario",
+      "Selección (Cero espinas para export)"
+    ]
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Araña Roja",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Acaricida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Fusarium",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Suelo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Trichoderma",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 150,
+      "P": 80,
+      "K": 200
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 2800,
+    "precio_max_mxn_ton": 4500,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Agosto-Octubre",
+    "valor_produccion_millones_mxn": 682.5,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 25000,
+      "total": 45500
+    },
+    "operacion_anual": {
+      "fertilizantes": 18000,
+      "control_plagas": 8500,
+      "riego_energia": 12000,
+      "mano_obra": 35000,
+      "cosecha": 15000,
+      "total": 88500
+    },
+    "costo_por_kg_produccion": 1.36,
+    "punto_equilibrio_ton_ha": 38.5
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Veracruz (Costa)",
+      "altitud_msnm": "0-800",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 70,
+      "ventana_comercial": "Mercado nacional e internacional"
+    },
+    {
+      "region": "Michoacán (Tierra Caliente)",
+      "altitud_msnm": "500-1200",
+      "siembra_inicio": "Abril",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 65,
+      "ventana_comercial": "Central de Abasto CDMX"
+    },
+    {
+      "region": "Jalisco (Región Sur)",
+      "altitud_msnm": "800-1500",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Febrero",
+      "rendimiento_esperado_t_ha": 60,
+      "ventana_comercial": "Mercado regional y exportación"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Mosca blanca",
+      "nombre_cientifico": "Bemisia tabaci",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, produce fumagina",
+      "umbral_economico": "5 adultos por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Encarsia formosa, trampas amarillas",
+      "epoca_mayor_incidencia": "Marzo-Mayo"
+    },
+    {
+      "nombre": "Antracnosis",
+      "nombre_cientifico": "Colletotrichum gloeosporioides",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas en frutos y hojas",
+      "umbral_economico": "10% de incidencia",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina",
+          "nombre_comercial": "Amistar",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Junio-Septiembre"
+    },
+    {
+      "nombre": "Áfidos",
+      "nombre_cientifico": "Aphis gossypii",
+      "tipo": "Plaga",
+      "descripcion": "Deformación de hojas, transmisión de virus",
+      "umbral_economico": "10 áfidos por brote",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Acetamiprid",
+          "nombre_comercial": "Mospilan",
+          "dosis": "150 g/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Febrero-Abril"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2800
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-10-20 + Ca + Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirriego quincenal",
+      "costo_ha": 4200
+    },
+    {
+      "etapa": "Floración-fructificación",
+      "formula": "15-05-30 + B + Zn",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Fertirriego semanal",
+      "costo_ha": 5800
+    },
+    {
+      "etapa": "Producción continua",
+      "formula": "18-18-18 + aminoácidos",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Fertirriego cada 10 días",
+      "costo_ha": 6500
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 8500,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Recomendado para todas las regiones"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 22000,
+      "costo_operacion_anual": 9200,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Para zonas con agua abundante"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 11000,
+      "lamina_anual_mm": 1100,
+      "recomendacion": "Solo en zonas con restricciones de inversión"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 3.2,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 4.1,
+        "condiciones_pago": "30-45 días"
+      },
+      {
+        "canal": "Mercados locales",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 3.8,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 4.8,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 4.2
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 3.8
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 2.9
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 3.4
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 18
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 10
+      },
+      {
+        "ciudad": "Estados Unidos",
+        "porcentaje": 8
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Fruto tierno, 10-15 cm longitud, sin fibra",
+    "vida_util_dias": 15,
+    "temperatura_almacen": "7-10°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 12,
+    "empaque_recomendado": "Cajas de cartón corrugado 10-15 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 134000,
+    "ingreso_anual_esperado_ha": 227500,
+    "utilidad_neta_anual_ha": 139000,
+    "roi_pct": 61,
+    "años_recuperacion": 1.8,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías dañan floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% producción",
+      "mitigacion": "Mallas antihelada, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Virus transmitidos por mosca blanca",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida 40-70% producción",
+      "mitigacion": "Control preventivo de vectores, variedades resistentes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación de mercado en temporada alta",
+      "probabilidad": "Alta",
+      "impacto": "Caída precio 40-60%",
+      "mitigacion": "Diversificar canales, procesamiento, exportación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asistencia técnica",
+          "Variedades mejoradas",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Garantías",
+          "Asistencia técnica"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Buenas prácticas"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo Productivo del Sur-Sureste",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer sistema de riego por goteo para optimizar uso del agua y fertilizantes",
+    "Implementar programa de monitoreo semanal de plagas y enfermedades desde el trasplante",
+    "Diversificar canales de comercialización incluyendo procesamiento y valor agregado",
+    "Mantener registros detallados de costos y rendimientos para análisis de rentabilidad",
+    "Considerar certificaciones orgánicas o de buenas prácticas para acceder a mercados premium"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:07:22.623232",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0567,
+    "requiere_validacion": true
+  }
+}

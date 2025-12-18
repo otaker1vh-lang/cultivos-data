@@ -1,0 +1,463 @@
+{
+  "categoria": "frutal",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 15.8,
+    "precio_medio_mxn_ton": 9630,
+    "superficie_sembrada_ha": 223000,
+    "superficie_cosechada_ha": 210000,
+    "produccion_miles_ton": 3240,
+    "variacion_anual_pct": 4.5,
+    "principales_estados": [
+      "Michoacán",
+      "Veracruz",
+      "Colima",
+      "Oaxaca"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 3240,
+      "variacion_anual_pct": 4.5,
+      "principales_estados_valor": "Michoacán (37.6%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 15.8,
+        "produccion_ton": 3240000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Mexicano (Con semilla)",
+      "Persa (Sin semilla)",
+      "Italiano"
+    ],
+    "densidad_plantacion": {
+      "nota": "El limón Persa suele ir más amplio que el Mexicano.",
+      "sistemas": [
+        {
+          "nombre": "Mexicano (Alta Densidad)",
+          "arboles_ha": 400,
+          "distancia_m": "5x5"
+        },
+        {
+          "nombre": "Persa (Exportación)",
+          "arboles_ha": 277,
+          "distancia_m": "6x6"
+        },
+        {
+          "nombre": "Seto (Ultra Alta)",
+          "arboles_ha": 800,
+          "distancia_m": "2.5x5"
+        }
+      ]
+    },
+    "duracion_total_dias": 365,
+    "etapas": [
+      {
+        "nombre": "Brotación",
+        "duracion_dias": 30,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Floración",
+        "duracion_dias": 20,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Cuajado",
+        "duracion_dias": 30,
+        "bbch_fase": "70-79"
+      },
+      {
+        "nombre": "Llenado de jugo",
+        "duracion_dias": 90,
+        "bbch_fase": "80-85"
+      },
+      {
+        "nombre": "Cosecha",
+        "duracion_dias": 30,
+        "bbch_fase": "87-89"
+      }
+    ]
+  },
+  "labores": {
+    "Brotación": [
+      "Fertilización foliar",
+      "Control de Minador"
+    ],
+    "Cosecha": [
+      "Corte con tijera (Persa)",
+      "Arrancado (Mexicano para industria)"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "22 - 28 °C (Sensible a heladas)",
+    "altitud": "0 - 1,400 msnm",
+    "precipitacion": "900 - 1,200 mm",
+    "suelo": "Franco a franco-arenoso, ligero",
+    "ph": "5.5 - 7.0"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Psílido Asiático (Diaphorina)",
+      "tipo": "Plaga",
+      "descripcion": "Transmite HLB (Dragón Amarillo).",
+      "control": {
+        "mecanismo": "Químico/Biológico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "HLB (Huanglongbing)",
+      "tipo": "Enfermedad",
+      "descripcion": "Bacteria que mata el árbol.",
+      "control": {
+        "mecanismo": "Nutrición/Control Vector",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "No tiene cura",
+            "dosis_tipo": "Manejo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Gomosis (Phytophthora)",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fosetil-Al",
+            "dosis_tipo": "Inyección"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 180,
+      "P": 60,
+      "K": 180
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 4500,
+    "precio_max_mxn_ton": 18000,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Junio-Agosto",
+    "valor_produccion_millones_mxn": 31201,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 15000,
+      "material_vegetal": 25000,
+      "infraestructura_riego": 45000,
+      "total": 85000
+    },
+    "operacion_anual": {
+      "fertilizantes": 18000,
+      "control_plagas": 12000,
+      "riego_energia": 8000,
+      "mano_obra": 35000,
+      "cosecha": 15000,
+      "total": 88000
+    },
+    "costo_por_kg_produccion": 5.57,
+    "punto_equilibrio_ton_ha": 9.14
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Michoacán (Tierra Caliente)",
+      "altitud_msnm": "300-800",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 18,
+      "ventana_comercial": "Mercado nacional e internacional"
+    },
+    {
+      "region": "Veracruz (Costa)",
+      "altitud_msnm": "0-400",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 16,
+      "ventana_comercial": "Mercado nacional y exportación"
+    },
+    {
+      "region": "Colima",
+      "altitud_msnm": "0-600",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Diciembre",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 20,
+      "ventana_comercial": "Exportación premium"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Minador de la hoja",
+      "nombre_cientifico": "Phyllocnistis citrella",
+      "tipo": "Plaga",
+      "descripcion": "Daña brotes tiernos reduciendo fotosíntesis",
+      "umbral_economico": "30% de brotes infestados",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Abamectina",
+          "nombre_comercial": "Vertimec",
+          "dosis": "0.5 L/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Cirrospilus sp., Ageniaspis citricola",
+      "epoca_mayor_incidencia": "Marzo-Mayo, Septiembre-Noviembre"
+    },
+    {
+      "nombre": "Gomosis",
+      "nombre_cientifico": "Phytophthora spp.",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición del tronco y raíces",
+      "umbral_economico": "Primeros síntomas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Fosetil aluminio",
+          "nombre_comercial": "Aliette",
+          "dosis": "2.5 kg/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Junio-Septiembre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Banda al suelo",
+      "costo_ha": 4200
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-10-20 + Zn, Mn, B",
+      "dosis_kg_ha": 400,
+      "metodo_aplicacion": "Corona del árbol",
+      "costo_ha": 5600
+    },
+    {
+      "etapa": "Floración-fructificación",
+      "formula": "15-15-15 + Ca, Mg",
+      "dosis_kg_ha": 350,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 4900
+    },
+    {
+      "etapa": "Postcosecha",
+      "formula": "25-05-25 + aminoácidos",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Foliar + suelo",
+      "costo_ha": 3500
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 35000,
+      "costo_operacion_anual": 8000,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Zonas áridas y semiáridas"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 6500,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Suelos arenosos"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 22000,
+      "costo_operacion_anual": 5000,
+      "lamina_anual_mm": 1000,
+      "recomendacion": "Huertos establecidos grandes"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 8.5,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 12.0,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 7.0,
+        "condiciones_pago": "45 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 11.0,
+        "condiciones_pago": "60 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 12.5
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 9.8
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 6.2
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 8.9
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 30
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Estados Unidos",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Europa",
+        "porcentaje": 8
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Color verde intenso, firmeza al tacto, 6-7 cm diámetro",
+    "vida_util_dias": 45,
+    "temperatura_almacen": "10-13°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón 20 kg con ventilación"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 85000,
+    "ingreso_anual_esperado_ha": 152234,
+    "utilidad_neta_anual_ha": 64234,
+    "roi_pct": 75.6,
+    "años_recuperacion": 1.3,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías en floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% producción",
+      "mitigacion": "Riego por aspersión, mallas antihelada"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "HLB (Huanglongbing)",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida total del huerto",
+      "mitigacion": "Control de psílido, material certificado"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad de precios",
+      "probabilidad": "Alta",
+      "impacto": "Variación 40-60% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-347-2872"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Cuarentena"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Cadenas Productivas",
+      "Programa de Sanidades",
+      "PROCAFÉ (Productividad y Competitividad Agroalimentaria)"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer huertos en zonas libres de HLB con material vegetal certificado",
+    "Implementar sistema de riego tecnificado para optimizar uso del agua",
+    "Realizar análisis de suelo y foliares para programa de fertilización preciso",
+    "Establecer contratos de venta antes de cosecha para asegurar mercado",
+    "Mantener programa fitosanitario preventivo especialmente contra psílido asiático"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:40:28.811881",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0532,
+    "requiere_validacion": true
+  }
+}

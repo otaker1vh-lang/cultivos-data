@@ -1,0 +1,400 @@
+{
+  "categoria": "hortaliza",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 18.9,
+    "precio_medio_mxn_ton": 6749,
+    "superficie_sembrada_ha": 40000,
+    "superficie_cosechada_ha": 40000,
+    "produccion_miles_ton": 758,
+    "variacion_anual_pct": 0.2,
+    "principales_estados": [
+      "Sinaloa",
+      "Jalisco",
+      "Zacatecas",
+      "Puebla"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 758,
+      "variacion_anual_pct": 0.2,
+      "principales_estados_valor": "Sinaloa (21.3%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 18.9,
+        "produccion_ton": 758000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Gran Esmeralda",
+      "Tecozautla",
+      "Querétaro"
+    ],
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Campo",
+          "arboles_ha": 20000,
+          "distancia_m": "0.40x1.2"
+        }
+      ]
+    },
+    "duracion_total_dias": 90,
+    "etapas": [
+      {
+        "nombre": "Germinación",
+        "duracion_dias": 15,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Desarrollo hojas",
+        "duracion_dias": 30,
+        "bbch_fase": "10-19"
+      },
+      {
+        "nombre": "Floración",
+        "duracion_dias": 30,
+        "bbch_fase": "61-69"
+      },
+      {
+        "nombre": "Formación fruto",
+        "duracion_dias": 40,
+        "bbch_fase": "71-79"
+      },
+      {
+        "nombre": "Maduración",
+        "duracion_dias": 20,
+        "bbch_fase": "81-89"
+      }
+    ]
+  },
+  "labores": {
+    "Floración": [
+      "Polinización"
+    ],
+    "Cosecha": [
+      "Manual con cáliz"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "20 - 26 °C (Clima templado a cálido)",
+    "altitud": "0 - 2,600 msnm (Muy adaptable)",
+    "precipitacion": "500 - 900 mm",
+    "suelo": "Franco a franco-arcilloso, bien drenado",
+    "ph": "5.5 - 7.3"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Barrenador del fruto",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Clorantraniliprol",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Cenicilla",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Azufre",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 150,
+      "P": 80,
+      "K": 150
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 3500,
+    "precio_max_mxn_ton": 12000,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Agosto-Octubre",
+    "valor_produccion_millones_mxn": 5116,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 3200,
+      "infraestructura_riego": 18000,
+      "total": 29700
+    },
+    "operacion_anual": {
+      "fertilizantes": 12000,
+      "control_plagas": 8500,
+      "riego_energia": 6000,
+      "mano_obra": 25000,
+      "cosecha": 15000,
+      "total": 66500
+    },
+    "costo_por_kg_produccion": 3.52,
+    "punto_equilibrio_ton_ha": 14.2
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Sinaloa",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Enero",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 22,
+      "ventana_comercial": "Exportación y mercado nacional premium"
+    },
+    {
+      "region": "Jalisco",
+      "altitud_msnm": "1500-2000",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Julio",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 18,
+      "ventana_comercial": "Mercado nacional y procesamiento"
+    },
+    {
+      "region": "Zacatecas",
+      "altitud_msnm": "2000-2500",
+      "siembra_inicio": "Abril",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 16,
+      "ventana_comercial": "Mercado nacional y conservas"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Gusano del fruto",
+      "nombre_cientifico": "Helicoverpa zea",
+      "tipo": "Plaga",
+      "descripcion": "Perfora frutos causando pudriciones y pérdidas del 30-60%",
+      "umbral_economico": "2 larvas por 100 frutos",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorantraniliprol",
+          "nombre_comercial": "Coragen",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Trichogramma pretiosum, Bacillus thuringiensis",
+      "epoca_mayor_incidencia": "Julio-Septiembre"
+    },
+    {
+      "nombre": "Cenicilla",
+      "nombre_cientifico": "Leveillula taurica",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas amarillas en hojas, reduce fotosíntesis y rendimiento",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina",
+          "nombre_comercial": "Amistar",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 650
+        }
+      ],
+      "control_biologico": "Bacillus subtilis, aceites vegetales",
+      "epoca_mayor_incidencia": "Mayo-Agosto"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Trasplante",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2800
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-10-20 + Ca",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirriego semanal",
+      "costo_ha": 3500
+    },
+    {
+      "etapa": "Floración-fructificación",
+      "formula": "15-05-30 + B",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Fertirriego bisemanal",
+      "costo_ha": 4200
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 6000,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Cultivo intensivo y zonas áridas"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 12000,
+      "costo_operacion_anual": 4500,
+      "lamina_anual_mm": 550,
+      "recomendacion": "Cultivo extensivo y temporal"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 6.2,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 5.8,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 7.5,
+        "condiciones_pago": "45 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 8.5
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 6.8
+      },
+      {
+        "meses": "Junio-Noviembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 5.2
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Fruto verde maduro, cáliz seco, firmeza adecuada",
+    "vida_util_dias": 21,
+    "temperatura_almacen": "10-13°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón con ventilación, 10-15 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 96200,
+    "ingreso_anual_esperado_ha": 127551,
+    "utilidad_neta_anual_ha": 44651,
+    "roi_pct": 46.4,
+    "años_recuperacion": 2.2,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías en zonas altas",
+      "probabilidad": "Media",
+      "impacto": "Pérdida total del cultivo",
+      "mitigacion": "Monitoreo meteorológico, mallas antihelada"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Virus del bronceado del tomate",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 40-80% rendimiento",
+      "mitigacion": "Control de trips, variedades resistentes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación del mercado agosto-octubre",
+      "probabilidad": "Alta",
+      "impacto": "Precios 30-50% menores",
+      "mitigacion": "Contratos a futuro, diversificación de mercados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Vigilancia fitosanitaria"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado y precio",
+    "Implementar manejo integrado de plagas con énfasis en control biológico para reducir costos",
+    "Diversificar épocas de siembra para aprovechar ventanas de mejor precio",
+    "Invertir en sistemas de riego tecnificado para optimizar uso del agua y fertilizantes",
+    "Formar grupos de productores para mejorar poder de negociación y reducir costos de insumos"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:35:39.653776",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0489,
+    "requiere_validacion": true
+  }
+}

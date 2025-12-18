@@ -1,0 +1,524 @@
+{
+  "categoria": "leguminosa",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 1.9,
+    "precio_medio_mxn_ton": 19111,
+    "superficie_sembrada_ha": 75000,
+    "superficie_cosechada_ha": 75000,
+    "produccion_miles_ton": 143,
+    "variacion_anual_pct": -24.3,
+    "principales_estados": [
+      "Sinaloa",
+      "Sonora",
+      "Baja California Sur",
+      "Michoacán"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 143,
+      "variacion_anual_pct": -24.3,
+      "ranking_mundial": "10º (Exportador)",
+      "consumo_per_capita": "0.5 kg",
+      "principales_estados_valor": "Sinaloa (72.9%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 1.8,
+        "produccion_ton": 170000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 2.0,
+        "produccion_ton": 189000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 1.9,
+        "produccion_ton": 143000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Blanco Sinaloa 92",
+      "Jumbo",
+      "Macarena"
+    ],
+    "densidad_plantacion": {
+      "nota": "Se busca calibre grande para exportación.",
+      "sistemas": [
+        {
+          "nombre": "Hilera Sencilla (Riego)",
+          "arboles_ha": 120000,
+          "distancia_m": "0.10x0.80"
+        },
+        {
+          "nombre": "Doble Hilera",
+          "arboles_ha": 200000,
+          "distancia_m": "0.25x1.60 (Cama)"
+        }
+      ]
+    },
+    "duracion_total_dias": 140,
+    "etapas": [
+      {
+        "nombre": "Emergencia",
+        "duracion_dias": 12,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Ramificación Vegetativa",
+        "duracion_dias": 45,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Floración",
+        "duracion_dias": 30,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Llenado de Vaina",
+        "duracion_dias": 35,
+        "bbch_fase": "70-79"
+      },
+      {
+        "nombre": "Madurez/Secado",
+        "duracion_dias": 18,
+        "bbch_fase": "80-99"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Sinaloa/Sonora",
+        "siembra_inicio": "Noviembre",
+        "siembra_fin": "Diciembre",
+        "cosecha_inicio": "Abril",
+        "cosecha_fin": "Mayo"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Humedad residual o riego",
+      "Inoculación Rhizobium"
+    ],
+    "Vegetativo": [
+      "Cultivo para aerear raíz",
+      "Control Rabia"
+    ],
+    "Cosecha": [
+      "Corte (hilerado)",
+      "Trilla seca"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "10 - 25 °C (Desarrollo óptimo en clima fresco)",
+    "altitud": "0 - 1,800 msnm (Costa y Bajío)",
+    "precipitacion": "300 - 600 mm (Aprovecha humedad residual)",
+    "suelo": "Franco-arcilloso a arenoso, profundo (Raíz pivotante fuerte)",
+    "ph": "6.0 - 8.0 (No tolera suelos ácidos)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Gusano de la Cápsula (Heliothis)",
+      "tipo": "Plaga",
+      "descripcion": "Perfora la vaina y come el grano.",
+      "control": {
+        "mecanismo": "Biológico/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Bacillus thuringiensis",
+            "dosis_tipo": "Biológico"
+          },
+          {
+            "ingrediente": "Benzoato de Emamectina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Minador de la Hoja",
+      "tipo": "Plaga",
+      "descripcion": "Galerías en foliolos.",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Rabia (Ascochyta)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas circulares, mata la planta rápido.",
+      "control": {
+        "mecanismo": "Fungicida Específico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Clorotalonil",
+            "dosis_tipo": "Preventivo"
+          },
+          {
+            "ingrediente": "Azoxistrobina",
+            "dosis_tipo": "Curativo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Fusarium (Marchitez)",
+      "tipo": "Enfermedad",
+      "descripcion": "Amarillamiento y muerte vascular.",
+      "control": {
+        "mecanismo": "Genético",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Variedades Resistentes",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Moho Gris (Botrytis)",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición en floración con alta humedad.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Carbendazim",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 40,
+      "P": 60,
+      "K": 40
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 14500,
+    "precio_max_mxn_ton": 28000,
+    "epoca_mejor_precio": "Julio-Septiembre",
+    "epoca_peor_precio": "Marzo-Mayo",
+    "valor_produccion_millones_mxn": 2732.9,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 4500,
+      "material_vegetal": 3200,
+      "infraestructura_riego": 18000,
+      "total": 25700
+    },
+    "operacion_anual": {
+      "fertilizantes": 4800,
+      "control_plagas": 3500,
+      "riego_energia": 2800,
+      "mano_obra": 8500,
+      "cosecha": 4200,
+      "total": 23800
+    },
+    "costo_por_kg_produccion": 12.53,
+    "punto_equilibrio_ton_ha": 1.24
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Sinaloa",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Marzo",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 2.2,
+      "ventana_comercial": "Mercado nacional e internacional"
+    },
+    {
+      "region": "Sonora",
+      "altitud_msnm": "200-500",
+      "siembra_inicio": "Diciembre",
+      "siembra_fin": "Febrero",
+      "cosecha_inicio": "Abril",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 2.0,
+      "ventana_comercial": "Exportación y mercado nacional"
+    },
+    {
+      "region": "Michoacán",
+      "altitud_msnm": "1500-2000",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Febrero",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 1.6,
+      "ventana_comercial": "Mercado nacional temporal"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Gusano trozador",
+      "nombre_cientifico": "Agrotis ipsilon",
+      "tipo": "Plaga",
+      "descripcion": "Corta plántulas a nivel del suelo causando pérdidas hasta 40%",
+      "umbral_economico": "2-3 larvas por metro lineal",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorpirifos",
+          "nombre_comercial": "Lorsban 480",
+          "dosis": "1.5 L/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Bacillus thuringiensis, trampas de feromonas",
+      "epoca_mayor_incidencia": "Diciembre-Febrero"
+    },
+    {
+      "nombre": "Fusarium",
+      "nombre_cientifico": "Fusarium oxysporum",
+      "tipo": "Enfermedad",
+      "descripcion": "Marchitez vascular que puede causar pérdidas del 30-60%",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Carbendazim",
+          "nombre_comercial": "Derosal 500",
+          "dosis": "1.0 kg/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum, rotación de cultivos",
+      "epoca_mayor_incidencia": "Enero-Marzo"
+    },
+    {
+      "nombre": "Pulgón del garbanzo",
+      "nombre_cientifico": "Aphis craccivora",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia y transmite virus, reduce rendimiento 15-25%",
+      "umbral_economico": "10-15 pulgones por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor 350",
+          "dosis": "200 g/ha",
+          "costo_aplicacion_ha": 320
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Febrero-Abril"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "Floración",
+      "formula": "20-10-20 + micronutrientes",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 1500
+    },
+    {
+      "etapa": "Llenado de vainas",
+      "formula": "15-05-30",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 1200
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 350,
+      "recomendacion": "Zonas áridas con agua limitada"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 12000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 420,
+      "recomendacion": "Terrenos planos con disponibilidad de agua"
+    },
+    {
+      "sistema": "Gravedad",
+      "eficiencia_pct": 60,
+      "costo_instalacion_ha": 4000,
+      "costo_operacion_anual": 1800,
+      "lamina_anual_mm": 500,
+      "recomendacion": "Zonas con abundante agua y pendiente"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 18.5,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 19.8,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 22.0,
+        "condiciones_pago": "Carta de crédito"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 17.2,
+        "condiciones_pago": "45-60 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Alta",
+        "precio_mxn_kg": 16.5
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Baja",
+        "precio_mxn_kg": 23.0
+      },
+      {
+        "meses": "Septiembre-Febrero",
+        "oferta": "Media",
+        "precio_mxn_kg": 19.5
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 18
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Exportación",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Otros",
+        "porcentaje": 27
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Vainas secas color café, 14-16% humedad del grano",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 50 kg o big bags"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 25700,
+    "ingreso_anual_esperado_ha": 36311,
+    "utilidad_neta_anual_ha": 12511,
+    "roi_pct": 34.4,
+    "años_recuperacion": 2.9,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% del rendimiento",
+      "mitigacion": "Siembra temprana, variedades tolerantes, riego por aspersión"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Fusarium en suelos con mal drenaje",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida hasta 60% del cultivo",
+      "mitigacion": "Rotación cultivos, drenaje adecuado, semilla tratada"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad de precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±30% en ingresos",
+      "mitigacion": "Contratos a futuro, diversificación de mercados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asistencia técnica",
+          "Variedades mejoradas",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Garantías",
+          "Asistencia técnica"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Vigilancia epidemiológica"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo Productivo del Sur Sureste",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "PROCAMPO Productivo"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región y resistentes a Fusarium como Blanoro y Patron",
+    "Implementar rotación con cereales para romper ciclos de plagas y enfermedades del suelo",
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado y precio",
+    "Monitorear constantemente la humedad del suelo para evitar encharcamientos que favorecen enfermedades",
+    "Realizar análisis de suelo antes de la siembra para ajustar programa de fertilización"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:52:38.597221",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0556,
+    "requiere_validacion": true
+  }
+}

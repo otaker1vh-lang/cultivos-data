@@ -1,0 +1,540 @@
+{
+  "categoria": "agroindustriales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 1.6,
+    "precio_medio_mxn_ton": 6727,
+    "superficie_sembrada_ha": 700000,
+    "superficie_cosechada_ha": 655000,
+    "produccion_miles_ton": 1059,
+    "variacion_anual_pct": 3.3,
+    "principales_estados": [
+      "Chiapas",
+      "Veracruz",
+      "Puebla",
+      "Oaxaca"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 1059,
+      "variacion_anual_pct": 3.3,
+      "ranking_mundial": "11º",
+      "consumo_per_capita": "1.7 kg",
+      "principales_estados_valor": "Chiapas (38.6%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 1.6,
+        "produccion_ton": 1059000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Typica",
+      "Bourbon",
+      "Caturra",
+      "Marsellesa",
+      "Costa Rica 95 (Resistente)"
+    ],
+    "densidad_plantacion": {
+      "nota": "Bajo sombra o a pleno sol (Robusta).",
+      "sistemas": [
+        {
+          "nombre": "Tradicional (Sombra)",
+          "arboles_ha": 2000,
+          "distancia_m": "2.0x2.5"
+        },
+        {
+          "nombre": "Intensivo (Sol/Robusta)",
+          "arboles_ha": 3300,
+          "distancia_m": "1.5x2.0"
+        },
+        {
+          "nombre": "Renovación (Tejido)",
+          "arboles_ha": 4000,
+          "distancia_m": "1.0x2.5"
+        }
+      ]
+    },
+    "duracion_total_dias": 240,
+    "etapas": [
+      {
+        "nombre": "Floración (Lluvias)",
+        "duracion_dias": 15,
+        "bbch_fase": "50-59"
+      },
+      {
+        "nombre": "Cabeza de Alfiler (Cuajado)",
+        "duracion_dias": 45,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Llenado de Grano",
+        "duracion_dias": 120,
+        "bbch_fase": "70-79"
+      },
+      {
+        "nombre": "Maduración (Cereza)",
+        "duracion_dias": 60,
+        "bbch_fase": "80-89"
+      },
+      {
+        "nombre": "Cosecha",
+        "duracion_dias": 90,
+        "bbch_fase": "90-99"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Chiapas (Altura)",
+        "siembra_inicio": "Junio",
+        "siembra_fin": "Agosto",
+        "cosecha_inicio": "Diciembre",
+        "cosecha_fin": "Marzo"
+      },
+      {
+        "estado": "Veracruz (Baja)",
+        "siembra_inicio": "N/A",
+        "siembra_fin": "N/A",
+        "cosecha_inicio": "Octubre",
+        "cosecha_fin": "Enero"
+      }
+    ]
+  },
+  "labores": {
+    "Floración": [
+      "Fertilización suelo",
+      "Regulación de sombra"
+    ],
+    "Llenado": [
+      "Control de Broca y Roya (Crítico)"
+    ],
+    "Cosecha": [
+      "Corte selectivo (solo rojos)",
+      "Beneficiado húmedo/seco"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "17 - 24 °C (Arábica) / 22 - 30 °C (Robusta)",
+    "altitud": "600 - 1,600+ msnm (Altura define calidad de taza)",
+    "precipitacion": "1,200 - 2,000 mm (Bien distribuidos)",
+    "suelo": "Franco, origen volcánico, profundo y rico en MO",
+    "ph": "5.0 - 6.0 (Suelos ácidos)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Broca del Café (Hypothenemus)",
+      "tipo": "Plaga",
+      "descripcion": "Perfora el grano, baja calidad taza.",
+      "control": {
+        "mecanismo": "Trampeo/Biológico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Beauveria bassiana",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Trampas Alcohol",
+            "dosis_tipo": "Etológico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Roya del Café (Hemileia)",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo naranja en hojas, defoliación total.",
+      "control": {
+        "mecanismo": "Fungicida Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Ciproconazol + Azoxistrobina",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Cobre",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Ojo de Gallo (Mycena)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas circulares, tira hojas y frutos.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Tebuconazol",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Minador de la Hoja",
+      "tipo": "Plaga",
+      "descripcion": "Daña área fotosintética.",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Clorantraniliprol",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Nemátodos",
+      "tipo": "Plaga",
+      "descripcion": "Nudos en raíces, planta amarilla.",
+      "control": {
+        "mecanismo": "Nematicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Oxamil",
+            "dosis_tipo": "Drench"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 150,
+      "P": 40,
+      "K": 150
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 4200,
+    "precio_max_mxn_ton": 12500,
+    "epoca_mejor_precio": "Enero-Marzo",
+    "epoca_peor_precio": "Octubre-Diciembre",
+    "valor_produccion_millones_mxn": 7123,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 15000,
+      "total": 35500
+    },
+    "operacion_anual": {
+      "fertilizantes": 4800,
+      "control_plagas": 3200,
+      "riego_energia": 2100,
+      "mano_obra": 8500,
+      "cosecha": 6200,
+      "total": 24800
+    },
+    "costo_por_kg_produccion": 15.5,
+    "punto_equilibrio_ton_ha": 3.7
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Chiapas (Soconusco)",
+      "altitud_msnm": "600-1200",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Febrero",
+      "rendimiento_esperado_t_ha": 2.1,
+      "ventana_comercial": "Mercado nacional e internacional"
+    },
+    {
+      "region": "Veracruz (Coatepec)",
+      "altitud_msnm": "800-1400",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 1.8,
+      "ventana_comercial": "Café de altura premium"
+    },
+    {
+      "region": "Oaxaca (Sierra Sur)",
+      "altitud_msnm": "900-1600",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Diciembre",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 1.4,
+      "ventana_comercial": "Café orgánico especializado"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Broca del café",
+      "nombre_cientifico": "Hypothenemus hampei",
+      "tipo": "Plaga",
+      "descripcion": "Perfora granos causando pérdidas del 20-80%",
+      "umbral_economico": "2% de frutos perforados",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Endosulfan",
+          "nombre_comercial": "Thiodan 35 CE",
+          "dosis": "1.5 L/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Beauveria bassiana, Cephalonomia stephanoderis",
+      "epoca_mayor_incidencia": "Octubre-Febrero"
+    },
+    {
+      "nombre": "Roya del cafeto",
+      "nombre_cientifico": "Hemileia vastatrix",
+      "tipo": "Enfermedad",
+      "descripcion": "Defoliación severa, reduce producción hasta 50%",
+      "umbral_economico": "5% de incidencia foliar",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Oxicloruro de cobre",
+          "nombre_comercial": "Cupravit Azul 35",
+          "dosis": "3 kg/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Variedades resistentes, manejo de sombra",
+      "epoca_mayor_incidencia": "Junio-Septiembre"
+    },
+    {
+      "nombre": "Minador de la hoja",
+      "nombre_cientifico": "Leucoptera coffeella",
+      "tipo": "Plaga",
+      "descripcion": "Minas en hojas, debilitamiento de plantas",
+      "umbral_economico": "30% de hojas minadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Cyromazina",
+          "nombre_comercial": "Trigard 75 WP",
+          "dosis": "200 g/ha",
+          "costo_aplicacion_ha": 320
+        }
+      ],
+      "control_biologico": "Chrysoperla externa, podas sanitarias",
+      "epoca_mayor_incidencia": "Marzo-Mayo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "10-30-10 + Zn",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Corona alrededor de planta",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "18-12-12 + Mg",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Banda lateral",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "Producción",
+      "formula": "17-17-17 + B",
+      "dosis_kg_ha": 400,
+      "metodo_aplicacion": "Fraccionado 3 aplicaciones",
+      "costo_ha": 2400
+    },
+    {
+      "etapa": "Post-cosecha",
+      "formula": "20-10-20 + Ca",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Al voleo incorporado",
+      "costo_ha": 1500
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Zonas con déficit hídrico marcado"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 15000,
+      "costo_operacion_anual": 2200,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Plantaciones establecidas en pendiente"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 12000,
+      "costo_operacion_anual": 1800,
+      "lamina_anual_mm": 1000,
+      "recomendacion": "Terrenos planos con disponibilidad de agua"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Beneficios húmedos locales",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 6.2,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Cooperativas",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 7.1,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportadores directos",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 8.5,
+        "condiciones_pago": "45 días"
+      },
+      {
+        "canal": "Mercado local",
+        "participacion_pct": 5,
+        "precio_promedio_kg": 5.8,
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 8.2
+      },
+      {
+        "meses": "Abril-Septiembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 6.8
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 5.4
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 18
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Exportación",
+        "porcentaje": 42
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Frutos rojos maduros, 18-22% humedad",
+    "vida_util_dias": 15,
+    "temperatura_almacen": "18-22°C",
+    "humedad_relativa": "60-70%",
+    "perdidas_postcosecha_pct": 12,
+    "empaque_recomendado": "Sacos de yute 60 kg o big bags"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 45000,
+    "ingreso_anual_esperado_ha": 10763,
+    "utilidad_neta_anual_ha": 2690,
+    "roi_pct": 6.0,
+    "años_recuperacion": 4.2,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Sequías prolongadas y heladas tardías",
+      "probabilidad": "Media",
+      "impacto": "Reducción 30-50% rendimiento",
+      "mitigacion": "Sistemas de riego, variedades resistentes, cortinas rompevientos"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Broca del café y roya",
+      "probabilidad": "Alta",
+      "impacto": "Pérdidas hasta 80% producción",
+      "mitigacion": "Monitoreo constante, control integrado, variedades resistentes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±40% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación, valor agregado"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA-SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificaciones",
+          "Programas fitosanitarios"
+        ],
+        "contacto": "800-751-2100"
+      },
+      {
+        "nombre": "AMECAFE",
+        "servicios": [
+          "Capacitación",
+          "Comercialización",
+          "Certificaciones"
+        ],
+        "contacto": "www.amecafe.org.mx"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Cadenas Productivas",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "Programa de Productividad Rural"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer plantaciones en altitudes de 800-1400 msnm para mejor calidad de grano",
+    "Implementar manejo integrado de broca y roya con monitoreo semanal durante época crítica",
+    "Diversificar canales de comercialización priorizando cooperativas y exportación directa",
+    "Mantener sistema de sombra regulada (30-40%) para protección climática y calidad",
+    "Realizar análisis de suelo anual para ajustar programa de fertilización específico"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:02:39.617533",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0571,
+    "requiere_validacion": true
+  }
+}

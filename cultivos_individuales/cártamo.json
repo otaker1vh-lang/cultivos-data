@@ -1,0 +1,421 @@
+{
+  "categoria": "agroindustriales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 1.9,
+    "precio_medio_mxn_ton": 11248,
+    "superficie_sembrada_ha": 35000,
+    "superficie_cosechada_ha": 34000,
+    "produccion_miles_ton": 66,
+    "variacion_anual_pct": -14.7,
+    "principales_estados": [
+      "Sonora",
+      "Jalisco",
+      "Sinaloa"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 66,
+      "variacion_anual_pct": -14.7,
+      "principales_estados_valor": "Sonora (53.1%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 1.9,
+        "produccion_ton": 66000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Ciano-Lin",
+      "Gila",
+      "S-518"
+    ],
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Hilera (Riego)",
+          "arboles_ha": 200000,
+          "distancia_m": "20-25 kg semilla/ha"
+        }
+      ]
+    },
+    "duracion_total_dias": 150,
+    "etapas": [
+      {
+        "nombre": "Roseta",
+        "duracion_dias": 40,
+        "bbch_fase": "10-19"
+      },
+      {
+        "nombre": "Elongación",
+        "duracion_dias": 30,
+        "bbch_fase": "30-39"
+      },
+      {
+        "nombre": "Ramificación/Botón",
+        "duracion_dias": 30,
+        "bbch_fase": "40-59"
+      },
+      {
+        "nombre": "Floración",
+        "duracion_dias": 20,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Maduración",
+        "duracion_dias": 30,
+        "bbch_fase": "80-89"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Tierra venida"
+    ],
+    "Cosecha": [
+      "Trilla directa"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 30 °C (Resiste frío en roseta, requiere calor en llenado)",
+    "altitud": "0 - 1,500 msnm",
+    "precipitacion": "300 - 600 mm (Baja demanda, sistema radicular profundo)",
+    "suelo": "Profundo, bien drenado (Susceptible a asfixia)",
+    "ph": "6.0 - 8.0"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Falsa Chicharrita",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Tiametoxam",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Alternaria",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Mancozeb",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 120,
+      "P": 50,
+      "K": 30
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 8500,
+    "precio_max_mxn_ton": 15200,
+    "epoca_mejor_precio": "Enero-Marzo",
+    "epoca_peor_precio": "Julio-Septiembre",
+    "valor_produccion_millones_mxn": 742.4,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 8500,
+      "total": 14800
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 2800,
+      "riego_energia": 3200,
+      "mano_obra": 5500,
+      "cosecha": 2100,
+      "total": 17800
+    },
+    "costo_por_kg_produccion": 9.37,
+    "punto_equilibrio_ton_ha": 1.58
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Sonora (Costa de Hermosillo)",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Mayo",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 2.2,
+      "ventana_comercial": "Mercado nacional e internacional activo"
+    },
+    {
+      "region": "Jalisco (Los Altos)",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Diciembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Junio",
+      "cosecha_fin": "Julio",
+      "rendimiento_esperado_t_ha": 1.8,
+      "ventana_comercial": "Demanda industrial nacional"
+    },
+    {
+      "region": "Sinaloa (Norte)",
+      "altitud_msnm": "0-100",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Mayo",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 2.0,
+      "ventana_comercial": "Exportación y mercado nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Pulgón del cártamo",
+      "nombre_cientifico": "Uroleucon compositae",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, deforma hojas y reduce rendimiento",
+      "umbral_economico": "5-10 pulgones por planta en floración",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor 350 SC",
+          "dosis": "200-300 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Febrero-Abril"
+    },
+    {
+      "nombre": "Cenicilla polvorienta",
+      "nombre_cientifico": "Erysiphe cichoracearum",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco en hojas, reduce fotosíntesis y calidad del aceite",
+      "umbral_economico": "10% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina",
+          "nombre_comercial": "Amistar 250 SC",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Bacillus subtilis, rotación de cultivos",
+      "epoca_mayor_incidencia": "Marzo-Mayo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "46-00-00 (Urea)",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Al voleo con riego",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Floración",
+      "formula": "00-00-60 + micronutrientes",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 900
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Riego por goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Zonas áridas con agua limitada"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 500,
+      "recomendacion": "Suelos arenosos, parcelas grandes"
+    },
+    {
+      "sistema": "Riego rodado",
+      "eficiencia_pct": 60,
+      "costo_instalacion_ha": 8000,
+      "costo_operacion_anual": 2200,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Agua abundante, suelos pesados"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria aceitera",
+        "participacion_pct": 70,
+        "precio_promedio_kg": 11.25,
+        "condiciones_pago": "30-45 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 12.8,
+        "condiciones_pago": "Carta de crédito"
+      },
+      {
+        "canal": "Mercado local",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 10.5,
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 13.2
+      },
+      {
+        "meses": "Abril-Junio",
+        "oferta": "Media",
+        "precio_mxn_kg": 11.8
+      },
+      {
+        "meses": "Julio-Septiembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 9.5
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 11.0
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Exportación",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Otros",
+        "porcentaje": 20
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Capítulos secos, semillas con 8-10% humedad, color amarillo-café",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "50-60%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 50 kg, silos metálicos"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 32600,
+    "ingreso_anual_esperado_ha": 21371,
+    "utilidad_neta_anual_ha": 3571,
+    "roi_pct": 16.7,
+    "años_recuperacion": 3.2,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% rendimiento",
+      "mitigacion": "Monitoreo meteorológico, variedades resistentes"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Brote de pulgón vectores de virus",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 20-40% calidad aceite",
+      "mitigacion": "Monitoreo semanal, control preventivo"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios aceites vegetales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±25% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Costa de Hermosillo",
+        "servicios": [
+          "Investigación varietal",
+          "Transferencia tecnológica",
+          "Diagnóstico fitosanitario"
+        ],
+        "contacto": "662-230-0918"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Estudios de mercado"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA Delegación Estatal",
+        "servicios": [
+          "Programas de apoyo",
+          "Sanidad vegetal",
+          "Comercialización"
+        ],
+        "contacto": "Oficinas estatales"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo Productivo del Sur Sureste y Zonas Económicas Especiales",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "Programa de Productividad Rural"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región y resistentes a enfermedades como Guayalejo-75 o Cártamo-54",
+    "Establecer sistema de riego eficiente desde el inicio, el cártamo es sensible al estrés hídrico en floración",
+    "Realizar análisis de suelo previo y mantener pH entre 6.5-7.5 para optimizar absorción de nutrientes",
+    "Implementar rotación con leguminosas para mejorar fertilidad del suelo y romper ciclos de plagas",
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado y precio"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:05:23.424286",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0534,
+    "requiere_validacion": true
+  }
+}

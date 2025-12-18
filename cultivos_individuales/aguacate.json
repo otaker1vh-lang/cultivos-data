@@ -1,0 +1,639 @@
+{
+  "categoria": "frutal",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 11.7,
+    "precio_medio_mxn_ton": 20212,
+    "superficie_sembrada_ha": 265000,
+    "superficie_cosechada_ha": 253000,
+    "produccion_miles_ton": 2973,
+    "variacion_anual_pct": 17.0,
+    "principales_estados": [
+      "Michoacán",
+      "Jalisco",
+      "Estado de México",
+      "Nayarit",
+      "Morelos"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 2973,
+      "variacion_anual_pct": 17.0,
+      "ranking_mundial": "1º",
+      "consumo_per_capita": "12.3 kg",
+      "principales_estados_valor": "Michoacán (72.7%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 10.8,
+        "produccion_ton": 2450000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 11.2,
+        "produccion_ton": 2540000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 11.7,
+        "produccion_ton": 2973000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Hass",
+      "Méndez",
+      "Fuerte",
+      "Criollo"
+    ],
+    "densidad_plantacion": {
+      "nota": "El aguacate requiere polinización cruzada y espacio para maquinaria.",
+      "sistemas": [
+        {
+          "nombre": "Convencional",
+          "arboles_ha": 100,
+          "distancia_m": "10x10"
+        },
+        {
+          "nombre": "Alta Densidad",
+          "arboles_ha": 400,
+          "distancia_m": "5x5"
+        },
+        {
+          "nombre": "Muy Alta Densidad",
+          "arboles_ha": 800,
+          "distancia_m": "2.5x5"
+        }
+      ]
+    },
+    "duracion_total_dias": 240,
+    "etapas": [
+      {
+        "nombre": "Brotación Vegetativa",
+        "duracion_dias": 30,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Floración (Antesis)",
+        "duracion_dias": 60,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Cuajado del fruto",
+        "duracion_dias": 30,
+        "bbch_fase": "71-79"
+      },
+      {
+        "nombre": "Desarrollo del fruto",
+        "duracion_dias": 90,
+        "bbch_fase": "71-79"
+      },
+      {
+        "nombre": "Madurez de cosecha",
+        "duracion_dias": 30,
+        "bbch_fase": "81-89"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Michoacán (Flor Loca)",
+        "siembra_inicio": "N/A",
+        "siembra_fin": "N/A",
+        "cosecha_inicio": "Junio",
+        "cosecha_fin": "Septiembre"
+      },
+      {
+        "estado": "Michoacán (Temporada)",
+        "siembra_inicio": "N/A",
+        "siembra_fin": "N/A",
+        "cosecha_inicio": "Octubre",
+        "cosecha_fin": "Febrero"
+      },
+      {
+        "estado": "Jalisco",
+        "siembra_inicio": "N/A",
+        "siembra_fin": "N/A",
+        "cosecha_inicio": "Mayo",
+        "cosecha_fin": "Enero"
+      }
+    ]
+  },
+  "labores": {
+    "Vegetativo": [
+      "Poda de formación/sanidad",
+      "Fertilización al suelo",
+      "Control de malezas"
+    ],
+    "Floración": [
+      "Introducción de colmenas (abejas)",
+      "Riego constante",
+      "Monitoreo de Trips"
+    ],
+    "Cuajado": [
+      "Fertilización foliar (Boro/Zinc)",
+      "Riego crítico"
+    ],
+    "Cosecha": [
+      "Análisis de materia seca",
+      "Corte con tijera",
+      "Transporte en frío"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "17 - 24 °C (Hass)",
+    "altitud": "1,500 - 2,200 msnm (Para Hass, menores para criollos)",
+    "precipitacion": "1,200 - 1,600 mm anuales",
+    "suelo": "Franco, permeable, buen drenaje (No soporta asfixia radicular)",
+    "ph": "5.5 - 6.5"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Barrenador del hueso",
+      "tipo": "Plaga",
+      "descripcion": "Larvas perforan la semilla (Cuarentenaria).",
+      "control": {
+        "mecanismo": "Legal/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Malatión",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Permetrina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Trips",
+      "tipo": "Plaga",
+      "descripcion": "Causa 'piel de cocodrilo' y deformaciones en frutos.",
+      "control": {
+        "mecanismo": "Biológico/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Spinosad",
+            "dosis_tipo": "Ingestión"
+          },
+          {
+            "ingrediente": "Azadiractina",
+            "dosis_tipo": "Repelente"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Araña Roja",
+      "tipo": "Plaga",
+      "descripcion": "Bronceado y defoliación severa.",
+      "control": {
+        "mecanismo": "Acaricida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Translaminar"
+          },
+          {
+            "ingrediente": "Bifenazato",
+            "dosis_tipo": "Contacto"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Barrenador de ramas",
+      "tipo": "Plaga",
+      "descripcion": "Galerías en ramas jóvenes y troncos.",
+      "control": {
+        "mecanismo": "Poda sanitaria",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Permetrina",
+            "dosis_tipo": "Contacto"
+          },
+          {
+            "ingrediente": "Poda y quema",
+            "dosis_tipo": "Cultural"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Agalla del aguacate",
+      "tipo": "Plaga",
+      "descripcion": "Deformaciones tipo verruga en hojas.",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Tristeza (Phytophthora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición de raíces, marchitez y muerte.",
+      "control": {
+        "mecanismo": "Inyección/Suelo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fosetil-Aluminio",
+            "dosis_tipo": "Inyección al tronco"
+          },
+          {
+            "ingrediente": "Metalaxil",
+            "dosis_tipo": "Drench"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Antracnosis",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas negras hundidas en fruto y necrosis.",
+      "control": {
+        "mecanismo": "Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Azoxistrobina",
+            "dosis_tipo": "Sistémico"
+          },
+          {
+            "ingrediente": "Cobre",
+            "dosis_tipo": "Contacto"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Roña",
+      "tipo": "Enfermedad",
+      "descripcion": "Lesiones corchosas superficiales en la piel.",
+      "control": {
+        "mecanismo": "Cúprico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Sulfato de Cobre",
+            "dosis_tipo": "Contacto"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Anillamiento del pedúnculo",
+      "tipo": "Enfermedad",
+      "descripcion": "Caída prematura de frutos por anillo necrótico.",
+      "control": {
+        "mecanismo": "Nutricional",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Zinc + Boro",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Marchitez (Fusarium)",
+      "tipo": "Enfermedad",
+      "descripcion": "Secamiento general del árbol.",
+      "control": {
+        "mecanismo": "Suelo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Trichoderma spp.",
+            "dosis_tipo": "Biológico"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 180,
+      "P": 60,
+      "K": 200
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 15000,
+    "precio_max_mxn_ton": 35000,
+    "epoca_mejor_precio": "Enero-Marzo",
+    "epoca_peor_precio": "Septiembre-Noviembre",
+    "valor_produccion_millones_mxn": 60070,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 25000,
+      "material_vegetal": 45000,
+      "infraestructura_riego": 85000,
+      "total": 155000
+    },
+    "operacion_anual": {
+      "fertilizantes": 18000,
+      "control_plagas": 12000,
+      "riego_energia": 8000,
+      "mano_obra": 35000,
+      "cosecha": 15000,
+      "total": 88000
+    },
+    "costo_por_kg_produccion": 7.5,
+    "punto_equilibrio_ton_ha": 4.4
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Michoacán (Tierra Caliente)",
+      "altitud_msnm": "300-1000",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Febrero",
+      "rendimiento_esperado_t_ha": 13.5,
+      "ventana_comercial": "Exportación USA y mercado nacional navideño"
+    },
+    {
+      "region": "Jalisco (Zona Centro)",
+      "altitud_msnm": "1200-1800",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 11.2,
+      "ventana_comercial": "Mercado nacional y regional"
+    },
+    {
+      "region": "Nayarit (Costa)",
+      "altitud_msnm": "0-800",
+      "siembra_inicio": "Julio",
+      "siembra_fin": "Septiembre",
+      "cosecha_inicio": "Diciembre",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 10.8,
+      "ventana_comercial": "Exportación y mercado nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Barrenador de ramas",
+      "nombre_cientifico": "Copturus aguacatae",
+      "tipo": "Plaga",
+      "descripcion": "Perfora ramas causando muerte regresiva y reducción de producción",
+      "umbral_economico": "5% de ramas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor 350 SC",
+          "dosis": "300 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Beauveria bassiana, podas sanitarias",
+      "epoca_mayor_incidencia": "Marzo-Mayo"
+    },
+    {
+      "nombre": "Antracnosis",
+      "nombre_cientifico": "Colletotrichum gloeosporioides",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas en frutos y hojas, pudrición postcosecha",
+      "umbral_economico": "10% de frutos con síntomas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina",
+          "nombre_comercial": "Amistar Top",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 1200
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum, manejo de humedad",
+      "epoca_mayor_incidencia": "Junio-Septiembre"
+    },
+    {
+      "nombre": "Trips del aguacate",
+      "nombre_cientifico": "Scirtothrips perseae",
+      "tipo": "Plaga",
+      "descripcion": "Daño en hojas y frutos, cicatrices en epidermis del fruto",
+      "umbral_economico": "15 trips por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Tracer 120 SC",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 950
+        }
+      ],
+      "control_biologico": "Orius insidiosus, Amblyseius cucumeris",
+      "epoca_mayor_incidencia": "Abril-Agosto"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento (1-3 años)",
+      "formula": "18-46-00 + microelementos",
+      "dosis_kg_ha": 400,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 8500
+    },
+    {
+      "etapa": "Desarrollo (4-6 años)",
+      "formula": "20-10-20 + Zn, B, Mg",
+      "dosis_kg_ha": 600,
+      "metodo_aplicacion": "Fertirrigación + foliar",
+      "costo_ha": 12000
+    },
+    {
+      "etapa": "Producción (7+ años)",
+      "formula": "15-05-25 + Ca, Mg, Zn",
+      "dosis_kg_ha": 800,
+      "metodo_aplicacion": "Fertirrigación fraccionada",
+      "costo_ha": 18000
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 85000,
+      "costo_operacion_anual": 8000,
+      "lamina_anual_mm": 1200,
+      "recomendacion": "Zonas áridas y semiáridas, terrenos con pendiente"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 65000,
+      "costo_operacion_anual": 9500,
+      "lamina_anual_mm": 1400,
+      "recomendacion": "Suelos arenosos, huertos establecidos"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 45000,
+      "costo_operacion_anual": 12000,
+      "lamina_anual_mm": 1600,
+      "recomendacion": "Terrenos planos, disponibilidad abundante de agua"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Exportación",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 28,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 35,
+        "precio_promedio_kg": 18,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 22,
+        "condiciones_pago": "45 días"
+      },
+      {
+        "canal": "Industria",
+        "participacion_pct": 5,
+        "precio_promedio_kg": 12,
+        "condiciones_pago": "60 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 25
+      },
+      {
+        "meses": "Abril-Junio",
+        "oferta": "Media",
+        "precio_mxn_kg": 20
+      },
+      {
+        "meses": "Julio-Septiembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 15
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 22
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Estados Unidos",
+        "porcentaje": 45
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 8
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Materia seca 21-25%, color verde oscuro, firmeza al tacto",
+    "vida_util_dias": 15,
+    "temperatura_almacen": "5-13°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 12,
+    "empaque_recomendado": "Cajas de cartón corrugado 4-9 kg, malla individual"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 155000,
+    "ingreso_anual_esperado_ha": 236404,
+    "utilidad_neta_anual_ha": 148404,
+    "roi_pct": 95.7,
+    "años_recuperacion": 1.8,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías y granizadas",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-70% de producción",
+      "mitigacion": "Mallas antigranizo, sistemas de calefacción, seguros agrícolas"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Laurel wilt (Raffaelea lauricola)",
+      "probabilidad": "Baja",
+      "impacto": "Muerte total del árbol",
+      "mitigacion": "Cuarentenas, monitoreo, control del vector"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad de precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación 40-60% en ingresos",
+      "mitigacion": "Contratos a futuro, diversificación de mercados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "01 800 088 2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "01 800 FIRA (3472)"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación fitosanitaria",
+          "Vigilancia epidemiológica"
+        ],
+        "contacto": "01 800 751 2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo Productivo del Sur-Sureste",
+      "Programa de Sanidades"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer sistemas de riego tecnificado desde el inicio para optimizar uso del agua y fertilizantes",
+    "Implementar programa de monitoreo fitosanitario preventivo, especialmente para barrenador de ramas",
+    "Diversificar mercados entre exportación y nacional para reducir riesgo de volatilidad de precios",
+    "Invertir en infraestructura postcosecha para reducir mermas y acceder a mejores precios",
+    "Considerar certificaciones orgánicas o de comercio justo para mercados premium"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:29:32.432826",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0563,
+    "requiere_validacion": true
+  }
+}

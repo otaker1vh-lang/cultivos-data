@@ -1,0 +1,460 @@
+{
+  "categoria": "leguminosa",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 80.0,
+    "precio_medio_mxn_ton": 950,
+    "superficie_sembrada_ha": 390000,
+    "superficie_cosechada_ha": 390000,
+    "produccion_miles_ton": 31000,
+    "variacion_anual_pct": 1.2,
+    "principales_estados": [
+      "Chihuahua",
+      "Guanajuato",
+      "Durango",
+      "Hidalgo"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 31000,
+      "variacion_anual_pct": 1.2,
+      "ranking_mundial": "N/A (Consumo interno)",
+      "consumo_per_capita": "Forraje (Ganado Lechero)",
+      "principales_estados_valor": "Chihuahua (22%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 80.0,
+        "produccion_ton": 31000000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Cuf-101",
+      "Moapa",
+      "Júpiter",
+      "Vía Láctea"
+    ],
+    "densidad_plantacion": {
+      "nota": "Cultivo perenne (3-4 años). Se siembra al voleo.",
+      "sistemas": [
+        {
+          "nombre": "Riego (Gravedad/Pivote)",
+          "arboles_ha": 3000000,
+          "distancia_m": "30-35 kg semilla/ha"
+        },
+        {
+          "nombre": "Goteo Subsuperficial",
+          "arboles_ha": 2500000,
+          "distancia_m": "25-30 kg semilla/ha"
+        }
+      ]
+    },
+    "duracion_total_dias": 1460,
+    "etapas": [
+      {
+        "nombre": "Establecimiento",
+        "duracion_dias": 90,
+        "bbch_fase": "00-19"
+      },
+      {
+        "nombre": "Cortes Periódicos",
+        "duracion_dias": 30,
+        "bbch_fase": "40-49"
+      },
+      {
+        "nombre": "Rebrote",
+        "duracion_dias": 5,
+        "bbch_fase": "09-30"
+      },
+      {
+        "nombre": "Floración (Indicador corte)",
+        "duracion_dias": 25,
+        "bbch_fase": "50-60"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Norte/Bajío",
+        "siembra_inicio": "Octubre",
+        "siembra_fin": "Diciembre",
+        "cosecha_inicio": "Todo el año (Cortes)",
+        "cosecha_fin": "N/A"
+      }
+    ]
+  },
+  "labores": {
+    "Establecimiento": [
+      "Nivelación láser (Crítico)",
+      "Siembra tupida"
+    ],
+    "Mantenimiento": [
+      "Corte cada 28-32 días (Verano)",
+      "Rastreo en invierno"
+    ],
+    "Cosecha": [
+      "Segado",
+      "Empacado (Heno)"
+    ]
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Pulgón Manchado",
+      "tipo": "Plaga",
+      "descripcion": "Inyecta toxinas, amarillamiento.",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Gusano Soldado",
+      "tipo": "Plaga",
+      "descripcion": "Defoliador rápido después del corte.",
+      "control": {
+        "mecanismo": "Contacto",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metomilo",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Pudrición Texana",
+      "tipo": "Enfermedad",
+      "descripcion": "Mata manchones circulares en el campo.",
+      "control": {
+        "mecanismo": "Cultural",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Rotación de cultivos",
+            "dosis_tipo": "Manejo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Cuscuta",
+      "tipo": "Maleza",
+      "descripcion": "Planta parásita (hilos amarillos).",
+      "control": {
+        "mecanismo": "Herbicida/Quema",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Glifosato (Focalizado)",
+            "dosis_tipo": "Manchoneo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 30,
+      "P": 120,
+      "K": 80
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 750,
+    "precio_max_mxn_ton": 1200,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Mayo-Julio",
+    "valor_produccion_millones_mxn": 29450,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 45000,
+      "total": 56300
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 1800,
+      "riego_energia": 6500,
+      "mano_obra": 12000,
+      "cosecha": 8500,
+      "total": 33000
+    },
+    "costo_por_kg_produccion": 0.41,
+    "punto_equilibrio_ton_ha": 34.7
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Chihuahua",
+      "altitud_msnm": "1200-1800",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Mayo",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 85,
+      "ventana_comercial": "Demanda alta ganadería lechera"
+    },
+    {
+      "region": "Guanajuato",
+      "altitud_msnm": "1700-2100",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Marzo",
+      "cosecha_inicio": "Abril",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 78,
+      "ventana_comercial": "Mercado regional estable"
+    },
+    {
+      "region": "Durango",
+      "altitud_msnm": "1100-1600",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Mayo",
+      "cosecha_fin": "Septiembre",
+      "rendimiento_esperado_t_ha": 75,
+      "ventana_comercial": "Exportación y consumo nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Pulgón de la alfalfa",
+      "nombre_cientifico": "Aphis craccivora",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, amarillamiento",
+      "umbral_economico": "10-15 pulgones por tallo",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200-300 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Abril-Junio"
+    },
+    {
+      "nombre": "Antracnosis",
+      "nombre_cientifico": "Colletotrichum trifolii",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas en hojas y tallos",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Propiconazol",
+          "nombre_comercial": "Tilt",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Junio-Agosto"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + Zn",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Primer corte",
+      "formula": "46-00-00",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Al voleo después del corte",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Cortes subsecuentes",
+      "formula": "20-10-10 + S",
+      "dosis_kg_ha": 120,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 900
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 35000,
+      "costo_operacion_anual": 6500,
+      "lamina_anual_mm": 1200,
+      "recomendacion": "Terrenos planos, alta disponibilidad agua"
+    },
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 55000,
+      "costo_operacion_anual": 4800,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Agua limitada, terrenos irregulares"
+    },
+    {
+      "sistema": "Gravedad",
+      "eficiencia_pct": 60,
+      "costo_instalacion_ha": 15000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 1500,
+      "recomendacion": "Disponibilidad abundante, terrenos nivelados"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Ganaderos directos",
+        "participacion_pct": 60,
+        "precio_promedio_kg": 0.95,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Comercializadores",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 0.88,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 1.15,
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 1.1
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 0.95
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 0.8
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 0.92
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Torreón",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Querétaro",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 12
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "10% floración, hojas verde oscuro",
+    "vida_util_dias": 3,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Pacas prensadas 20-25 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 56300,
+    "ingreso_anual_esperado_ha": 76000,
+    "utilidad_neta_anual_ha": 26600,
+    "roi_pct": 47,
+    "años_recuperacion": 2.1,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías dañan rebrotes",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 20-30% primer corte",
+      "mitigacion": "Riego por aspersión preventivo"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Pudrición de corona por exceso humedad",
+      "probabilidad": "Alta",
+      "impacto": "Reducción vida útil pradera",
+      "mitigacion": "Drenaje adecuado, evitar encharcamientos"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios combustibles",
+      "probabilidad": "Alta",
+      "impacto": "Incremento costos transporte 15-25%",
+      "mitigacion": "Contratos a precio fijo, mercados locales"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asesoría técnica",
+          "Análisis suelos",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "800-347-2872"
+      },
+      {
+        "nombre": "SAGARPA Delegaciones",
+        "servicios": [
+          "Programas apoyo",
+          "Subsidios",
+          "Certificaciones"
+        ],
+        "contacto": "Oficinas estatales"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento Ganadero",
+      "Componente de Desarrollo de Praderas",
+      "PROAGRO Productivo",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer en suelos bien drenados con pH 6.8-7.5 para máximo rendimiento",
+    "Realizar primer corte a los 60-70 días, subsecuentes cada 28-35 días",
+    "Mantener humedad constante sin encharcamientos, especialmente en establecimiento",
+    "Aplicar fertilización nitrogenada después de cada corte para mantener producción",
+    "Monitorear plagas semanalmente durante primavera-verano"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:06:41.790066",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0509,
+    "requiere_validacion": true
+  }
+}

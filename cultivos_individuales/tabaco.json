@@ -1,0 +1,440 @@
+{
+  "categoria": "agroindustriales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 2.5,
+    "precio_medio_mxn_ton": 39858,
+    "superficie_sembrada_ha": 7000,
+    "superficie_cosechada_ha": 7000,
+    "produccion_miles_ton": 18,
+    "variacion_anual_pct": 19.6,
+    "principales_estados": [
+      "Nayarit",
+      "Veracruz",
+      "Chiapas"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 18,
+      "variacion_anual_pct": 19.6,
+      "principales_estados_valor": "Nayarit (85.7%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 2.5,
+        "produccion_ton": 18000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Burley",
+      "Virginia",
+      "Negro San Andrés"
+    ],
+    "densidad_plantacion": {
+      "nota": "Depende si es para capa o tripa.",
+      "sistemas": [
+        {
+          "nombre": "Estándar",
+          "arboles_ha": 20000,
+          "distancia_m": "0.50x1.0"
+        }
+      ]
+    },
+    "duracion_total_dias": 120,
+    "etapas": [
+      {
+        "nombre": "Semillero/Trasplante",
+        "duracion_dias": 45,
+        "bbch_fase": "00-19"
+      },
+      {
+        "nombre": "Crecimiento Rápido",
+        "duracion_dias": 40,
+        "bbch_fase": "20-49"
+      },
+      {
+        "nombre": "Floración (Desbotonado)",
+        "duracion_dias": 10,
+        "bbch_fase": "50-59"
+      },
+      {
+        "nombre": "Maduración Hojas",
+        "duracion_dias": 25,
+        "bbch_fase": "80-89"
+      }
+    ]
+  },
+  "labores": {
+    "Vegetativo": [
+      "Desbotonado (capado)",
+      "Deshije"
+    ],
+    "Cosecha": [
+      "Corte por pisos foliares",
+      "Sartado y secado"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "20 - 30 °C (Sensible a heladas)",
+    "altitud": "0 - 1,000 msnm (Zonas costeras húmedas)",
+    "precipitacion": "1,000 - 1,200 mm (Necesita periodo seco para cosecha)",
+    "suelo": "Franco-arenoso a franco-limoso, buen drenaje",
+    "ph": "5.5 - 6.5"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Moho Azul (Peronospora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Devastadora, manchas en hojas.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metalaxil",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Gusano del Cuerno",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Ingestión",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Benzoato de Emamectina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 100,
+      "P": 60,
+      "K": 150
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 32000,
+    "precio_max_mxn_ton": 48000,
+    "epoca_mejor_precio": "Enero-Marzo",
+    "epoca_peor_precio": "Julio-Septiembre",
+    "valor_produccion_millones_mxn": 717.4,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 35000,
+      "total": 55500
+    },
+    "operacion_anual": {
+      "fertilizantes": 18000,
+      "control_plagas": 15000,
+      "riego_energia": 8500,
+      "mano_obra": 45000,
+      "cosecha": 25000,
+      "total": 111500
+    },
+    "costo_por_kg_produccion": 44.6,
+    "punto_equilibrio_ton_ha": 2.8
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Nayarit (Costa)",
+      "altitud_msnm": "0-500",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Febrero",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 2.8,
+      "ventana_comercial": "Mercado nacional e industrial"
+    },
+    {
+      "region": "Veracruz (Centro)",
+      "altitud_msnm": "200-800",
+      "siembra_inicio": "Septiembre",
+      "siembra_fin": "Noviembre",
+      "cosecha_inicio": "Enero",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 2.6,
+      "ventana_comercial": "Exportación y procesamiento"
+    },
+    {
+      "region": "Chiapas (Soconusco)",
+      "altitud_msnm": "100-600",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Febrero",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 2.4,
+      "ventana_comercial": "Mercado centroamericano"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Gusano cogollero",
+      "nombre_cientifico": "Spodoptera frugiperda",
+      "tipo": "Plaga",
+      "descripcion": "Daña hojas y cogollo, reduce calidad de hoja",
+      "umbral_economico": "2-3 larvas por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorantraniliprol",
+          "nombre_comercial": "Coragen",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Trichogramma pretiosum, Bacillus thuringiensis",
+      "epoca_mayor_incidencia": "Noviembre-Enero"
+    },
+    {
+      "nombre": "Mosca blanca",
+      "nombre_cientifico": "Bemisia tabaci",
+      "tipo": "Plaga",
+      "descripcion": "Transmite virus y debilita plantas",
+      "umbral_economico": "5-8 adultos por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "300 ml/ha",
+          "costo_aplicacion_ha": 650
+        }
+      ],
+      "control_biologico": "Encarsia formosa, aceites minerales",
+      "epoca_mayor_incidencia": "Diciembre-Febrero"
+    },
+    {
+      "nombre": "Moho azul",
+      "nombre_cientifico": "Peronospora tabacina",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas azuladas en hojas, pérdida de calidad",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Metalaxil + Mancozeb",
+          "nombre_comercial": "Ridomil Gold",
+          "dosis": "2.5 kg/ha",
+          "costo_aplicacion_ha": 1200
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum, manejo de humedad",
+      "epoca_mayor_incidencia": "Enero-Marzo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Trasplante",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 3500
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-10-10 + 2MgO",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Banda lateral",
+      "costo_ha": 4200
+    },
+    {
+      "etapa": "Pre-floración",
+      "formula": "15-05-25 + micronutrientes",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 4800
+    },
+    {
+      "etapa": "Maduración",
+      "formula": "00-00-50 (Sulfato de potasio)",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Foliar",
+      "costo_ha": 2200
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 35000,
+      "costo_operacion_anual": 8500,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Cultivo intensivo, suelos arenosos"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 12000,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Superficies grandes, suelos arcillosos"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 9500,
+      "lamina_anual_mm": 650,
+      "recomendacion": "Clima seco, vientos moderados"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria tabacalera",
+        "participacion_pct": 70,
+        "precio_promedio_kg": 42.5,
+        "condiciones_pago": "30-45 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 45.8,
+        "condiciones_pago": "Carta de crédito"
+      },
+      {
+        "canal": "Mercado nacional",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 38.2,
+        "condiciones_pago": "15-30 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 45.5
+      },
+      {
+        "meses": "Abril-Junio",
+        "oferta": "Media",
+        "precio_mxn_kg": 41.2
+      },
+      {
+        "meses": "Julio-Septiembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 36.8
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 39.5
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Exportación",
+        "porcentaje": 20
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Hojas amarillentas, textura suave, 18-20% humedad",
+    "vida_util_dias": 180,
+    "temperatura_almacen": "18-22°C",
+    "humedad_relativa": "65-75%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Pacas prensadas de 50-60 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 55500,
+    "ingreso_anual_esperado_ha": 99645,
+    "utilidad_neta_anual_ha": 24145,
+    "roi_pct": 24.2,
+    "años_recuperacion": 2.3,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías dañan plantaciones jóvenes",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% producción",
+      "mitigacion": "Mallas antihelada, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Virus del mosaico del tabaco",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 40-60% calidad",
+      "mitigacion": "Control de vectores, plantas certificadas"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Fluctuación precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±25% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación variedades"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación varietal",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Seguros agrícolas"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Control de plagas",
+          "Inocuidad"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "PROCAFÉ (para diversificación)"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado y precio",
+    "Implementar sistema de curado adecuado para mantener calidad y obtener mejores precios",
+    "Diversificar con variedades de diferentes tipos (Virginia, Burley) según demanda regional",
+    "Mantener registros detallados de aplicaciones químicas para cumplir normativas de exportación",
+    "Considerar certificaciones orgánicas para acceder a mercados premium especializados"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:04:40.696056",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0561,
+    "requiere_validacion": true
+  }
+}

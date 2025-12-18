@@ -1,0 +1,317 @@
+{
+  "categoria": "cereales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 25.0,
+    "uso": "Heno o verde"
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Chihuahua",
+      "Cuauhtémoc"
+    ],
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Voleo",
+          "arboles_ha": 3000000,
+          "distancia_m": "100-120 kg semilla/ha"
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Desarrollo",
+        "duracion_dias": 70
+      },
+      {
+        "nombre": "Cosecha (Embuche/Espigado)",
+        "duracion_dias": 10
+      }
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "10 - 22 °C (Resiste heladas ligeras)",
+    "altitud": "1,600 - 3,200 msnm",
+    "precipitacion": "450 - 750 mm",
+    "suelo": "Rústica, se adapta a suelos delgados",
+    "ph": "5.0 - 7.5"
+  },
+  "labores": {
+    "Cosecha": [
+      "Corte y empacado en etapa de floración-leche para máxima calidad"
+    ]
+  },
+  "plagas_y_enfermedades": [],
+  "economia_expandida": {
+    "precio_min_mxn_ton": 2800,
+    "precio_max_mxn_ton": 4200,
+    "epoca_mejor_precio": "Marzo-Mayo",
+    "epoca_peor_precio": "Noviembre-Enero",
+    "valor_produccion_millones_mxn": 850,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 8000,
+      "total": 14300
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 1800,
+      "riego_energia": 2500,
+      "mano_obra": 6500,
+      "cosecha": 3200,
+      "total": 18200
+    },
+    "costo_por_kg_produccion": 0.73,
+    "punto_equilibrio_ton_ha": 15.2
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Guanajuato",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Febrero",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 28,
+      "ventana_comercial": "Forraje verde para ganado lechero"
+    },
+    {
+      "region": "Jalisco",
+      "altitud_msnm": "1500-2000",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Marzo",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 25,
+      "ventana_comercial": "Henificado y ensilado"
+    },
+    {
+      "region": "Estado de México",
+      "altitud_msnm": "2200-2800",
+      "siembra_inicio": "Septiembre",
+      "siembra_fin": "Noviembre",
+      "cosecha_inicio": "Enero",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 22,
+      "ventana_comercial": "Forraje fresco temporal seco"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Pulgón de los cereales",
+      "nombre_cientifico": "Rhopalosiphum padi",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, amarillamiento de hojas",
+      "umbral_economico": "5-10 pulgones por tallo",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Diciembre-Febrero"
+    },
+    {
+      "nombre": "Roya de la hoja",
+      "nombre_cientifico": "Puccinia coronata",
+      "tipo": "Enfermedad",
+      "descripcion": "Pústulas anaranjadas en hojas, reduce calidad forrajera",
+      "umbral_economico": "10% de área foliar afectada",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Propiconazol",
+          "nombre_comercial": "Tilt",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Variedades resistentes, rotación de cultivos",
+      "epoca_mayor_incidencia": "Enero-Marzo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Macollamiento",
+      "formula": "46-00-00 (Urea)",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Al voleo",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Elongación",
+      "formula": "00-00-60 + micronutrientes",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Foliar",
+      "costo_ha": 900
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 350,
+      "recomendacion": "Terrenos planos, cultivo extensivo"
+    },
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 280,
+      "recomendacion": "Agua limitada, terrenos irregulares"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Ganaderos directos",
+        "participacion_pct": 60,
+        "precio_promedio_kg": 1.8,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Comercializadores forrajes",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 1.6,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Cooperativas ganaderas",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 1.9,
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 2.1
+      },
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Alta",
+        "precio_mxn_kg": 1.4
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "León, Gto",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Guadalajara, Jal",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Querétaro, Qro",
+        "porcentaje": 15
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Inicio de floración, 20-25% materia seca",
+    "vida_util_dias": 3,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Pacas rectangulares 20-25 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 32500,
+    "ingreso_anual_esperado_ha": 45000,
+    "utilidad_neta_anual_ha": 26800,
+    "roi_pct": 82,
+    "años_recuperacion": 1.2,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% rendimiento",
+      "mitigacion": "Riego por aspersión nocturno, variedades tolerantes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Fluctuación precios por sobreoferta",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 20-40% precio",
+      "mitigacion": "Contratos a futuro, diversificación mercados"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Epidemias de roya en condiciones húmedas",
+      "probabilidad": "Media",
+      "impacto": "Pérdida calidad nutritiva 25%",
+      "mitigacion": "Monitoreo constante, aplicaciones preventivas"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asistencia técnica",
+          "Variedades mejoradas",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Garantías",
+          "Asistencia técnica"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA Delegaciones",
+        "servicios": [
+          "Programas de apoyo",
+          "Subsidios",
+          "Certificación"
+        ],
+        "contacto": "Delegaciones estatales"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento Ganadero",
+      "Componente de Desarrollo de Praderas y Forrajes",
+      "PROAGRO Productivo"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer contratos de venta antes de siembra para asegurar mercado y precio",
+    "Implementar riego complementario para garantizar rendimientos en temporal irregular",
+    "Realizar análisis de suelo previo para ajustar programa de fertilización específico",
+    "Considerar asociación con leguminosas para mejorar calidad proteica del forraje",
+    "Planificar siembras escalonadas cada 15 días para tener forraje fresco continuo"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:50:32.633611",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0479,
+    "requiere_validacion": true
+  }
+}

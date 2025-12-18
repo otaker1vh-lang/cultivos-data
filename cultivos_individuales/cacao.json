@@ -1,0 +1,435 @@
+{
+  "categoria": "agroindustriales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 0.6,
+    "precio_medio_mxn_ton": 41138,
+    "superficie_sembrada_ha": 52000,
+    "superficie_cosechada_ha": 52000,
+    "produccion_miles_ton": 29,
+    "variacion_anual_pct": 3.3,
+    "principales_estados": [
+      "Tabasco",
+      "Chiapas",
+      "Guerrero"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 29,
+      "variacion_anual_pct": 3.3,
+      "principales_estados_valor": "Tabasco (68.1%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 0.6,
+        "produccion_ton": 29000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Criollo (Fino)",
+      "Forastero",
+      "Trinitario (Híbrido)"
+    ],
+    "densidad_plantacion": {
+      "nota": "Requiere sombra (Madre del Cacao).",
+      "sistemas": [
+        {
+          "nombre": "Tradicional Sombra",
+          "arboles_ha": 600,
+          "distancia_m": "4.0x4.0"
+        },
+        {
+          "nombre": "Intensivo",
+          "arboles_ha": 1100,
+          "distancia_m": "3.0x3.0"
+        }
+      ]
+    },
+    "duracion_total_dias": 180,
+    "etapas": [
+      {
+        "nombre": "Floración",
+        "duracion_dias": 30,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Desarrollo Chilillo",
+        "duracion_dias": 60,
+        "bbch_fase": "70-75"
+      },
+      {
+        "nombre": "Llenado de Mazorca",
+        "duracion_dias": 60,
+        "bbch_fase": "76-79"
+      },
+      {
+        "nombre": "Maduración",
+        "duracion_dias": 30,
+        "bbch_fase": "80-89"
+      }
+    ]
+  },
+  "labores": {
+    "Mantenimiento": [
+      "Poda de formación",
+      "Regulación de sombra"
+    ],
+    "Cosecha": [
+      "Corte manual",
+      "Desgrane y fermentación (clave)"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "23 - 30 °C (Clima tropical húmedo estricto)",
+    "altitud": "0 - 500 msnm",
+    "precipitacion": "1,500 - 2,500 mm (Requiere alta humedad ambiental)",
+    "suelo": "Profundo, rico en materia orgánica y buen drenaje",
+    "ph": "6.0 - 7.0 (Ligeramente ácido)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Moniliasis (Moniliophthora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco sobre mazorca, pudrición total.",
+      "control": {
+        "mecanismo": "Cultural/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Cobre + Poda",
+            "dosis_tipo": "Preventivo"
+          },
+          {
+            "ingrediente": "Remoción de frutos enfermos",
+            "dosis_tipo": "Manual"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mancha Negra (Phytophthora)",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fosetil-Al",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Trips",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Insecticida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 80,
+      "P": 40,
+      "K": 90
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 28000,
+    "precio_max_mxn_ton": 65000,
+    "epoca_mejor_precio": "Enero-Marzo",
+    "epoca_peor_precio": "Octubre-Diciembre",
+    "valor_produccion_millones_mxn": 1193,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 15000,
+      "total": 35500
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 3800,
+      "riego_energia": 2100,
+      "mano_obra": 8500,
+      "cosecha": 3200,
+      "total": 21800
+    },
+    "costo_por_kg_produccion": 36.33,
+    "punto_equilibrio_ton_ha": 0.53
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Tabasco",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Febrero",
+      "rendimiento_esperado_t_ha": 0.8,
+      "ventana_comercial": "Demanda alta nacional e internacional"
+    },
+    {
+      "region": "Chiapas",
+      "altitud_msnm": "200-800",
+      "siembra_inicio": "Abril",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Enero",
+      "rendimiento_esperado_t_ha": 0.7,
+      "ventana_comercial": "Mercado orgánico y comercio justo"
+    },
+    {
+      "region": "Guerrero",
+      "altitud_msnm": "0-600",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Marzo",
+      "rendimiento_esperado_t_ha": 0.5,
+      "ventana_comercial": "Mercado regional y nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Monilia",
+      "nombre_cientifico": "Moniliophthora roreri",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición de mazorcas, pérdidas hasta 80%",
+      "umbral_economico": "5% de mazorcas infectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Cobre oxicloruro",
+          "nombre_comercial": "Cupravit",
+          "dosis": "2.5 kg/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Julio-Octubre"
+    },
+    {
+      "nombre": "Escoba de bruja",
+      "nombre_cientifico": "Moniliophthora perniciosa",
+      "tipo": "Enfermedad",
+      "descripcion": "Deformación de brotes y mazorcas",
+      "umbral_economico": "10% de brotes afectados",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Tebuconazol",
+          "nombre_comercial": "Folicur",
+          "dosis": "1 L/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Poda sanitaria y Bacillus subtilis",
+      "epoca_mayor_incidencia": "Mayo-Agosto"
+    },
+    {
+      "nombre": "Chinche del cacao",
+      "nombre_cientifico": "Monalonion velezangeli",
+      "tipo": "Plaga",
+      "descripcion": "Daño a frutos y brotes tiernos",
+      "umbral_economico": "2 chinches por árbol",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "0.5 L/ha",
+          "costo_aplicacion_ha": 520
+        }
+      ],
+      "control_biologico": "Beauveria bassiana",
+      "epoca_mayor_incidencia": "Marzo-Junio"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "10-30-10 + Zn",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Corona alrededor del árbol",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "18-12-18 + Mg",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Banda lateral",
+      "costo_ha": 2400
+    },
+    {
+      "etapa": "Producción",
+      "formula": "15-15-15 + B",
+      "dosis_kg_ha": 400,
+      "metodo_aplicacion": "Voleo en corona",
+      "costo_ha": 2800
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Zonas con déficit hídrico moderado"
+    },
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 22000,
+      "costo_operacion_anual": 2200,
+      "lamina_anual_mm": 700,
+      "recomendacion": "Zonas áridas y semiáridas"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria chocolatera",
+        "participacion_pct": 60,
+        "precio_promedio_kg": 42,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Cooperativas",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 38,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 48,
+        "condiciones_pago": "45 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 45
+      },
+      {
+        "meses": "Abril-Septiembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 41
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 35
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Mazorca amarilla-naranja, sonido hueco al golpear",
+    "vida_util_dias": 180,
+    "temperatura_almacen": "18-20°C",
+    "humedad_relativa": "6-8%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Sacos de yute de 60 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 35500,
+    "ingreso_anual_esperado_ha": 24680,
+    "utilidad_neta_anual_ha": 2880,
+    "roi_pct": 8.1,
+    "años_recuperacion": 12,
+    "riesgo": "Alto"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Sequías prolongadas durante floración",
+      "probabilidad": "Media",
+      "impacto": "Reducción 40% rendimiento",
+      "mitigacion": "Sistema de riego y mulching"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Brote de monilia en época lluviosa",
+      "probabilidad": "Alta",
+      "impacto": "Pérdidas hasta $15,000/ha",
+      "mitigacion": "Monitoreo constante y aplicaciones preventivas"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±30% ingresos",
+      "mitigacion": "Contratos a futuro y diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA",
+        "servicios": [
+          "Programas de apoyo",
+          "Subsidios",
+          "Certificación"
+        ],
+        "contacto": "800-003-9000"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "PROAGRO Productivo",
+      "Programa de Fomento a la Agricultura",
+      "PROCAFÉ"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer plantaciones con material genético mejorado resistente a enfermedades",
+    "Implementar manejo integrado de plagas con énfasis en control biológico",
+    "Diversificar con cultivos asociados como plátano y maderables para reducir riesgos económicos"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:03:58.484807",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0497,
+    "requiere_validacion": true
+  }
+}
