@@ -1,0 +1,373 @@
+{
+  "categoria": "frutal",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 20.5,
+    "precio_medio_mxn_ton": 45000,
+    "superficie_sembrada_ha": 9000,
+    "produccion_miles_ton": 180,
+    "principales_estados": [
+      "Jalisco",
+      "Michoacán",
+      "Baja California"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 180,
+      "principales_estados_valor": "Jalisco (70%)"
+    }
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Adelita",
+      "Clarivela"
+    ],
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Macrotúnel",
+          "arboles_ha": 12000,
+          "distancia_m": "Macetas"
+        }
+      ]
+    },
+    "etapas": []
+  },
+  "labores": {
+    "Cosecha": [
+      "Recolección manual diaria",
+      "Cadena de frío"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "14 - 24 °C (Climas templados)",
+    "altitud": "1,500 - 2,800 msnm",
+    "precipitacion": "700 - 900 mm",
+    "suelo": "Franco a franco-arenoso, alto contenido de materia orgánica",
+    "ph": "6.0 - 6.8"
+  },
+  "plagas_y_enfermedades": [],
+  "calculo_fertilizacion": {},
+  "economia_expandida": {
+    "precio_min_mxn_ton": 35000,
+    "precio_max_mxn_ton": 65000,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Junio-Agosto",
+    "valor_produccion_millones_mxn": 8100,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 25000,
+      "material_vegetal": 85000,
+      "infraestructura_riego": 120000,
+      "total": 230000
+    },
+    "operacion_anual": {
+      "fertilizantes": 35000,
+      "control_plagas": 28000,
+      "riego_energia": 18000,
+      "mano_obra": 65000,
+      "cosecha": 45000,
+      "total": 191000
+    },
+    "costo_por_kg_produccion": 9.32,
+    "punto_equilibrio_ton_ha": 4.24
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Jalisco (Los Altos)",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 22.5,
+      "ventana_comercial": "Mercado nacional y exportación USA"
+    },
+    {
+      "region": "Michoacán (Zamora)",
+      "altitud_msnm": "1500-1800",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 21.0,
+      "ventana_comercial": "Mercado nacional premium"
+    },
+    {
+      "region": "Baja California",
+      "altitud_msnm": "200-800",
+      "siembra_inicio": "Enero",
+      "siembra_fin": "Marzo",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 18.5,
+      "ventana_comercial": "Exportación y mercado fronterizo"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Araña roja",
+      "nombre_cientifico": "Tetranychus urticae",
+      "tipo": "Plaga",
+      "descripcion": "Decoloración y secado de hojas, reducción de fotosíntesis",
+      "umbral_economico": "5-8 ácaros por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Abamectina",
+          "nombre_comercial": "Vertimec",
+          "dosis": "0.5-1.0 L/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Phytoseiulus persimilis, Neoseiulus californicus",
+      "epoca_mayor_incidencia": "Abril-Septiembre"
+    },
+    {
+      "nombre": "Pulgón verde",
+      "nombre_cientifico": "Aphis gossypii",
+      "tipo": "Plaga",
+      "descripcion": "Deformación de brotes, transmisión de virus",
+      "umbral_economico": "10-15 pulgones por brote",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "0.3-0.5 L/ha",
+          "costo_aplicacion_ha": 650
+        }
+      ],
+      "control_biologico": "Aphidius colemani, Chrysoperla carnea",
+      "epoca_mayor_incidencia": "Marzo-Junio"
+    },
+    {
+      "nombre": "Antracnosis",
+      "nombre_cientifico": "Colletotrichum acutatum",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas en frutos, pudrición",
+      "umbral_economico": "5% de frutos afectados",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina",
+          "nombre_comercial": "Amistar",
+          "dosis": "0.5-0.8 L/ha",
+          "costo_aplicacion_ha": 950
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Mayo-Octubre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 4500
+    },
+    {
+      "etapa": "Crecimiento vegetativo",
+      "formula": "20-10-20 + Ca + Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación semanal",
+      "costo_ha": 8500
+    },
+    {
+      "etapa": "Floración-fructificación",
+      "formula": "15-05-30 + B + Zn",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Fertirrigación bisemanal",
+      "costo_ha": 12500
+    },
+    {
+      "etapa": "Postcosecha",
+      "formula": "25-10-15 + materia orgánica",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Aplicación al suelo",
+      "costo_ha": 6800
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 85000,
+      "costo_operacion_anual": 15000,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Ideal para todas las regiones productoras"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 65000,
+      "costo_operacion_anual": 18000,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Recomendado para climas secos"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Centrales de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 42,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 48,
+        "condiciones_pago": "30-45 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 55,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 5,
+        "precio_promedio_kg": 35,
+        "condiciones_pago": "15-30 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 58
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 45
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 32
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 48
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Tijuana",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 10
+      },
+      {
+        "ciudad": "Exportación USA",
+        "porcentaje": 8
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Fruto completamente coloreado, firme al tacto",
+    "vida_util_dias": 5,
+    "temperatura_almacen": "0-2°C",
+    "humedad_relativa": "90-95%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Clamshells de 125-250g, cajas de cartón ventiladas"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 230000,
+    "ingreso_anual_esperado_ha": 922500,
+    "utilidad_neta_anual_ha": 323000,
+    "roi_pct": 140,
+    "años_recuperacion": 1.5,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% de producción",
+      "mitigacion": "Sistemas de protección antiheladas, variedades tardías"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Botrytis en condiciones de alta humedad",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida 20-40% de frutos",
+      "mitigacion": "Ventilación adecuada, fungicidas preventivos"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad de precios por sobreoferta",
+      "probabilidad": "Media",
+      "impacto": "Reducción 25-35% en ingresos",
+      "mitigacion": "Contratos a futuro, diversificación de mercados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación varietal",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Inocuidad alimentaria"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Cadenas Productivas",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "Programa de Productividad Rural"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer plantación en suelos bien drenados con pH 5.5-6.5 y materia orgánica >3%",
+    "Implementar sistema de riego por goteo con fertirrigación para optimizar nutrición",
+    "Realizar podas sanitarias regulares y manejo integrado de plagas para reducir aplicaciones químicas",
+    "Planificar cosecha escalonada para aprovechar ventanas de mejor precio",
+    "Establecer contratos de venta anticipada para asegurar mercado y precio"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:24:21.022714",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0563,
+    "requiere_validacion": true
+  }
+}

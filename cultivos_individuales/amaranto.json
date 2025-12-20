@@ -1,0 +1,441 @@
+{
+  "categoria": "cereales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 1.8,
+    "precio_medio_mxn_ton": 10046,
+    "superficie_sembrada_ha": 3000,
+    "superficie_cosechada_ha": 3000,
+    "produccion_miles_ton": 6,
+    "variacion_anual_pct": 4.8,
+    "principales_estados": [
+      "Tlaxcala",
+      "Puebla",
+      "Estado de México",
+      "CDMX"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 6,
+      "variacion_anual_pct": 4.8,
+      "principales_estados_valor": "Tlaxcala (54.1%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 1.8,
+        "produccion_ton": 6000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Revancha",
+      "Nutrisol",
+      "Areli"
+    ],
+    "densidad_plantacion": {
+      "nota": "Siembra tradicional o trasplante en cepellón.",
+      "sistemas": [
+        {
+          "nombre": "Siembra Directa",
+          "arboles_ha": 100000,
+          "distancia_m": "0.30x0.80"
+        },
+        {
+          "nombre": "Trasplante",
+          "arboles_ha": 60000,
+          "distancia_m": "0.40x0.80"
+        }
+      ]
+    },
+    "duracion_total_dias": 130,
+    "etapas": [
+      {
+        "nombre": "Vegetativo",
+        "duracion_dias": 50,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Floración (Panoja)",
+        "duracion_dias": 30,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Maduración de Grano",
+        "duracion_dias": 40,
+        "bbch_fase": "70-89"
+      },
+      {
+        "nombre": "Cosecha",
+        "duracion_dias": 10,
+        "bbch_fase": "90-99"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Aclareo (raleo) manual"
+    ],
+    "Vegetativo": [
+      "Aporque (calzar tierra)"
+    ],
+    "Cosecha": [
+      "Corte de panojas",
+      "Secado al sol",
+      "Trilla/Garroteo"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "16 - 28 °C (Planta C4 eficiente)",
+    "altitud": "1,500 - 2,600 msnm",
+    "precipitacion": "400 - 800 mm (Resistente a sequía)",
+    "suelo": "Franco a franco-arenoso, suelto",
+    "ph": "6.0 - 7.5"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Gusano Telarañero",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Contacto",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Permetrina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Carbón",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Cultural",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Eliminación plantas enfermas",
+            "dosis_tipo": "Manual"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 80,
+      "P": 40,
+      "K": 40
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 8500,
+    "precio_max_mxn_ton": 12800,
+    "epoca_mejor_precio": "Enero-Marzo",
+    "epoca_peor_precio": "Octubre-Diciembre",
+    "valor_produccion_millones_mxn": 60.3,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 1200,
+      "infraestructura_riego": 8000,
+      "total": 12700
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 2800,
+      "riego_energia": 3200,
+      "mano_obra": 8500,
+      "cosecha": 4300,
+      "total": 23000
+    },
+    "costo_por_kg_produccion": 12.78,
+    "punto_equilibrio_ton_ha": 2.29
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Tlaxcala",
+      "altitud_msnm": "2200-2600",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 2.1,
+      "ventana_comercial": "Día de Muertos y temporada navideña"
+    },
+    {
+      "region": "Puebla",
+      "altitud_msnm": "1800-2400",
+      "siembra_inicio": "Abril",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 1.9,
+      "ventana_comercial": "Festividades tradicionales"
+    },
+    {
+      "region": "Estado de México",
+      "altitud_msnm": "2000-2800",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 1.7,
+      "ventana_comercial": "Mercado urbano CDMX"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Gusano soldado",
+      "nombre_cientifico": "Spodoptera frugiperda",
+      "tipo": "Plaga",
+      "descripcion": "Defoliación severa en etapa vegetativa",
+      "umbral_economico": "2-3 larvas por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorantraniliprol",
+          "nombre_comercial": "Coragen",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Trichogramma pretiosum",
+      "epoca_mayor_incidencia": "Julio-Agosto"
+    },
+    {
+      "nombre": "Pulgón verde",
+      "nombre_cientifico": "Myzus persicae",
+      "tipo": "Plaga",
+      "descripcion": "Transmisión de virus y debilitamiento",
+      "umbral_economico": "10% plantas infestadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 420
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea",
+      "epoca_mayor_incidencia": "Junio-Julio"
+    },
+    {
+      "nombre": "Damping off",
+      "nombre_cientifico": "Pythium spp.",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición de plántulas en germinación",
+      "umbral_economico": "5% plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Metalaxil",
+          "nombre_comercial": "Ridomil",
+          "dosis": "2.5 kg/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Mayo-Junio"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "46-00-00",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Al voleo",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Floración",
+      "formula": "00-00-60 + micronutrientes",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 900
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Zonas áridas y semi-áridas"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 500,
+      "recomendacion": "Terrenos planos con disponibilidad de agua"
+    },
+    {
+      "sistema": "Temporal tecnificado",
+      "eficiencia_pct": 60,
+      "costo_instalacion_ha": 5000,
+      "costo_operacion_anual": 800,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Zonas con precipitación >500mm"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Mercados tradicionales",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 9.5,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Industria alimentaria",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 10.8,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Tiendas naturistas",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 12.5,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 14.2,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 12.8
+      },
+      {
+        "meses": "Abril-Septiembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 10.5
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 8.5
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 40
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 25
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Grano con 12-14% humedad, panícula dorada",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "50-60%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 25-50 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 35700,
+    "ingreso_anual_esperado_ha": 18083,
+    "utilidad_neta_anual_ha": 6333,
+    "roi_pct": 17.7,
+    "años_recuperacion": 5.6,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tempranas en octubre",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% rendimiento",
+      "mitigacion": "Siembra temprana, variedades precoces"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Ataque severo de gusano soldado",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida 20-40% rendimiento",
+      "mitigacion": "Monitoreo constante, control biológico"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación de mercado en cosecha",
+      "probabilidad": "Media",
+      "impacto": "Caída precio 25-30%",
+      "mitigacion": "Contratos anticipados, diversificación canales"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Valle de México",
+        "servicios": [
+          "Asistencia técnica",
+          "Variedades mejoradas",
+          "Capacitación"
+        ],
+        "contacto": "01-595-921-1893"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Garantías",
+          "Asistencia técnica"
+        ],
+        "contacto": "01-800-FIRA-200"
+      },
+      {
+        "nombre": "SAGARPA Delegación Tlaxcala",
+        "servicios": [
+          "Programas de apoyo",
+          "Subsidios",
+          "Capacitación"
+        ],
+        "contacto": "01-246-462-0571"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Concurrencia con Entidades Federativas"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado",
+    "Implementar sistema de riego tecnificado para garantizar rendimientos estables",
+    "Diversificar la producción con variedades de diferentes colores para mercados especializados",
+    "Formar grupos de productores para reducir costos de insumos y mejorar poder de negociación",
+    "Invertir en valor agregado mediante procesamiento básico (harina, granola, barras energéticas)"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:51:12.329143",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0541,
+    "requiere_validacion": true
+  }
+}

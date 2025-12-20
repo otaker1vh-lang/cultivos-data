@@ -1,0 +1,543 @@
+{
+  "categoria": "ornamental",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 65.0,
+    "precio_medio_mxn_ton": 15500,
+    "superficie_sembrada_ha": 2000,
+    "superficie_cosechada_ha": 2000,
+    "produccion_miles_ton": 130,
+    "variacion_anual_pct": 2.5,
+    "principales_estados": [
+      "Estado de México",
+      "Puebla",
+      "Morelos",
+      "Querétaro"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 130,
+      "variacion_anual_pct": 2.5,
+      "ranking_mundial": "Exportador clave a EE.UU.",
+      "consumo_per_capita": "N/A (Ornamental)",
+      "principales_estados_valor": "Edo. Mex. (Villa Guerrero) (78%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 62.0,
+        "produccion_ton": 124000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 64.5,
+        "produccion_ton": 129000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 65.0,
+        "produccion_ton": 130000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Freedom (Roja)",
+      "Mondial (Blanca)",
+      "Topaz",
+      "Titanic"
+    ],
+    "densidad_plantacion": {
+      "nota": "Invernadero en hidroponía o suelo.",
+      "sistemas": [
+        {
+          "nombre": "Hidroponía (Canaleta)",
+          "arboles_ha": 80000,
+          "distancia_m": "7-8 plantas/m2"
+        },
+        {
+          "nombre": "Suelo (Cama)",
+          "arboles_ha": 70000,
+          "distancia_m": "0.20x0.30 en cama"
+        }
+      ]
+    },
+    "duracion_total_dias": 365,
+    "etapas": [
+      {
+        "nombre": "Brotación (Pinch)",
+        "duracion_dias": 15,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Crecimiento Vegetativo",
+        "duracion_dias": 30,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Botón Visible (Chícharo)",
+        "duracion_dias": 15,
+        "bbch_fase": "50-55"
+      },
+      {
+        "nombre": "Desarrollo de Botón",
+        "duracion_dias": 20,
+        "bbch_fase": "56-59"
+      },
+      {
+        "nombre": "Cosecha (Punto de corte)",
+        "duracion_dias": 5,
+        "bbch_fase": "60-69"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Edo. Mex (Programación)",
+        "siembra_inicio": "Todo el año",
+        "siembra_fin": "N/A",
+        "cosecha_inicio": "Pico: 14 Feb / 10 Mayo",
+        "cosecha_fin": "N/A"
+      }
+    ]
+  },
+  "labores": {
+    "Manejo": [
+      "Poda de formación (Basal)",
+      "Desyemado (eliminar botones laterales)"
+    ],
+    "Cosecha": [
+      "Corte en 'Punto Arroz' o 'Garbanzo'",
+      "Hidratación inmediata",
+      "Cadena de frío"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 24 °C (Día: 21-24°C / Noche: 15-18°C)",
+    "altitud": "1,800 - 2,800 msnm (La altura favorece tallos largos y color intenso)",
+    "precipitacion": "Riego por goteo/hidroponía (La lluvia directa mancha la flor)",
+    "suelo": "Franco-arenoso, rico en materia orgánica, excelente drenaje",
+    "ph": "5.5 - 6.5 (Ligeramente ácido)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Araña Roja (Tetranychus)",
+      "tipo": "Plaga",
+      "descripcion": "Principal problema, resistencia a químicos.",
+      "control": {
+        "mecanismo": "Rotación Acaricidas",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Bifenazato",
+            "dosis_tipo": "Contacto"
+          },
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Translaminar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Trips",
+      "tipo": "Plaga",
+      "descripcion": "Mancha y deforma los pétalos.",
+      "control": {
+        "mecanismo": "Biológico/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Spinosad",
+            "dosis_tipo": "Ingestión"
+          },
+          {
+            "ingrediente": "Amblyseius swirskii",
+            "dosis_tipo": "Depredador"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mildiú Velloso (Peronospora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas púrpuras en hojas y caída.",
+      "control": {
+        "mecanismo": "Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metalaxil",
+            "dosis_tipo": "Curativo"
+          },
+          {
+            "ingrediente": "Propamocarb",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Cenicilla (Sphaerotheca)",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco, deforma hojas.",
+      "control": {
+        "mecanismo": "Sublimación/Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Azufre (Quemador)",
+            "dosis_tipo": "Vapor"
+          },
+          {
+            "ingrediente": "Triflumizol",
+            "dosis_tipo": "Curativo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Botrytis",
+      "tipo": "Enfermedad",
+      "descripcion": "Pudrición de la flor en postcosecha.",
+      "control": {
+        "mecanismo": "Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fenhexamid",
+            "dosis_tipo": "Botriticida"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 200,
+      "P": 80,
+      "K": 300
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 12000,
+    "precio_max_mxn_ton": 22000,
+    "epoca_mejor_precio": "Diciembre-Febrero, Mayo",
+    "epoca_peor_precio": "Julio-Septiembre",
+    "valor_produccion_millones_mxn": 2015,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 25000,
+      "material_vegetal": 180000,
+      "infraestructura_riego": 120000,
+      "total": 325000
+    },
+    "operacion_anual": {
+      "fertilizantes": 45000,
+      "control_plagas": 35000,
+      "riego_energia": 28000,
+      "mano_obra": 85000,
+      "cosecha": 65000,
+      "total": 258000
+    },
+    "costo_por_kg_produccion": 4.2,
+    "punto_equilibrio_ton_ha": 17.5
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Estado de México (Villa Guerrero)",
+      "altitud_msnm": "2400-2600",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Todo el año",
+      "cosecha_fin": "Continua",
+      "rendimiento_esperado_t_ha": 70,
+      "ventana_comercial": "Mercado nacional y exportación"
+    },
+    {
+      "region": "Morelos (Yautepec)",
+      "altitud_msnm": "1200-1800",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Marzo",
+      "cosecha_inicio": "Todo el año",
+      "cosecha_fin": "Continua",
+      "rendimiento_esperado_t_ha": 65,
+      "ventana_comercial": "Mercado nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Araña roja",
+      "nombre_cientifico": "Tetranychus urticae",
+      "tipo": "Plaga",
+      "descripcion": "Decoloración y caída de pétalos, reducción calidad floral",
+      "umbral_economico": "5-8 ácaros por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Abamectina",
+          "nombre_comercial": "Vertimec",
+          "dosis": "0.5-1.0 L/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Phytoseiulus persimilis, Neoseiulus californicus",
+      "epoca_mayor_incidencia": "Marzo-Mayo, Octubre-Noviembre"
+    },
+    {
+      "nombre": "Trips",
+      "nombre_cientifico": "Frankliniella occidentalis",
+      "tipo": "Plaga",
+      "descripcion": "Deformación de pétalos, manchas plateadas",
+      "umbral_economico": "3-5 trips por flor",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Success",
+          "dosis": "0.15-0.25 L/ha",
+          "costo_aplicacion_ha": 720
+        }
+      ],
+      "control_biologico": "Orius insidiosus, trampas azules",
+      "epoca_mayor_incidencia": "Abril-Junio"
+    },
+    {
+      "nombre": "Cenicilla polvorienta",
+      "nombre_cientifico": "Sphaerotheca pannosa",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco en hojas y tallos, deformación",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Tebuconazole",
+          "nombre_comercial": "Folicur",
+          "dosis": "0.5-1.0 L/ha",
+          "costo_aplicacion_ha": 650
+        }
+      ],
+      "control_biologico": "Bicarbonato de potasio, extractos vegetales",
+      "epoca_mayor_incidencia": "Octubre-Febrero"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + microelementos",
+      "dosis_kg_ha": 400,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 8500
+    },
+    {
+      "etapa": "Crecimiento vegetativo",
+      "formula": "20-10-20 + Ca, Mg",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Fertirriego semanal",
+      "costo_ha": 12000
+    },
+    {
+      "etapa": "Floración",
+      "formula": "15-5-30 + B, Mo",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Fertirriego",
+      "costo_ha": 9500
+    },
+    {
+      "etapa": "Mantenimiento",
+      "formula": "17-17-17 + microelementos",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirriego quincenal",
+      "costo_ha": 7800
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 85000,
+      "costo_operacion_anual": 25000,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Invernadero y campo abierto tecnificado"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 65000,
+      "costo_operacion_anual": 22000,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Campo abierto con alta densidad"
+    },
+    {
+      "sistema": "Nebulización",
+      "eficiencia_pct": 95,
+      "costo_instalacion_ha": 120000,
+      "costo_operacion_anual": 35000,
+      "lamina_anual_mm": 700,
+      "recomendacion": "Invernaderos de alta tecnología"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Mercado de flores (Jamaica, Palacio de las Flores)",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 14.5,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Florerías y decoradores",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 18.0,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 22.0,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 16.5,
+        "condiciones_pago": "30-45 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Enero-Febrero",
+        "oferta": "Media",
+        "precio_mxn_kg": 18.5
+      },
+      {
+        "meses": "Marzo-Abril",
+        "oferta": "Alta",
+        "precio_mxn_kg": 13.2
+      },
+      {
+        "meses": "Mayo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 21.0
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Media",
+        "precio_mxn_kg": 15.8
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Baja",
+        "precio_mxn_kg": 16.5
+      },
+      {
+        "meses": "Diciembre",
+        "oferta": "Muy baja",
+        "precio_mxn_kg": 24.0
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 60
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 10
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 8
+      },
+      {
+        "ciudad": "Exportación (EUA)",
+        "porcentaje": 7
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Botón cerrado con 2-3 pétalos externos comenzando a abrir",
+    "vida_util_dias": 8,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "90-95%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón con separadores, ramos de 25 tallos"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 325000,
+    "ingreso_anual_esperado_ha": 1007500,
+    "utilidad_neta_anual_ha": 424500,
+    "roi_pct": 130,
+    "años_recuperacion": 1.2,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías que dañan brotes tiernos",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 20-40% producción",
+      "mitigacion": "Mallas antihelada, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Resistencia de trips a insecticidas",
+      "probabilidad": "Alta",
+      "impacto": "Incremento costos control 30%",
+      "mitigacion": "Rotación de ingredientes activos, control biológico"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación mercado en fechas no comerciales",
+      "probabilidad": "Media",
+      "impacto": "Caída precios hasta 50%",
+      "mitigacion": "Diversificación variedades, contratos anticipados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Valle de México",
+        "servicios": [
+          "Asesoría técnica",
+          "Análisis de suelos",
+          "Capacitación"
+        ],
+        "contacto": "01-595-921-7940"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Seguros agrícolas"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA Delegación Estado de México",
+        "servicios": [
+          "Programas de apoyo",
+          "Certificaciones",
+          "Sanidad vegetal"
+        ],
+        "contacto": "01-722-226-9600"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura (PROAGRO)",
+      "Programa de Desarrollo Rural (PDR)",
+      "Programa de Sanidad e Inocuidad Agroalimentaria",
+      "Programa de Productividad Rural"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer contratos de venta anticipada para fechas comerciales (14 febrero, 10 mayo, diciembre)",
+    "Implementar manejo integrado de plagas para reducir costos y resistencias",
+    "Diversificar variedades por color y tipo para ampliar mercado objetivo",
+    "Invertir en postcosecha (cuarto frío) para extender vida útil y mejorar precios",
+    "Considerar certificaciones orgánicas o comercio justo para mercados premium"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:54:02.562002",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0575,
+    "requiere_validacion": true
+  }
+}

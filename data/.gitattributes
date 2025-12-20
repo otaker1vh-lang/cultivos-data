@@ -1,5 +1,1 @@
-*.tflite binary
-*.png binary
-*.jpg binary
-assets/model/* binary
 data/datos_agricolas_integrados.json filter=lfs diff=lfs merge=lfs -text

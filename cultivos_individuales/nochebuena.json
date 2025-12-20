@@ -1,0 +1,531 @@
+{
+  "categoria": "ornamental",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 40.0,
+    "precio_medio_mxn_ton": 45000,
+    "superficie_sembrada_ha": 300,
+    "superficie_cosechada_ha": 300,
+    "produccion_miles_ton": 21,
+    "variacion_anual_pct": 3.2,
+    "principales_estados": [
+      "Morelos",
+      "Michoacán",
+      "CDMX (Xochimilco)",
+      "Puebla",
+      "Jalisco"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 21,
+      "variacion_anual_pct": 3.2,
+      "ranking_mundial": "4º (Origen México)",
+      "consumo_per_capita": "Estacional (Navidad)",
+      "principales_estados_valor": "Morelos (40.2%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 38.5,
+        "produccion_ton": 19000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 39.0,
+        "produccion_ton": 20000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 40.0,
+        "produccion_ton": 21000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Prestige Red",
+      "Freedom",
+      "Subjibi",
+      "Monet"
+    ],
+    "densidad_plantacion": {
+      "nota": "Se mide en macetas por m2 de invernadero.",
+      "sistemas": [
+        {
+          "nombre": "Maceta 6 pulgadas",
+          "arboles_ha": 90000,
+          "distancia_m": "9-11 plantas/m2"
+        },
+        {
+          "nombre": "Maceta 7 pulgadas",
+          "arboles_ha": 60000,
+          "distancia_m": "6-7 plantas/m2"
+        },
+        {
+          "nombre": "Colgante",
+          "arboles_ha": 40000,
+          "distancia_m": "4 plantas/m2"
+        }
+      ]
+    },
+    "duracion_total_dias": 180,
+    "etapas": [
+      {
+        "nombre": "Esqueje y Enraizamiento",
+        "duracion_dias": 30,
+        "bbch_fase": "00-10"
+      },
+      {
+        "nombre": "Crecimiento Vegetativo",
+        "duracion_dias": 60,
+        "bbch_fase": "11-39"
+      },
+      {
+        "nombre": "Inducción (Días Cortos)",
+        "duracion_dias": 45,
+        "bbch_fase": "40-55"
+      },
+      {
+        "nombre": "Pigmentación Brácteas",
+        "duracion_dias": 45,
+        "bbch_fase": "56-69"
+      },
+      {
+        "nombre": "Venta",
+        "duracion_dias": 15,
+        "bbch_fase": "70-79"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Morelos/CDMX",
+        "siembra_inicio": "Mayo (Madre) / Julio (Esqueje)",
+        "siembra_fin": "Agosto",
+        "cosecha_inicio": "Noviembre",
+        "cosecha_fin": "Diciembre"
+      }
+    ]
+  },
+  "labores": {
+    "Vegetativo": [
+      "Pinchado (Poda apical) para ramificar",
+      "Aplicación reguladores crecimiento (CCC)"
+    ],
+    "Inducción": [
+      "Control de luz (14h oscuridad)",
+      "Fertilización Potásica"
+    ],
+    "Cosecha": [
+      "Manejo de temperatura nocturna",
+      "Empaque en capacillo"
+    ]
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Mosca Blanca",
+      "tipo": "Plaga",
+      "descripcion": "Extremadamente resistente, mancha brácteas.",
+      "control": {
+        "mecanismo": "Rotación Estricta",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Spiromesifen",
+            "dosis_tipo": "Contacto"
+          },
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Fungus Gnat",
+      "tipo": "Plaga",
+      "descripcion": "Larva come raíz, adulto molesto.",
+      "control": {
+        "mecanismo": "Biológico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Steinernema feltiae (Nematodo)",
+            "dosis_tipo": "Drench"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Pudrición de Raíz (Pythium/Rhizoctonia)",
+      "tipo": "Enfermedad",
+      "descripcion": "Raíces negras, planta se 'desmaya'.",
+      "control": {
+        "mecanismo": "Fungicida Suelo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Propamocarb",
+            "dosis_tipo": "Drench"
+          },
+          {
+            "ingrediente": "Fludioxonil",
+            "dosis_tipo": "Drench"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Botrytis",
+      "tipo": "Enfermedad",
+      "descripcion": "Moho gris en brácteas por humedad.",
+      "control": {
+        "mecanismo": "Ventilación/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fenhexamid",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Trips",
+      "tipo": "Plaga",
+      "descripcion": "Deforma las hojas nuevas.",
+      "control": {
+        "mecanismo": "Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Spinetoram",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 150,
+      "P": 50,
+      "K": 200
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 25000,
+    "precio_max_mxn_ton": 85000,
+    "epoca_mejor_precio": "Noviembre-Diciembre",
+    "epoca_peor_precio": "Enero-Marzo",
+    "valor_produccion_millones_mxn": 945,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 15000,
+      "material_vegetal": 45000,
+      "infraestructura_riego": 35000,
+      "total": 95000
+    },
+    "operacion_anual": {
+      "fertilizantes": 18000,
+      "control_plagas": 12000,
+      "riego_energia": 8000,
+      "mano_obra": 35000,
+      "cosecha": 25000,
+      "total": 98000
+    },
+    "costo_por_kg_produccion": 2.45,
+    "punto_equilibrio_ton_ha": 2.18
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Morelos",
+      "altitud_msnm": "1200-1800",
+      "siembra_inicio": "Julio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 45,
+      "ventana_comercial": "Temporada navideña alta demanda"
+    },
+    {
+      "region": "Xochimilco CDMX",
+      "altitud_msnm": "2200-2300",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Enero",
+      "rendimiento_esperado_t_ha": 42,
+      "ventana_comercial": "Mercado local y exportación"
+    },
+    {
+      "region": "Michoacán",
+      "altitud_msnm": "1500-2000",
+      "siembra_inicio": "Julio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 38,
+      "ventana_comercial": "Distribución nacional"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Mosquita blanca",
+      "nombre_cientifico": "Bemisia tabaci",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, produce melaza",
+      "umbral_economico": "5 adultos por planta",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "300 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Encarsia formosa, trampas amarillas",
+      "epoca_mayor_incidencia": "Agosto-Octubre"
+    },
+    {
+      "nombre": "Trips",
+      "nombre_cientifico": "Frankliniella occidentalis",
+      "tipo": "Plaga",
+      "descripcion": "Daña hojas y brácteas, deformación",
+      "umbral_economico": "3 trips por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Tracer",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 920
+        }
+      ],
+      "control_biologico": "Orius insidiosus, trampas azules",
+      "epoca_mayor_incidencia": "Septiembre-Noviembre"
+    },
+    {
+      "nombre": "Cenicilla polvorienta",
+      "nombre_cientifico": "Oidium sp.",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco en hojas, reduce calidad",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azufre",
+          "nombre_comercial": "Kumulus",
+          "dosis": "3 kg/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Bacillus subtilis, ventilación adecuada",
+      "epoca_mayor_incidencia": "Octubre-Diciembre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + microelementos",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2800
+    },
+    {
+      "etapa": "Crecimiento vegetativo",
+      "formula": "20-10-20 + Ca, Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación semanal",
+      "costo_ha": 4200
+    },
+    {
+      "etapa": "Formación de brácteas",
+      "formula": "15-05-30 + B, Mo",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 3800
+    },
+    {
+      "etapa": "Coloración",
+      "formula": "10-05-40 + K",
+      "dosis_kg_ha": 120,
+      "metodo_aplicacion": "Foliar + suelo",
+      "costo_ha": 2600
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 6500,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Cultivo comercial intensivo"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 22000,
+      "costo_operacion_anual": 7200,
+      "lamina_anual_mm": 520,
+      "recomendacion": "Invernaderos y túneles"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 8500,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Cultivo a cielo abierto"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Mercados navideños",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 48,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Centros comerciales",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 52,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Florerías",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 45,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 5,
+        "precio_promedio_kg": 65,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Noviembre-Diciembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 50
+      },
+      {
+        "meses": "Enero-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 25
+      },
+      {
+        "meses": "Marzo-Octubre",
+        "oferta": "Muy baja",
+        "precio_mxn_kg": 15
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Otros",
+        "porcentaje": 18
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Brácteas completamente coloreadas, hojas turgentes",
+    "vida_util_dias": 21,
+    "temperatura_almacen": "12-15°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Macetas con sleeve protector"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 95000,
+    "ingreso_anual_esperado_ha": 1800000,
+    "utilidad_neta_anual_ha": 630000,
+    "roi_pct": 35,
+    "años_recuperacion": 1.5,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tempranas afectan floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 40-60% producción",
+      "mitigacion": "Mallas antihelada, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación mercado en temporada",
+      "probabilidad": "Alta",
+      "impacto": "Caída precios 30-50%",
+      "mitigacion": "Contratos anticipados, diversificación variedades"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Virus transmitido por mosquita blanca",
+      "probabilidad": "Media",
+      "impacto": "Pérdida calidad comercial",
+      "mitigacion": "Control preventivo vectores, plantas certificadas"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Zacatepec",
+        "servicios": [
+          "Asesoría técnica",
+          "Análisis suelo",
+          "Capacitación"
+        ],
+        "contacto": "777-361-0011"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA Delegación Estatal",
+        "servicios": [
+          "Programas apoyo",
+          "Subsidios",
+          "Certificación"
+        ],
+        "contacto": "Oficinas estatales"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer contratos de venta antes de la siembra para asegurar mercado",
+    "Implementar sistema de riego tecnificado para optimizar uso del agua",
+    "Realizar podas de formación para obtener plantas compactas y atractivas",
+    "Monitorear constantemente plagas y enfermedades durante época crítica",
+    "Planificar escalonamiento de siembras para extender período de cosecha"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:56:11.006369",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0551,
+    "requiere_validacion": true
+  }
+}

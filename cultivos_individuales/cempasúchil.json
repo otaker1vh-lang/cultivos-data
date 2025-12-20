@@ -1,0 +1,454 @@
+{
+  "categoria": "ornamental",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 10.5,
+    "precio_medio_mxn_ton": 4500,
+    "superficie_sembrada_ha": 2000,
+    "superficie_cosechada_ha": 2000,
+    "produccion_miles_ton": 21,
+    "variacion_anual_pct": 5.0,
+    "principales_estados": [
+      "Puebla",
+      "Estado de México",
+      "Oaxaca",
+      "Guerrero"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 21,
+      "variacion_anual_pct": 5.0,
+      "ranking_mundial": "N/A (Cultural)",
+      "consumo_per_capita": "Estacional (Noviembre)",
+      "principales_estados_valor": "Puebla (42%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 10.5,
+        "produccion_ton": 21000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Pumila (Maceta)",
+      "Erecta (Corte/Ramo)",
+      "Clemole"
+    ],
+    "densidad_plantacion": {
+      "nota": "Depende si es para maceta o flor de corte.",
+      "sistemas": [
+        {
+          "nombre": "Flor de Corte (Surco)",
+          "arboles_ha": 40000,
+          "distancia_m": "0.30x0.80"
+        },
+        {
+          "nombre": "Maceta",
+          "arboles_ha": 60000,
+          "distancia_m": "10-12 macetas/m2"
+        }
+      ]
+    },
+    "duracion_total_dias": 100,
+    "etapas": [
+      {
+        "nombre": "Germinación",
+        "duracion_dias": 10,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Vegetativo",
+        "duracion_dias": 40,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Botonización",
+        "duracion_dias": 30,
+        "bbch_fase": "50-59"
+      },
+      {
+        "nombre": "Floración (Venta)",
+        "duracion_dias": 20,
+        "bbch_fase": "60-69"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Puebla/CDMX",
+        "siembra_inicio": "Julio",
+        "siembra_fin": "Agosto",
+        "cosecha_inicio": "Finales Octubre",
+        "cosecha_fin": "2 Noviembre"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Semillero/Almácigo",
+      "Trasplante"
+    ],
+    "Vegetativo": [
+      "Despunte (Pinch) para ramificar",
+      "Aporque"
+    ],
+    "Cosecha": [
+      "Corte de tallo",
+      "Manojos (Maletas)"
+    ]
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Tizón (Alternaria)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas cafés en hojas y pétalos.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Mancozeb",
+            "dosis_tipo": "Preventivo"
+          },
+          {
+            "ingrediente": "Iprodiona",
+            "dosis_tipo": "Curativo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Araña Roja",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Acaricida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 120,
+      "P": 60,
+      "K": 120
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 2800,
+    "precio_max_mxn_ton": 8500,
+    "epoca_mejor_precio": "Octubre-Noviembre",
+    "epoca_peor_precio": "Enero-Marzo",
+    "valor_produccion_millones_mxn": 94.5,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 4200,
+      "infraestructura_riego": 15000,
+      "total": 27700
+    },
+    "operacion_anual": {
+      "fertilizantes": 6800,
+      "control_plagas": 4500,
+      "riego_energia": 3200,
+      "mano_obra": 18000,
+      "cosecha": 8500,
+      "total": 41000
+    },
+    "costo_por_kg_produccion": 3.9,
+    "punto_equilibrio_ton_ha": 9.1
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Puebla (Atlixco)",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Julio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 12.5,
+      "ventana_comercial": "Día de Muertos - alta demanda"
+    },
+    {
+      "region": "Estado de México (Tenancingo)",
+      "altitud_msnm": "1600-2000",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 11.2,
+      "ventana_comercial": "Mercado nacional y exportación"
+    },
+    {
+      "region": "Oaxaca (Valles Centrales)",
+      "altitud_msnm": "1500-1800",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Septiembre",
+      "rendimiento_esperado_t_ha": 9.8,
+      "ventana_comercial": "Temporada temprana - mejores precios"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Araña roja",
+      "nombre_cientifico": "Tetranychus urticae",
+      "tipo": "Plaga",
+      "descripcion": "Amarillamiento y bronceado de hojas, reducción de floración",
+      "umbral_economico": "5-8 ácaros por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Abamectina",
+          "nombre_comercial": "Vertimec",
+          "dosis": "0.5-1.0 L/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Phytoseiulus persimilis, Neoseiulus californicus",
+      "epoca_mayor_incidencia": "Julio-Septiembre"
+    },
+    {
+      "nombre": "Pulgón",
+      "nombre_cientifico": "Aphis gossypii",
+      "tipo": "Plaga",
+      "descripcion": "Deformación de brotes, transmisión de virus",
+      "umbral_economico": "10-15 pulgones por brote",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "0.3-0.5 L/ha",
+          "costo_aplicacion_ha": 650
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Agosto-Octubre"
+    },
+    {
+      "nombre": "Cenicilla polvorienta",
+      "nombre_cientifico": "Oidium sp.",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco en hojas, reducción de calidad floral",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azufre",
+          "nombre_comercial": "Kumulus",
+          "dosis": "2-3 kg/ha",
+          "costo_aplicacion_ha": 420
+        }
+      ],
+      "control_biologico": "Bacillus subtilis",
+      "epoca_mayor_incidencia": "Septiembre-Octubre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Trasplante",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Crecimiento vegetativo",
+      "formula": "20-10-10 + Ca, Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación semanal",
+      "costo_ha": 2400
+    },
+    {
+      "etapa": "Floración",
+      "formula": "15-15-30 + B, Zn",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 2300
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 3500,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Suelos bien drenados, cultivo intensivo"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 12000,
+      "costo_operacion_anual": 4200,
+      "lamina_anual_mm": 520,
+      "recomendacion": "Superficies grandes, menor inversión inicial"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 15000,
+      "costo_operacion_anual": 3800,
+      "lamina_anual_mm": 480,
+      "recomendacion": "Compromiso entre eficiencia y costo"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 4.2,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Mercados locales",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 5.5,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 6.8,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Procesadoras",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 3.8,
+        "condiciones_pago": "45 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Octubre-Noviembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 6.5
+      },
+      {
+        "meses": "Agosto-Septiembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 4.2
+      },
+      {
+        "meses": "Diciembre-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 2.8
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Exportación USA",
+        "porcentaje": 18
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Flores completamente abiertas, colores intensos",
+    "vida_util_dias": 7,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón con ventilación, 5-10 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 68700,
+    "ingreso_anual_esperado_ha": 47250,
+    "utilidad_neta_anual_ha": 16550,
+    "roi_pct": 24,
+    "años_recuperacion": 4.1,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tempranas en octubre",
+      "probabilidad": "Media",
+      "impacto": "Pérdida total del cultivo",
+      "mitigacion": "Mallas antihelada, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación del mercado en Día de Muertos",
+      "probabilidad": "Alta",
+      "impacto": "Caída de precios 40-60%",
+      "mitigacion": "Diversificar fechas de siembra, contratos anticipados"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Brotes de araña roja en sequía",
+      "probabilidad": "Alta",
+      "impacto": "Reducción rendimiento 20-30%",
+      "mitigacion": "Monitoreo semanal, control biológico preventivo"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Bajío",
+        "servicios": [
+          "Asesoría técnica",
+          "Análisis de suelos",
+          "Capacitación"
+        ],
+        "contacto": "01-461-611-5323"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica",
+          "Seguros agrícolas"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Registro de agroquímicos"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura (SADER)",
+      "Componente de Desarrollo de Capacidades y Extensionismo Rural",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Planificar siembras escalonadas cada 15 días para extender ventana de cosecha y reducir riesgo de mercado",
+    "Implementar sistema de fertirrigación para optimizar nutrición y uso eficiente del agua",
+    "Establecer contratos de compra-venta anticipados con mayoristas para asegurar precio mínimo",
+    "Diversificar variedades (naranja, amarillo, rojo) para ampliar mercado objetivo",
+    "Implementar manejo integrado de plagas con énfasis en control biológico para reducir costos"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T18:08:04.333729",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.056,
+    "requiere_validacion": true
+  }
+}

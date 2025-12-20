@@ -1,0 +1,489 @@
+{
+  "categoria": "frutal",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 14.0,
+    "precio_medio_mxn_ton": 22000,
+    "superficie_sembrada_ha": 850,
+    "produccion_miles_ton": 12,
+    "variacion_anual_pct": 2.1,
+    "principales_estados": [
+      "Puebla",
+      "Veracruz",
+      "Chiapas",
+      "Estado de México"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 12,
+      "variacion_anual_pct": 2.1,
+      "ranking_mundial": "N/A (Cultivo exótico)",
+      "consumo_per_capita": "0.3 kg",
+      "principales_estados_valor": "Puebla (Principal productor en Sierra Nororiental)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 14.0,
+        "produccion_ton": 12000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Criolla (Común)",
+      "Colombiana (Mejorada)"
+    ],
+    "densidad_plantacion": {
+      "nota": "Requiere estructura de soporte (emparrado o espaldera).",
+      "sistemas": [
+        {
+          "nombre": "Emparrado (Tapesco)",
+          "arboles_ha": 400,
+          "distancia_m": "5x5m"
+        },
+        {
+          "nombre": "Espaldera (T)",
+          "arboles_ha": 600,
+          "distancia_m": "3x5m"
+        }
+      ]
+    },
+    "duracion_total_dias": 1095,
+    "etapas": [
+      {
+        "nombre": "Establecimiento y Crecimiento",
+        "duracion_dias": 240,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Inicio de Floración",
+        "duracion_dias": 30,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Desarrollo de Fruto",
+        "duracion_dias": 70,
+        "bbch_fase": "70-79"
+      },
+      {
+        "nombre": "Cosecha (Primer ciclo)",
+        "duracion_dias": 60,
+        "bbch_fase": "80-89"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Puebla/Veracruz",
+        "siembra_inicio": "Junio",
+        "siembra_fin": "Agosto",
+        "cosecha_inicio": "Septiembre (Año sig.)",
+        "cosecha_fin": "Diciembre"
+      }
+    ]
+  },
+  "labores": {
+    "Establecimiento": [
+      "Construcción de emparrado",
+      "Tutoreo de guía principal"
+    ],
+    "Poda": [
+      "Poda de formación (un solo tallo al alambre)",
+      "Poda de cortina (fructificación)"
+    ],
+    "Fertilización": [
+      "Aplicación rica en Potasio y Calcio en floración"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 20 °C (Clima templado húmedo, no tolera heladas)",
+    "altitud": "1,500 - 2,600 msnm (Bosque de niebla)",
+    "precipitacion": "1,000 - 1,500 mm (Humedad relativa alta requerida)",
+    "suelo": "Franco a franco-arenoso, rico en materia orgánica, buen drenaje",
+    "ph": "5.5 - 6.5"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Araña Roja (Tetranychus)",
+      "tipo": "Plaga",
+      "descripcion": "Decolora las hojas en época seca.",
+      "control": {
+        "mecanismo": "Acaricida/Humedad",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Abamectina",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Azufre",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Oruga de Espejitos (Dione juno)",
+      "tipo": "Plaga",
+      "descripcion": "Larvas gregarias que defolian la planta rápidamente.",
+      "control": {
+        "mecanismo": "Biológico/Químico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Bacillus thuringiensis",
+            "dosis_tipo": "Biológico"
+          },
+          {
+            "ingrediente": "Spinosad",
+            "dosis_tipo": "Ingestión"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mosca del Botón Floral (Dasiops)",
+      "tipo": "Plaga",
+      "descripcion": "Causa caída de botones florales.",
+      "control": {
+        "mecanismo": "Trampeo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Proteína hidrolizada",
+            "dosis_tipo": "Cebo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Antracnosis (Colletotrichum)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas hundidas en frutos y hojas.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Mancozeb",
+            "dosis_tipo": "Preventivo"
+          },
+          {
+            "ingrediente": "Azoxistrobina",
+            "dosis_tipo": "Curativo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Ojo de Gallo (Cercospora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas circulares con centro claro en hojas.",
+      "control": {
+        "mecanismo": "Fungicida Cúprico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Oxicloruro de Cobre",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 120,
+      "P": 80,
+      "K": 200
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 18000,
+    "precio_max_mxn_ton": 28000,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Agosto-Octubre",
+    "valor_produccion_millones_mxn": 264,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 15000,
+      "material_vegetal": 25000,
+      "infraestructura_riego": 35000,
+      "total": 75000
+    },
+    "operacion_anual": {
+      "fertilizantes": 12000,
+      "control_plagas": 8000,
+      "riego_energia": 6000,
+      "mano_obra": 18000,
+      "cosecha": 15000,
+      "total": 59000
+    },
+    "costo_por_kg_produccion": 4.21,
+    "punto_equilibrio_ton_ha": 2.68
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Puebla",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 15.5,
+      "ventana_comercial": "Mercado nacional navideño"
+    },
+    {
+      "region": "Veracruz",
+      "altitud_msnm": "800-1500",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 14.2,
+      "ventana_comercial": "Exportación y mercado nacional"
+    },
+    {
+      "region": "Chiapas",
+      "altitud_msnm": "600-1200",
+      "siembra_inicio": "Enero",
+      "siembra_fin": "Marzo",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 13.8,
+      "ventana_comercial": "Mercado regional y centroamericano"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Mosca de la fruta",
+      "nombre_cientifico": "Anastrepha ludens",
+      "tipo": "Plaga",
+      "descripcion": "Daño directo al fruto, pérdidas hasta 40%",
+      "umbral_economico": "2 moscas/trampa/semana",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Success",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Trampas McPhail con proteína hidrolizada",
+      "epoca_mayor_incidencia": "Julio-Septiembre"
+    },
+    {
+      "nombre": "Antracnosis",
+      "nombre_cientifico": "Colletotrichum gloeosporioides",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas en frutos y hojas",
+      "umbral_economico": "5% incidencia foliar",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina",
+          "nombre_comercial": "Amistar",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Trichoderma harzianum",
+      "epoca_mayor_incidencia": "Junio-Agosto"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2800
+    },
+    {
+      "etapa": "Desarrollo vegetativo",
+      "formula": "20-10-10 + Zn",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 3200
+    },
+    {
+      "etapa": "Floración-fructificación",
+      "formula": "15-15-20 + Ca + B",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirrigación fraccionada",
+      "costo_ha": 3500
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 35000,
+      "costo_operacion_anual": 6000,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Suelos bien drenados, zonas áridas"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 7200,
+      "lamina_anual_mm": 900,
+      "recomendacion": "Suelos arcillosos, climas húmedos"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 20,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 30,
+        "precio_promedio_kg": 25,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 28,
+        "condiciones_pago": "Carta de crédito"
+      },
+      {
+        "canal": "Mercados locales",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 18,
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 26
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 22
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 18
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 19
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Exportación",
+        "porcentaje": 18
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Color rojizo intenso, semillas rojas, 16-18°Brix",
+    "vida_util_dias": 45,
+    "temperatura_almacen": "2-5°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón corrugado con separadores"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 75000,
+    "ingreso_anual_esperado_ha": 308000,
+    "utilidad_neta_anual_ha": 249000,
+    "roi_pct": 332,
+    "años_recuperacion": 0.3,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% producción",
+      "mitigacion": "Sistemas de protección, variedades tardías"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Mosca de la fruta en temporada lluviosa",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida 20-40% calidad",
+      "mitigacion": "Monitoreo constante, trampas preventivas"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación mercado en cosecha principal",
+      "probabilidad": "Media",
+      "impacto": "Reducción precio 25-35%",
+      "mitigacion": "Diversificar canales, procesamiento"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asistencia técnica",
+          "Variedades mejoradas",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Garantías",
+          "Asistencia técnica"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Certificación fitosanitaria",
+          "Programas de sanidad"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidad e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Establecer plantaciones en zonas con altitud 800-2200 msnm para mejor calidad de fruto",
+    "Implementar sistema de riego tecnificado para optimizar uso del agua y nutrientes",
+    "Realizar monitoreo constante de mosca de la fruta desde julio hasta septiembre",
+    "Diversificar canales de comercialización para reducir dependencia del mercado spot",
+    "Considerar procesamiento agroindustrial para agregar valor y reducir pérdidas postcosecha"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:24:58.706608",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0505,
+    "requiere_validacion": true
+  }
+}

@@ -1,0 +1,447 @@
+{
+  "categoria": "cereales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 6.2,
+    "precio_medio_mxn_ton": 8010,
+    "superficie_sembrada_ha": 565000,
+    "superficie_cosechada_ha": 560000,
+    "produccion_miles_ton": 3476,
+    "variacion_anual_pct": -3.7,
+    "principales_estados": [
+      "Sonora",
+      "Baja California",
+      "Guanajuato",
+      "Michoacán"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 3476,
+      "variacion_anual_pct": -3.7,
+      "principales_estados_valor": "Sonora (61.3%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 6.2,
+        "produccion_ton": 3476000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Cristalino (Pasta)",
+      "Panificable (Harina)"
+    ],
+    "densidad_plantacion": {
+      "nota": "Siembra a chorrillo o voleo.",
+      "sistemas": [
+        {
+          "nombre": "Surcos (Riego)",
+          "arboles_ha": 1500000,
+          "distancia_m": "Chorrillo x 0.80m"
+        },
+        {
+          "nombre": "Camas (Alta densidad)",
+          "arboles_ha": 3000000,
+          "distancia_m": "3 hileras en cama 1.6m"
+        }
+      ]
+    },
+    "duracion_total_dias": 140,
+    "etapas": [
+      {
+        "nombre": "Germinación/Emergencia",
+        "duracion_dias": 10,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Macollamiento",
+        "duracion_dias": 35,
+        "bbch_fase": "20-29"
+      },
+      {
+        "nombre": "Encañe/Embuche",
+        "duracion_dias": 30,
+        "bbch_fase": "30-49"
+      },
+      {
+        "nombre": "Espigado/Floración",
+        "duracion_dias": 15,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Llenado/Madurez",
+        "duracion_dias": 50,
+        "bbch_fase": "70-89"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Sonora (Valle del Yaqui)",
+        "siembra_inicio": "Noviembre",
+        "siembra_fin": "Diciembre",
+        "cosecha_inicio": "Abril",
+        "cosecha_fin": "Mayo"
+      },
+      {
+        "estado": "Bajío",
+        "siembra_inicio": "Diciembre",
+        "siembra_fin": "Enero",
+        "cosecha_inicio": "Mayo",
+        "cosecha_fin": "Junio"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Nivelación terreno",
+      "Siembra mecánica"
+    ],
+    "Macollamiento": [
+      "Primer riego de auxilio",
+      "Fertilización N"
+    ],
+    "Espigado": [
+      "Fungicidas preventivos",
+      "Riego de llenado"
+    ],
+    "Cosecha": [
+      "Trilla cuando humedad < 14%"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 24 °C (Requiere horas frío para amacollar)",
+    "altitud": "0 - 2,800 msnm (Invierno en el norte / Verano en zonas altas)",
+    "precipitacion": "450 - 800 mm (Baja humedad ambiental preferible)",
+    "suelo": "Franco-arcilloso o limoso, nivelado",
+    "ph": "6.0 - 7.5"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Pulgón del Follaje",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Roya de la Hoja (Puccinia)",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Tebuconazol",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Epoxiconazol",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Carbón Parcial",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Cuarentenario",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Uso de semilla certificada",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 200,
+      "P": 60,
+      "K": 40
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 6800,
+    "precio_max_mxn_ton": 9500,
+    "epoca_mejor_precio": "Agosto-Octubre",
+    "epoca_peor_precio": "Mayo-Julio",
+    "valor_produccion_millones_mxn": 27842,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 8500,
+      "total": 14800
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 2800,
+      "riego_energia": 3200,
+      "mano_obra": 5500,
+      "cosecha": 2500,
+      "total": 18200
+    },
+    "costo_por_kg_produccion": 2.94,
+    "punto_equilibrio_ton_ha": 2.27
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Sonora",
+      "altitud_msnm": "0-500",
+      "siembra_inicio": "Diciembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Mayo",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 7.2,
+      "ventana_comercial": "Mercado nacional e internacional"
+    },
+    {
+      "region": "Baja California",
+      "altitud_msnm": "0-300",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Abril",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 6.8,
+      "ventana_comercial": "Exportación y consumo nacional"
+    },
+    {
+      "region": "Guanajuato",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Mayo",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 5.5,
+      "ventana_comercial": "Mercado regional del Bajío"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Roya lineal amarilla",
+      "nombre_cientifico": "Puccinia striiformis",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas amarillas en hojas que reducen fotosíntesis",
+      "umbral_economico": "5% de severidad en hoja bandera",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Tebuconazol",
+          "nombre_comercial": "Folicur",
+          "dosis": "1.0 L/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Variedades resistentes",
+      "epoca_mayor_incidencia": "Febrero-Abril"
+    },
+    {
+      "nombre": "Pulgón del trigo",
+      "nombre_cientifico": "Sitobion avenae",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia y transmite virus",
+      "umbral_economico": "10 pulgones por espiga",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "0.5 L/ha",
+          "costo_aplicacion_ha": 650
+        }
+      ],
+      "control_biologico": "Mariquitas y crisopas",
+      "epoca_mayor_incidencia": "Marzo-Mayo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "Macollamiento",
+      "formula": "46-00-00 (Urea)",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Al voleo",
+      "costo_ha": 900
+    },
+    {
+      "etapa": "Encañe",
+      "formula": "46-00-00 + Sulfato de Potasio",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 950
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 15000,
+      "costo_operacion_anual": 3200,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Terrenos planos, cultivo extensivo"
+    },
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 380,
+      "recomendacion": "Agua limitada, alta tecnificación"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria molinera",
+        "participacion_pct": 65,
+        "precio_promedio_kg": 8.2,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "CONASUPO/SEGALMEX",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 7.8,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 8.8,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Mayo-Julio",
+        "oferta": "Alta",
+        "precio_mxn_kg": 7.5
+      },
+      {
+        "meses": "Agosto-Octubre",
+        "oferta": "Baja",
+        "precio_mxn_kg": 8.8
+      },
+      {
+        "meses": "Noviembre-Abril",
+        "oferta": "Media",
+        "precio_mxn_kg": 8.1
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 30
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Humedad 14%, grano duro al diente",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 50 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 33000,
+    "ingreso_anual_esperado_ha": 49662,
+    "utilidad_neta_anual_ha": 13262,
+    "roi_pct": 40.2,
+    "años_recuperacion": 2.5,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante floración",
+      "probabilidad": "Media",
+      "impacto": "Pérdidas 30-50% rendimiento",
+      "mitigacion": "Monitoreo meteorológico, variedades tolerantes"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Roya lineal en condiciones húmedas",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 20-40% rendimiento",
+      "mitigacion": "Aplicaciones preventivas fungicidas"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±25% precio venta",
+      "mitigacion": "Contratos a futuro, agricultura por contrato"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Vigilancia fitosanitaria"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades y Extensionismo Rural",
+      "Programa de Producción para el Bienestar"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región y resistentes a enfermedades prevalentes",
+    "Implementar rotación de cultivos con leguminosas para mejorar fertilidad del suelo",
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado",
+    "Monitorear constantemente plagas y enfermedades para aplicaciones oportunas",
+    "Optimizar el riego según etapas fenológicas críticas para maximizar eficiencia hídrica"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:45:58.698327",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0484,
+    "requiere_validacion": true
+  }
+}
