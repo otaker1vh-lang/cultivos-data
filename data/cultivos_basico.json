@@ -1,0 +1,618 @@
+{
+  "meta": {
+    "version": "basico",
+    "tipo": "listado",
+    "ultima_actualizacion": "2025-12-18T19:05:43.333107",
+    "total_cultivos": 76
+  },
+  "cultivos": {
+    "Durazno": {
+      "nombre": "Durazno",
+      "categoria": "frutal",
+      "rendimiento": 10.4,
+      "precio_medio": 12534,
+      "roi": 19.5,
+      "riesgo": "Medio"
+    },
+    "Frambuesa": {
+      "nombre": "Frambuesa",
+      "categoria": "frutal",
+      "rendimiento": 20.5,
+      "precio_medio": 45000,
+      "roi": 140,
+      "riesgo": "Medio"
+    },
+    "Granada china": {
+      "nombre": "Granada china",
+      "categoria": "frutal",
+      "rendimiento": 14.0,
+      "precio_medio": 22000,
+      "roi": 332,
+      "riesgo": "Medio"
+    },
+    "Arándano": {
+      "nombre": "Arándano",
+      "categoria": "frutal",
+      "rendimiento": 18.0,
+      "precio_medio": 70000,
+      "roi": 142,
+      "riesgo": "Medio"
+    },
+    "Naranja": {
+      "nombre": "Naranja",
+      "categoria": "frutal",
+      "rendimiento": 14.2,
+      "precio_medio": 4500,
+      "roi": 25,
+      "riesgo": "Medio"
+    },
+    "Toronja": {
+      "nombre": "Toronja",
+      "categoria": "frutal",
+      "rendimiento": 25.0,
+      "precio_medio": 3800,
+      "roi": 23.5,
+      "riesgo": "Medio"
+    },
+    "Uva fruta": {
+      "nombre": "Uva fruta",
+      "categoria": "frutal",
+      "rendimiento": 22.0,
+      "precio_medio": 25000,
+      "roi": 124,
+      "riesgo": "Medio"
+    },
+    "Uva industrial": {
+      "nombre": "Uva industrial",
+      "categoria": "agroindustriales",
+      "rendimiento": 10.0,
+      "precio_medio": null,
+      "roi": 19.4,
+      "riesgo": "Medio"
+    },
+    "Uva pasa": {
+      "nombre": "Uva pasa",
+      "categoria": "agroindustriales",
+      "rendimiento": 25.0,
+      "precio_medio": null,
+      "roi": 67,
+      "riesgo": "Medio"
+    },
+    "Aguacate": {
+      "nombre": "Aguacate",
+      "categoria": "frutal",
+      "rendimiento": 11.7,
+      "precio_medio": 20212,
+      "roi": 95.7,
+      "riesgo": "Medio"
+    },
+    "Maiz": {
+      "nombre": "Maiz",
+      "categoria": "cereales",
+      "rendimiento": 4.3,
+      "precio_medio": 6256,
+      "roi": 18.1,
+      "riesgo": "Medio"
+    },
+    "Jitomate": {
+      "nombre": "Jitomate",
+      "categoria": "hortaliza",
+      "rendimiento": 73.5,
+      "precio_medio": 10038,
+      "roi": 118,
+      "riesgo": "Medio"
+    },
+    "Chile": {
+      "nombre": "Chile",
+      "categoria": "hortaliza",
+      "rendimiento": 21.3,
+      "precio_medio": 12490,
+      "roi": 124,
+      "riesgo": "Medio"
+    },
+    "Cebolla": {
+      "nombre": "Cebolla",
+      "categoria": "hortaliza",
+      "rendimiento": 32.3,
+      "precio_medio": 7410,
+      "roi": 94,
+      "riesgo": "Medio"
+    },
+    "Papa": {
+      "nombre": "Papa",
+      "categoria": "hortaliza",
+      "rendimiento": 32.0,
+      "precio_medio": 8774,
+      "roi": 140,
+      "riesgo": "Medio"
+    },
+    "Calabacita": {
+      "nombre": "Calabacita",
+      "categoria": "hortaliza",
+      "rendimiento": 21.2,
+      "precio_medio": 6371,
+      "roi": 78,
+      "riesgo": "Medio"
+    },
+    "Pepino": {
+      "nombre": "Pepino",
+      "categoria": "hortaliza",
+      "rendimiento": 54.1,
+      "precio_medio": 8574,
+      "roi": 95,
+      "riesgo": "Medio"
+    },
+    "Lechuga": {
+      "nombre": "Lechuga",
+      "categoria": "hortaliza",
+      "rendimiento": 24.2,
+      "precio_medio": 5395,
+      "roi": 64,
+      "riesgo": "Medio"
+    },
+    "Tomate verde": {
+      "nombre": "Tomate verde",
+      "categoria": "hortaliza",
+      "rendimiento": 18.9,
+      "precio_medio": 6749,
+      "roi": 46.4,
+      "riesgo": "Medio"
+    },
+    "Espárrago": {
+      "nombre": "Espárrago",
+      "categoria": "hortaliza",
+      "rendimiento": 9.3,
+      "precio_medio": 44827,
+      "roi": 37,
+      "riesgo": "Medio"
+    },
+    "Brócoli": {
+      "nombre": "Brócoli",
+      "categoria": "hortaliza",
+      "rendimiento": 17.8,
+      "precio_medio": 7207,
+      "roi": 90,
+      "riesgo": "Medio"
+    },
+    "Coliflor": {
+      "nombre": "Coliflor",
+      "categoria": "hortaliza",
+      "rendimiento": 23.6,
+      "precio_medio": 6156,
+      "roi": 39.1,
+      "riesgo": "Medio"
+    },
+    "Berenjena": {
+      "nombre": "Berenjena",
+      "categoria": "hortaliza",
+      "rendimiento": 52.9,
+      "precio_medio": 12272,
+      "roi": 301,
+      "riesgo": "Medio"
+    },
+    "Nopalitos": {
+      "nombre": "Nopalitos",
+      "categoria": "hortaliza",
+      "rendimiento": 69.5,
+      "precio_medio": 3630,
+      "roi": 194,
+      "riesgo": "Medio"
+    },
+    "Fresa": {
+      "nombre": "Fresa",
+      "categoria": "frutal",
+      "rendimiento": 48.5,
+      "precio_medio": 24135,
+      "roi": 192,
+      "riesgo": "Medio"
+    },
+    "Limon": {
+      "nombre": "Limon",
+      "categoria": "frutal",
+      "rendimiento": 15.8,
+      "precio_medio": 9630,
+      "roi": 75.6,
+      "riesgo": "Medio"
+    },
+    "Mango": {
+      "nombre": "Mango",
+      "categoria": "frutal",
+      "rendimiento": 10.8,
+      "precio_medio": 5792,
+      "roi": 89,
+      "riesgo": "Medio"
+    },
+    "Platano": {
+      "nombre": "Platano",
+      "categoria": "frutal",
+      "rendimiento": 30.7,
+      "precio_medio": 4218,
+      "roi": 48.8,
+      "riesgo": "Medio"
+    },
+    "Zarzamora": {
+      "nombre": "Zarzamora",
+      "categoria": "frutal",
+      "rendimiento": 21.9,
+      "precio_medio": 23445,
+      "roi": 116,
+      "riesgo": "Medio"
+    },
+    "Papaya": {
+      "nombre": "Papaya",
+      "categoria": "frutal",
+      "rendimiento": 56.5,
+      "precio_medio": 6622,
+      "roi": 317,
+      "riesgo": "Medio"
+    },
+    "Manzana": {
+      "nombre": "Manzana",
+      "categoria": "frutal",
+      "rendimiento": 11.8,
+      "precio_medio": 12000,
+      "roi": 28,
+      "riesgo": "Medio"
+    },
+    "Nuez": {
+      "nombre": "Nuez",
+      "categoria": "frutal",
+      "rendimiento": 1.4,
+      "precio_medio": 66392,
+      "roi": 21.7,
+      "riesgo": "Medio"
+    },
+    "Sandía": {
+      "nombre": "Sandía",
+      "categoria": "frutal",
+      "rendimiento": 33.5,
+      "precio_medio": 5113,
+      "roi": 176,
+      "riesgo": "Medio"
+    },
+    "Trigo": {
+      "nombre": "Trigo",
+      "categoria": "cereales",
+      "rendimiento": 6.2,
+      "precio_medio": 8010,
+      "roi": 40.2,
+      "riesgo": "Medio"
+    },
+    "Sorgo": {
+      "nombre": "Sorgo",
+      "categoria": "cereales",
+      "rendimiento": 3.6,
+      "precio_medio": 5408,
+      "roi": 3.1,
+      "riesgo": "Medio"
+    },
+    "Cebada": {
+      "nombre": "Cebada",
+      "categoria": "cereales",
+      "rendimiento": 2.8,
+      "precio_medio": 6001,
+      "roi": 13,
+      "riesgo": "Medio"
+    },
+    "Arroz": {
+      "nombre": "Arroz",
+      "categoria": "cereales",
+      "rendimiento": 6.9,
+      "precio_medio": 5863,
+      "roi": 37.7,
+      "riesgo": "Medio"
+    },
+    "Avena": {
+      "nombre": "Avena",
+      "categoria": "cereales",
+      "rendimiento": 2.4,
+      "precio_medio": 6460,
+      "roi": 11.9,
+      "riesgo": "Medio"
+    },
+    "Maiz forrajero": {
+      "nombre": "Maiz forrajero",
+      "categoria": "cereales",
+      "rendimiento": 45.0,
+      "precio_medio": null,
+      "roi": 206,
+      "riesgo": "Medio"
+    },
+    "Sorgo forrajero": {
+      "nombre": "Sorgo forrajero",
+      "categoria": "cereales",
+      "rendimiento": 30.0,
+      "precio_medio": null,
+      "roi": 37.4,
+      "riesgo": "Medio"
+    },
+    "Avena forrajera": {
+      "nombre": "Avena forrajera",
+      "categoria": "cereales",
+      "rendimiento": 25.0,
+      "precio_medio": null,
+      "roi": 82,
+      "riesgo": "Medio"
+    },
+    "Amaranto": {
+      "nombre": "Amaranto",
+      "categoria": "cereales",
+      "rendimiento": 1.8,
+      "precio_medio": 10046,
+      "roi": 17.7,
+      "riesgo": "Medio"
+    },
+    "Frijol": {
+      "nombre": "Frijol",
+      "categoria": "leguminosa",
+      "rendimiento": 1.0,
+      "precio_medio": 19304,
+      "roi": 16.7,
+      "riesgo": "Medio"
+    },
+    "Garbanzo": {
+      "nombre": "Garbanzo",
+      "categoria": "leguminosa",
+      "rendimiento": 1.9,
+      "precio_medio": 19111,
+      "roi": 34.4,
+      "riesgo": "Medio"
+    },
+    "Soya": {
+      "nombre": "Soya",
+      "categoria": "leguminosa",
+      "rendimiento": 2.2,
+      "precio_medio": 9269,
+      "roi": 18.1,
+      "riesgo": "Medio"
+    },
+    "Rosa": {
+      "nombre": "Rosa",
+      "categoria": "ornamental",
+      "rendimiento": 65.0,
+      "precio_medio": 15500,
+      "roi": 130,
+      "riesgo": "Medio"
+    },
+    "Orquidea": {
+      "nombre": "Orquidea",
+      "categoria": "ornamental",
+      "rendimiento": 45.0,
+      "precio_medio": 180000,
+      "roi": 946,
+      "riesgo": "Medio"
+    },
+    "Gerbera": {
+      "nombre": "Gerbera",
+      "categoria": "ornamental",
+      "rendimiento": 120.0,
+      "precio_medio": 25000,
+      "roi": 350,
+      "riesgo": "Medio"
+    },
+    "Nochebuena": {
+      "nombre": "Nochebuena",
+      "categoria": "ornamental",
+      "rendimiento": 40.0,
+      "precio_medio": 45000,
+      "roi": 35,
+      "riesgo": "Medio"
+    },
+    "Crisantemo": {
+      "nombre": "Crisantemo",
+      "categoria": "ornamental",
+      "rendimiento": 95.0,
+      "precio_medio": 9800,
+      "roi": 973,
+      "riesgo": "Medio"
+    },
+    "Gladiolo": {
+      "nombre": "Gladiolo",
+      "categoria": "ornamental",
+      "rendimiento": 3500.0,
+      "precio_medio": 350,
+      "roi": 63,
+      "riesgo": "Medio"
+    },
+    "Agave tequilero": {
+      "nombre": "Agave tequilero",
+      "categoria": "agroindustriales",
+      "rendimiento": 80.6,
+      "precio_medio": 21270,
+      "roi": 412,
+      "riesgo": "Medio"
+    },
+    "Piña": {
+      "nombre": "Piña",
+      "categoria": "frutal",
+      "rendimiento": 48.0,
+      "precio_medio": 6500,
+      "roi": 114,
+      "riesgo": "Medio"
+    },
+    "Copra y coco": {
+      "nombre": "Copra y coco",
+      "categoria": "frutal",
+      "rendimiento": 1.1,
+      "precio_medio": 14000,
+      "roi": 7.2,
+      "riesgo": "Medio"
+    },
+    "Melón": {
+      "nombre": "Melón",
+      "categoria": "hortaliza",
+      "rendimiento": 28.5,
+      "precio_medio": 7200,
+      "roi": 151,
+      "riesgo": "Medio"
+    },
+    "Guayaba": {
+      "nombre": "Guayaba",
+      "categoria": "frutal",
+      "rendimiento": 16.0,
+      "precio_medio": 8500,
+      "roi": 195,
+      "riesgo": "Medio"
+    },
+    "Pera": {
+      "nombre": "Pera",
+      "categoria": "frutal",
+      "rendimiento": 6.5,
+      "precio_medio": 9000,
+      "roi": 35,
+      "riesgo": "Medio"
+    },
+    "Caña de azúcar": {
+      "nombre": "Caña de azúcar",
+      "categoria": "agroindustriales",
+      "rendimiento": 69.3,
+      "precio_medio": 952,
+      "roi": 57,
+      "riesgo": "Medio"
+    },
+    "Café cereza": {
+      "nombre": "Café cereza",
+      "categoria": "agroindustriales",
+      "rendimiento": 1.6,
+      "precio_medio": 6727,
+      "roi": 6.0,
+      "riesgo": "Medio"
+    },
+    "Algodón hueso": {
+      "nombre": "Algodón hueso",
+      "categoria": "agroindustriales",
+      "rendimiento": 4.5,
+      "precio_medio": 15971,
+      "roi": 14.4,
+      "riesgo": "Medio"
+    },
+    "Cacao": {
+      "nombre": "Cacao",
+      "categoria": "agroindustriales",
+      "rendimiento": 0.6,
+      "precio_medio": 41138,
+      "roi": 8.1,
+      "riesgo": "Alto"
+    },
+    "Tabaco": {
+      "nombre": "Tabaco",
+      "categoria": "agroindustriales",
+      "rendimiento": 2.5,
+      "precio_medio": 39858,
+      "roi": 24.2,
+      "riesgo": "Medio"
+    },
+    "Cártamo": {
+      "nombre": "Cártamo",
+      "categoria": "agroindustriales",
+      "rendimiento": 1.9,
+      "precio_medio": 11248,
+      "roi": 16.7,
+      "riesgo": "Medio"
+    },
+    "Ajonjolí": {
+      "nombre": "Ajonjolí",
+      "categoria": "agroindustriales",
+      "rendimiento": 0.8,
+      "precio_medio": 22617,
+      "roi": 20.1,
+      "riesgo": "Medio"
+    },
+    "Alfalfa": {
+      "nombre": "Alfalfa",
+      "categoria": "leguminosa",
+      "rendimiento": 80.0,
+      "precio_medio": 950,
+      "roi": 47,
+      "riesgo": "Medio"
+    },
+    "Chayote": {
+      "nombre": "Chayote",
+      "categoria": "hortaliza",
+      "rendimiento": 65.0,
+      "precio_medio": 3500,
+      "roi": 61,
+      "riesgo": "Medio"
+    },
+    "Cempasúchil": {
+      "nombre": "Cempasúchil",
+      "categoria": "ornamental",
+      "rendimiento": 10.5,
+      "precio_medio": 4500,
+      "roi": 24,
+      "riesgo": "Medio"
+    },
+    "Canola": {
+      "nombre": "Canola",
+      "categoria": "oleaginosa",
+      "rendimiento": 2.24,
+      "precio_medio": 18500,
+      "roi": 438.7,
+      "riesgo": "Bajo"
+    },
+    "Girasol": {
+      "nombre": "Girasol",
+      "categoria": "oleaginosa",
+      "rendimiento": 1.51,
+      "precio_medio": 14500,
+      "roi": 54.8,
+      "riesgo": "Bajo"
+    },
+    "Triticale": {
+      "nombre": "Triticale",
+      "categoria": "cereal",
+      "rendimiento": 3.1,
+      "precio_medio": 7800,
+      "roi": 265,
+      "riesgo": "Bajo"
+    },
+    "Rábano": {
+      "nombre": "Rábano",
+      "categoria": "hortaliza",
+      "rendimiento": 17.9,
+      "precio_medio": 12800,
+      "roi": 582,
+      "riesgo": "Bajo"
+    },
+    "Zanahoria": {
+      "nombre": "Zanahoria",
+      "categoria": "hortaliza",
+      "rendimiento": 36.1,
+      "precio_medio": 8450,
+      "roi": 618.8,
+      "riesgo": "Bajo"
+    },
+    "Betabel": {
+      "nombre": "Betabel",
+      "categoria": "hortaliza",
+      "rendimiento": 18.2,
+      "precio_medio": 12500,
+      "roi": 511.4,
+      "riesgo": "Bajo"
+    },
+    "Dátil": {
+      "nombre": "Dátil",
+      "categoria": "frutal",
+      "rendimiento": 5.6,
+      "precio_medio": 85000,
+      "roi": 193.5,
+      "riesgo": "Bajo"
+    },
+    "Champiñón": {
+      "nombre": "Champiñón",
+      "categoria": "hongo",
+      "rendimiento": 229.5,
+      "precio_medio": 42500,
+      "roi": 664,
+      "riesgo": "Bajo"
+    },
+    "Setas": {
+      "nombre": "Setas",
+      "categoria": "hongo",
+      "rendimiento": 31.0,
+      "precio_medio": 85000,
+      "roi": 838.3,
+      "riesgo": "Bajo"
+    }
+  }
+}

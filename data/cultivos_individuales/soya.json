@@ -1,0 +1,479 @@
+{
+  "categoria": "leguminosa",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 2.2,
+    "precio_medio_mxn_ton": 9269,
+    "superficie_sembrada_ha": 96000,
+    "superficie_cosechada_ha": 91000,
+    "produccion_miles_ton": 199,
+    "variacion_anual_pct": 13.5,
+    "principales_estados": [
+      "Campeche",
+      "Tamaulipas",
+      "San Luis Potosí",
+      "Veracruz",
+      "Chiapas"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 199,
+      "variacion_anual_pct": 13.5,
+      "ranking_mundial": "26º",
+      "consumo_per_capita": "Industria Aceitera",
+      "principales_estados_valor": "Campeche (60.3%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 1.9,
+        "produccion_ton": 180000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 1.7,
+        "produccion_ton": 175000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 2.2,
+        "produccion_ton": 199000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Huasteca 100",
+      "Huasteca 200",
+      "Vernal"
+    ],
+    "densidad_plantacion": {
+      "nota": "Alta densidad para cierre rápido de surco.",
+      "sistemas": [
+        {
+          "nombre": "Surco Estrecho",
+          "arboles_ha": 350000,
+          "distancia_m": "0.40m entre surcos"
+        },
+        {
+          "nombre": "Tradicional",
+          "arboles_ha": 250000,
+          "distancia_m": "0.76m entre surcos"
+        }
+      ]
+    },
+    "duracion_total_dias": 120,
+    "etapas": [
+      {
+        "nombre": "Emergencia (VE)",
+        "duracion_dias": 7,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Vegetativo (V1-Vn)",
+        "duracion_dias": 45,
+        "bbch_fase": "10-39"
+      },
+      {
+        "nombre": "Floración (R1-R2)",
+        "duracion_dias": 20,
+        "bbch_fase": "50-59"
+      },
+      {
+        "nombre": "Formación Vaina (R3-R4)",
+        "duracion_dias": 15,
+        "bbch_fase": "60-69"
+      },
+      {
+        "nombre": "Llenado de Grano (R5-R6)",
+        "duracion_dias": 30,
+        "bbch_fase": "70-79"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Tamaulipas (Guayalejo)",
+        "siembra_inicio": "Junio",
+        "siembra_fin": "Julio",
+        "cosecha_inicio": "Octubre",
+        "cosecha_fin": "Noviembre"
+      },
+      {
+        "estado": "Campeche (Temporal)",
+        "siembra_inicio": "Julio",
+        "siembra_fin": "Agosto",
+        "cosecha_inicio": "Noviembre",
+        "cosecha_fin": "Diciembre"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Inoculación Bradyrhizobium (Vital)",
+      "Siembra directa"
+    ],
+    "Vegetativo": [
+      "Control de malezas",
+      "Monitoreo defoliadores"
+    ],
+    "Cosecha": [
+      "Trilla con humedad <14%"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "20 - 30 °C (Sensible a bajas temperaturas <15°C)",
+    "altitud": "0 - 1,200 msnm (Principalmente trópico y subtrópico)",
+    "precipitacion": "600 - 1,000 mm (Alta demanda en llenado de grano)",
+    "suelo": "Franco a arcilloso, fértil y con buen drenaje",
+    "ph": "6.0 - 7.0 (Ligeramente ácido a neutro)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Gusano Terciopelo",
+      "tipo": "Plaga",
+      "descripcion": "Defoliador agresivo.",
+      "control": {
+        "mecanismo": "Ingestión",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metoxifenocida",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Chinche Lygus/Verde",
+      "tipo": "Plaga",
+      "descripcion": "Pica las vainas y daña el grano.",
+      "control": {
+        "mecanismo": "Sistémico/Contacto",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Acefato",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mosca Blanca",
+      "tipo": "Plaga",
+      "descripcion": "Transmite virus.",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Roya Asiática (Phakopsora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Pústulas que causan defoliación total.",
+      "control": {
+        "mecanismo": "Fungicida Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Epoxiconazol + Piraclostrobina",
+            "dosis_tipo": "Preventivo R1"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Ojo de Rana (Cercospora)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas circulares en hojas.",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Carbendazim",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 20,
+      "P": 80,
+      "K": 60
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 7800,
+    "precio_max_mxn_ton": 12500,
+    "epoca_mejor_precio": "Marzo-Mayo",
+    "epoca_peor_precio": "Octubre-Diciembre",
+    "valor_produccion_millones_mxn": 1844.5,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 8500,
+      "total": 14800
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 2800,
+      "riego_energia": 2100,
+      "mano_obra": 3500,
+      "cosecha": 2400,
+      "total": 15000
+    },
+    "costo_por_kg_produccion": 6.82,
+    "punto_equilibrio_ton_ha": 1.62
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Tamaulipas Norte",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Julio",
+      "cosecha_inicio": "Octubre",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 2.5,
+      "ventana_comercial": "Exportación a EUA y mercado nacional"
+    },
+    {
+      "region": "Campeche",
+      "altitud_msnm": "0-100",
+      "siembra_inicio": "Mayo",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Septiembre",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 2.3,
+      "ventana_comercial": "Industria aceitera nacional"
+    },
+    {
+      "region": "San Luis Potosí",
+      "altitud_msnm": "800-1200",
+      "siembra_inicio": "Junio",
+      "siembra_fin": "Agosto",
+      "cosecha_inicio": "Noviembre",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 2.0,
+      "ventana_comercial": "Mercado regional y centro del país"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Gusano soldado",
+      "nombre_cientifico": "Spodoptera frugiperda",
+      "tipo": "Plaga",
+      "descripcion": "Defoliación severa en etapas vegetativas, reduce rendimiento hasta 40%",
+      "umbral_economico": "2-3 larvas por metro lineal",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorantraniliprol",
+          "nombre_comercial": "Coragen",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Trichogramma pretiosum, Bacillus thuringiensis",
+      "epoca_mayor_incidencia": "Julio-Septiembre"
+    },
+    {
+      "nombre": "Roya asiática",
+      "nombre_cientifico": "Phakopsora pachyrhizi",
+      "tipo": "Enfermedad",
+      "descripcion": "Defoliación prematura, reducción de peso de grano hasta 60%",
+      "umbral_economico": "Una pústula por hoja en tercio inferior",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxistrobina + Ciproconazol",
+          "nombre_comercial": "Amistar Xtra",
+          "dosis": "750 ml/ha",
+          "costo_aplicacion_ha": 1200
+        }
+      ],
+      "control_biologico": "Variedades resistentes, rotación de cultivos",
+      "epoca_mayor_incidencia": "Agosto-Octubre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 2100
+    },
+    {
+      "etapa": "Floración (R1-R2)",
+      "formula": "20-10-20 + micronutrientes",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Foliar",
+      "costo_ha": 1200
+    },
+    {
+      "etapa": "Llenado de grano (R5)",
+      "formula": "00-00-50 + Boro",
+      "dosis_kg_ha": 50,
+      "metodo_aplicacion": "Foliar",
+      "costo_ha": 900
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 12000,
+      "costo_operacion_anual": 2800,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Zonas con disponibilidad de agua y topografía plana"
+    },
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 2200,
+      "lamina_anual_mm": 380,
+      "recomendacion": "Zonas con escasez de agua y alta tecnificación"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria aceitera",
+        "participacion_pct": 60,
+        "precio_promedio_kg": 9.2,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 9.8,
+        "condiciones_pago": "Carta de crédito"
+      },
+      {
+        "canal": "Alimentos balanceados",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 8.9,
+        "condiciones_pago": "15 días"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 10.5
+      },
+      {
+        "meses": "Octubre-Diciembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 8.2
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Torreón",
+        "porcentaje": 30
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 20
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Humedad 14-16%, vainas amarillas secas",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 50 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 29800,
+    "ingreso_anual_esperado_ha": 20392,
+    "utilidad_neta_anual_ha": 5392,
+    "roi_pct": 18.1,
+    "años_recuperacion": 5.5,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Sequías prolongadas durante floración",
+      "probabilidad": "Media",
+      "impacto": "Reducción 30-50% rendimiento",
+      "mitigacion": "Sistema de riego, variedades tolerantes"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Brotes de roya asiática",
+      "probabilidad": "Alta",
+      "impacto": "Pérdidas hasta 60%",
+      "mitigacion": "Monitoreo constante, fungicidas preventivos"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±30% precio",
+      "mitigacion": "Contratos a futuro, diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnológica",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Vigilancia fitosanitaria"
+        ],
+        "contacto": "800-751-2100"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Cadenas Productivas",
+      "Programa de Sanidades e Inocuidad Agroalimentaria"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región con resistencia a roya asiática",
+    "Implementar rotación con maíz o sorgo para romper ciclos de plagas y enfermedades",
+    "Establecer contratos de compra-venta antes de la siembra para asegurar mercado",
+    "Monitorear constantemente plagas y enfermedades, especialmente durante floración",
+    "Mantener registros detallados de costos para optimizar rentabilidad"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:53:15.978336",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0486,
+    "requiere_validacion": true
+  }
+}

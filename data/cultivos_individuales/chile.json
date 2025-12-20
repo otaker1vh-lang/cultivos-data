@@ -1,0 +1,570 @@
+{
+  "categoria": "hortaliza",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 21.3,
+    "precio_medio_mxn_ton": 12490,
+    "superficie_sembrada_ha": 174000,
+    "superficie_cosechada_ha": 173000,
+    "produccion_miles_ton": 3681,
+    "variacion_anual_pct": 18.3,
+    "principales_estados": [
+      "Sinaloa",
+      "Chihuahua",
+      "Zacatecas",
+      "San Luis Potosí"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 3681,
+      "variacion_anual_pct": 18.3,
+      "ranking_mundial": "2º (Verde)",
+      "consumo_per_capita": "17.2 kg",
+      "principales_estados_valor": "Sinaloa (21.7%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2021,
+        "rendimiento_t_ha": 19.5,
+        "produccion_ton": 3050000
+      },
+      {
+        "year": 2022,
+        "rendimiento_t_ha": 20.1,
+        "produccion_ton": 3110000
+      },
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 21.3,
+        "produccion_ton": 3681000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Jalapeño",
+      "Serrano",
+      "Ancho (Poblano)",
+      "Bell Pepper (Morrón)",
+      "Habanero"
+    ],
+    "densidad_plantacion": {
+      "nota": "Depende si es campo abierto o malla.",
+      "sistemas": [
+        {
+          "nombre": "Campo Abierto (Doble hilera)",
+          "arboles_ha": 35000,
+          "distancia_m": "0.30x1.2"
+        },
+        {
+          "nombre": "Malla Sombra/Invernadero",
+          "arboles_ha": 25000,
+          "distancia_m": "0.40x1.5"
+        },
+        {
+          "nombre": "Baja Densidad (Temporal)",
+          "arboles_ha": 20000,
+          "distancia_m": "0.50x1.0"
+        }
+      ]
+    },
+    "duracion_total_dias": 150,
+    "etapas": [
+      {
+        "nombre": "Trasplante y Enraizamiento",
+        "duracion_dias": 15,
+        "bbch_fase": "10-19"
+      },
+      {
+        "nombre": "Desarrollo Vegetativo",
+        "duracion_dias": 45,
+        "bbch_fase": "20-49"
+      },
+      {
+        "nombre": "Floración (Botón Floral)",
+        "duracion_dias": 20,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Fructificación y Llenado",
+        "duracion_dias": 40,
+        "bbch_fase": "70-79"
+      },
+      {
+        "nombre": "Cosecha (Cortes múltiples)",
+        "duracion_dias": 30,
+        "bbch_fase": "80-89"
+      }
+    ],
+    "fechas_por_estado": [
+      {
+        "estado": "Chihuahua",
+        "siembra_inicio": "Abril",
+        "siembra_fin": "Mayo",
+        "cosecha_inicio": "Agosto",
+        "cosecha_fin": "Octubre"
+      },
+      {
+        "estado": "Sinaloa",
+        "siembra_inicio": "Septiembre",
+        "siembra_fin": "Noviembre",
+        "cosecha_inicio": "Enero",
+        "cosecha_fin": "Mayo"
+      }
+    ]
+  },
+  "labores": {
+    "Vegetativo": [
+      "Aporque (suelo)",
+      "Fertilización nitrogenada",
+      "Control de malezas"
+    ],
+    "Floración": [
+      "Aplicación de calcio/boro",
+      "Control de Picudo"
+    ],
+    "Fructificación": [
+      "Fertilización potásica",
+      "Soporte/Estacado (si aplica)"
+    ],
+    "Cosecha": [
+      "Corte manual selectivo",
+      "Secado (para chiles secos)"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "18 - 32 °C (Sensible a heladas)",
+    "altitud": "0 - 2,500 msnm (Depende de variedad)",
+    "precipitacion": "600 - 1,200 mm (Bien distribuidos)",
+    "suelo": "Franco-arenoso, ligero, con excelente drenaje (Evitar encharcamientos)",
+    "ph": "5.5 - 7.0"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Picudo del Chile (Anthonomus)",
+      "tipo": "Plaga",
+      "descripcion": "Larva come dentro del fruto, causa caída.",
+      "control": {
+        "mecanismo": "Químico/Trampas",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Fipronil",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Oxamil",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mosca Blanca",
+      "tipo": "Plaga",
+      "descripcion": "Transmite virus (Begomovirus).",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Imidacloprid",
+            "dosis_tipo": "Drench/Riego"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Trips",
+      "tipo": "Plaga",
+      "descripcion": "Raspa flores y deforma frutos.",
+      "control": {
+        "mecanismo": "Biológico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Spinosad",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Secadera (Complejo fúngico)",
+      "tipo": "Enfermedad",
+      "descripcion": "Phytophthora/Fusarium/Rhizoctonia atacan raíz.",
+      "control": {
+        "mecanismo": "Preventivo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Metalaxil",
+            "dosis_tipo": "Drench al cuello"
+          },
+          {
+            "ingrediente": "Trichoderma",
+            "dosis_tipo": "Biológico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Mancha Bacteriana (Xanthomonas)",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas necróticas en hojas y frutos.",
+      "control": {
+        "mecanismo": "Antibiótico/Cobre",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Gentamicina + Oxitetraciclina",
+            "dosis_tipo": "Foliar"
+          },
+          {
+            "ingrediente": "Cobre",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 200,
+      "P": 100,
+      "K": 250
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 8500,
+    "precio_max_mxn_ton": 18000,
+    "epoca_mejor_precio": "Diciembre-Febrero",
+    "epoca_peor_precio": "Julio-Septiembre",
+    "valor_produccion_millones_mxn": 45982,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 8500,
+      "material_vegetal": 12000,
+      "infraestructura_riego": 35000,
+      "total": 55500
+    },
+    "operacion_anual": {
+      "fertilizantes": 18000,
+      "control_plagas": 15000,
+      "riego_energia": 12000,
+      "mano_obra": 25000,
+      "cosecha": 18000,
+      "total": 88000
+    },
+    "costo_por_kg_produccion": 4.13,
+    "punto_equilibrio_ton_ha": 7.05
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Sinaloa (Costa)",
+      "altitud_msnm": "0-200",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Enero",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 28.5,
+      "ventana_comercial": "Exportación y mercado nacional premium"
+    },
+    {
+      "region": "Chihuahua (Desierto)",
+      "altitud_msnm": "1200-1800",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Julio",
+      "cosecha_fin": "Octubre",
+      "rendimiento_esperado_t_ha": 22.8,
+      "ventana_comercial": "Mercado nacional y procesamiento"
+    },
+    {
+      "region": "Zacatecas (Altiplano)",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Abril",
+      "siembra_fin": "Junio",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Noviembre",
+      "rendimiento_esperado_t_ha": 18.2,
+      "ventana_comercial": "Chile seco y procesamiento"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Trips",
+      "nombre_cientifico": "Frankliniella occidentalis",
+      "tipo": "Plaga",
+      "descripcion": "Daño directo por alimentación y transmisión de virus",
+      "umbral_economico": "5-8 trips por flor",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Success",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Orius insidiosus, Amblyseius cucumeris",
+      "epoca_mayor_incidencia": "Abril-Agosto"
+    },
+    {
+      "nombre": "Cenicilla",
+      "nombre_cientifico": "Leveillula taurica",
+      "tipo": "Enfermedad",
+      "descripcion": "Manchas amarillas en hojas, defoliación prematura",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxystrobin",
+          "nombre_comercial": "Amistar",
+          "dosis": "200 ml/ha",
+          "costo_aplicacion_ha": 380
+        }
+      ],
+      "control_biologico": "Bacillus subtilis",
+      "epoca_mayor_incidencia": "Mayo-Septiembre"
+    },
+    {
+      "nombre": "Picudo del chile",
+      "nombre_cientifico": "Anthonomus eugenii",
+      "tipo": "Plaga",
+      "descripcion": "Perforación de frutos, caída prematura",
+      "umbral_economico": "2-3 adultos por trampa/semana",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "350 ml/ha",
+          "costo_aplicacion_ha": 520
+        }
+      ],
+      "control_biologico": "Catolaccus hunteri",
+      "epoca_mayor_incidencia": "Junio-Octubre"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Trasplante-Floración",
+      "formula": "18-46-00 + micronutrientes",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 2800
+    },
+    {
+      "etapa": "Floración-Fructificación",
+      "formula": "20-20-20 + Ca",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 3600
+    },
+    {
+      "etapa": "Llenado de fruto",
+      "formula": "15-05-30 + Mg",
+      "dosis_kg_ha": 180,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 3200
+    },
+    {
+      "etapa": "Maduración",
+      "formula": "12-12-36 + K",
+      "dosis_kg_ha": 120,
+      "metodo_aplicacion": "Fertirrigación",
+      "costo_ha": 2400
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 28000,
+      "costo_operacion_anual": 8500,
+      "lamina_anual_mm": 600,
+      "recomendacion": "Cultivo intensivo, suelos arenosos"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 22000,
+      "costo_operacion_anual": 7200,
+      "lamina_anual_mm": 650,
+      "recomendacion": "Suelos arcillosos, clima seco"
+    },
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 18000,
+      "costo_operacion_anual": 6800,
+      "lamina_anual_mm": 750,
+      "recomendacion": "Productores pequeños, agua abundante"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 11.5,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 25,
+        "precio_promedio_kg": 14.8,
+        "condiciones_pago": "30-45 días"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 9.2,
+        "condiciones_pago": "15-30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 16.5,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 15.8
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 12.4
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 8.9
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 11.2
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 28
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 18
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Tijuana",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Estados Unidos",
+        "porcentaje": 27
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Color verde intenso, firmeza al tacto, 85-90% desarrollo",
+    "vida_util_dias": 14,
+    "temperatura_almacen": "7-10°C",
+    "humedad_relativa": "90-95%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón corrugado 10-15 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 143500,
+    "ingreso_anual_esperado_ha": 266070,
+    "utilidad_neta_anual_ha": 178070,
+    "roi_pct": 124,
+    "años_recuperacion": 1.2,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías en altiplano",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% producción",
+      "mitigacion": "Mallas antihelada, riego por aspersión nocturno"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Virus transmitidos por trips",
+      "probabilidad": "Alta",
+      "impacto": "Pérdida 20-40% calidad",
+      "mitigacion": "Control preventivo de vectores, variedades resistentes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios por sobreoferta",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 25-35% ingresos",
+      "mitigacion": "Contratos a futuro, diversificación mercados"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación",
+          "Transferencia tecnología",
+          "Capacitación"
+        ],
+        "contacto": "800-088-2222"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Seguros"
+        ],
+        "contacto": "800-FIRA-2000"
+      },
+      {
+        "nombre": "SENASICA",
+        "servicios": [
+          "Sanidad vegetal",
+          "Certificación",
+          "Cuarentena"
+        ],
+        "contacto": "800-751-2100"
+      },
+      {
+        "nombre": "SAGARPA Delegaciones",
+        "servicios": [
+          "Programas apoyo",
+          "Subsidios",
+          "Registro productores"
+        ],
+        "contacto": "Delegaciones estatales"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "PROAGRO Productivo",
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades",
+      "Programa de Sanidades",
+      "PROCAMPO"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Implementar riego tecnificado para optimizar uso del agua y aumentar rendimientos hasta 30%",
+    "Establecer programa de monitoreo de plagas con trampas cromáticas para reducir aplicaciones químicas",
+    "Diversificar variedades según mercado objetivo: jalapeño para fresco, cayenne para procesamiento",
+    "Planificar siembras escalonadas cada 15 días para extender periodo de cosecha y aprovechar mejores precios",
+    "Implementar agricultura de contrato con procesadoras para garantizar precio mínimo y reducir riesgo comercial"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:31:32.196545",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0577,
+    "requiere_validacion": true
+  }
+}

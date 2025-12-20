@@ -1,0 +1,627 @@
+{
+  "cultivo": "Dátil",
+  "nombre_cientifico": "Phoenix dactylifera",
+  "familia": "Arecaceae",
+  "categoria": "frutal",
+  "meta": {
+    "version": "2.0",
+    "fecha_actualizacion": "2024-12-18",
+    "fuente_datos": "SIAP-SAGARPA, INIFAP, FIRA",
+    "ciclo_agricola": "2023-2024",
+    "nivel_confianza": "Alto",
+    "notas": "Cultivo emergente en México con producción incipiente pero alto potencial en zonas áridas"
+  },
+  "estadisticas": {
+    "produccion": {
+      "produccion_nacional_ton": 45,
+      "superficie_sembrada_ha": 12,
+      "superficie_cosechada_ha": 8,
+      "rendimiento_promedio_t_ha": 5.6,
+      "variacion_anual_pct": 25.0,
+      "ranking_mundial": "No clasificado",
+      "participacion_mundial_pct": 0.001
+    },
+    "economia": {
+      "precio_medio_rural_mxn_ton": 85000,
+      "precio_min_mxn_ton": 65000,
+      "precio_max_mxn_ton": 120000,
+      "valor_produccion_millones_mxn": 3.8,
+      "epoca_mejor_precio": "Diciembre-Febrero",
+      "epoca_peor_precio": "Agosto-Octubre"
+    },
+    "consumo": {
+      "consumo_per_capita_kg": 0.02,
+      "destino_produccion": {
+        "mercado_fresco_pct": 70,
+        "agroindustria_pct": 15,
+        "exportacion_pct": 10,
+        "desperdicio_pct": 5
+      },
+      "importaciones_ton": 2850,
+      "exportaciones_ton": 4
+    },
+    "principales_estados": [
+      {
+        "estado": "Sonora",
+        "produccion_ton": 25,
+        "participacion_pct": 55.6,
+        "superficie_ha": 5,
+        "rendimiento_t_ha": 5.0,
+        "caracteristicas": "Plantaciones experimentales en Caborca con riego tecnificado",
+        "ventaja_competitiva": "Clima desértico similar al Medio Oriente, disponibilidad de agua subterránea"
+      },
+      {
+        "estado": "Baja California",
+        "produccion_ton": 12,
+        "participacion_pct": 26.7,
+        "rendimiento_t_ha": 6.0
+      },
+      {
+        "estado": "Coahuila",
+        "produccion_ton": 8,
+        "participacion_pct": 17.8,
+        "rendimiento_t_ha": 5.7
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "tipo_planta": "Perenne",
+    "duracion_total_dias": 365,
+    "duracion_vida_productiva_años": 80,
+    "inicio_produccion_año": 4,
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Tradicional",
+          "plantas_ha": 100,
+          "distancia_m": "10x10",
+          "uso": "Sistema extensivo con intercultivos",
+          "costo_instalacion_ha": 180000
+        },
+        {
+          "nombre": "Tecnificado",
+          "plantas_ha": 156,
+          "distancia_m": "8x8",
+          "costo_instalacion_ha": 320000
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Establecimiento juvenil",
+        "duracion_dias": 1095,
+        "bbch_fase": "00-19",
+        "meses": "Todo el año (primeros 3 años)",
+        "temperatura_optima": "25-35°C",
+        "descripcion": "Desarrollo del sistema radicular y crecimiento vegetativo inicial"
+      },
+      {
+        "nombre": "Inicio reproductivo",
+        "duracion_dias": 365,
+        "bbch_fase": "51-59",
+        "meses": "Año 4-5",
+        "descripcion": "Aparición de primeras inflorescencias y diferenciación sexual"
+      },
+      {
+        "nombre": "Producción plena",
+        "duracion_dias": 365,
+        "descripcion": "Ciclo anual de floración (febrero-abril) y fructificación (agosto-diciembre)"
+      }
+    ],
+    "calendarios_regionales": [
+      {
+        "region": "Sonora (Caborca)",
+        "altitud": "200-400 msnm",
+        "clima": "Desértico cálido",
+        "sistema": "Riego",
+        "siembra_inicio": "Marzo",
+        "siembra_fin": "Mayo",
+        "cosecha_inicio": "Octubre",
+        "cosecha_fin": "Diciembre",
+        "produccion_estimada_t": 25,
+        "rendimiento_esperado_t_ha": 8.0,
+        "ventana_comercial": "Noviembre-Enero (alta demanda navideña)"
+      },
+      {
+        "region": "Baja California (Mexicali)",
+        "siembra_inicio": "Febrero",
+        "cosecha_inicio": "Septiembre",
+        "rendimiento_esperado_t_ha": 7.5
+      },
+      {
+        "region": "Coahuila (Comarca Lagunera)",
+        "siembra_inicio": "Abril",
+        "cosecha_inicio": "Noviembre",
+        "rendimiento_esperado_t_ha": 6.8
+      }
+    ]
+  },
+  "labores_culturales": {
+    "Preparacion": {
+      "actividades": [
+        {
+          "labor": "Preparación de cepas",
+          "epoca": "Febrero-Marzo",
+          "objetivo": "Hoyos de 1x1x1m para plantación",
+          "costo_ha": 15000
+        }
+      ]
+    },
+    "Siembra": {
+      "actividades": [
+        {
+          "labor": "Plantación de hijuelos",
+          "epoca": "Marzo-Mayo",
+          "metodo": "Hijuelos de 2-3 años con raíz",
+          "densidad": "100-156 plantas/ha",
+          "costo_ha": 120000
+        }
+      ]
+    },
+    "Mantenimiento": {
+      "actividades": [
+        {
+          "labor": "Poda de hijuelos",
+          "epoca": "Todo el año",
+          "frecuencia": "Cada 2 meses",
+          "costo_ha": 8000
+        },
+        {
+          "labor": "Polinización artificial",
+          "epoca": "Febrero-Abril",
+          "frecuencia": "3 aplicaciones por temporada",
+          "costo_ha": 12000
+        }
+      ]
+    },
+    "Cosecha": {
+      "actividades": [
+        {
+          "labor": "Recolección",
+          "metodo": "Manual escalonada",
+          "rendimiento_jornalero": "80 kg/día",
+          "costo_kg": 8.5,
+          "costo_estimado_ha": 68000
+        }
+      ]
+    },
+    "resumen_costos_anuales": {
+      "sistema_tradicional": {
+        "preparacion": 15000,
+        "semilla_planta": 120000,
+        "fertilizantes": 18000,
+        "control_plagas": 8000,
+        "riego": 25000,
+        "cosecha": 68000,
+        "total_operacion": 254000,
+        "costo_por_kg": 45.4
+      },
+      "sistema_tecnificado": {
+        "total_operacion": 380000,
+        "costo_por_kg": 38.2
+      }
+    }
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": {
+      "optima_crecimiento": "25-35°C",
+      "minima_absoluta": "-5°C",
+      "maxima_tolerada": "50°C",
+      "critica_fase": "Floración sensible a heladas"
+    },
+    "altitud": {
+      "rango": "0-800 msnm",
+      "optima": "200-400 msnm"
+    },
+    "precipitacion": {
+      "anual_mm": "50-200",
+      "distribucion": "Escasa, concentrada en invierno",
+      "riego_suplementario": "Indispensable todo el año"
+    },
+    "suelo": {
+      "textura": "Franco-arenosa a arenosa",
+      "ph": {
+        "rango": "7.0-8.5",
+        "optimo": "7.5-8.0"
+      },
+      "profundidad_min_cm": 150,
+      "drenaje": "Excelente, no tolera encharcamientos"
+    },
+    "fotoperiodo": {
+      "tipo": "Neutro",
+      "horas_luz": "No crítico"
+    }
+  },
+  "plagas_y_enfermedades": {
+    "principales": [
+      {
+        "nombre": "Picudo rojo de la palma",
+        "nombre_cientifico": "Rhynchophorus ferrugineus",
+        "tipo": "Plaga",
+        "descripcion": "Barrenador del tronco, puede causar muerte de la planta",
+        "sintomas": [
+          "Hojas amarillentas",
+          "Aserrín en base del tronco",
+          "Sonido hueco al golpear"
+        ],
+        "umbral_economico": "Presencia de adultos en trampas",
+        "control": {
+          "estrategia_mip": [
+            "Trampas con feromonas",
+            "Inspección visual semanal"
+          ],
+          "quimico": [
+            {
+              "ingrediente": "Imidacloprid",
+              "nombre_comercial": "Confidor",
+              "dosis": "2 L/ha",
+              "intervalo_seguridad_dias": 21,
+              "costo_aplicacion_ha": 3500
+            }
+          ],
+          "biologico": [
+            {
+              "organismo": "Beauveria bassiana",
+              "dosis": "1 kg/ha"
+            }
+          ],
+          "cultural": [
+            "Eliminación de restos vegetales",
+            "Desinfección de herramientas"
+          ]
+        },
+        "epoca_mayor_incidencia": "Abril-Octubre",
+        "perdidas_potenciales_pct": 100
+      },
+      {
+        "nombre": "Fusariosis",
+        "nombre_cientifico": "Fusarium oxysporum",
+        "tipo": "Hongo",
+        "descripcion": "Marchitez vascular que causa muerte de la palma",
+        "control": {
+          "quimico": [
+            {
+              "ingrediente": "Propiconazol",
+              "dosis": "1.5 L/ha",
+              "costo_aplicacion_ha": 2800
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fertilizacion": {
+    "requerimientos_anuales": {
+      "N_kg_ha": 180,
+      "P2O5_kg_ha": 80,
+      "K2O_kg_ha": 220,
+      "micronutrientes": [
+        "Mg: 40 kg/ha",
+        "Fe: 5 kg/ha",
+        "Mn: 3 kg/ha"
+      ]
+    },
+    "programas_fertilizacion": [
+      {
+        "nombre": "Sistema tradicional",
+        "costo_anual": 18000,
+        "aplicaciones": [
+          {
+            "epoca": "Inicio de crecimiento (Marzo)",
+            "producto": "18-46-00",
+            "dosis_kg_ha": 200,
+            "metodo": "Aplicación al suelo en corona",
+            "costo": 6000
+          },
+          {
+            "epoca": "Pre-floración (Enero)",
+            "producto": "Sulfato de potasio",
+            "dosis_kg_ha": 150,
+            "metodo": "Incorporado al suelo",
+            "costo": 4500
+          }
+        ]
+      },
+      {
+        "nombre": "Sistema riego tecnificado",
+        "costo_anual": 25000,
+        "aplicaciones": [
+          {
+            "epoca": "Fertirriego mensual",
+            "producto": "20-20-20 + microelementos",
+            "dosis_kg_ha": 300,
+            "costo": 25000
+          }
+        ]
+      }
+    ]
+  },
+  "riego": {
+    "requerimiento_hidrico": {
+      "lamina_total_anual_mm": 1800,
+      "coeficiente_cultivo_kc": {
+        "inicial": 0.8,
+        "medio": 1.2,
+        "final": 1.0
+      }
+    },
+    "sistemas_riego": [
+      {
+        "sistema": "Goteo",
+        "eficiencia_pct": 90,
+        "costo_instalacion_ha": 85000,
+        "costo_operacion_anual_ha": 25000,
+        "recomendacion": "Sistema ideal para dátil en zonas áridas"
+      },
+      {
+        "sistema": "Microaspersión",
+        "eficiencia_pct": 85,
+        "costo_instalacion_ha": 65000
+      }
+    ]
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": {
+        "barbecho_rastra": 8000,
+        "nivelacion": 12000,
+        "subtotal": 20000
+      },
+      "material_vegetal": {
+        "semilla_planta": 120000,
+        "transporte": 8000,
+        "subtotal": 128000
+      },
+      "infraestructura": {
+        "riego": 85000,
+        "otros": 15000,
+        "subtotal": 100000
+      },
+      "total_establecimiento": 248000
+    },
+    "operacion_anual_produccion": {
+      "año_1": {
+        "produccion_t_ha": 0,
+        "ingreso": 0,
+        "costos": 180000,
+        "utilidad": -180000
+      },
+      "año_plena_produccion": {
+        "produccion_t_ha": 8.0,
+        "precio_promedio_ton": 85000,
+        "ingreso": 680000,
+        "costos_operacion": {
+          "fertilizantes": 25000,
+          "control_fitosanitario": 15000,
+          "riego": 25000,
+          "mano_obra": 45000,
+          "cosecha": 68000,
+          "otros": 22000,
+          "subtotal": 200000
+        },
+        "utilidad": 480000,
+        "margen_pct": 70.6
+      }
+    },
+    "analisis_rentabilidad": {
+      "inversion_inicial_ha": 248000,
+      "utilidad_neta_anual_ha": 480000,
+      "roi_pct": 193.5,
+      "años_recuperacion": 0.5,
+      "van_10pct": 2850000,
+      "tir_pct": 185.2
+    }
+  },
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Tiendas gourmet",
+        "participacion_pct": 40,
+        "precio_kg": 180,
+        "presentacion": "Cajas de 500g",
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Mercados orgánicos",
+        "participacion_pct": 35,
+        "precio_kg": 160,
+        "presentacion": "Granel",
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 25,
+        "precio_kg": 220,
+        "presentacion": "Cajas de 5 kg",
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precios": [
+      {
+        "meses": "Noviembre-Enero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 200,
+        "origen": "Sonora, Baja California"
+      },
+      {
+        "meses": "Febrero-Octubre",
+        "oferta": "Muy baja",
+        "precio_mxn_kg": 250,
+        "origen": "Importación"
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 45
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 20
+      }
+    ],
+    "exportacion": {
+      "volumen_anual_ton": 4,
+      "destino": "Estados Unidos, Canadá",
+      "precio_fob_usd_kg": 12.5,
+      "requisitos": [
+        "Certificación orgánica",
+        "Trazabilidad",
+        "Análisis fitosanitarios"
+      ],
+      "potencial": "Alto"
+    }
+  },
+  "postcosecha": {
+    "punto_cosecha": {
+      "indicadores": [
+        "Color café dorado",
+        "Textura firme pero flexible",
+        "Contenido de humedad 18-20%"
+      ]
+    },
+    "vida_util_dias": 365,
+    "temperatura_almacen": "0-5°C",
+    "humedad_relativa": "75-80%",
+    "perdidas_postcosecha_pct": 8,
+    "tratamientos": [
+      "Deshidratación controlada",
+      "Empaque al vacío"
+    ]
+  },
+  "alertas_riesgos": {
+    "climaticas": {
+      "heladas": {
+        "meses_riesgo": [
+          "Diciembre",
+          "Enero",
+          "Febrero"
+        ],
+        "temperatura_critica": "-2°C",
+        "daño_esperado": "Muerte de inflorescencias y frutos jóvenes",
+        "mitigacion": [
+          "Aspersión nocturna",
+          "Quemadores",
+          "Mallas antihelada"
+        ]
+      },
+      "sequia": {
+        "etapa_critica": "Desarrollo del fruto",
+        "impacto": "Reducción drástica del tamaño y calidad",
+        "mitigacion": [
+          "Riego de emergencia",
+          "Mulching"
+        ]
+      }
+    },
+    "fitosanitarias": {
+      "principal": {
+        "nombre": "Picudo rojo",
+        "nivel_riesgo": "Alto",
+        "impacto": "Puede destruir plantación completa en 2-3 años"
+      }
+    },
+    "economicas": {
+      "volatilidad_precio": {
+        "rango_variacion_pct": 45,
+        "epoca_riesgo": "Fuera de temporada navideña",
+        "causa": "Dependencia de importaciones y mercado nicho"
+      }
+    }
+  },
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Investigación adaptativa",
+          "Transferencia de tecnología"
+        ],
+        "contacto": "www.inifap.gob.mx"
+      },
+      {
+        "nombre": "SAGARPA Sonora",
+        "servicios": [
+          "Programas de apoyo",
+          "Capacitación técnica"
+        ],
+        "contacto": "sagarpa.sonora.gob.mx"
+      },
+      {
+        "nombre": "Universidad de Sonora",
+        "servicios": [
+          "Investigación",
+          "Análisis de laboratorio"
+        ],
+        "contacto": "www.uson.mx"
+      }
+    ],
+    "programas_apoyo": [
+      "Programa de Fomento a la Agricultura",
+      "PROAGRO Productivo",
+      "Programa de Concurrencia con Entidades Federativas"
+    ]
+  },
+  "buenas_practicas_destacadas": [
+    {
+      "practica": "Selección de hijuelos certificados",
+      "importancia": "Crítica",
+      "beneficio": "Garantiza sexo femenino y características varietales",
+      "descripcion": "Usar solo hijuelos de plantas madre identificadas y productivas"
+    },
+    {
+      "practica": "Polinización artificial controlada",
+      "importancia": "Crítica",
+      "beneficio": "Asegura cuajado y calidad del fruto",
+      "descripcion": "Aplicar polen masculino en inflorescencias femeninas 2-3 veces"
+    },
+    {
+      "practica": "Manejo integrado del picudo rojo",
+      "importancia": "Crítica",
+      "beneficio": "Previene pérdidas totales de la plantación",
+      "descripcion": "Combinación de trampas, monitoreo y control químico preventivo"
+    }
+  ],
+  "errores_comunes_evitar": [
+    {
+      "error": "Plantar sin conocer el sexo de la planta",
+      "consecuencia": "50% de plantas improductivas (machos)",
+      "solucion": "Usar solo hijuelos de plantas madre femeninas identificadas"
+    },
+    {
+      "error": "Riego excesivo o encharcamientos",
+      "consecuencia": "Pudrición de raíces y muerte de la planta",
+      "solucion": "Riego frecuente pero sin saturar el suelo, drenaje perfecto"
+    },
+    {
+      "error": "No realizar polinización artificial",
+      "consecuencia": "Frutos pequeños, deformes o ausentes",
+      "solucion": "Polinización manual 2-3 veces durante la floración"
+    }
+  ],
+  "conclusiones_recomendaciones": {
+    "viabilidad_general": "Alta en zonas áridas de México",
+    "regiones_mayor_potencial": [
+      "Sonora: Clima ideal y experiencia inicial exitosa",
+      "Baja California: Condiciones similares al Medio Oriente",
+      "Coahuila: Infraestructura de riego disponible"
+    ],
+    "claves_exito": [
+      "Material vegetal certificado de calidad",
+      "Sistema de riego tecnificado eficiente",
+      "Prevención estricta del picudo rojo",
+      "Mercadotecnia hacia nichos de alto valor"
+    ],
+    "limitantes_principales": [
+      "Inversión inicial muy alta",
+      "Período improductivo de 4 años",
+      "Riesgo fitosanitario del picudo rojo",
+      "Mercado interno muy pequeño"
+    ],
+    "recomendacion_final": "Cultivo altamente rentable para productores especializados en zonas áridas con acceso a riego tecnificado. Requiere inversión significativa pero ofrece excelentes márgenes en mercados gourmet y exportación. Esencial el manejo fitosanitario preventivo."
+  }
+}

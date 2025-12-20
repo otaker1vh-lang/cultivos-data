@@ -1,0 +1,653 @@
+{
+  "cultivo": "Girasol",
+  "nombre_cientifico": "Helianthus annuus",
+  "familia": "Asteraceae",
+  "categoria": "oleaginosa",
+  "meta": {
+    "version": "2.0",
+    "fecha_actualizacion": "2024-12-18",
+    "fuente_datos": "SIAP-SAGARPA, INIFAP, FIRA",
+    "ciclo_agricola": "2023-2024",
+    "nivel_confianza": "Alto",
+    "notas": "Datos validados con fuentes oficiales mexicanas"
+  },
+  "estadisticas": {
+    "produccion": {
+      "produccion_nacional_ton": 18450,
+      "superficie_sembrada_ha": 12800,
+      "superficie_cosechada_ha": 12200,
+      "rendimiento_promedio_t_ha": 1.51,
+      "variacion_anual_pct": 8.5,
+      "ranking_mundial": "35",
+      "participacion_mundial_pct": 0.04
+    },
+    "economia": {
+      "precio_medio_rural_mxn_ton": 14500,
+      "precio_min_mxn_ton": 12800,
+      "precio_max_mxn_ton": 16200,
+      "valor_produccion_millones_mxn": 267.5,
+      "epoca_mejor_precio": "Enero-Marzo",
+      "epoca_peor_precio": "Octubre-Diciembre"
+    },
+    "consumo": {
+      "consumo_per_capita_kg": 0.14,
+      "destino_produccion": {
+        "mercado_fresco_pct": 15,
+        "agroindustria_pct": 75,
+        "exportacion_pct": 8,
+        "desperdicio_pct": 2
+      },
+      "importaciones_ton": 285000,
+      "exportaciones_ton": 1480
+    },
+    "principales_estados": [
+      {
+        "estado": "Jalisco",
+        "produccion_ton": 6200,
+        "participacion_pct": 33.6,
+        "superficie_ha": 3800,
+        "rendimiento_t_ha": 1.63,
+        "caracteristicas": "Riego tecnificado, variedades híbridas, mecanización completa",
+        "ventaja_competitiva": "Clima favorable y tecnología avanzada"
+      },
+      {
+        "estado": "Tamaulipas",
+        "produccion_ton": 4100,
+        "participacion_pct": 22.2,
+        "rendimiento_t_ha": 1.45
+      },
+      {
+        "estado": "Michoacán",
+        "produccion_ton": 3200,
+        "participacion_pct": 17.3,
+        "rendimiento_t_ha": 1.52
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "tipo_planta": "Anual",
+    "duracion_total_dias": 120,
+    "duracion_vida_productiva_años": null,
+    "inicio_produccion_año": null,
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Tradicional",
+          "plantas_ha": 45000,
+          "distancia_m": "0.75 x 0.30",
+          "uso": "Temporal y pequeños productores",
+          "costo_instalacion_ha": 3200
+        },
+        {
+          "nombre": "Tecnificado",
+          "plantas_ha": 55000,
+          "distancia_m": "0.70 x 0.26",
+          "costo_instalacion_ha": 4800
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Germinación y emergencia",
+        "duracion_dias": 10,
+        "bbch_fase": "00-09",
+        "meses": "Marzo-Abril",
+        "temperatura_optima": "18-25°C",
+        "descripcion": "Emergencia de cotiledones y primeras hojas verdaderas"
+      },
+      {
+        "nombre": "Crecimiento vegetativo",
+        "duracion_dias": 35,
+        "bbch_fase": "10-59",
+        "meses": "Abril-Mayo",
+        "descripcion": "Desarrollo foliar y elongación del tallo"
+      },
+      {
+        "nombre": "Floración",
+        "duracion_dias": 25,
+        "descripcion": "Aparición del botón floral y antesis"
+      },
+      {
+        "nombre": "Llenado de grano",
+        "duracion_dias": 35,
+        "descripcion": "Formación y llenado de aquenios"
+      },
+      {
+        "nombre": "Madurez",
+        "duracion_dias": 15,
+        "descripcion": "Secado natural y madurez fisiológica"
+      }
+    ],
+    "calendarios_regionales": [
+      {
+        "region": "Jalisco (Bajío)",
+        "altitud": "1500-1800 msnm",
+        "clima": "Templado subhúmedo",
+        "sistema": "Riego",
+        "siembra_inicio": "Marzo",
+        "siembra_fin": "Abril",
+        "cosecha_inicio": "Julio",
+        "cosecha_fin": "Agosto",
+        "produccion_estimada_t": 6200,
+        "rendimiento_esperado_t_ha": 1.8,
+        "ventana_comercial": "Agosto-Septiembre"
+      },
+      {
+        "region": "Tamaulipas",
+        "siembra_inicio": "Febrero",
+        "cosecha_inicio": "Junio",
+        "rendimiento_esperado_t_ha": 1.5
+      },
+      {
+        "region": "Michoacán",
+        "siembra_inicio": "Marzo",
+        "cosecha_inicio": "Julio",
+        "rendimiento_esperado_t_ha": 1.6
+      }
+    ]
+  },
+  "labores_culturales": {
+    "Preparacion": {
+      "actividades": [
+        {
+          "labor": "Barbecho y rastreo",
+          "epoca": "Febrero",
+          "objetivo": "Preparación del suelo y control de malezas",
+          "costo_ha": 2800
+        },
+        {
+          "labor": "Nivelación",
+          "epoca": "Febrero-Marzo",
+          "objetivo": "Uniformidad en riego",
+          "costo_ha": 1200
+        }
+      ]
+    },
+    "Siembra": {
+      "actividades": [
+        {
+          "labor": "Siembra directa",
+          "epoca": "Marzo-Abril",
+          "metodo": "Sembradora de precisión",
+          "densidad": "3-4 kg/ha",
+          "costo_ha": 1800
+        }
+      ]
+    },
+    "Mantenimiento": {
+      "actividades": [
+        {
+          "labor": "Fertilización",
+          "epoca": "Siembra y 45 días",
+          "frecuencia": "2 aplicaciones",
+          "costo_ha": 4500
+        },
+        {
+          "labor": "Control de malezas",
+          "epoca": "15-30 días post-emergencia",
+          "frecuencia": "1-2 aplicaciones",
+          "costo_ha": 2200
+        },
+        {
+          "labor": "Riego",
+          "epoca": "Todo el ciclo",
+          "frecuencia": "6-8 riegos",
+          "costo_ha": 3600
+        }
+      ]
+    },
+    "Cosecha": {
+      "actividades": [
+        {
+          "labor": "Recolección",
+          "metodo": "Mecánico",
+          "rendimiento_jornalero": "8000 kg/día",
+          "costo_kg": 0.85,
+          "costo_estimado_ha": 1530
+        }
+      ]
+    },
+    "resumen_costos_anuales": {
+      "sistema_tradicional": {
+        "preparacion": 4000,
+        "semilla_planta": 2800,
+        "fertilizantes": 4500,
+        "control_plagas": 2200,
+        "riego": 3600,
+        "cosecha": 1530,
+        "total_operacion": 18630,
+        "costo_por_kg": 12.35
+      },
+      "sistema_tecnificado": {
+        "total_operacion": 24800,
+        "costo_por_kg": 11.2
+      }
+    }
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": {
+      "optima_crecimiento": "20-28°C",
+      "minima_absoluta": "8°C",
+      "maxima_tolerada": "35°C",
+      "critica_fase": "Floración (18-25°C)"
+    },
+    "altitud": {
+      "rango": "0-2200 msnm",
+      "optima": "1000-1800 msnm"
+    },
+    "precipitacion": {
+      "anual_mm": "400-800 mm",
+      "distribucion": "Bien distribuida durante el ciclo",
+      "riego_suplementario": "Recomendable en zonas <500mm"
+    },
+    "suelo": {
+      "textura": "Franco, franco-arcilloso, franco-arenoso",
+      "ph": {
+        "rango": "6.0-7.5",
+        "optimo": "6.5-7.0"
+      },
+      "profundidad_min_cm": 60,
+      "drenaje": "Buen drenaje, no encharcamientos"
+    },
+    "fotoperiodo": {
+      "tipo": "Neutro",
+      "horas_luz": "No crítico"
+    }
+  },
+  "plagas_y_enfermedades": {
+    "principales": [
+      {
+        "nombre": "Gusano cogollero",
+        "nombre_cientifico": "Spodoptera frugiperda",
+        "tipo": "Plaga",
+        "descripcion": "Daña hojas y puede atacar el capítulo",
+        "sintomas": [
+          "Perforaciones en hojas",
+          "Presencia de larvas"
+        ],
+        "umbral_economico": "2 larvas por planta",
+        "control": {
+          "estrategia_mip": [
+            "Monitoreo con trampas de feromonas",
+            "Control biológico con Trichogramma"
+          ],
+          "quimico": [
+            {
+              "ingrediente": "Clorantraniliprol",
+              "nombre_comercial": "Coragen",
+              "dosis": "150 ml/ha",
+              "intervalo_seguridad_dias": 21,
+              "costo_aplicacion_ha": 850
+            }
+          ],
+          "biologico": [
+            {
+              "organismo": "Bacillus thuringiensis",
+              "dosis": "1 kg/ha"
+            }
+          ],
+          "cultural": [
+            "Rotación de cultivos",
+            "Eliminación de residuos"
+          ]
+        },
+        "epoca_mayor_incidencia": "Mayo-Junio",
+        "perdidas_potenciales_pct": 25
+      },
+      {
+        "nombre": "Mildiu",
+        "nombre_cientifico": "Plasmopara halstedii",
+        "tipo": "Enfermedad",
+        "descripcion": "Enfermedad fúngica que afecta plántulas",
+        "control": {
+          "quimico": [
+            {
+              "ingrediente": "Metalaxil-M",
+              "dosis": "2.5 kg/ha",
+              "costo_aplicacion_ha": 650
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fertilizacion": {
+    "requerimientos_anuales": {
+      "N_kg_ha": 80,
+      "P2O5_kg_ha": 60,
+      "K2O_kg_ha": 40,
+      "micronutrientes": [
+        "Boro: 1 kg/ha",
+        "Zinc: 2 kg/ha"
+      ]
+    },
+    "programas_fertilizacion": [
+      {
+        "nombre": "Sistema temporal/secano",
+        "costo_anual": 3800,
+        "aplicaciones": [
+          {
+            "epoca": "Siembra",
+            "producto": "18-46-00",
+            "dosis_kg_ha": 130,
+            "metodo": "Incorporado al suelo",
+            "costo": 2200
+          },
+          {
+            "epoca": "45 días post-siembra",
+            "producto": "Urea 46%",
+            "dosis_kg_ha": 87,
+            "metodo": "Al voleo",
+            "costo": 1600
+          }
+        ]
+      },
+      {
+        "nombre": "Sistema riego tecnificado",
+        "costo_anual": 4500,
+        "aplicaciones": [
+          {
+            "epoca": "Siembra",
+            "producto": "12-24-12",
+            "dosis_kg_ha": 200,
+            "costo": 2800
+          },
+          {
+            "epoca": "Fertirriego",
+            "producto": "Solución nutritiva",
+            "dosis_kg_ha": 150,
+            "costo": 1700
+          }
+        ]
+      }
+    ]
+  },
+  "riego": {
+    "requerimiento_hidrico": {
+      "lamina_total_anual_mm": 450,
+      "coeficiente_cultivo_kc": {
+        "inicial": 0.35,
+        "medio": 1.15,
+        "final": 0.35
+      }
+    },
+    "sistemas_riego": [
+      {
+        "sistema": "Goteo",
+        "eficiencia_pct": 90,
+        "costo_instalacion_ha": 35000,
+        "costo_operacion_anual_ha": 4200,
+        "recomendacion": "Cultivos intensivos de alto valor"
+      },
+      {
+        "sistema": "Aspersión",
+        "eficiencia_pct": 75,
+        "costo_instalacion_ha": 18000
+      },
+      {
+        "sistema": "Gravedad",
+        "eficiencia_pct": 60,
+        "costo_instalacion_ha": 8000
+      }
+    ]
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": {
+        "barbecho_rastra": 2800,
+        "nivelacion": 1200,
+        "subtotal": 4000
+      },
+      "material_vegetal": {
+        "semilla_planta": 2800,
+        "transporte": 200,
+        "subtotal": 3000
+      },
+      "infraestructura": {
+        "riego": 8000,
+        "otros": 1000,
+        "subtotal": 9000
+      },
+      "total_establecimiento": 16000
+    },
+    "operacion_anual_produccion": {
+      "año_1": {
+        "produccion_t_ha": 1.5,
+        "ingreso": 21750,
+        "costos": 18630,
+        "utilidad": 3120
+      },
+      "año_plena_produccion": {
+        "produccion_t_ha": 1.8,
+        "precio_promedio_ton": 14500,
+        "ingreso": 26100,
+        "costos_operacion": {
+          "fertilizantes": 4500,
+          "control_fitosanitario": 2200,
+          "riego": 3600,
+          "mano_obra": 3500,
+          "cosecha": 1530,
+          "otros": 2000,
+          "subtotal": 17330
+        },
+        "utilidad": 8770,
+        "margen_pct": 33.6
+      }
+    },
+    "analisis_rentabilidad": {
+      "inversion_inicial_ha": 16000,
+      "utilidad_neta_anual_ha": 8770,
+      "roi_pct": 54.8,
+      "años_recuperacion": 1.8,
+      "van_10pct": 42500,
+      "tir_pct": 48.2
+    }
+  },
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria aceitera",
+        "participacion_pct": 65,
+        "precio_kg": 14.2,
+        "presentacion": "Granel",
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Mercado botanas",
+        "participacion_pct": 25,
+        "precio_kg": 16.5,
+        "presentacion": "Sacos 50 kg",
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_kg": 15.8,
+        "presentacion": "Contenedores",
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precios": [
+      {
+        "meses": "Enero-Marzo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 16.2,
+        "origen": "Inventarios"
+      },
+      {
+        "meses": "Julio-Septiembre",
+        "oferta": "Alta",
+        "precio_mxn_kg": 12.8,
+        "origen": "Cosecha nacional"
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 20
+      }
+    ],
+    "exportacion": {
+      "volumen_anual_ton": 1480,
+      "destino": "Estados Unidos, Guatemala",
+      "precio_fob_usd_kg": 0.95,
+      "requisitos": [
+        "Certificado fitosanitario",
+        "Análisis de calidad"
+      ],
+      "potencial": "Medio"
+    }
+  },
+  "postcosecha": {
+    "punto_cosecha": {
+      "indicadores": [
+        "Humedad 12-14%",
+        "Capítulo café oscuro",
+        "Aquenios duros"
+      ]
+    },
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 3,
+    "tratamientos": [
+      "Secado solar",
+      "Limpieza mecánica"
+    ]
+  },
+  "alertas_riesgos": {
+    "climaticas": {
+      "heladas": {
+        "meses_riesgo": [
+          "Diciembre",
+          "Enero",
+          "Febrero"
+        ],
+        "temperatura_critica": "0°C",
+        "daño_esperado": "Muerte de plántulas",
+        "mitigacion": [
+          "Siembra tardía",
+          "Túneles de protección"
+        ]
+      },
+      "sequia": {
+        "etapa_critica": "Floración-llenado",
+        "impacto": "Reducción 40-60% rendimiento",
+        "mitigacion": [
+          "Riego suplementario",
+          "Variedades tolerantes"
+        ]
+      }
+    },
+    "fitosanitarias": {
+      "principal": {
+        "nombre": "Gusano cogollero",
+        "nivel_riesgo": "Alto",
+        "impacto": "Pérdidas hasta 25% sin control oportuno"
+      }
+    },
+    "economicas": {
+      "volatilidad_precio": {
+        "rango_variacion_pct": 35,
+        "epoca_riesgo": "Cosecha nacional",
+        "causa": "Competencia con importaciones"
+      }
+    }
+  },
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asesoría técnica",
+          "Variedades mejoradas"
+        ],
+        "contacto": "www.inifap.gob.mx"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica"
+        ],
+        "contacto": "www.fira.gob.mx"
+      },
+      {
+        "nombre": "SAGARPA",
+        "servicios": [
+          "Programas de apoyo",
+          "Capacitación"
+        ],
+        "contacto": "www.gob.mx/agricultura"
+      }
+    ],
+    "programas_apoyo": [
+      "Fertilizantes para el Bienestar",
+      "Programa de Fomento a la Agricultura",
+      "Componente de Desarrollo de Capacidades"
+    ]
+  },
+  "buenas_practicas_destacadas": [
+    {
+      "practica": "Selección de híbridos adaptados",
+      "importancia": "Crítica",
+      "beneficio": "Incremento 20-30% rendimiento",
+      "descripcion": "Usar variedades con resistencia a enfermedades y adaptadas al clima local"
+    },
+    {
+      "practica": "Rotación con leguminosas",
+      "importancia": "Alta",
+      "beneficio": "Mejora fertilidad del suelo y reduce plagas"
+    },
+    {
+      "practica": "Monitoreo de plagas",
+      "importancia": "Alta",
+      "beneficio": "Reduce costos de control y mejora eficacia"
+    }
+  ],
+  "errores_comunes_evitar": [
+    {
+      "error": "Siembra en suelos encharcados",
+      "consecuencia": "Pudrición de semilla y mala emergencia",
+      "solucion": "Esperar condiciones de humedad adecuada"
+    },
+    {
+      "error": "Densidad excesiva de plantas",
+      "consecuencia": "Competencia y capítulos pequeños",
+      "solucion": "Respetar densidad recomendada 45,000-55,000 plantas/ha"
+    },
+    {
+      "error": "Cosecha tardía",
+      "consecuencia": "Pérdidas por desgrane y aves",
+      "solucion": "Cosechar con 12-14% humedad"
+    }
+  ],
+  "conclusiones_recomendaciones": {
+    "viabilidad_general": "Media en México",
+    "regiones_mayor_potencial": [
+      "Jalisco: clima favorable y tecnología disponible",
+      "Tamaulipas: tradición oleaginosa y mercado establecido",
+      "Michoacán: condiciones agroecológicas adecuadas"
+    ],
+    "claves_exito": [
+      "Selección de híbridos de alto rendimiento",
+      "Manejo integrado de plagas",
+      "Riego suplementario en zonas críticas",
+      "Contratos de compra-venta establecidos"
+    ],
+    "limitantes_principales": [
+      "Competencia con importaciones baratas",
+      "Mercado interno limitado",
+      "Falta de infraestructura de acopio"
+    ],
+    "recomendacion_final": "El girasol presenta potencial medio en México, especialmente en regiones con riego. Requiere contratos establecidos y manejo tecnificado para ser rentable frente a las importaciones."
+  }
+}

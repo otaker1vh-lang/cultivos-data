@@ -1,0 +1,449 @@
+{
+  "categoria": "ornamental",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 120.0,
+    "precio_medio_mxn_ton": 25000,
+    "superficie_sembrada_ha": 1000,
+    "superficie_cosechada_ha": 1000,
+    "produccion_miles_ton": 120,
+    "variacion_anual_pct": -1.0,
+    "principales_estados": [
+      "Estado de México",
+      "Puebla",
+      "Morelos"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 120,
+      "variacion_anual_pct": -1.0,
+      "ranking_mundial": "Importante en mercado nacional",
+      "consumo_per_capita": "N/A",
+      "principales_estados_valor": "Edo. Mex. (90%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 120.0,
+        "produccion_ton": 120000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Festival (Mix)",
+      "Revolution",
+      "Jaguar"
+    ],
+    "densidad_plantacion": {
+      "nota": "Cultivo en maceta o contenedor hidropónico.",
+      "sistemas": [
+        {
+          "nombre": "Hidroponía (Maceta Coco)",
+          "arboles_ha": 60000,
+          "distancia_m": "6-7 plantas/m2"
+        },
+        {
+          "nombre": "Suelo (Cama elevada)",
+          "arboles_ha": 50000,
+          "distancia_m": "0.35x0.35"
+        }
+      ]
+    },
+    "duracion_total_dias": 1095,
+    "etapas": [
+      {
+        "nombre": "Establecimiento",
+        "duracion_dias": 30,
+        "bbch_fase": "10-19"
+      },
+      {
+        "nombre": "Vegetativo",
+        "duracion_dias": 60,
+        "bbch_fase": "20-39"
+      },
+      {
+        "nombre": "Floración (Inicio)",
+        "duracion_dias": 30,
+        "bbch_fase": "50-69"
+      },
+      {
+        "nombre": "Producción Continua",
+        "duracion_dias": 900,
+        "bbch_fase": "70-89"
+      }
+    ],
+    "fechas_por_estado": []
+  },
+  "labores": {
+    "Manejo": [
+      "Deshoje sanitario (base)",
+      "Fertirriego estricto"
+    ],
+    "Cosecha": [
+      "Jalón (Pull) del tallo",
+      "Empaque vertical"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "18 - 25 °C (Día) y 12 - 15 °C (Noche para inducción)",
+    "altitud": "1,500 - 2,600 msnm",
+    "precipitacion": "Riego localizado estricto (Muy sensible a pudrición de corona)",
+    "suelo": "Sustrato muy poroso (Fibra de coco/Tezontle) o suelo arenoso muy suelto",
+    "ph": "5.5 - 6.2 (Sensible a clorosis por pH alto)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Minador (Liriomyza)",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Cyromazina",
+            "dosis_tipo": "Regulador crecimiento"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Fusarium",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Suelo",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Trichoderma",
+            "dosis_tipo": "Preventivo"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 180,
+      "P": 60,
+      "K": 250
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 18000,
+    "precio_max_mxn_ton": 35000,
+    "epoca_mejor_precio": "Diciembre-Febrero, Mayo (Día de las Madres)",
+    "epoca_peor_precio": "Julio-Septiembre",
+    "valor_produccion_millones_mxn": 3000,
+    "margen_utilidad_promedio_pct": 35
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 25000,
+      "material_vegetal": 180000,
+      "infraestructura_riego": 95000,
+      "total": 300000
+    },
+    "operacion_anual": {
+      "fertilizantes": 45000,
+      "control_plagas": 35000,
+      "riego_energia": 28000,
+      "mano_obra": 120000,
+      "cosecha": 85000,
+      "total": 313000
+    },
+    "costo_por_kg_produccion": 2.61,
+    "punto_equilibrio_ton_ha": 12.5
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Estado de México (Villa Guerrero)",
+      "altitud_msnm": "2200-2600",
+      "siembra_inicio": "Marzo",
+      "siembra_fin": "Mayo",
+      "cosecha_inicio": "Agosto",
+      "cosecha_fin": "Febrero",
+      "rendimiento_esperado_t_ha": 125,
+      "ventana_comercial": "Producción continua bajo invernadero"
+    },
+    {
+      "region": "Puebla (Atlixco)",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Febrero",
+      "siembra_fin": "Abril",
+      "cosecha_inicio": "Julio",
+      "cosecha_fin": "Enero",
+      "rendimiento_esperado_t_ha": 115,
+      "ventana_comercial": "Mayor demanda octubre-febrero"
+    },
+    {
+      "region": "Morelos (Yautepec)",
+      "altitud_msnm": "1200-1600",
+      "siembra_inicio": "Enero",
+      "siembra_fin": "Marzo",
+      "cosecha_inicio": "Junio",
+      "cosecha_fin": "Diciembre",
+      "rendimiento_esperado_t_ha": 110,
+      "ventana_comercial": "Producción temprana ventajosa"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Trips",
+      "nombre_cientifico": "Frankliniella occidentalis",
+      "tipo": "Plaga",
+      "descripcion": "Daño directo por alimentación y transmisión de virus",
+      "umbral_economico": "5 trips por flor",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Spinosad",
+          "nombre_comercial": "Tracer",
+          "dosis": "150 ml/ha",
+          "costo_aplicacion_ha": 850
+        }
+      ],
+      "control_biologico": "Amblyseius cucumeris, trampas azules",
+      "epoca_mayor_incidencia": "Abril-Agosto"
+    },
+    {
+      "nombre": "Araña roja",
+      "nombre_cientifico": "Tetranychus urticae",
+      "tipo": "Plaga",
+      "descripcion": "Decoloración foliar y reducción fotosintética",
+      "umbral_economico": "10 ácaros por hoja",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Abamectina",
+          "nombre_comercial": "Vertimec",
+          "dosis": "1 L/ha",
+          "costo_aplicacion_ha": 1200
+        }
+      ],
+      "control_biologico": "Phytoseiulus persimilis",
+      "epoca_mayor_incidencia": "Mayo-Septiembre"
+    },
+    {
+      "nombre": "Cenicilla polvorienta",
+      "nombre_cientifico": "Erysiphe cichoracearum",
+      "tipo": "Enfermedad",
+      "descripcion": "Polvo blanco en hojas, reduce calidad floral",
+      "umbral_economico": "5% de plantas afectadas",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Azoxystrobin",
+          "nombre_comercial": "Amistar",
+          "dosis": "500 ml/ha",
+          "costo_aplicacion_ha": 950
+        }
+      ],
+      "control_biologico": "Bacillus subtilis",
+      "epoca_mayor_incidencia": "Octubre-Marzo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Establecimiento",
+      "formula": "18-46-00 + microelementos",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al sustrato",
+      "costo_ha": 4500
+    },
+    {
+      "etapa": "Crecimiento vegetativo",
+      "formula": "20-10-20 + Ca, Mg",
+      "dosis_kg_ha": 200,
+      "metodo_aplicacion": "Fertirrigación semanal",
+      "costo_ha": 8500
+    },
+    {
+      "etapa": "Floración",
+      "formula": "15-05-30 + B, Mo",
+      "dosis_kg_ha": 250,
+      "metodo_aplicacion": "Fertirrigación 2 veces/semana",
+      "costo_ha": 12000
+    },
+    {
+      "etapa": "Producción continua",
+      "formula": "17-08-27 + micronutrientes",
+      "dosis_kg_ha": 300,
+      "metodo_aplicacion": "Fertirrigación continua",
+      "costo_ha": 15500
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Goteo automatizado",
+      "eficiencia_pct": 90,
+      "costo_instalacion_ha": 85000,
+      "costo_operacion_anual": 25000,
+      "lamina_anual_mm": 800,
+      "recomendacion": "Invernadero con control climático"
+    },
+    {
+      "sistema": "Microaspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 45000,
+      "costo_operacion_anual": 18000,
+      "lamina_anual_mm": 950,
+      "recomendacion": "Malla sombra o túneles"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Mercado de Jamaica (CDMX)",
+        "participacion_pct": 40,
+        "precio_promedio_kg": 22,
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Florerías especializadas",
+        "participacion_pct": 35,
+        "precio_promedio_kg": 28,
+        "condiciones_pago": "8-15 días"
+      },
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 15,
+        "precio_promedio_kg": 32,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 10,
+        "precio_promedio_kg": 35,
+        "condiciones_pago": "Carta de crédito"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Media",
+        "precio_mxn_kg": 30
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 35
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 18
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 25
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 45
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Exportación",
+        "porcentaje": 8
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "2-3 hileras de pétalos exteriores completamente abiertas",
+    "vida_util_dias": 12,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "90-95%",
+    "perdidas_postcosecha_pct": 15,
+    "empaque_recomendado": "Cajas de cartón con separadores, 50 tallos"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 300000,
+    "ingreso_anual_esperado_ha": 3000000,
+    "utilidad_neta_anual_ha": 1050000,
+    "roi_pct": 350,
+    "años_recuperacion": 0.3,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Granizadas en temporada de lluvias",
+      "probabilidad": "Media",
+      "impacto": "Pérdida total del cultivo (100%)",
+      "mitigacion": "Malla antigranizo, seguro agrícola"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Virus del bronceado del tomate (TSWV)",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 60-80% producción",
+      "mitigacion": "Control estricto de trips, plantas resistentes"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Saturación del mercado en temporada alta",
+      "probabilidad": "Media",
+      "impacto": "Caída precios hasta 40%",
+      "mitigacion": "Diversificación de canales, contratos a futuro"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Valle de México",
+        "servicios": [
+          "Capacitación técnica",
+          "Análisis de suelos",
+          "Diagnóstico fitosanitario"
+        ],
+        "contacto": "01-595-921-1893"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Asistencia técnica",
+          "Capacitación"
+        ],
+        "contacto": "800-FIRA-800"
+      },
+      {
+        "nombre": "SAGARPA Delegación Estado de México",
+        "servicios": [
+          "Programas de apoyo",
+          "Subsidios",
+          "Certificación"
+        ],
+        "contacto": "01-722-226-2400"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "Programa de Fomento a la Agricultura (PROAGRO)",
+      "Programa de Desarrollo Rural (PDR)",
+      "Programa de Productividad Rural",
+      "FIRA - Crédito Floricultura"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Invertir en infraestructura de invernadero para control climático y mayor calidad",
+    "Establecer contratos directos con florerías para asegurar mercado y mejores precios",
+    "Implementar programa de manejo integrado de plagas desde el establecimiento",
+    "Diversificar variedades y colores según demanda estacional del mercado",
+    "Mantener cadena de frío desde cosecha hasta punto de venta final"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:55:30.388155",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0555,
+    "requiere_validacion": true
+  }
+}

@@ -1,0 +1,447 @@
+{
+  "categoria": "cereales",
+  "estadisticas": {
+    "rendimiento_promedio_t_por_ha": 2.8,
+    "precio_medio_mxn_ton": 6001,
+    "superficie_sembrada_ha": 306000,
+    "superficie_cosechada_ha": 297000,
+    "produccion_miles_ton": 832,
+    "variacion_anual_pct": -18.7,
+    "principales_estados": [
+      "Guanajuato",
+      "Hidalgo",
+      "Puebla",
+      "Tlaxcala"
+    ],
+    "panorama_2023_summary": {
+      "produccion_miles_ton": 832,
+      "variacion_anual_pct": -18.7,
+      "principales_estados_valor": "Guanajuato (36%)"
+    },
+    "historial_produccion": [
+      {
+        "year": 2023,
+        "rendimiento_t_ha": 2.8,
+        "produccion_ton": 832000
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "variedades_principales": [
+      "Esmeralda (Maltera)",
+      "Doña Josefa",
+      "Alina"
+    ],
+    "densidad_plantacion": {
+      "nota": "Alta densidad para evitar acame.",
+      "sistemas": [
+        {
+          "nombre": "Riego (Bajío)",
+          "arboles_ha": 2500000,
+          "distancia_m": "100-120 kg semilla/ha"
+        },
+        {
+          "nombre": "Temporal (Altiplano)",
+          "arboles_ha": 2000000,
+          "distancia_m": "80-100 kg semilla/ha"
+        }
+      ]
+    },
+    "duracion_total_dias": 135,
+    "etapas": [
+      {
+        "nombre": "Nascencia",
+        "duracion_dias": 10,
+        "bbch_fase": "00-09"
+      },
+      {
+        "nombre": "Macollamiento",
+        "duracion_dias": 40,
+        "bbch_fase": "20-29"
+      },
+      {
+        "nombre": "Encañado",
+        "duracion_dias": 30,
+        "bbch_fase": "30-39"
+      },
+      {
+        "nombre": "Espigado",
+        "duracion_dias": 15,
+        "bbch_fase": "50-59"
+      },
+      {
+        "nombre": "Maduración",
+        "duracion_dias": 40,
+        "bbch_fase": "80-89"
+      }
+    ]
+  },
+  "labores": {
+    "Siembra": [
+      "Preparación de suelo",
+      "Siembra directa"
+    ],
+    "Macollamiento": [
+      "Control maleza hoja ancha",
+      "Fertilización N"
+    ],
+    "Cosecha": [
+      "Trilla con humedad <13% (Calidad Maltera)"
+    ]
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": "15 - 22 °C (Ciclo más corto que el trigo)",
+    "altitud": "1,500 - 2,800 msnm (Bajío y Altiplano)",
+    "precipitacion": "400 - 700 mm",
+    "suelo": "Franco, bien drenado (Muy sensible a encharcamiento)",
+    "ph": "6.0 - 8.0 (Tolera salinidad)"
+  },
+  "plagas_y_enfermedades": [
+    {
+      "nombre": "Roya Lineal",
+      "tipo": "Enfermedad",
+      "control": {
+        "mecanismo": "Fungicida",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Tebuconazol",
+            "dosis_tipo": "Sistémico"
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "Pulgón",
+      "tipo": "Plaga",
+      "control": {
+        "mecanismo": "Sistémico",
+        "productos_activos_mexico": [
+          {
+            "ingrediente": "Dimetoato",
+            "dosis_tipo": "Foliar"
+          }
+        ]
+      }
+    }
+  ],
+  "calculo_fertilizacion": {
+    "recomendada": {
+      "N": 100,
+      "P": 60,
+      "K": 30
+    }
+  },
+  "economia_expandida": {
+    "precio_min_mxn_ton": 4800,
+    "precio_max_mxn_ton": 7500,
+    "epoca_mejor_precio": "Marzo-Mayo",
+    "epoca_peor_precio": "Noviembre-Enero",
+    "valor_produccion_millones_mxn": 4992,
+    "margen_utilidad_promedio_pct": 25
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": 3500,
+      "material_vegetal": 2800,
+      "infraestructura_riego": 8000,
+      "total": 14300
+    },
+    "operacion_anual": {
+      "fertilizantes": 4200,
+      "control_plagas": 1800,
+      "riego_energia": 2500,
+      "mano_obra": 6000,
+      "cosecha": 3500,
+      "total": 18000
+    },
+    "costo_por_kg_produccion": 6.43,
+    "punto_equilibrio_ton_ha": 3.0
+  },
+  "calendarios_regionales": [
+    {
+      "region": "Guanajuato (Bajío)",
+      "altitud_msnm": "1800-2200",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Diciembre",
+      "cosecha_inicio": "Abril",
+      "cosecha_fin": "Mayo",
+      "rendimiento_esperado_t_ha": 3.2,
+      "ventana_comercial": "Mercado cervecero y forrajero"
+    },
+    {
+      "region": "Hidalgo (Altiplano)",
+      "altitud_msnm": "2000-2400",
+      "siembra_inicio": "Octubre",
+      "siembra_fin": "Noviembre",
+      "cosecha_inicio": "Marzo",
+      "cosecha_fin": "Abril",
+      "rendimiento_esperado_t_ha": 2.8,
+      "ventana_comercial": "Industria maltera"
+    },
+    {
+      "region": "Puebla-Tlaxcala",
+      "altitud_msnm": "2200-2600",
+      "siembra_inicio": "Noviembre",
+      "siembra_fin": "Enero",
+      "cosecha_inicio": "Abril",
+      "cosecha_fin": "Junio",
+      "rendimiento_esperado_t_ha": 2.5,
+      "ventana_comercial": "Forraje y grano"
+    }
+  ],
+  "plagas_detalladas": [
+    {
+      "nombre": "Pulgón verde de los cereales",
+      "nombre_cientifico": "Schizaphis graminum",
+      "tipo": "Plaga",
+      "descripcion": "Succiona savia, transmite virus, amarillamiento",
+      "umbral_economico": "10-15 pulgones por tallo",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Imidacloprid",
+          "nombre_comercial": "Confidor",
+          "dosis": "200-300 ml/ha",
+          "costo_aplicacion_ha": 450
+        }
+      ],
+      "control_biologico": "Chrysoperla carnea, Aphidius colemani",
+      "epoca_mayor_incidencia": "Febrero-Abril"
+    },
+    {
+      "nombre": "Roya de la hoja",
+      "nombre_cientifico": "Puccinia hordei",
+      "tipo": "Enfermedad",
+      "descripcion": "Pústulas anaranjadas en hojas, reduce rendimiento",
+      "umbral_economico": "5% de severidad en hoja bandera",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Tebuconazol",
+          "nombre_comercial": "Folicur",
+          "dosis": "1.0 L/ha",
+          "costo_aplicacion_ha": 680
+        }
+      ],
+      "control_biologico": "Variedades resistentes",
+      "epoca_mayor_incidencia": "Marzo-Abril"
+    },
+    {
+      "nombre": "Gusano cogollero",
+      "nombre_cientifico": "Spodoptera frugiperda",
+      "tipo": "Plaga",
+      "descripcion": "Daña hojas y espigas en desarrollo",
+      "umbral_economico": "2-3 larvas por m²",
+      "control_quimico": [
+        {
+          "ingrediente_activo": "Clorantraniliprol",
+          "nombre_comercial": "Coragen",
+          "dosis": "150-200 ml/ha",
+          "costo_aplicacion_ha": 520
+        }
+      ],
+      "control_biologico": "Trichogramma pretiosum",
+      "epoca_mayor_incidencia": "Enero-Marzo"
+    }
+  ],
+  "programa_fertilizacion": [
+    {
+      "etapa": "Siembra",
+      "formula": "18-46-00",
+      "dosis_kg_ha": 150,
+      "metodo_aplicacion": "Incorporado al suelo",
+      "costo_ha": 1800
+    },
+    {
+      "etapa": "Macollamiento",
+      "formula": "46-00-00 (Urea)",
+      "dosis_kg_ha": 100,
+      "metodo_aplicacion": "Al voleo",
+      "costo_ha": 900
+    },
+    {
+      "etapa": "Encañe",
+      "formula": "00-00-60",
+      "dosis_kg_ha": 80,
+      "metodo_aplicacion": "Banda lateral",
+      "costo_ha": 720
+    },
+    {
+      "etapa": "Espigamiento",
+      "formula": "Foliar completo",
+      "dosis_kg_ha": 3,
+      "metodo_aplicacion": "Aspersión foliar",
+      "costo_ha": 380
+    }
+  ],
+  "sistemas_riego": [
+    {
+      "sistema": "Aspersión",
+      "eficiencia_pct": 75,
+      "costo_instalacion_ha": 25000,
+      "costo_operacion_anual": 3500,
+      "lamina_anual_mm": 350,
+      "recomendacion": "Terrenos planos, cultivo extensivo"
+    },
+    {
+      "sistema": "Pivote central",
+      "eficiencia_pct": 85,
+      "costo_instalacion_ha": 45000,
+      "costo_operacion_anual": 4200,
+      "lamina_anual_mm": 320,
+      "recomendacion": "Grandes superficies uniformes"
+    },
+    {
+      "sistema": "Temporal tecnificado",
+      "eficiencia_pct": 60,
+      "costo_instalacion_ha": 5000,
+      "costo_operacion_anual": 800,
+      "lamina_anual_mm": 450,
+      "recomendacion": "Zonas con precipitación >400mm"
+    }
+  ],
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria cervecera",
+        "participacion_pct": 45,
+        "precio_promedio_kg": 6.5,
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Forrajes",
+        "participacion_pct": 35,
+        "precio_promedio_kg": 5.8,
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Intermediarios",
+        "participacion_pct": 20,
+        "precio_promedio_kg": 5.5,
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precio": [
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Baja",
+        "precio_mxn_kg": 6.8
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Media",
+        "precio_mxn_kg": 6.2
+      },
+      {
+        "meses": "Septiembre-Febrero",
+        "oferta": "Alta",
+        "precio_mxn_kg": 5.6
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 12
+      }
+    ]
+  },
+  "postcosecha": {
+    "punto_cosecha": "Humedad 14-16%, grano duro al presionar",
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 8,
+    "empaque_recomendado": "Sacos de polipropileno 50 kg"
+  },
+  "analisis_rentabilidad": {
+    "inversion_inicial_ha": 32300,
+    "ingreso_anual_esperado_ha": 16800,
+    "utilidad_neta_anual_ha": 4200,
+    "roi_pct": 13,
+    "años_recuperacion": 7.7,
+    "riesgo": "Medio"
+  },
+  "alertas_riesgos": [
+    {
+      "tipo": "Climático",
+      "riesgo": "Heladas tardías durante espigamiento",
+      "probabilidad": "Media",
+      "impacto": "Pérdida 30-50% rendimiento",
+      "mitigacion": "Variedades tolerantes, fechas siembra adecuadas"
+    },
+    {
+      "tipo": "Fitosanitario",
+      "riesgo": "Epidemias de roya en años húmedos",
+      "probabilidad": "Alta",
+      "impacto": "Reducción 20-40% calidad",
+      "mitigacion": "Monitoreo, aplicaciones preventivas"
+    },
+    {
+      "tipo": "Económico",
+      "riesgo": "Volatilidad precios internacionales",
+      "probabilidad": "Alta",
+      "impacto": "Variación ±25% precio",
+      "mitigacion": "Contratos futuros, diversificación"
+    }
+  ],
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP Campo Experimental Bajío",
+        "servicios": [
+          "Variedades mejoradas",
+          "Asistencia técnica",
+          "Análisis suelo"
+        ],
+        "contacto": "01-461-611-5323"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Crédito",
+          "Capacitación",
+          "Estudios mercado"
+        ],
+        "contacto": "01-800-FIRA-001"
+      },
+      {
+        "nombre": "SAGARPA Delegaciones",
+        "servicios": [
+          "Programas apoyo",
+          "Subsidios",
+          "Seguro agrícola"
+        ],
+        "contacto": "Delegaciones estatales"
+      }
+    ],
+    "programas_apoyo_disponibles": [
+      "PROAGRO Productivo",
+      "Componente de Desarrollo de Capacidades",
+      "Seguro Agrícola Catastrófico"
+    ]
+  },
+  "recomendaciones_clave": [
+    "Seleccionar variedades adaptadas a la región y resistentes a enfermedades prevalentes",
+    "Implementar rotación con leguminosas para mejorar fertilidad del suelo",
+    "Establecer contratos de venta antes de siembra para asegurar mercado y precio",
+    "Monitorear constantemente plagas y enfermedades para aplicaciones oportunas",
+    "Considerar certificación orgánica para acceder a mercados premium"
+  ],
+  "meta_ia": {
+    "generado_por": "Claude AI",
+    "fecha": "2025-12-17T17:47:18.911210",
+    "version_modelo": "claude-sonnet-4",
+    "costo_usd": 0.0541,
+    "requiere_validacion": true
+  }
+}

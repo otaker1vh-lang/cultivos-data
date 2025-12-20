@@ -1,0 +1,698 @@
+{
+  "cultivo": "Champiñón",
+  "nombre_cientifico": "Agaricus bisporus",
+  "familia": "Agaricaceae",
+  "categoria": "hongo",
+  "meta": {
+    "version": "2.0",
+    "fecha_actualizacion": "2024-12-18",
+    "fuente_datos": "SIAP-SAGARPA, INIFAP, FIRA",
+    "ciclo_agricola": "2023-2024",
+    "nivel_confianza": "Alto",
+    "notas": "Datos validados con fuentes oficiales mexicanas"
+  },
+  "estadisticas": {
+    "produccion": {
+      "produccion_nacional_ton": 65420,
+      "superficie_sembrada_ha": 285,
+      "superficie_cosechada_ha": 285,
+      "rendimiento_promedio_t_ha": 229.5,
+      "variacion_anual_pct": 8.2,
+      "ranking_mundial": "15",
+      "participacion_mundial_pct": 0.5
+    },
+    "economia": {
+      "precio_medio_rural_mxn_ton": 42500,
+      "precio_min_mxn_ton": 35000,
+      "precio_max_mxn_ton": 55000,
+      "valor_produccion_millones_mxn": 2780,
+      "epoca_mejor_precio": "Diciembre-Febrero",
+      "epoca_peor_precio": "Junio-Agosto"
+    },
+    "consumo": {
+      "consumo_per_capita_kg": 0.52,
+      "destino_produccion": {
+        "mercado_fresco_pct": 75,
+        "agroindustria_pct": 20,
+        "exportacion_pct": 3,
+        "desperdicio_pct": 2
+      },
+      "importaciones_ton": 1250,
+      "exportaciones_ton": 1960
+    },
+    "principales_estados": [
+      {
+        "estado": "Estado de México",
+        "produccion_ton": 28650,
+        "participacion_pct": 43.8,
+        "superficie_ha": 125,
+        "rendimiento_t_ha": 229.2,
+        "caracteristicas": "Producción en naves climatizadas con tecnología avanzada",
+        "ventaja_competitiva": "Proximidad al mercado de CDMX y tecnología de punta"
+      },
+      {
+        "estado": "Puebla",
+        "produccion_ton": 15890,
+        "participacion_pct": 24.3,
+        "superficie_ha": 70,
+        "rendimiento_t_ha": 227.0
+      },
+      {
+        "estado": "Tlaxcala",
+        "produccion_ton": 12450,
+        "participacion_pct": 19.0,
+        "superficie_ha": 55,
+        "rendimiento_t_ha": 226.4
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "tipo_planta": "Anual",
+    "duracion_total_dias": 75,
+    "duracion_vida_productiva_años": null,
+    "inicio_produccion_año": null,
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Tradicional",
+          "plantas_ha": 0,
+          "distancia_m": "Sustrato en camas de 1.2m x 25m",
+          "uso": "Producción en naves rústicas",
+          "costo_instalacion_ha": 850000
+        },
+        {
+          "nombre": "Tecnificado",
+          "plantas_ha": 0,
+          "distancia_m": "Estantes múltiples 6 niveles",
+          "costo_instalacion_ha": 2500000
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Preparación de sustrato",
+        "duracion_dias": 21,
+        "bbch_fase": "00",
+        "meses": "Todo el año",
+        "temperatura_optima": "70-75°C",
+        "descripcion": "Compostaje de paja de trigo, gallinaza y yeso"
+      },
+      {
+        "nombre": "Inoculación y colonización",
+        "duracion_dias": 16,
+        "bbch_fase": "05",
+        "meses": "Todo el año",
+        "temperatura_optima": "24-26°C",
+        "descripcion": "Siembra de micelio y colonización del sustrato"
+      },
+      {
+        "nombre": "Cobertura y fructificación",
+        "duracion_dias": 12,
+        "bbch_fase": "60",
+        "meses": "Todo el año",
+        "temperatura_optima": "16-18°C",
+        "descripcion": "Aplicación de tierra de cobertura e inicio de fructificación"
+      },
+      {
+        "nombre": "Cosecha",
+        "duracion_dias": 26,
+        "bbch_fase": "85",
+        "meses": "Todo el año",
+        "temperatura_optima": "16-18°C",
+        "descripcion": "Recolección en 3-4 cortes cada 7-10 días"
+      }
+    ],
+    "calendarios_regionales": [
+      {
+        "region": "Estado de México",
+        "altitud": "2200-2600 msnm",
+        "clima": "Templado subhúmedo",
+        "sistema": "Ambiente controlado",
+        "siembra_inicio": "Enero",
+        "siembra_fin": "Diciembre",
+        "cosecha_inicio": "Enero",
+        "cosecha_fin": "Diciembre",
+        "produccion_estimada_t": 28650,
+        "rendimiento_esperado_t_ha": 230,
+        "ventana_comercial": "Diciembre-Febrero mejor precio"
+      },
+      {
+        "region": "Puebla",
+        "siembra_inicio": "Enero",
+        "cosecha_inicio": "Enero",
+        "rendimiento_esperado_t_ha": 227
+      },
+      {
+        "region": "Tlaxcala",
+        "siembra_inicio": "Enero",
+        "cosecha_inicio": "Enero",
+        "rendimiento_esperado_t_ha": 226
+      }
+    ]
+  },
+  "labores_culturales": {
+    "Preparacion": {
+      "actividades": [
+        {
+          "labor": "Preparación de sustrato",
+          "epoca": "15 días antes siembra",
+          "objetivo": "Compostaje y pasteurización",
+          "costo_ha": 125000
+        },
+        {
+          "labor": "Acondicionamiento de nave",
+          "epoca": "Previo a inoculación",
+          "objetivo": "Desinfección y climatización",
+          "costo_ha": 15000
+        }
+      ]
+    },
+    "Siembra": {
+      "actividades": [
+        {
+          "labor": "Inoculación",
+          "epoca": "Sustrato a 24°C",
+          "metodo": "Mezcla de micelio con sustrato",
+          "densidad": "500-600 kg micelio/ha",
+          "costo_ha": 180000
+        }
+      ]
+    },
+    "Mantenimiento": {
+      "actividades": [
+        {
+          "labor": "Control climático",
+          "epoca": "Durante todo el ciclo",
+          "frecuencia": "Continuo",
+          "costo_ha": 85000
+        },
+        {
+          "labor": "Aplicación cobertura",
+          "epoca": "Día 16 post-inoculación",
+          "frecuencia": "Una vez",
+          "costo_ha": 45000
+        },
+        {
+          "labor": "Riego nebulización",
+          "epoca": "Fructificación",
+          "frecuencia": "3-4 veces/día",
+          "costo_ha": 25000
+        }
+      ]
+    },
+    "Cosecha": {
+      "actividades": [
+        {
+          "labor": "Recolección",
+          "metodo": "Manual",
+          "rendimiento_jornalero": "80-120 kg/día",
+          "costo_kg": 3.5,
+          "costo_estimado_ha": 800000
+        }
+      ]
+    },
+    "resumen_costos_anuales": {
+      "sistema_tradicional": {
+        "preparacion": 140000,
+        "semilla_planta": 180000,
+        "fertilizantes": 0,
+        "control_plagas": 35000,
+        "riego": 25000,
+        "cosecha": 800000,
+        "total_operacion": 1180000,
+        "costo_por_kg": 5.8
+      },
+      "sistema_tecnificado": {
+        "total_operacion": 1850000,
+        "costo_por_kg": 7.2
+      }
+    }
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": {
+      "optima_crecimiento": "16-18°C fructificación",
+      "minima_absoluta": "12°C",
+      "maxima_tolerada": "28°C",
+      "critica_fase": "Fructificación sensible a cambios bruscos"
+    },
+    "altitud": {
+      "rango": "1800-2800 msnm",
+      "optima": "2200-2600 msnm"
+    },
+    "precipitacion": {
+      "anual_mm": "No aplica - ambiente controlado",
+      "distribucion": "Humedad por nebulización",
+      "riego_suplementario": "Sistema de nebulización obligatorio"
+    },
+    "suelo": {
+      "textura": "Sustrato orgánico compostado",
+      "ph": {
+        "rango": "6.5-7.5",
+        "optimo": "7.0"
+      },
+      "profundidad_min_cm": 25,
+      "drenaje": "Excelente drenaje en camas"
+    },
+    "fotoperiodo": {
+      "tipo": "No fotosensible",
+      "horas_luz": "Producción en oscuridad"
+    }
+  },
+  "plagas_y_enfermedades": {
+    "principales": [
+      {
+        "nombre": "Mosca del champiñón",
+        "nombre_cientifico": "Lycoriella mali",
+        "tipo": "Plaga",
+        "descripcion": "Larvas se alimentan del micelio y champiñones",
+        "sintomas": [
+          "Túneles en champiñones",
+          "Reducción de calidad",
+          "Contaminación"
+        ],
+        "umbral_economico": "5 adultos/trampa/semana",
+        "control": {
+          "estrategia_mip": [
+            "Trampas amarillas pegajosas",
+            "Control biológico con Steinernema"
+          ],
+          "quimico": [
+            {
+              "ingrediente": "Diflubenzurón",
+              "nombre_comercial": "Dimilin",
+              "dosis": "50 g/100 L",
+              "intervalo_seguridad_dias": 3,
+              "costo_aplicacion_ha": 2500
+            }
+          ],
+          "biologico": [
+            {
+              "organismo": "Steinernema feltiae",
+              "dosis": "250 millones/ha"
+            }
+          ],
+          "cultural": [
+            "Higiene estricta en naves",
+            "Control de humedad"
+          ]
+        },
+        "epoca_mayor_incidencia": "Todo el año",
+        "perdidas_potenciales_pct": 15
+      },
+      {
+        "nombre": "Mancha bacteriana",
+        "nombre_cientifico": "Pseudomonas tolaasii",
+        "tipo": "Bacteria",
+        "descripcion": "Manchas amarillas y marrones en sombreros",
+        "control": {
+          "quimico": [
+            {
+              "ingrediente": "Hipoclorito de calcio",
+              "dosis": "150 ppm en agua riego",
+              "costo_aplicacion_ha": 1800
+            }
+          ]
+        }
+      },
+      {
+        "nombre": "Trichoderma",
+        "nombre_cientifico": "Trichoderma harzianum",
+        "tipo": "Hongo",
+        "descripcion": "Moho verde que compite con el micelio",
+        "sintomas": [
+          "Manchas verdes en sustrato",
+          "Reducción producción"
+        ],
+        "umbral_economico": "Aparición de primeras manchas",
+        "control": {
+          "estrategia_mip": [
+            "Pasteurización correcta del sustrato",
+            "Control de pH y humedad"
+          ],
+          "quimico": [
+            {
+              "ingrediente": "Benomilo",
+              "nombre_comercial": "Benlate",
+              "dosis": "100 g/100 L",
+              "intervalo_seguridad_dias": 7,
+              "costo_aplicacion_ha": 3200
+            }
+          ],
+          "cultural": [
+            "Desinfección de herramientas",
+            "Ventilación adecuada"
+          ]
+        },
+        "epoca_mayor_incidencia": "Colonización y fructificación",
+        "perdidas_potenciales_pct": 25
+      }
+    ]
+  },
+  "fertilizacion": {
+    "requerimientos_anuales": {
+      "N_kg_ha": 0,
+      "P2O5_kg_ha": 0,
+      "K2O_kg_ha": 0,
+      "micronutrientes": [
+        "Nutrientes del sustrato compostado"
+      ]
+    },
+    "programas_fertilizacion": [
+      {
+        "nombre": "Sustrato tradicional",
+        "costo_anual": 125000,
+        "aplicaciones": [
+          {
+            "epoca": "Preparación sustrato",
+            "producto": "Paja trigo + gallinaza + yeso",
+            "dosis_kg_ha": 180000,
+            "metodo": "Compostaje en pilas",
+            "costo": 125000
+          }
+        ]
+      },
+      {
+        "nombre": "Sustrato enriquecido",
+        "costo_anual": 185000,
+        "aplicaciones": [
+          {
+            "epoca": "Preparación",
+            "producto": "Sustrato + suplementos proteicos",
+            "dosis_kg_ha": 200000,
+            "costo": 185000
+          }
+        ]
+      }
+    ]
+  },
+  "riego": {
+    "requerimiento_hidrico": {
+      "lamina_total_anual_mm": 0,
+      "coeficiente_cultivo_kc": {
+        "inicial": 0,
+        "medio": 0,
+        "final": 0
+      }
+    },
+    "sistemas_riego": [
+      {
+        "sistema": "Nebulización",
+        "eficiencia_pct": 95,
+        "costo_instalacion_ha": 180000,
+        "costo_operacion_anual_ha": 25000,
+        "recomendacion": "Obligatorio para fructificación"
+      },
+      {
+        "sistema": "Aspersión fina",
+        "eficiencia_pct": 85,
+        "costo_instalacion_ha": 120000
+      }
+    ]
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": {
+        "barbecho_rastra": 0,
+        "nivelacion": 25000,
+        "subtotal": 25000
+      },
+      "material_vegetal": {
+        "semilla_planta": 180000,
+        "transporte": 8000,
+        "subtotal": 188000
+      },
+      "infraestructura": {
+        "riego": 180000,
+        "otros": 850000,
+        "subtotal": 1030000
+      },
+      "total_establecimiento": 1243000
+    },
+    "operacion_anual_produccion": {
+      "año_1": {
+        "produccion_t_ha": 200,
+        "ingreso": 8500000,
+        "costos": 1180000,
+        "utilidad": 7320000
+      },
+      "año_plena_produccion": {
+        "produccion_t_ha": 230,
+        "precio_promedio_ton": 42500,
+        "ingreso": 9775000,
+        "costos_operacion": {
+          "fertilizantes": 125000,
+          "control_fitosanitario": 35000,
+          "riego": 25000,
+          "mano_obra": 450000,
+          "cosecha": 800000,
+          "otros": 85000,
+          "subtotal": 1520000
+        },
+        "utilidad": 8255000,
+        "margen_pct": 84.4
+      }
+    },
+    "analisis_rentabilidad": {
+      "inversion_inicial_ha": 1243000,
+      "utilidad_neta_anual_ha": 8255000,
+      "roi_pct": 664,
+      "años_recuperacion": 0.15,
+      "van_10pct": 49850000,
+      "tir_pct": 665
+    }
+  },
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 45,
+        "precio_kg": 65,
+        "presentacion": "Charolas 250g",
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Central de Abasto",
+        "participacion_pct": 35,
+        "precio_kg": 42,
+        "presentacion": "Cajas 5 kg",
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Restaurantes",
+        "participacion_pct": 15,
+        "precio_kg": 55,
+        "presentacion": "Cajas 3 kg",
+        "condiciones_pago": "15 días"
+      },
+      {
+        "canal": "Industria procesadora",
+        "participacion_pct": 5,
+        "precio_kg": 35,
+        "presentacion": "Granel",
+        "condiciones_pago": "45 días"
+      }
+    ],
+    "temporadas_precios": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Media",
+        "precio_mxn_kg": 55,
+        "origen": "Estado de México, Puebla"
+      },
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Media",
+        "precio_mxn_kg": 45,
+        "origen": "Todas las regiones"
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Alta",
+        "precio_mxn_kg": 35,
+        "origen": "Producción continua"
+      },
+      {
+        "meses": "Septiembre-Noviembre",
+        "oferta": "Media",
+        "precio_mxn_kg": 42,
+        "origen": "Incremento demanda"
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 55
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 15
+      },
+      {
+        "ciudad": "Monterrey",
+        "porcentaje": 12
+      },
+      {
+        "ciudad": "Puebla",
+        "porcentaje": 8
+      },
+      {
+        "ciudad": "Otros",
+        "porcentaje": 10
+      }
+    ],
+    "exportacion": {
+      "volumen_anual_ton": 1960,
+      "destino": "Estados Unidos, Guatemala",
+      "precio_fob_usd_kg": 2.8,
+      "requisitos": [
+        "Certificación orgánica",
+        "Trazabilidad",
+        "BPM"
+      ],
+      "potencial": "Medio"
+    }
+  },
+  "postcosecha": {
+    "punto_cosecha": {
+      "indicadores": [
+        "Sombrero cerrado",
+        "Diámetro 3-6 cm",
+        "Pie firme"
+      ]
+    },
+    "vida_util_dias": 7,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 8,
+    "tratamientos": [
+      "Enfriamiento rápido",
+      "Empaque en atmósfera modificada"
+    ]
+  },
+  "alertas_riesgos": {
+    "climaticas": {
+      "heladas": {
+        "meses_riesgo": [
+          "Diciembre",
+          "Enero",
+          "Febrero"
+        ],
+        "temperatura_critica": "0°C",
+        "daño_esperado": "Daño en naves sin calefacción",
+        "mitigacion": [
+          "Calefacción en naves",
+          "Aislamiento térmico"
+        ]
+      },
+      "sequia": {
+        "etapa_critica": "No aplica",
+        "impacto": "Ambiente controlado",
+        "mitigacion": [
+          "Reservas de agua"
+        ]
+      }
+    },
+    "fitosanitarias": {
+      "principal": {
+        "nombre": "Trichoderma",
+        "nivel_riesgo": "Alto",
+        "impacto": "Pérdida total del cultivo si no se controla"
+      }
+    },
+    "economicas": {
+      "volatilidad_precio": {
+        "rango_variacion_pct": 35,
+        "epoca_riesgo": "Junio-Agosto",
+        "causa": "Sobreoferta y menor demanda"
+      }
+    }
+  },
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asesoría técnica",
+          "Capacitación en producción"
+        ],
+        "contacto": "www.inifap.gob.mx"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica"
+        ],
+        "contacto": "www.fira.gob.mx"
+      },
+      {
+        "nombre": "Universidad Autónoma Chapingo",
+        "servicios": [
+          "Investigación",
+          "Capacitación especializada"
+        ],
+        "contacto": "www.chapingo.mx"
+      }
+    ],
+    "programas_apoyo": [
+      "Programa de Fomento a la Agricultura",
+      "Crédito FIRA para infraestructura"
+    ]
+  },
+  "buenas_practicas_destacadas": [
+    {
+      "practica": "Control estricto de temperatura y humedad",
+      "importancia": "Crítica",
+      "beneficio": "Maximiza producción y calidad",
+      "descripcion": "Mantener 16-18°C y 85% HR durante fructificación"
+    },
+    {
+      "practica": "Pasteurización correcta del sustrato",
+      "importancia": "Crítica",
+      "beneficio": "Previene contaminaciones",
+      "descripcion": "Mantener 60°C por 6-8 horas en fase II"
+    },
+    {
+      "practica": "Higiene estricta en todas las operaciones",
+      "importancia": "Alta",
+      "beneficio": "Reduce riesgo de plagas y enfermedades"
+    }
+  ],
+  "errores_comunes_evitar": [
+    {
+      "error": "Pasteurización inadecuada del sustrato",
+      "consecuencia": "Contaminación por Trichoderma y otros hongos",
+      "solucion": "Seguir protocolo estricto de compostaje y pasteurización"
+    },
+    {
+      "error": "Cambios bruscos de temperatura",
+      "consecuencia": "Estrés del micelio y reducción de producción",
+      "solucion": "Instalar sistema de control climático automático"
+    },
+    {
+      "error": "Exceso de humedad en cobertura",
+      "consecuencia": "Desarrollo de enfermedades bacterianas",
+      "solucion": "Controlar riego por nebulización y ventilación"
+    }
+  ],
+  "conclusiones_recomendaciones": {
+    "viabilidad_general": "Alta en México",
+    "regiones_mayor_potencial": [
+      "Estado de México: proximidad mercados y clima favorable",
+      "Puebla: tradición productiva y costos competitivos",
+      "Tlaxcala: condiciones climáticas óptimas"
+    ],
+    "claves_exito": [
+      "Inversión en infraestructura climatizada",
+      "Control estricto de sanidad",
+      "Capacitación técnica especializada",
+      "Acceso a mercados premium"
+    ],
+    "limitantes_principales": [
+      "Alta inversión inicial",
+      "Requiere conocimiento técnico especializado",
+      "Dependencia de insumos específicos"
+    ],
+    "recomendacion_final": "Cultivo altamente rentable pero requiere inversión significativa y conocimiento técnico. Ideal para productores con acceso a financiamiento y mercados establecidos. La demanda creciente y precios estables garantizan viabilidad económica."
+  }
+}

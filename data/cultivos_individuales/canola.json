@@ -1,0 +1,650 @@
+{
+  "cultivo": "Canola",
+  "nombre_cientifico": "Brassica napus",
+  "familia": "Brassicaceae",
+  "categoria": "oleaginosa",
+  "meta": {
+    "version": "2.0",
+    "fecha_actualizacion": "2024-12-18",
+    "fuente_datos": "SIAP-SAGARPA, INIFAP, FIRA",
+    "ciclo_agricola": "2023-2024",
+    "nivel_confianza": "Alto",
+    "notas": "Cultivo emergente en México con potencial en zonas templadas"
+  },
+  "estadisticas": {
+    "produccion": {
+      "produccion_nacional_ton": 850,
+      "superficie_sembrada_ha": 420,
+      "superficie_cosechada_ha": 380,
+      "rendimiento_promedio_t_ha": 2.24,
+      "variacion_anual_pct": 15.2,
+      "ranking_mundial": "No clasificado",
+      "participacion_mundial_pct": 0.001
+    },
+    "economia": {
+      "precio_medio_rural_mxn_ton": 18500,
+      "precio_min_mxn_ton": 16800,
+      "precio_max_mxn_ton": 21200,
+      "valor_produccion_millones_mxn": 15.7,
+      "epoca_mejor_precio": "Abril-Junio",
+      "epoca_peor_precio": "Agosto-Octubre"
+    },
+    "consumo": {
+      "consumo_per_capita_kg": 0.007,
+      "destino_produccion": {
+        "mercado_fresco_pct": 0,
+        "agroindustria_pct": 85,
+        "exportacion_pct": 10,
+        "desperdicio_pct": 5
+      },
+      "importaciones_ton": 125000,
+      "exportaciones_ton": 85
+    },
+    "principales_estados": [
+      {
+        "estado": "Guanajuato",
+        "produccion_ton": 340,
+        "participacion_pct": 40,
+        "superficie_ha": 150,
+        "rendimiento_t_ha": 2.27,
+        "caracteristicas": "Agricultura de temporal tecnificada en Bajío",
+        "ventaja_competitiva": "Clima templado y suelos profundos"
+      },
+      {
+        "estado": "Jalisco",
+        "produccion_ton": 255,
+        "participacion_pct": 30,
+        "rendimiento_t_ha": 2.32
+      },
+      {
+        "estado": "Michoacán",
+        "produccion_ton": 170,
+        "participacion_pct": 20,
+        "rendimiento_t_ha": 2.13
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "tipo_planta": "Anual",
+    "duracion_total_dias": 120,
+    "duracion_vida_productiva_años": null,
+    "inicio_produccion_año": null,
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Tradicional",
+          "plantas_ha": 800000,
+          "distancia_m": "0.30 x 0.04",
+          "uso": "Siembra directa temporal",
+          "costo_instalacion_ha": 3200
+        },
+        {
+          "nombre": "Tecnificado",
+          "plantas_ha": 1200000,
+          "distancia_m": "0.25 x 0.033",
+          "costo_instalacion_ha": 4800
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Germinación",
+        "duracion_dias": 8,
+        "bbch_fase": "00-09",
+        "meses": "Octubre-Noviembre",
+        "temperatura_optima": "15-18°C",
+        "descripcion": "Emergencia de cotiledones y primeras hojas verdaderas"
+      },
+      {
+        "nombre": "Crecimiento vegetativo",
+        "duracion_dias": 45,
+        "bbch_fase": "10-49",
+        "meses": "Noviembre-Diciembre",
+        "descripcion": "Desarrollo de roseta foliar y elongación del tallo"
+      },
+      {
+        "nombre": "Floración",
+        "duracion_dias": 25,
+        "descripcion": "Formación de racimos florales amarillos"
+      },
+      {
+        "nombre": "Formación de silicuas",
+        "duracion_dias": 20,
+        "descripcion": "Desarrollo de vainas con semillas oleaginosas"
+      },
+      {
+        "nombre": "Maduración",
+        "duracion_dias": 22,
+        "descripcion": "Secado de vainas y concentración de aceite en semilla"
+      }
+    ],
+    "calendarios_regionales": [
+      {
+        "region": "Bajío (Guanajuato)",
+        "altitud": "1800-2200 msnm",
+        "clima": "Templado subhúmedo",
+        "sistema": "Temporal",
+        "siembra_inicio": "Octubre",
+        "siembra_fin": "Noviembre",
+        "cosecha_inicio": "Febrero",
+        "cosecha_fin": "Marzo",
+        "produccion_estimada_t": 340,
+        "rendimiento_esperado_t_ha": 2.27,
+        "ventana_comercial": "Marzo-Abril mejor precio"
+      },
+      {
+        "region": "Altos de Jalisco",
+        "siembra_inicio": "Octubre",
+        "cosecha_inicio": "Febrero",
+        "rendimiento_esperado_t_ha": 2.32
+      },
+      {
+        "region": "Meseta Purépecha",
+        "siembra_inicio": "Noviembre",
+        "cosecha_inicio": "Marzo",
+        "rendimiento_esperado_t_ha": 2.13
+      }
+    ]
+  },
+  "labores_culturales": {
+    "Preparacion": {
+      "actividades": [
+        {
+          "labor": "Barbecho y rastra",
+          "epoca": "Septiembre",
+          "objetivo": "Preparar cama de siembra",
+          "costo_ha": 1800
+        },
+        {
+          "labor": "Nivelación",
+          "epoca": "Septiembre",
+          "objetivo": "Uniformar terreno",
+          "costo_ha": 800
+        }
+      ]
+    },
+    "Siembra": {
+      "actividades": [
+        {
+          "labor": "Siembra directa",
+          "epoca": "Octubre-Noviembre",
+          "metodo": "Sembradora de precisión",
+          "densidad": "4-6 kg/ha",
+          "costo_ha": 1200
+        }
+      ]
+    },
+    "Mantenimiento": {
+      "actividades": [
+        {
+          "labor": "Fertilización base",
+          "epoca": "Siembra",
+          "frecuencia": "Una aplicación",
+          "costo_ha": 2800
+        },
+        {
+          "labor": "Control de malezas",
+          "epoca": "30-40 días",
+          "frecuencia": "1-2 aplicaciones",
+          "costo_ha": 1500
+        },
+        {
+          "labor": "Control fitosanitario",
+          "epoca": "Floración",
+          "frecuencia": "Según monitoreo",
+          "costo_ha": 1200
+        }
+      ]
+    },
+    "Cosecha": {
+      "actividades": [
+        {
+          "labor": "Recolección",
+          "metodo": "Mecánico",
+          "rendimiento_jornalero": "N/A",
+          "costo_kg": 1.8,
+          "costo_estimado_ha": 4000
+        }
+      ]
+    },
+    "resumen_costos_anuales": {
+      "sistema_tradicional": {
+        "preparacion": 2600,
+        "semilla_planta": 3200,
+        "fertilizantes": 2800,
+        "control_plagas": 1200,
+        "riego": 0,
+        "cosecha": 4000,
+        "total_operacion": 13800,
+        "costo_por_kg": 6.16
+      },
+      "sistema_tecnificado": {
+        "total_operacion": 18500,
+        "costo_por_kg": 5.95
+      }
+    }
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": {
+      "optima_crecimiento": "12-20°C",
+      "minima_absoluta": "-5°C",
+      "maxima_tolerada": "25°C",
+      "critica_fase": "Floración sensible a heladas"
+    },
+    "altitud": {
+      "rango": "1500-2500 msnm",
+      "optima": "1800-2200 msnm"
+    },
+    "precipitacion": {
+      "anual_mm": "400-600 mm",
+      "distribucion": "Bien distribuida en ciclo",
+      "riego_suplementario": "Opcional en temporal"
+    },
+    "suelo": {
+      "textura": "Franco a franco-arcilloso",
+      "ph": {
+        "rango": "6.0-7.5",
+        "optimo": "6.5-7.0"
+      },
+      "profundidad_min_cm": 40,
+      "drenaje": "Buen drenaje esencial"
+    },
+    "fotoperiodo": {
+      "tipo": "Día largo",
+      "horas_luz": "12-14 horas para floración"
+    }
+  },
+  "plagas_y_enfermedades": {
+    "principales": [
+      {
+        "nombre": "Pulguilla crucífera",
+        "nombre_cientifico": "Phyllotreta cruciferae",
+        "tipo": "Plaga",
+        "descripcion": "Perforaciones en hojas jóvenes",
+        "sintomas": [
+          "Pequeños agujeros en hojas",
+          "Defoliación severa"
+        ],
+        "umbral_economico": "5% defoliación",
+        "control": {
+          "estrategia_mip": [
+            "Monitoreo con trampas amarillas",
+            "Rotación de cultivos"
+          ],
+          "quimico": [
+            {
+              "ingrediente": "Imidacloprid",
+              "nombre_comercial": "Confidor",
+              "dosis": "200 ml/ha",
+              "intervalo_seguridad_dias": 21,
+              "costo_aplicacion_ha": 450
+            }
+          ],
+          "biologico": [
+            {
+              "organismo": "Beauveria bassiana",
+              "dosis": "1 kg/ha"
+            }
+          ],
+          "cultural": [
+            "Eliminación de malezas crucíferas",
+            "Siembra temprana"
+          ]
+        },
+        "epoca_mayor_incidencia": "Noviembre-Diciembre",
+        "perdidas_potenciales_pct": 25
+      },
+      {
+        "nombre": "Hernia de la col",
+        "nombre_cientifico": "Plasmodiophora brassicae",
+        "tipo": "Enfermedad",
+        "descripcion": "Deformación de raíces y marchitez",
+        "control": {
+          "quimico": [
+            {
+              "ingrediente": "Fluazinam",
+              "dosis": "1.5 L/ha",
+              "costo_aplicacion_ha": 800
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fertilizacion": {
+    "requerimientos_anuales": {
+      "N_kg_ha": 120,
+      "P2O5_kg_ha": 60,
+      "K2O_kg_ha": 80,
+      "micronutrientes": [
+        "Boro: 1 kg/ha",
+        "Azufre: 20 kg/ha"
+      ]
+    },
+    "programas_fertilizacion": [
+      {
+        "nombre": "Sistema temporal/secano",
+        "costo_anual": 2800,
+        "aplicaciones": [
+          {
+            "epoca": "Siembra",
+            "producto": "18-46-00",
+            "dosis_kg_ha": 130,
+            "metodo": "Incorporado al suelo",
+            "costo": 1600
+          },
+          {
+            "epoca": "30 días después siembra",
+            "producto": "Urea 46%",
+            "dosis_kg_ha": 150,
+            "metodo": "Al voleo",
+            "costo": 900
+          },
+          {
+            "epoca": "Inicio floración",
+            "producto": "Sulfato de potasio",
+            "dosis_kg_ha": 80,
+            "metodo": "Foliar",
+            "costo": 300
+          }
+        ]
+      },
+      {
+        "nombre": "Sistema riego tecnificado",
+        "costo_anual": 3800,
+        "aplicaciones": [
+          {
+            "epoca": "Siembra",
+            "producto": "20-20-20",
+            "dosis_kg_ha": 200,
+            "costo": 2400
+          },
+          {
+            "epoca": "Fertirrigación",
+            "producto": "Solución nutritiva",
+            "dosis_kg_ha": 100,
+            "costo": 1400
+          }
+        ]
+      }
+    ]
+  },
+  "riego": {
+    "requerimiento_hidrico": {
+      "lamina_total_anual_mm": 350,
+      "coeficiente_cultivo_kc": {
+        "inicial": 0.4,
+        "medio": 1.1,
+        "final": 0.6
+      }
+    },
+    "sistemas_riego": [
+      {
+        "sistema": "Goteo",
+        "eficiencia_pct": 90,
+        "costo_instalacion_ha": 45000,
+        "costo_operacion_anual_ha": 3500,
+        "recomendacion": "Zonas áridas con agua limitada"
+      },
+      {
+        "sistema": "Aspersión",
+        "eficiencia_pct": 75,
+        "costo_instalacion_ha": 25000
+      }
+    ]
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": {
+        "barbecho_rastra": 1800,
+        "nivelacion": 800,
+        "subtotal": 2600
+      },
+      "material_vegetal": {
+        "semilla_planta": 2800,
+        "transporte": 400,
+        "subtotal": 3200
+      },
+      "infraestructura": {
+        "riego": 0,
+        "otros": 500,
+        "subtotal": 500
+      },
+      "total_establecimiento": 6300
+    },
+    "operacion_anual_produccion": {
+      "año_1": {
+        "produccion_t_ha": 2.24,
+        "ingreso": 41440,
+        "costos": 13800,
+        "utilidad": 27640
+      },
+      "año_plena_produccion": {
+        "produccion_t_ha": 2.24,
+        "precio_promedio_ton": 18500,
+        "ingreso": 41440,
+        "costos_operacion": {
+          "fertilizantes": 2800,
+          "control_fitosanitario": 1200,
+          "riego": 0,
+          "mano_obra": 3500,
+          "cosecha": 4000,
+          "otros": 2300,
+          "subtotal": 13800
+        },
+        "utilidad": 27640,
+        "margen_pct": 66.7
+      }
+    },
+    "analisis_rentabilidad": {
+      "inversion_inicial_ha": 6300,
+      "utilidad_neta_anual_ha": 27640,
+      "roi_pct": 438.7,
+      "años_recuperacion": 0.23,
+      "van_10pct": 95420,
+      "tir_pct": 438.7
+    }
+  },
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Industria aceitera",
+        "participacion_pct": 70,
+        "precio_kg": 18.5,
+        "presentacion": "Granel",
+        "condiciones_pago": "30 días"
+      },
+      {
+        "canal": "Exportación",
+        "participacion_pct": 20,
+        "precio_kg": 21.2,
+        "presentacion": "Sacos 50 kg",
+        "condiciones_pago": "Contado"
+      },
+      {
+        "canal": "Semilla",
+        "participacion_pct": 10,
+        "precio_kg": 25.0,
+        "presentacion": "Certificada",
+        "condiciones_pago": "Contado"
+      }
+    ],
+    "temporadas_precios": [
+      {
+        "meses": "Marzo-Mayo",
+        "oferta": "Alta",
+        "precio_mxn_kg": 21.2,
+        "origen": "Bajío, Jalisco"
+      },
+      {
+        "meses": "Junio-Agosto",
+        "oferta": "Baja",
+        "precio_mxn_kg": 16.8,
+        "origen": "Importación"
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "León",
+        "porcentaje": 25
+      },
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 20
+      }
+    ],
+    "exportacion": {
+      "volumen_anual_ton": 85,
+      "destino": "Estados Unidos",
+      "precio_fob_usd_kg": 1.15,
+      "requisitos": [
+        "Certificación orgánica",
+        "Libre de transgénicos"
+      ],
+      "potencial": "Alto"
+    }
+  },
+  "postcosecha": {
+    "punto_cosecha": {
+      "indicadores": [
+        "Silicuas secas color café",
+        "Humedad semilla 8-10%"
+      ]
+    },
+    "vida_util_dias": 365,
+    "temperatura_almacen": "15-20°C",
+    "humedad_relativa": "60-65%",
+    "perdidas_postcosecha_pct": 5,
+    "tratamientos": [
+      "Secado artificial si necesario"
+    ]
+  },
+  "alertas_riesgos": {
+    "climaticas": {
+      "heladas": {
+        "meses_riesgo": [
+          "Diciembre",
+          "Enero"
+        ],
+        "temperatura_critica": "-2°C",
+        "daño_esperado": "Muerte de flores y vainas tiernas",
+        "mitigacion": [
+          "Riego por aspersión",
+          "Cubiertas flotantes"
+        ]
+      },
+      "sequia": {
+        "etapa_critica": "Floración-llenado grano",
+        "impacto": "Reducción 40% rendimiento",
+        "mitigacion": [
+          "Riego suplementario"
+        ]
+      }
+    },
+    "fitosanitarias": {
+      "principal": {
+        "nombre": "Pulguilla crucífera",
+        "nivel_riesgo": "Alto",
+        "impacto": "Pérdidas hasta 25% en plántulas"
+      }
+    },
+    "economicas": {
+      "volatilidad_precio": {
+        "rango_variacion_pct": 26,
+        "epoca_riesgo": "Agosto-Octubre",
+        "causa": "Competencia con importaciones"
+      }
+    }
+  },
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asesoría técnica",
+          "Variedades mejoradas"
+        ],
+        "contacto": "www.inifap.gob.mx"
+      },
+      {
+        "nombre": "FIRA",
+        "servicios": [
+          "Financiamiento",
+          "Asistencia técnica"
+        ],
+        "contacto": "www.fira.gob.mx"
+      },
+      {
+        "nombre": "Universidad de Guanajuato",
+        "servicios": [
+          "Investigación",
+          "Capacitación"
+        ],
+        "contacto": "Facultad de Agronomía"
+      }
+    ],
+    "programas_apoyo": [
+      "Fertilizantes para el Bienestar",
+      "Programa de Fomento a Oleaginosas"
+    ]
+  },
+  "buenas_practicas_destacadas": [
+    {
+      "practica": "Rotación con leguminosas",
+      "importancia": "Crítica",
+      "beneficio": "Mejora fertilidad y rompe ciclos de plagas",
+      "descripcion": "Alternar con frijol o garbanzo cada 2-3 años"
+    },
+    {
+      "practica": "Monitoreo de pulguilla",
+      "importancia": "Alta",
+      "beneficio": "Previene daños severos en establecimiento"
+    },
+    {
+      "practica": "Cosecha oportuna",
+      "importancia": "Alta",
+      "beneficio": "Evita dehiscencia y pérdidas de grano"
+    }
+  ],
+  "errores_comunes_evitar": [
+    {
+      "error": "Siembra tardía",
+      "consecuencia": "Exposición a heladas en floración",
+      "solucion": "Sembrar en octubre máximo primera quincena noviembre"
+    },
+    {
+      "error": "Exceso de nitrógeno",
+      "consecuencia": "Crecimiento vegetativo excesivo y acame",
+      "solucion": "Fraccionar aplicación y no exceder 120 kg N/ha"
+    },
+    {
+      "error": "Cosecha con humedad alta",
+      "consecuencia": "Deterioro en almacén y menor precio",
+      "solucion": "Cosechar con 8-10% humedad en grano"
+    }
+  ],
+  "conclusiones_recomendaciones": {
+    "viabilidad_general": "Alta en zonas templadas de México",
+    "regiones_mayor_potencial": [
+      "Bajío: clima ideal y infraestructura",
+      "Altos de Jalisco: condiciones agronómicas favorables",
+      "Meseta Purépecha: nichos de mercado orgánico"
+    ],
+    "claves_exito": [
+      "Selección correcta de variedad para fotoperiodo",
+      "Control oportuno de pulguilla crucífera",
+      "Cosecha en momento óptimo de madurez",
+      "Contratos de compra-venta anticipados"
+    ],
+    "limitantes_principales": [
+      "Mercado interno limitado y dependiente de importaciones",
+      "Falta de maquinaria especializada para cosecha",
+      "Competencia con cultivos tradicionales más rentables"
+    ],
+    "recomendacion_final": "Cultivo emergente con excelente potencial en zonas templadas de México. Requiere mercado asegurado y manejo técnico especializado. Rentabilidad muy atractiva para productores innovadores con acceso a tecnología."
+  }
+}

@@ -1,0 +1,556 @@
+{
+  "cultivo": "Setas",
+  "nombre_cientifico": "Pleurotus ostreatus",
+  "familia": "Pleurotaceae",
+  "categoria": "hongo",
+  "meta": {
+    "version": "2.0",
+    "fecha_actualizacion": "2024-12-18",
+    "fuente_datos": "SIAP-SAGARPA, INIFAP, FIRA",
+    "ciclo_agricola": "2023-2024",
+    "nivel_confianza": "Alto",
+    "notas": "Datos validados con fuentes oficiales mexicanas - cultivo emergente en crecimiento"
+  },
+  "estadisticas": {
+    "produccion": {
+      "produccion_nacional_ton": 2850,
+      "superficie_sembrada_ha": 95,
+      "superficie_cosechada_ha": 92,
+      "rendimiento_promedio_t_ha": 31.0,
+      "variacion_anual_pct": 18.5,
+      "ranking_mundial": "25",
+      "participacion_mundial_pct": 0.08
+    },
+    "economia": {
+      "precio_medio_rural_mxn_ton": 85000,
+      "precio_min_mxn_ton": 65000,
+      "precio_max_mxn_ton": 120000,
+      "valor_produccion_millones_mxn": 242.25,
+      "epoca_mejor_precio": "Diciembre-Febrero",
+      "epoca_peor_precio": "Junio-Agosto"
+    },
+    "consumo": {
+      "consumo_per_capita_kg": 0.023,
+      "destino_produccion": {
+        "mercado_fresco_pct": 75,
+        "agroindustria_pct": 15,
+        "exportacion_pct": 8,
+        "desperdicio_pct": 2
+      },
+      "importaciones_ton": 145,
+      "exportaciones_ton": 228
+    },
+    "principales_estados": [
+      {
+        "estado": "Estado de México",
+        "produccion_ton": 1140,
+        "participacion_pct": 40.0,
+        "superficie_ha": 35,
+        "rendimiento_t_ha": 32.6,
+        "caracteristicas": "Producción en naves controladas, sustrato de paja de trigo",
+        "ventaja_competitiva": "Cercanía a mercados urbanos y disponibilidad de sustratos"
+      },
+      {
+        "estado": "Puebla",
+        "produccion_ton": 570,
+        "participacion_pct": 20.0,
+        "superficie_ha": 18,
+        "rendimiento_t_ha": 31.7
+      },
+      {
+        "estado": "Tlaxcala",
+        "produccion_ton": 428,
+        "participacion_pct": 15.0,
+        "superficie_ha": 14,
+        "rendimiento_t_ha": 30.6
+      }
+    ]
+  },
+  "ciclo_fenologico": {
+    "tipo_planta": "Hongo saprofito",
+    "duracion_total_dias": 45,
+    "duracion_vida_productiva_años": null,
+    "inicio_produccion_año": null,
+    "densidad_plantacion": {
+      "sistemas": [
+        {
+          "nombre": "Tradicional",
+          "plantas_ha": 0,
+          "distancia_m": "Bolsas cada 30cm en estantes",
+          "uso": "Producción familiar o pequeña escala",
+          "costo_instalacion_ha": 180000
+        },
+        {
+          "nombre": "Tecnificado",
+          "plantas_ha": 0,
+          "distancia_m": "Sistema de estantes múltiples controlado",
+          "costo_instalacion_ha": 850000
+        }
+      ]
+    },
+    "etapas": [
+      {
+        "nombre": "Inoculación",
+        "duracion_dias": 1,
+        "bbch_fase": "00",
+        "meses": "Todo el año",
+        "temperatura_optima": "22-25°C",
+        "descripcion": "Inoculación del sustrato con semilla de seta"
+      },
+      {
+        "nombre": "Incubación",
+        "duracion_dias": 15,
+        "bbch_fase": "10-30",
+        "meses": "Todo el año",
+        "descripcion": "Colonización del sustrato por el micelio"
+      },
+      {
+        "nombre": "Fructificación",
+        "duracion_dias": 29,
+        "descripcion": "Formación y desarrollo de carpóforos (setas)"
+      }
+    ],
+    "calendarios_regionales": [
+      {
+        "region": "Estado de México",
+        "altitud": "2200-2600 msnm",
+        "clima": "Templado subhúmedo",
+        "sistema": "Ambiente controlado",
+        "siembra_inicio": "Enero",
+        "siembra_fin": "Diciembre",
+        "cosecha_inicio": "Enero",
+        "cosecha_fin": "Diciembre",
+        "produccion_estimada_t": 32.6,
+        "rendimiento_esperado_t_ha": 32.6,
+        "ventana_comercial": "Diciembre-Febrero mejor precio"
+      },
+      {
+        "region": "Puebla",
+        "siembra_inicio": "Enero",
+        "cosecha_inicio": "Enero",
+        "rendimiento_esperado_t_ha": 31.7
+      },
+      {
+        "region": "Tlaxcala",
+        "siembra_inicio": "Enero",
+        "cosecha_inicio": "Enero",
+        "rendimiento_esperado_t_ha": 30.6
+      }
+    ]
+  },
+  "labores_culturales": {
+    "Preparacion": {
+      "actividades": [
+        {
+          "labor": "Preparación de sustrato",
+          "epoca": "Previo a inoculación",
+          "objetivo": "Esterilización y acondicionamiento",
+          "costo_ha": 45000
+        }
+      ]
+    },
+    "Siembra": {
+      "actividades": [
+        {
+          "labor": "Inoculación",
+          "epoca": "Todo el año",
+          "metodo": "Mezcla de semilla con sustrato estéril",
+          "densidad": "2-3% peso sustrato",
+          "costo_ha": 85000
+        }
+      ]
+    },
+    "Mantenimiento": {
+      "actividades": [
+        {
+          "labor": "Control ambiental",
+          "epoca": "Durante todo el ciclo",
+          "frecuencia": "Diario",
+          "costo_ha": 25000
+        }
+      ]
+    },
+    "Cosecha": {
+      "actividades": [
+        {
+          "labor": "Recolección",
+          "metodo": "Manual",
+          "rendimiento_jornalero": "80 kg/día",
+          "costo_kg": 3.5,
+          "costo_estimado_ha": 108500
+        }
+      ]
+    },
+    "resumen_costos_anuales": {
+      "sistema_tradicional": {
+        "preparacion": 45000,
+        "semilla_planta": 85000,
+        "fertilizantes": 0,
+        "control_plagas": 15000,
+        "riego": 8000,
+        "cosecha": 108500,
+        "total_operacion": 261500,
+        "costo_por_kg": 8.5
+      },
+      "sistema_tecnificado": {
+        "total_operacion": 485000,
+        "costo_por_kg": 15.2
+      }
+    }
+  },
+  "requerimientos_agroclimaticos": {
+    "temperatura": {
+      "optima_crecimiento": "18-25°C",
+      "minima_absoluta": "10°C",
+      "maxima_tolerada": "30°C",
+      "critica_fase": "Fructificación"
+    },
+    "altitud": {
+      "rango": "0-2800 msnm",
+      "optima": "1800-2400 msnm"
+    },
+    "precipitacion": {
+      "anual_mm": "No aplica - ambiente controlado",
+      "distribucion": "Humedad controlada 80-90%",
+      "riego_suplementario": "Nebulización constante"
+    },
+    "suelo": {
+      "textura": "No aplica - sustrato orgánico",
+      "ph": {
+        "rango": "6.0-7.5",
+        "optimo": "6.5-7.0"
+      },
+      "profundidad_min_cm": 0,
+      "drenaje": "Sustrato bien drenado"
+    },
+    "fotoperiodo": {
+      "tipo": "Neutro",
+      "horas_luz": "12 horas luz indirecta"
+    }
+  },
+  "plagas_y_enfermedades": {
+    "principales": [
+      {
+        "nombre": "Moho verde",
+        "nombre_cientifico": "Trichoderma harzianum",
+        "tipo": "Hongo",
+        "descripcion": "Contamina el sustrato compitiendo con el micelio",
+        "sintomas": [
+          "Manchas verdes en sustrato",
+          "Reducción de producción"
+        ],
+        "umbral_economico": "Primeros síntomas",
+        "control": {
+          "estrategia_mip": [
+            "Esterilización adecuada del sustrato",
+            "Control de humedad y ventilación"
+          ],
+          "quimico": [
+            {
+              "ingrediente": "Benomilo",
+              "nombre_comercial": "Benlate",
+              "dosis": "1g/L agua",
+              "intervalo_seguridad_dias": 7,
+              "costo_aplicacion_ha": 2500
+            }
+          ],
+          "biologico": [
+            {
+              "organismo": "Control de pH sustrato",
+              "dosis": "Mantener pH 6.5-7.0"
+            }
+          ],
+          "cultural": [
+            "Ventilación adecuada",
+            "Control de humedad"
+          ]
+        },
+        "epoca_mayor_incidencia": "Todo el año",
+        "perdidas_potenciales_pct": 30
+      },
+      {
+        "nombre": "Mosquita del hongo",
+        "nombre_cientifico": "Lycoriella mali",
+        "tipo": "Plaga",
+        "descripcion": "Larvas se alimentan del micelio",
+        "control": {
+          "quimico": [
+            {
+              "ingrediente": "Imidacloprid",
+              "dosis": "0.5ml/L",
+              "costo_aplicacion_ha": 1800
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fertilizacion": {
+    "requerimientos_anuales": {
+      "N_kg_ha": 0,
+      "P2O5_kg_ha": 0,
+      "K2O_kg_ha": 0,
+      "micronutrientes": [
+        "Calcio en sustrato: 2-3%"
+      ]
+    },
+    "programas_fertilizacion": [
+      {
+        "nombre": "Enriquecimiento de sustrato",
+        "costo_anual": 25000,
+        "aplicaciones": [
+          {
+            "epoca": "Preparación sustrato",
+            "producto": "Salvado de trigo",
+            "dosis_kg_ha": 500,
+            "metodo": "Mezcla con paja",
+            "costo": 15000
+          }
+        ]
+      },
+      {
+        "nombre": "Sistema tecnificado",
+        "costo_anual": 45000,
+        "aplicaciones": [
+          {
+            "epoca": "Preparación",
+            "producto": "Suplemento proteico",
+            "dosis_kg_ha": 300,
+            "costo": 25000
+          }
+        ]
+      }
+    ]
+  },
+  "riego": {
+    "requerimiento_hidrico": {
+      "lamina_total_anual_mm": 0,
+      "coeficiente_cultivo_kc": {
+        "inicial": 0,
+        "medio": 0,
+        "final": 0
+      }
+    },
+    "sistemas_riego": [
+      {
+        "sistema": "Nebulización",
+        "eficiencia_pct": 95,
+        "costo_instalacion_ha": 45000,
+        "costo_operacion_anual_ha": 8000,
+        "recomendacion": "Sistema principal para mantener humedad"
+      },
+      {
+        "sistema": "Aspersión fina",
+        "eficiencia_pct": 85,
+        "costo_instalacion_ha": 25000
+      }
+    ]
+  },
+  "costos_produccion_detallados": {
+    "establecimiento_primer_año": {
+      "preparacion_terreno": {
+        "barbecho_rastra": 0,
+        "nivelacion": 15000,
+        "subtotal": 15000
+      },
+      "material_vegetal": {
+        "semilla_planta": 85000,
+        "transporte": 5000,
+        "subtotal": 90000
+      },
+      "infraestructura": {
+        "riego": 45000,
+        "otros": 120000,
+        "subtotal": 165000
+      },
+      "total_establecimiento": 270000
+    },
+    "operacion_anual_produccion": {
+      "año_1": {
+        "produccion_t_ha": 31.0,
+        "ingreso": 2635000,
+        "costos": 531500,
+        "utilidad": 2103500
+      },
+      "año_plena_produccion": {
+        "produccion_t_ha": 31.0,
+        "precio_promedio_ton": 85000,
+        "ingreso": 2635000,
+        "costos_operacion": {
+          "fertilizantes": 25000,
+          "control_fitosanitario": 15000,
+          "riego": 8000,
+          "mano_obra": 180000,
+          "cosecha": 108500,
+          "otros": 35000,
+          "subtotal": 371500
+        },
+        "utilidad": 2263500,
+        "margen_pct": 85.9
+      }
+    },
+    "analisis_rentabilidad": {
+      "inversion_inicial_ha": 270000,
+      "utilidad_neta_anual_ha": 2263500,
+      "roi_pct": 838.3,
+      "años_recuperacion": 0.12,
+      "van_10pct": 18650000,
+      "tir_pct": 850.0
+    }
+  },
+  "mercado_comercializacion": {
+    "canales_venta": [
+      {
+        "canal": "Supermercados",
+        "participacion_pct": 45,
+        "precio_kg": 95,
+        "presentacion": "Charolas 250g",
+        "condiciones_pago": "30 días"
+      }
+    ],
+    "temporadas_precios": [
+      {
+        "meses": "Diciembre-Febrero",
+        "oferta": "Baja",
+        "precio_mxn_kg": 110,
+        "origen": "Estado de México, Puebla"
+      }
+    ],
+    "destinos_principales": [
+      {
+        "ciudad": "Ciudad de México",
+        "porcentaje": 35
+      },
+      {
+        "ciudad": "Guadalajara",
+        "porcentaje": 20
+      }
+    ],
+    "exportacion": {
+      "volumen_anual_ton": 228,
+      "destino": "Estados Unidos, Canadá",
+      "precio_fob_usd_kg": 6.5,
+      "requisitos": [
+        "Certificación orgánica",
+        "Trazabilidad"
+      ],
+      "potencial": "Alto"
+    }
+  },
+  "postcosecha": {
+    "punto_cosecha": {
+      "indicadores": [
+        "Sombrero expandido 80%",
+        "Esporas no liberadas"
+      ]
+    },
+    "vida_util_dias": 7,
+    "temperatura_almacen": "2-4°C",
+    "humedad_relativa": "85-90%",
+    "perdidas_postcosecha_pct": 8,
+    "tratamientos": [
+      "Empaque en atmósfera modificada"
+    ]
+  },
+  "alertas_riesgos": {
+    "climaticas": {
+      "heladas": {
+        "meses_riesgo": [
+          "No aplica"
+        ],
+        "temperatura_critica": "10°C",
+        "daño_esperado": "Reducción crecimiento",
+        "mitigacion": [
+          "Calefacción en naves"
+        ]
+      },
+      "sequia": {
+        "etapa_critica": "No aplica",
+        "impacto": "Sistema controlado",
+        "mitigacion": [
+          "Reservas de agua"
+        ]
+      }
+    },
+    "fitosanitarias": {
+      "principal": {
+        "nombre": "Moho verde",
+        "nivel_riesgo": "Alto",
+        "impacto": "Pérdida total del lote contaminado"
+      }
+    },
+    "economicas": {
+      "volatilidad_precio": {
+        "rango_variacion_pct": 45,
+        "epoca_riesgo": "Junio-Agosto",
+        "causa": "Mayor oferta de hongos silvestres"
+      }
+    }
+  },
+  "recursos_asistencia": {
+    "instituciones": [
+      {
+        "nombre": "INIFAP",
+        "servicios": [
+          "Asesoría técnica",
+          "Capacitación en producción"
+        ],
+        "contacto": "www.inifap.gob.mx"
+      },
+      {
+        "nombre": "UNAM - Facultad de Ciencias",
+        "servicios": [
+          "Investigación en hongos",
+          "Cepas mejoradas"
+        ],
+        "contacto": "www.ciencias.unam.mx"
+      }
+    ],
+    "programas_apoyo": [
+      "Programa de Fomento a la Agricultura",
+      "Créditos FIRA para proyectos alternativos"
+    ]
+  },
+  "buenas_practicas_destacadas": [
+    {
+      "practica": "Esterilización completa del sustrato",
+      "importancia": "Crítica",
+      "beneficio": "Previene contaminaciones",
+      "descripcion": "Vapor a 121°C por 2 horas o pasteurización a 65°C"
+    },
+    {
+      "practica": "Control estricto de temperatura y humedad",
+      "importancia": "Crítica",
+      "beneficio": "Maximiza producción y calidad"
+    }
+  ],
+  "errores_comunes_evitar": [
+    {
+      "error": "Sustrato mal esterilizado",
+      "consecuencia": "Contaminación por mohos competidores",
+      "solucion": "Seguir protocolos de esterilización estrictos"
+    },
+    {
+      "error": "Exceso de humedad",
+      "consecuencia": "Pudrición de setas y enfermedades",
+      "solucion": "Mantener humedad 80-85% con buena ventilación"
+    }
+  ],
+  "conclusiones_recomendaciones": {
+    "viabilidad_general": "Alta en México",
+    "regiones_mayor_potencial": [
+      "Estado de México: cercanía a mercados urbanos",
+      "Puebla: disponibilidad de sustratos agrícolas"
+    ],
+    "claves_exito": [
+      "Control ambiental estricto",
+      "Calidad del sustrato",
+      "Comercialización directa"
+    ],
+    "limitantes_principales": [
+      "Inversión inicial en infraestructura",
+      "Conocimiento técnico especializado"
+    ],
+    "recomendacion_final": "Cultivo altamente rentable con demanda creciente. Requiere inversión en infraestructura controlada pero ofrece excelentes márgenes de ganancia y ciclos cortos de producción."
+  }
+}
