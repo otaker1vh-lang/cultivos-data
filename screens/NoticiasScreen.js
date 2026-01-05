@@ -1,166 +1,272 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  View, 
-  Text, 
-  FlatList, 
-  Image, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Linking, 
-  ActivityIndicator, 
-  RefreshControl 
+  View, Text, FlatList, Image, StyleSheet, TouchableOpacity, 
+  Linking, RefreshControl, Share, StatusBar, Dimensions, LayoutAnimation, Platform, UIManager
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
+
+// Habilitar animaciones en Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const { width } = Dimensions.get('window');
 
 // --- CONFIGURACIÓN DE FUENTES ---
+const CATEGORIAS = {
+  TODO: 'Todo',
+  MEXICO: 'Nacional 🇲🇽',
+  LATAM: 'Internacional 🌎',
+  TECH: 'Ciencia 🔬'
+};
+
 const FUENTES = [
-  // 1. FUENTES MEXICANAS (Prioridad Local 🇲🇽)
-  { nombre: "InfoRural MX",       color: "#2E7D32", url: "https://inforural.com.mx/feed/" },
-  { nombre: "Imagen Agropecuaria",color: "#C0392B", url: "https://imagenagropecuaria.com/feed/" },
-  { nombre: "Tierra Fértil",      color: "#D35400", url: "https://tierrafertil.com.mx/feed/" },
-  { nombre: "2000Agro MX",        color: "#154360", url: "https://2000agro.com/feed/" },
-  { nombre: "Ganadería.com",      color: "#8E44AD", url: "https://www.ganaderia.com/feed" },
-
-  // 2. FUENTES LATAM Y ESPAÑA (Mercado en español)
-  { nombre: "Portal Frutícola",   color: "#E67E22", url: "https://www.portalfruticola.com/feed/" },
-  { nombre: "InfoAgro Global",    color: "#27AE60", url: "https://www.infoagro.com/noticias/rss.asp" },
-  { nombre: "Redagrícola",        color: "#E74C3C", url: "https://www.redagricola.com/cl/feed/" },
-
-  // 3. CIENCIA Y TECNOLOGÍA (Inglés - Alto Nivel)
-  { nombre: "(EN) Nature Plants", color: "#000000", url: "http://www.nature.com/subjects/plant-sciences/rss" },
-  { nombre: "(EN) Science Daily", color: "#2980B9", url: "https://www.sciencedaily.com/rss/plants_animals/agriculture_and_food.xml" }
+  // MÉXICO
+  { nombre: "InfoRural MX",       color: "#2E7D32", url: "https://inforural.com.mx/feed/", cat: CATEGORIAS.MEXICO },
+  { nombre: "Imagen Agro",        color: "#C0392B", url: "https://imagenagropecuaria.com/feed/", cat: CATEGORIAS.MEXICO },
+  { nombre: "Tierra Fértil",      color: "#D35400", url: "https://tierrafertil.com.mx/feed/", cat: CATEGORIAS.MEXICO },
+  { nombre: "2000Agro",           color: "#154360", url: "https://2000agro.com/feed/", cat: CATEGORIAS.MEXICO },
+  // LATAM / GLOBAL
+  { nombre: "Portal Frutícola",   color: "#E67E22", url: "https://www.portalfruticola.com/feed/", cat: CATEGORIAS.LATAM },
+  { nombre: "Redagrícola",        color: "#E74C3C", url: "https://www.redagricola.com/cl/feed/", cat: CATEGORIAS.LATAM },
+  // CIENCIA
+  { nombre: "Nature Plants",      color: "#000000", url: "http://www.nature.com/subjects/plant-sciences/rss", cat: CATEGORIAS.TECH },
+  { nombre: "Science Daily",      color: "#2980B9", url: "https://www.sciencedaily.com/rss/plants_animals/agriculture_and_food.xml", cat: CATEGORIAS.TECH }
 ];
 
 const BASE_API = "https://api.rss2json.com/v1/api.json?rss_url=";
+const CACHE_KEY = "@noticias_cache_v2";
 
 export default function NoticiasScreen() {
   const [noticias, setNoticias] = useState([]);
+  const [noticiasFiltradas, setNoticiasFiltradas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [filtroActual, setFiltroActual] = useState(CATEGORIAS.TODO);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
 
-  const obtenerNoticias = async () => {
+  // --- 1. CARGA INICIAL (CACHÉ + RED) ---
+  useEffect(() => {
+    cargarCache(); // 1. Muestra lo guardado inmediatamente
+    fetchNoticias(false); // 2. Busca actualizaciones en silencio
+  }, []);
+
+  // --- 2. FILTRADO ---
+  useEffect(() => {
+    if (filtroActual === CATEGORIAS.TODO) {
+      setNoticiasFiltradas(noticias);
+    } else {
+      setNoticiasFiltradas(noticias.filter(n => n.categoria === filtroActual));
+    }
+  }, [filtroActual, noticias]);
+
+  // --- LÓGICA DE CACHÉ ---
+  const cargarCache = async () => {
     try {
+      const jsonValue = await AsyncStorage.getItem(CACHE_KEY);
+      if (jsonValue != null) {
+        const data = JSON.parse(jsonValue);
+        setNoticias(data.items);
+        setUltimaActualizacion(data.date);
+        setCargando(false); // Si hay caché, ya no mostramos loading
+      }
+    } catch(e) { console.log("Error caché", e); }
+  };
+
+  const guardarCache = async (nuevasNoticias) => {
+    try {
+      const now = new Date().toISOString();
+      const data = { items: nuevasNoticias, date: now };
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      setUltimaActualizacion(now);
+    } catch (e) { console.log("Error guardando caché", e); }
+  };
+
+  // --- LÓGICA DE RED ---
+  const fetchNoticias = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    
+    try {
+      // Promesas con Timeout para que no se quede pegado si una falla
       const promesas = FUENTES.map(async (fuente) => {
         try {
-          const response = await fetch(BASE_API + encodeURIComponent(fuente.url));
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 seg max por fuente
+
+          const response = await fetch(BASE_API + encodeURIComponent(fuente.url), { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
           const json = await response.json();
           if (json.status === 'ok') {
             return json.items.map(item => ({ 
               ...item, 
               fuenteNombre: fuente.nombre, 
               fuenteColor: fuente.color,
-              // Convertimos fecha para ordenar
+              categoria: fuente.cat,
+              id: item.guid || item.link, // ID único
               fechaOrden: new Date(item.pubDate) 
             }));
           }
-        } catch (e) { 
-            // Si falla una fuente, la ignoramos silenciosamente y seguimos con las demás
-            return []; 
-        }
+        } catch (e) { return []; } // Si falla una, retorna vacío
         return [];
       });
 
-      // Esperamos a que TODAS las fuentes respondan
       const resultados = await Promise.all(promesas);
-      
-      // Unimos todo en una sola lista gigante
-      const noticiasUnidas = resultados.flat();
+      const noticiasUnidas = resultados.flat().sort((a, b) => b.fechaOrden - a.fechaOrden);
 
-      // ORDENAMIENTO: Lo más reciente primero
-      noticiasUnidas.sort((a, b) => b.fechaOrden - a.fechaOrden);
+      // Eliminar duplicados (por si acaso)
+      const uniqueNews = Array.from(new Map(noticiasUnidas.map(item => [item.title, item])).values());
 
-      setNoticias(noticiasUnidas);
+      if (uniqueNews.length > 0) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setNoticias(uniqueNews);
+        guardarCache(uniqueNews);
+      }
 
-    } catch (error) { 
-      console.error("Error general:", error); 
-    } finally { 
-      setCargando(false); 
-      setRefreshing(false); 
+    } catch (error) {
+      console.error("Error global noticias", error);
+    } finally {
+      setCargando(false);
+      setRefreshing(false);
     }
   };
 
-  useEffect(() => { obtenerNoticias(); }, []);
-  
-  const onRefresh = () => { setRefreshing(true); obtenerNoticias(); };
-  
-  const abrirNoticia = (url) => { if (url) Linking.openURL(url); };
-
-  const formatearFecha = (fechaString) => { 
-    const f = new Date(fechaString); 
-    // Formato corto para ahorrar espacio: "13/12 10:30"
-    return `${f.getDate()}/${f.getMonth()+1} ${f.getHours()}:${f.getMinutes() < 10 ? '0' : ''}${f.getMinutes()}`; 
+  const onShare = async (item) => {
+    try {
+      await Share.share({
+        message: `${item.title}\n\nLeído en RoslinApp:\n${item.link}`,
+      });
+    } catch (error) { console.log(error); }
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => abrirNoticia(item.link)}>
-      <View style={styles.imageContainer}>
-        {item.thumbnail ? (
-            <Image source={{ uri: item.thumbnail }} style={styles.cardImage} resizeMode="cover" />
-        ) : (
-            <View style={[styles.cardImage, styles.placeholderImage]}>
-                <MaterialCommunityIcons name="newspaper-variant-outline" size={40} color="#8C6239" />
-            </View>
-        )}
-        {/* Badge de la fuente */}
-        <View style={[styles.sourceBadge, { backgroundColor: item.fuenteColor || '#444' }]}>
-            <Text style={styles.sourceText}>{item.fuenteNombre}</Text>
-        </View>
-      </View>
-      
-      <View style={styles.cardContent}>
-        <View style={styles.metaRow}>
-            <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaterialCommunityIcons name="clock-outline" size={12} color="#7f8c8d" /> 
-                <Text style={styles.date}> {formatearFecha(item.pubDate)}</Text>
-            </View>
-        </View>
-        
-        <Text style={styles.title} numberOfLines={3}>{item.title}</Text>
-        
-        {/* Descripción limpia */}
-        <Text style={styles.description} numberOfLines={3}>
-            {item.description ? item.description.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : ""}
-        </Text>
-        
-        <View style={styles.readMore}>
-            <Text style={[styles.readMoreText, { color: item.fuenteColor }]}>Leer nota</Text>
-            <MaterialCommunityIcons name="chevron-right" size={16} color={item.fuenteColor} />
-        </View>
-      </View>
-    </TouchableOpacity>
+  const formatearFecha = (fecha) => {
+    const d = new Date(fecha);
+    const ahora = new Date();
+    const dif = Math.floor((ahora - d) / (1000 * 60 * 60)); // Diferencia en horas
+    
+    if (dif < 1) return "Hace un momento";
+    if (dif < 24) return `Hace ${dif} horas`;
+    return `${d.getDate()}/${d.getMonth() + 1}`;
+  };
+
+  // --- RENDERIZADO: SKELETON (CARGA) ---
+  const RenderSkeleton = () => (
+    <View style={styles.skeletonContainer}>
+       {[1, 2, 3].map(i => (
+         <View key={i} style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonTextBar} />
+            <View style={[styles.skeletonTextBar, {width: '60%'}]} />
+         </View>
+       ))}
+    </View>
   );
+
+  // --- RENDERIZADO: ITEM NORMAL ---
+  const renderItem = ({ item, index }) => {
+    // La primera noticia es la destacada (si estamos en filtro 'Todo' o el índice es 0)
+    const isFeatured = index === 0;
+
+    if (isFeatured) {
+        return (
+            <TouchableOpacity style={styles.featuredCard} onPress={() => Linking.openURL(item.link)}>
+                <Image source={{ uri: item.thumbnail || 'https://via.placeholder.com/400x200?text=AgroNoticias' }} style={styles.featuredImage} />
+                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.featuredOverlay}>
+                    <View style={[styles.categoryTag, { backgroundColor: item.fuenteColor }]}>
+                        <Text style={styles.categoryText}>{item.fuenteNombre}</Text>
+                    </View>
+                    <Text style={styles.featuredTitle} numberOfLines={3}>{item.title}</Text>
+                    <Text style={styles.featuredDate}>{formatearFecha(item.pubDate)} • {item.categoria}</Text>
+                </LinearGradient>
+            </TouchableOpacity>
+        );
+    }
+
+    return (
+        <TouchableOpacity style={styles.rowCard} onPress={() => Linking.openURL(item.link)}>
+            <View style={styles.rowContent}>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                    <View style={[styles.miniDot, {backgroundColor: item.fuenteColor}]} />
+                    <Text style={styles.rowSource}>{item.fuenteNombre}</Text>
+                    <Text style={styles.rowDate}> • {formatearFecha(item.pubDate)}</Text>
+                </View>
+                <Text style={styles.rowTitle} numberOfLines={3}>{item.title}</Text>
+                
+                <View style={styles.rowActions}>
+                    <TouchableOpacity onPress={() => onShare(item)} style={{flexDirection:'row', alignItems:'center'}}>
+                        <MaterialCommunityIcons name="share-variant-outline" size={16} color="#7f8c8d" />
+                        <Text style={styles.actionText}>Compartir</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            
+            {item.thumbnail ? (
+                <Image source={{ uri: item.thumbnail }} style={styles.rowImage} />
+            ) : (
+                <View style={[styles.rowImage, styles.placeholderImg]}>
+                     <MaterialCommunityIcons name="newspaper" size={24} color="#bdc3c7" />
+                </View>
+            )}
+        </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header Sólido (Sin bug de gradiente) */}
+      <StatusBar barStyle="light-content" backgroundColor="#1B5E20" />
+      
+      {/* HEADER MODERNO */}
       <View style={styles.header}>
-        <View style={{flexDirection: 'row', alignItems:'center'}}>
-            <MaterialCommunityIcons name="earth" size={28} color="#fff" style={{marginRight: 10}} />
-            <Text style={styles.headerTitle}>AgroNoticias Global</Text>
-        </View>
-        <Text style={styles.headerSub}>México, Latam y Ciencia</Text>
+         <Text style={styles.headerTitle}>AgroNoticias</Text>
+         <Text style={styles.headerSubtitle}>Actualidad Global</Text>
       </View>
 
-      {cargando ? (
-        <View style={styles.loader}>
-            <ActivityIndicator size="large" color="#2E7D32" />
-            <Text style={{marginTop: 10, color:'#555'}}>Recopilando noticias...</Text>
-        </View>
-      ) : (
+      {/* CHIPS DE CATEGORÍAS */}
+      <View style={styles.chipsContainer}>
         <FlatList 
-            data={noticias} 
-            keyExtractor={(item, index) => index.toString()} 
-            renderItem={renderItem} 
-            contentContainerStyle={styles.listContent} 
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2E7D32']} />
-            }
-            ListEmptyComponent={
-                <View style={{alignItems:'center', marginTop: 50}}>
-                    <MaterialCommunityIcons name="wifi-off" size={40} color="#ccc" />
-                    <Text style={{color:'#999', marginTop:10}}>Verifica tu conexión.</Text>
-                </View>
-            }
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={Object.values(CATEGORIAS)}
+            keyExtractor={item => item}
+            contentContainerStyle={{paddingHorizontal: 15}}
+            renderItem={({item}) => (
+                <TouchableOpacity 
+                    style={[styles.chip, filtroActual === item && styles.chipActive]}
+                    onPress={() => setFiltroActual(item)}
+                >
+                    <Text style={[styles.chipText, filtroActual === item && styles.chipTextActive]}>{item}</Text>
+                </TouchableOpacity>
+            )}
+        />
+      </View>
+
+      {/* LISTA DE NOTICIAS */}
+      {cargando && noticias.length === 0 ? (
+        <RenderSkeleton />
+      ) : (
+        <FlatList
+          data={noticiasFiltradas}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={() => fetchNoticias(true)} colors={['#2E7D32']} />
+          }
+          ListFooterComponent={
+            ultimaActualizacion && (
+              <Text style={styles.footerText}>
+                Actualizado: {new Date(ultimaActualizacion).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </Text>
+            )
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+                <MaterialCommunityIcons name="newspaper-remove" size={50} color="#ccc" />
+                <Text style={{color: '#999', marginTop: 10}}>No hay noticias en esta categoría.</Text>
+            </View>
+          }
         />
       )}
     </View>
@@ -168,48 +274,97 @@ export default function NoticiasScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FDFBF7' },
+  container: { flex: 1, backgroundColor: '#F2F4F6' },
+  
+  // Header
   header: { 
+    backgroundColor: '#1B5E20', 
     paddingTop: 50, 
     paddingBottom: 20, 
-    paddingHorizontal: 20, 
-    backgroundColor: '#1B5E20', // Verde Oscuro
-    borderBottomLeftRadius: 25, 
-    borderBottomRightRadius: 25, 
-    elevation: 6
+    paddingHorizontal: 20,
+    borderBottomRightRadius: 30,
   },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-  headerSub: { fontSize: 14, color: '#A5D6A7', marginTop: 5 },
-  
-  listContent: { padding: 15 },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  
-  card: { 
+  headerTitle: { fontSize: 28, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
+  headerSubtitle: { fontSize: 14, color: '#A5D6A7', fontWeight: '600' },
+
+  // Chips
+  chipsContainer: { marginVertical: 15, height: 40 },
+  chip: { 
+    paddingHorizontal: 16, 
+    paddingVertical: 8, 
     backgroundColor: '#fff', 
-    borderRadius: 16, 
-    marginBottom: 20, 
-    elevation: 3,
-    shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 },
-    overflow: 'hidden' 
+    borderRadius: 20, 
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    elevation: 2
   },
-  imageContainer: { position: 'relative', height: 150, backgroundColor: '#f0f0f0' },
-  cardImage: { width: '100%', height: '100%' },
-  placeholderImage: { justifyContent: 'center', alignItems: 'center', backgroundColor: '#EAECEE' },
-  
-  sourceBadge: { 
-    position: 'absolute', top: 10, right: 10, 
-    paddingHorizontal: 8, paddingVertical: 4, 
-    borderRadius: 12, elevation: 2
+  chipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
+  chipText: { color: '#555', fontWeight: '600', fontSize: 13 },
+  chipTextActive: { color: '#fff' },
+
+  // Destacada (Featured)
+  featuredCard: {
+    marginHorizontal: 15,
+    marginBottom: 20,
+    height: 250,
+    borderRadius: 18,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    elevation: 5
   },
-  sourceText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  featuredImage: { width: '100%', height: '100%', opacity: 0.8 },
+  featuredOverlay: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    height: '60%',
+    justifyContent: 'flex-end',
+    padding: 15
+  },
+  categoryTag: { 
+    alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, 
+    borderRadius: 6, marginBottom: 8 
+  },
+  categoryText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  featuredTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold', lineHeight: 26, marginBottom: 5 },
+  featuredDate: { color: '#ddd', fontSize: 12 },
+
+  // Lista Normal (Row)
+  rowCard: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginHorizontal: 15,
+    marginBottom: 12,
+    borderRadius: 12,
+    padding: 12,
+    elevation: 2,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowOffset: {width:0, height:2}
+  },
+  rowContent: { flex: 1, marginRight: 10, justifyContent: 'space-between' },
+  rowSource: { fontSize: 11, fontWeight: '700', color: '#555' },
+  rowDate: { fontSize: 11, color: '#999' },
+  miniDot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
+  rowTitle: { fontSize: 15, fontWeight: '600', color: '#2c3e50', lineHeight: 20, marginVertical: 5 },
+  rowImage: { width: 90, height: 90, borderRadius: 8, backgroundColor: '#f0f0f0' },
+  placeholderImg: { justifyContent: 'center', alignItems: 'center' },
   
-  cardContent: { padding: 15 },
-  metaRow: { flexDirection: 'row', justifyContent:'space-between', marginBottom: 6 },
-  date: { fontSize: 11, color: '#95a5a6' },
-  
-  title: { fontSize: 16, fontWeight: 'bold', color: '#2C3E50', marginBottom: 6, lineHeight: 22 },
-  description: { fontSize: 13, color: '#555', marginBottom: 10, lineHeight: 18 },
-  
-  readMore: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f9f9f9' },
-  readMoreText: { fontWeight: '700', fontSize: 12, marginRight: 2 },
+  rowActions: { flexDirection: 'row', marginTop: 5 },
+  actionText: { fontSize: 11, color: '#7f8c8d', marginLeft: 4 },
+
+  // Footer & Empty
+  footerText: { textAlign: 'center', color: '#aaa', fontSize: 11, marginBottom: 20, fontStyle: 'italic' },
+  emptyState: { alignItems: 'center', marginTop: 50 },
+
+  // Skeleton
+  skeletonContainer: { paddingHorizontal: 15 },
+  skeletonCard: {
+    backgroundColor: '#fff',
+    height: 100,
+    borderRadius: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10
+  },
+  skeletonImage: { width: 80, height: 80, backgroundColor: '#eee', borderRadius: 8 },
+  skeletonTextBar: { height: 10, backgroundColor: '#eee', marginTop: 10, borderRadius: 5, flex: 1, marginLeft: 10 }
 });

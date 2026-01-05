@@ -129,7 +129,7 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
   if (errorMsg || !weather) return <TouchableOpacity onPress={fetchWeather} style={styles.cardSmall}><Text style={{color:'red', fontSize: 16}}>Error Clima (Toque para reintentar)</Text></TouchableOpacity>;
 
   const { main, weather: details, wind, name } = weather;
-  const iconUrl = `https://openweathermap.org/img/wn/${details[0].icon}@2x.png`; // Icono más grande (@2x)
+  // const iconUrl = `https://openweathermap.org/img/wn/${details[0].icon}@2x.png`; // <-- Ya no necesitamos la URL del ícono principal
   const evalActual = evaluarData(weather);
 
   return (
@@ -138,7 +138,7 @@ export default function ClimaWidget({ onEvaluarCondiciones }) {
       {/* CABECERA (RESUMEN) */}
       <View style={styles.compactRow}>
          <View style={{flexDirection: 'row', alignItems: 'center', width: '35%'}}>
-            <Image source={{ uri: iconUrl }} style={{width: 50, height: 50}} />
+            {/* <Image source={{ uri: iconUrl }} style={{width: 50, height: 50}} />  <-- IMAGEN ELIMINADA */}
             <View>
                 <Text style={styles.cityText} numberOfLines={1}>{name}</Text>
                 <Text style={styles.altText}>{altitude} msnm</Text>

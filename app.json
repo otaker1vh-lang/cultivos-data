@@ -33,9 +33,22 @@
       "favicon": "./assets/roslin_icon.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.0.20",
+            "extraMavenRepos": ["https://google.bintray.com/tensorflow"]
+          },
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       "react-native-fast-tflite",
       "react-native-vision-camera",
-      "expo-font"
+      "expo-font",
+      "expo-asset"
     ],
     "extra": {
       "eas": {

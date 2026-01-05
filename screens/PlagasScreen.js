@@ -1,745 +1,411 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  View, Text, StyleSheet, TouchableOpacity, Modal, 
-  ScrollView, Alert, FlatList, TextInput, ActivityIndicator 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  ActivityIndicator, 
+  TouchableOpacity, 
+  Alert 
 } from 'react-native';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
-import CultivoDataManager from '../utils/CultivoDataManager';
+import CultivoDataManager from "../utils/CultivoDataManager";
 
-export default function PlagasScreen({ route, navigation }) {
-  const { cultivo } = route.params || { cultivo: 'Maíz' };
-  const STORAGE_KEY = `@notas_${cultivo}`;
+// Componente para chips de filtro (Optimizado)
+const FilterChip = ({ label, selected, onPress, icon }) => (
+  <TouchableOpacity 
+    style={[styles.filterChip, selected && styles.filterChipSelected]} 
+    onPress={onPress}
+  >
+    {icon && <MaterialCommunityIcons name={icon} size={16} color={selected ? "#fff" : "#555"} style={{marginRight: 4}} />}
+    <Text style={[styles.filterText, selected && styles.filterTextSelected]}>{label}</Text>
+  </TouchableOpacity>
+);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
-  
+export default function PlagasScreen({ route }) {
+  const { cultivo } = route.params;
+  const CACHE_KEY = `@plagas_data_${cultivo}`;
+
   // --- ESTADOS ---
-  const [cultivoData, setCultivoData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [nivel, setNivel] = useState('basico');
-  const [listaFusionada, setListaFusionada] = useState([]);
-  const [plagaSeleccionada, setPlagaSeleccionada] = useState(null);
+  const [loadingCompleto, setLoadingCompleto] = useState(false); // Estado para el botón de descarga
+  const [nivel, setNivel] = useState('basico'); // basico | completo
   
-  // Filtros y búsqueda
-  const [filtroTipo, setFiltroTipo] = useState('Todos'); // 'Todos', 'Plagas', 'Enfermedades'
-  const [busqueda, setBusqueda] = useState('');
-  
-  // Modales
-  const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [plagasList, setPlagasList] = useState([]);
+  const [gddInfo, setGddInfo] = useState(null); // Datos de Grados Día
+  const [filter, setFilter] = useState('todos');
+  const [expandedId, setExpandedId] = useState(null);
 
-  // --- ESTADOS PARA EDICIÓN ---
-  const [misSintomas, setMisSintomas] = useState('');
-  const [listaTratamientos, setListaTratamientos] = useState([]); 
-  const [tempProducto, setTempProducto] = useState(''); 
-  const [tempDosis, setTempDosis] = useState('');
-  const [fechaAplicacion, setFechaAplicacion] = useState('');
-  const [nivelSeveridad, setNivelSeveridad] = useState('Baja'); // Nueva: Baja, Media, Alta
-
-  // ---------------------------------------------------------
-  // CARGAR DATOS CON CultivoDataManager
-  // ---------------------------------------------------------
   useEffect(() => {
     cargarDatos();
   }, [cultivo]);
 
+  // 1. LÓGICA DE CARGA HÍBRIDA (Caché + API)
   const cargarDatos = async () => {
     setLoading(true);
-    
     try {
-      const basicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
-      setCultivoData(basicos);
-      setNivel('basico');
+      // A. Carga rápida desde caché
+      const datosGuardados = await AsyncStorage.getItem(CACHE_KEY);
+
+      if (datosGuardados) {
+        const parsedData = JSON.parse(datosGuardados);
+        procesarYSetearDatos(parsedData);
+        setLoading(false);
+      }
+
+      // B. Carga desde DataManager (Fallback o actualización básica)
+      const datosBasicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
       
-      await fusionarConNotas(basicos);
-      setLoading(false);
-      
-      try {
-        const completos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
-        if (completos._nivel !== 'basico') {
-          setCultivoData(completos);
-          setNivel('completo');
-          await fusionarConNotas(completos);
+      if (datosBasicos) {
+        // Solo sobrescribimos si no hay caché o si el caché es básico y queremos asegurar datos mínimos
+        if (!datosGuardados || nivel === 'basico') {
+            procesarYSetearDatos(datosBasicos);
+            if (!datosGuardados) {
+                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datosBasicos));
+            }
         }
-      } catch (err) {
-        console.log('Usando datos básicos para plagas');
       }
     } catch (error) {
-      console.error("Error cargando datos:", error);
+      console.error("Error cargando plagas:", error);
+      Alert.alert("Error", "No se pudo cargar la información inicial.");
+    } finally {
       setLoading(false);
     }
   };
 
-  const fusionarConNotas = async (datos) => {
+  // 2. DESCARGA MANUAL DE DATOS COMPLETOS
+  const descargarDatosCompletos = async () => {
     try {
-      const datosOficiales = datos?.plagas_y_enfermedades || [];
-      const jsonNotas = await AsyncStorage.getItem(STORAGE_KEY);
-      const notasUsuario = jsonNotas ? JSON.parse(jsonNotas) : {};
-
-      const listaFinal = datosOficiales.map(item => {
-        const notas = notasUsuario[item.nombre] || {};
-        return {
-          ...item,
-          ...notas,
-          mis_tratamientos: Array.isArray(notas.mis_tratamientos) ? notas.mis_tratamientos : [],
-          severidad: notas.severidad || 'Sin registrar',
-          ultima_aplicacion: notas.ultima_aplicacion || null
-        };
-      });
-
-      setListaFusionada(listaFinal);
-    } catch (error) {
-      console.error("Error fusionando notas:", error);
-    }
-  };
-
-  // ---------------------------------------------------------
-  // FILTRADO Y BÚSQUEDA
-  // ---------------------------------------------------------
-  const listaFiltrada = listaFusionada.filter(item => {
-    const coincideBusqueda = item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-                            item.descripcion?.toLowerCase().includes(busqueda.toLowerCase());
-    
-    if (filtroTipo === 'Todos') return coincideBusqueda;
-    if (filtroTipo === 'Plagas') return item.tipo === 'Plaga' && coincideBusqueda;
-    if (filtroTipo === 'Enfermedades') return item.tipo === 'Enfermedad' && coincideBusqueda;
-    return true;
-  });
-
-  // ---------------------------------------------------------
-  // ESTADÍSTICAS
-  // ---------------------------------------------------------
-  const estadisticas = {
-    total: listaFusionada.length,
-    plagas: listaFusionada.filter(i => i.tipo === 'Plaga').length,
-    enfermedades: listaFusionada.filter(i => i.tipo === 'Enfermedad').length,
-    conTratamiento: listaFusionada.filter(i => i.mis_tratamientos?.length > 0).length,
-    severidadAlta: listaFusionada.filter(i => i.severidad === 'Alta').length
-  };
-
-  // ---------------------------------------------------------
-  // LÓGICA DE EDICIÓN
-  // ---------------------------------------------------------
-  
-  const abrirEditor = () => {
-    setMisSintomas(plagaSeleccionada.mis_sintomas || '');
-    setNivelSeveridad(plagaSeleccionada.severidad || 'Baja');
-    let tratamientosRecuperados = plagaSeleccionada.mis_tratamientos || [];
-    
-    // Migración de datos viejos
-    if (tratamientosRecuperados.length === 0 && plagaSeleccionada.mi_producto) {
-        tratamientosRecuperados.push({
-            id: Date.now(),
-            producto: plagaSeleccionada.mi_producto,
-            dosis: plagaSeleccionada.mi_dosis,
-            fecha: plagaSeleccionada.ultima_aplicacion || 'No especificada'
-        });
-    }
-    setListaTratamientos(tratamientosRecuperados);
-    setTempProducto('');
-    setTempDosis('');
-    setFechaAplicacion('');
-    setModalEditarVisible(true);
-  };
-
-  const agregarProductoALista = () => {
-      if (!tempProducto.trim()) {
-          Alert.alert("Falta información", "Escribe el nombre del producto.");
-          return;
-      }
-      const hoy = new Date().toLocaleDateString('es-MX');
-      const nuevoItem = {
-          id: Date.now(),
-          producto: tempProducto,
-          dosis: tempDosis || 'S/D',
-          fecha: fechaAplicacion || hoy
-      };
-      setListaTratamientos([...listaTratamientos, nuevoItem]);
-      setTempProducto('');
-      setTempDosis('');
-      setFechaAplicacion('');
-  };
-
-  const eliminarProductoDeLista = (id) => {
-      Alert.alert(
-        "Confirmar", 
-        "¿Eliminar este tratamiento?",
-        [
-          { text: "Cancelar", style: "cancel" },
-          { text: "Eliminar", style: "destructive", onPress: () => {
-            const filtrada = listaTratamientos.filter(item => item.id !== id);
-            setListaTratamientos(filtrada);
-          }}
-        ]
-      );
-  };
-
-  const guardarCambios = async () => {
-    if (!plagaSeleccionada) return;
-    try {
-      const jsonNotas = await AsyncStorage.getItem(STORAGE_KEY);
-      let notasGlobales = jsonNotas ? JSON.parse(jsonNotas) : {};
-
-      const ultimaFecha = listaTratamientos.length > 0 
-        ? listaTratamientos[listaTratamientos.length - 1].fecha 
-        : null;
-
-      notasGlobales[plagaSeleccionada.nombre] = {
-        mis_sintomas: misSintomas,
-        mis_tratamientos: listaTratamientos,
-        severidad: nivelSeveridad,
-        ultima_aplicacion: ultimaFecha,
-        mi_producto: null, 
-        mi_dosis: null
-      };
-
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(notasGlobales));
-      await fusionarConNotas(cultivoData); 
-      setModalEditarVisible(false);
+      setLoadingCompleto(true);
+      // Solicita explicitamente el paquete 'completo' al manager
+      const datosCompletos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
-      setPlagaSeleccionada(prev => ({ 
-          ...prev, 
-          mis_sintomas: misSintomas, 
-          mis_tratamientos: listaTratamientos,
-          severidad: nivelSeveridad,
-          ultima_aplicacion: ultimaFecha
-      }));
-      Alert.alert("✓ Guardado", "Información actualizada correctamente.");
-    } catch (error) {
-      Alert.alert("Error", "No se pudo guardar la información.");
+      if (datosCompletos) {
+        // Validamos si realmente llegó información nueva (GDD o lista de plagas enriquecida)
+        if (datosCompletos.plagas_y_enfermedades || datosCompletos.grados_dia_desarrollo) {
+            procesarYSetearDatos(datosCompletos);
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datosCompletos));
+            Alert.alert("Actualizado", "Base de datos técnica descargada correctamente.");
+        } else {
+            Alert.alert("Aviso", "No hay información adicional disponible por el momento.");
+        }
+      }
+    } catch (err) {
+      console.error("Error descarga:", err);
+      Alert.alert("Error de Conexión", "No se pudo descargar la información completa.");
+    } finally {
+      setLoadingCompleto(false);
     }
   };
 
-  // ---------------------------------------------------------
-  // EXPORTAR HISTORIAL
-  // ---------------------------------------------------------
-  const exportarHistorial = () => {
-    if (plagaSeleccionada?.mis_tratamientos?.length === 0) {
-      Alert.alert("Sin datos", "No hay tratamientos registrados para exportar.");
-      return;
+  // 3. PROCESAMIENTO CENTRALIZADO DE DATOS
+  const procesarYSetearDatos = (data) => {
+    // A. Detectar GDD (Nueva estructura)
+    if (data.grados_dia_desarrollo) {
+      setGddInfo(data.grados_dia_desarrollo);
     }
-    
-    let texto = `HISTORIAL DE TRATAMIENTOS\n`;
-    texto += `Plaga/Enfermedad: ${plagaSeleccionada.nombre}\n`;
-    texto += `Cultivo: ${cultivo}\n\n`;
-    
-    plagaSeleccionada.mis_tratamientos.forEach((t, i) => {
-      texto += `${i+1}. ${t.producto}\n`;
-      texto += `   Dosis: ${t.dosis}\n`;
-      texto += `   Fecha: ${t.fecha}\n\n`;
-    });
-    
-    Alert.alert("Historial", texto, [
-      { text: "Cerrar" },
-      { text: "Copiar", onPress: () => Alert.alert("Copiado", "Historial en portapapeles") }
-    ]);
+
+    // B. Detectar Lista de Plagas (Prioridad: plagas_y_enfermedades > plagas)
+    const lista = data.plagas_y_enfermedades || data.plagas || [];
+    setPlagasList(lista);
+
+    // C. Determinar si es Nivel Completo
+    // Consideramos "Completo" si tiene la nueva estructura GDD o la lista enriquecida
+    if (data.grados_dia_desarrollo || data.plagas_y_enfermedades) {
+        setNivel('completo');
+    } else {
+        // Fallback: Si la lista es muy larga, asumimos que ya era completa en la versión anterior
+        setNivel(lista.length > 5 ? 'completo' : 'basico');
+    }
   };
 
-  // ---------------------------------------------------------
-  // LOADING STATE
-  // ---------------------------------------------------------
-  if (loading && !cultivoData) {
+  const getFilteredList = () => {
+    if (filter === 'todos') return plagasList;
+    return plagasList.filter(item => 
+      item.tipo && item.tipo.toLowerCase().includes(filter.toLowerCase())
+    );
+  };
+
+  const toggleExpand = (nombre) => {
+    setExpandedId(expandedId === nombre ? null : nombre);
+  };
+
+  if (loading && plagasList.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{padding:5}}>
-            <Ionicons name="arrow-back" size={24} color="#2E7D32" />
-          </TouchableOpacity>
-          <View style={{flex:1, marginLeft: 10}}>
-            <Text style={styles.headerTitle}>Sanidad Vegetal</Text>
-          </View>
-        </View>
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#2E7D32" />
-          <Text style={styles.loadingText}>Cargando información de plagas...</Text>
-        </View>
-      </SafeAreaView>
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#D32F2F" />
+        <Text style={styles.loadingText}>Cargando guía sanitaria...</Text>
+      </View>
     );
   }
 
-  // ---------------------------------------------------------
-  // RENDER
-  // ---------------------------------------------------------
-  const renderItem = ({ item }) => {
-    const esEnfermedad = item.tipo === 'Enfermedad';
-    const tieneNotas = item.mis_sintomas || (item.mis_tratamientos && item.mis_tratamientos.length > 0);
-    
-    const colorSeveridad = item.severidad === 'Alta' ? '#D32F2F' : 
-                          item.severidad === 'Media' ? '#F57C00' : '#4CAF50';
-
-    return (
-      <TouchableOpacity style={styles.card} onPress={() => setPlagaSeleccionada(item)}>
-        <View style={[styles.iconBox, { backgroundColor: esEnfermedad ? '#FFEBEE' : '#E8F5E9' }]}>
-           <MaterialCommunityIcons 
-              name={esEnfermedad ? "alert-decagram" : "bug"} 
-              size={24} 
-              color={esEnfermedad ? "#D32F2F" : "#2E7D32"} 
-           />
-        </View>
-        <View style={{flex: 1}}>
-           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-             <Text style={styles.cardTitle}>{item.nombre}</Text>
-             {item.severidad !== 'Sin registrar' && (
-               <View style={[styles.severidadBadge, {backgroundColor: colorSeveridad}]}>
-                 <Text style={styles.severidadText}>{item.severidad}</Text>
-               </View>
-             )}
-           </View>
-           <Text style={styles.cardSubtitle} numberOfLines={1}>
-             {item.descripcion || "Ver ficha técnica"}
-           </Text>
-           {item.ultima_aplicacion && (
-             <Text style={styles.ultimaAplicacion}>
-               🕐 Última aplicación: {item.ultima_aplicacion}
-             </Text>
-           )}
-           {tieneNotas && (
-             <View style={styles.badgeEditado}>
-               <Ionicons name="pencil" size={10} color="#1976D2" />
-               <Text style={styles.badgeText}>
-                 {item.mis_tratamientos?.length || 0} tratamiento(s)
-               </Text>
-             </View>
-           )}
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#ccc" />
-      </TouchableOpacity>
-    );
-  };
-
-  const esDatosCompletos = nivel === 'completo';
+  const filteredData = getFilteredList();
+  const esCompleto = nivel === 'completo';
 
   return (
-    <SafeAreaView style={styles.container}>
-      
-      {/* HEADER */}
+    <View style={styles.container}>
+      {/* HEADER: Título y Botón de Descarga/Estado */}
       <View style={styles.header}>
-         <TouchableOpacity onPress={() => navigation.goBack()} style={{padding:5}}>
-            <Ionicons name="arrow-back" size={24} color="#2E7D32" />
-         </TouchableOpacity>
-         <View style={{flex:1, marginLeft: 10}}>
-            <Text style={styles.headerTitle}>Sanidad Vegetal</Text>
-            <Text style={styles.headerSubtitle}>
-              {cultivo} • {estadisticas.total} registros
-            </Text>
-         </View>
-         <View style={[styles.badge, esDatosCompletos ? styles.badgeCompleto : styles.badgeBasico]}>
-           <Text style={styles.badgeTextHeader}>
-             {esDatosCompletos ? '✓' : '📶'}
-           </Text>
-         </View>
+        <View style={{flex: 1}}>
+            <Text style={styles.title}>Plagas y Enfermedades</Text>
+            <Text style={styles.subtitle}>{esCompleto ? "Guía Técnica Completa" : "Guía Básica"}</Text>
+        </View>
+
+        {esCompleto ? (
+             <View style={[styles.badge, styles.badgeCompleto]}>
+               <Text style={styles.badgeText}>✓ Completo</Text>
+             </View>
+        ) : (
+             <TouchableOpacity 
+                style={styles.btnDescargar} 
+                onPress={descargarDatosCompletos}
+                disabled={loadingCompleto}
+             >
+                {loadingCompleto ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                    <>
+                        <Ionicons name="cloud-download-outline" size={16} color="#fff" style={{marginRight:4}} />
+                        <Text style={styles.btnDescargarText}>Completar</Text>
+                    </>
+                )}
+             </TouchableOpacity>
+        )}
       </View>
 
-      {/* ESTADÍSTICAS RÁPIDAS */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statBox}>
-          <MaterialCommunityIcons name="bug" size={20} color="#2E7D32" />
-          <Text style={styles.statNumber}>{estadisticas.plagas}</Text>
-          <Text style={styles.statLabel}>Plagas</Text>
-        </View>
-        <View style={styles.statBox}>
-          <MaterialCommunityIcons name="alert-decagram" size={20} color="#D32F2F" />
-          <Text style={styles.statNumber}>{estadisticas.enfermedades}</Text>
-          <Text style={styles.statLabel}>Enfermedades</Text>
-        </View>
-        <View style={styles.statBox}>
-          <MaterialCommunityIcons name="check-circle" size={20} color="#1976D2" />
-          <Text style={styles.statNumber}>{estadisticas.conTratamiento}</Text>
-          <Text style={styles.statLabel}>Tratados</Text>
-        </View>
-        {estadisticas.severidadAlta > 0 && (
-          <View style={styles.statBox}>
-            <MaterialCommunityIcons name="alert" size={20} color="#F57C00" />
-            <Text style={styles.statNumber}>{estadisticas.severidadAlta}</Text>
-            <Text style={styles.statLabel}>Alta severidad</Text>
+      {/* TARJETA GDD: Solo se muestra si hay datos térmicos (Optimización) */}
+      {gddInfo && (
+        <View style={styles.gddCard}>
+          <View style={styles.gddHeader}>
+            <MaterialCommunityIcons name="thermometer-lines" size={24} color="#E65100" />
+            <Text style={styles.gddTitle}>Parámetros Térmicos</Text>
           </View>
-        )}
-      </View>
-
-      {/* BÚSQUEDA */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#999" style={{marginRight: 10}} />
-        <TextInput 
-          style={styles.searchInput}
-          placeholder="Buscar plaga o enfermedad..."
-          value={busqueda}
-          onChangeText={setBusqueda}
-        />
-        {busqueda.length > 0 && (
-          <TouchableOpacity onPress={() => setBusqueda('')}>
-            <Ionicons name="close-circle" size={20} color="#999" />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* FILTROS */}
-      <View style={styles.filtrosContainer}>
-        {['Todos', 'Plagas', 'Enfermedades'].map(tipo => (
-          <TouchableOpacity 
-            key={tipo}
-            style={[styles.filtroBtn, filtroTipo === tipo && styles.filtroBtnActivo]}
-            onPress={() => setFiltroTipo(tipo)}
-          >
-            <Text style={[styles.filtroText, filtroTipo === tipo && styles.filtroTextActivo]}>
-              {tipo}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* LISTA */}
-      <FlatList 
-         data={listaFiltrada}
-         keyExtractor={(item, index) => index.toString()}
-         renderItem={renderItem}
-         contentContainerStyle={{ padding: 15, paddingBottom: 50 }}
-         ListEmptyComponent={
-            <View style={{alignItems:'center', marginTop: 50}}>
-               <MaterialCommunityIcons name="magnify" size={50} color="#ccc" />
-               <Text style={{color:'#999', marginTop:10}}>
-                 {busqueda ? 'No se encontraron resultados' : 'No hay plagas registradas'}
-               </Text>
+          <View style={styles.gddContent}>
+            <View style={styles.gddItem}>
+              <Text style={styles.gddLabel}>Base Térmica</Text>
+              <Text style={styles.gddValue}>{gddInfo.base_termica}°C</Text>
             </View>
-         }
-      />
-
-      {/* MODAL DETALLE */}
-      {plagaSeleccionada && (
-         <Modal visible={true} transparent={true} animationType="fade" onRequestClose={() => setPlagaSeleccionada(null)}>
-            <View style={styles.modalOverlay}>
-               <View style={styles.fichaCard}>
-                  <View style={styles.fichaHeader}>
-                      <View style={{flex:1}}>
-                          <Text style={styles.fichaTitle}>{plagaSeleccionada.nombre}</Text>
-                          <Text style={styles.fichaSubtitle}>
-                            {plagaSeleccionada.tipo} • {cultivo}
-                          </Text>
-                      </View>
-                      <TouchableOpacity onPress={() => setPlagaSeleccionada(null)}>
-                          <Ionicons name="close-circle" size={32} color="#999"/>
-                      </TouchableOpacity>
-                  </View>
-                  
-                  <ScrollView showsVerticalScrollIndicator={false}>
-                     {/* INFO OFICIAL */}
-                     <View style={styles.sectionContainer}>
-                        <Text style={styles.sectionHeader}>📖 Ficha Técnica Oficial</Text>
-                        <Text style={styles.bodyText}>{plagaSeleccionada.descripcion}</Text>
-                        
-                        {plagaSeleccionada.control?.mecanismo && (
-                          <>
-                            <Text style={[styles.label, {marginTop:10}]}>Control Recomendado:</Text>
-                            <Text style={styles.bodyText}>{plagaSeleccionada.control.mecanismo}</Text>
-                          </>
-                        )}
-                        
-                        {plagaSeleccionada.control?.productos_activos_mexico?.length > 0 && (
-                          <>
-                            <Text style={[styles.label, {marginTop:10}]}>Productos Registrados:</Text>
-                            {plagaSeleccionada.control.productos_activos_mexico.map((prod, i) => (
-                              <View key={i} style={styles.productoOficialRow}>
-                                <MaterialCommunityIcons name="flask" size={16} color="#2E7D32" />
-                                <Text style={styles.oficialText}>
-                                  {prod.ingrediente} - {prod.dosis_tipo}
-                                </Text>
-                              </View>
-                            ))}
-                          </>
-                        )}
-                     </View>
-
-                     {/* NOTAS USUARIO */}
-                     <View style={[styles.sectionContainer, styles.userSection]}>
-                        <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10}}>
-                           <Text style={[styles.sectionHeader, {color:'#1565C0', marginBottom:0}]}>
-                             📝 Mi Bitácora
-                           </Text>
-                           <TouchableOpacity onPress={abrirEditor} style={styles.btnEditar}>
-                              <Ionicons name="create-outline" size={16} color="#1565C0" />
-                              <Text style={{color:'#1565C0', fontWeight:'bold', fontSize:12, marginLeft: 4}}>
-                                EDITAR
-                              </Text>
-                           </TouchableOpacity>
-                        </View>
-
-                        {/* Severidad */}
-                        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
-                          <Text style={styles.labelUser}>Nivel de severidad: </Text>
-                          <View style={[styles.severidadBadgeLarge, {
-                            backgroundColor: plagaSeleccionada.severidad === 'Alta' ? '#FFEBEE' : 
-                                           plagaSeleccionada.severidad === 'Media' ? '#FFF3E0' : '#E8F5E9'
-                          }]}>
-                            <Text style={[styles.severidadTextLarge, {
-                              color: plagaSeleccionada.severidad === 'Alta' ? '#D32F2F' : 
-                                    plagaSeleccionada.severidad === 'Media' ? '#F57C00' : '#2E7D32'
-                            }]}>
-                              {plagaSeleccionada.severidad}
-                            </Text>
-                          </View>
-                        </View>
-
-                        <Text style={styles.labelUser}>Observaciones:</Text>
-                        <Text style={styles.bodyTextUser}>
-                           {plagaSeleccionada.mis_sintomas || "Sin observaciones registradas."}
-                        </Text>
-
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 5}}>
-                          <Text style={styles.labelUser}>Historial de Tratamientos:</Text>
-                          {plagaSeleccionada.mis_tratamientos?.length > 0 && (
-                            <TouchableOpacity onPress={exportarHistorial}>
-                              <MaterialCommunityIcons name="export" size={18} color="#1565C0" />
-                            </TouchableOpacity>
-                          )}
-                        </View>
-                        
-                        {plagaSeleccionada.mis_tratamientos && plagaSeleccionada.mis_tratamientos.length > 0 ? (
-                            plagaSeleccionada.mis_tratamientos.map((trat, index) => (
-                                <View key={index} style={styles.tratamientoRow}>
-                                    <View style={styles.tratNumero}>
-                                      <Text style={styles.tratNumeroText}>{index + 1}</Text>
-                                    </View>
-                                    <View style={{flex:1}}>
-                                        <Text style={styles.tratProducto}>{trat.producto}</Text>
-                                        <Text style={styles.tratDosis}>Dosis: {trat.dosis}</Text>
-                                        {trat.fecha && (
-                                          <Text style={styles.tratFecha}>📅 {trat.fecha}</Text>
-                                        )}
-                                    </View>
-                                </View>
-                            ))
-                        ) : (
-                            <View style={styles.emptyState}>
-                              <MaterialCommunityIcons name="flask-empty-outline" size={32} color="#ccc" />
-                              <Text style={styles.emptyText}>No has registrado aplicaciones</Text>
-                            </View>
-                        )}
-                     </View>
-                  </ScrollView>
-               </View>
+            <View style={styles.separatorVertical} />
+            <View style={styles.gddItem}>
+              <Text style={styles.gddLabel}>GDD Ciclo</Text>
+              <Text style={styles.gddValue}>{gddInfo.gdd_ciclo_completo}</Text>
             </View>
-         </Modal>
+          </View>
+          {gddInfo.nota && (
+             <Text style={styles.gddNote}>{gddInfo.nota}</Text>
+          )}
+        </View>
       )}
 
-      {/* MODAL EDITOR */}
-      <Modal visible={modalEditarVisible} animationType="slide" transparent={true} onRequestClose={()=>setModalEditarVisible(false)}>
-         <View style={styles.modalOverlay}>
-            <View style={styles.modalForm}>
-               <Text style={styles.modalTitle}>📋 Bitácora de Aplicación</Text>
-               <Text style={{color:'#666', fontSize:12, marginBottom:15}}>
-                 Para: <Text style={{fontWeight:'bold'}}>{plagaSeleccionada?.nombre}</Text>
-               </Text>
+      {/* FILTROS DE CATEGORÍA */}
+      <View style={styles.filtersContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingHorizontal: 15}}>
+          <FilterChip label="Todos" selected={filter === 'todos'} onPress={() => setFilter('todos')} icon="view-grid" />
+          <FilterChip label="Insectos" selected={filter === 'insecto'} onPress={() => setFilter('insecto')} icon="bug" />
+          <FilterChip label="Hongos" selected={filter === 'hongo'} onPress={() => setFilter('hongo')} icon="mushroom" />
+          <FilterChip label="Bacterias" selected={filter === 'bacteria'} onPress={() => setFilter('bacteria')} icon="bacteria" />
+          <FilterChip label="Virus" selected={filter === 'virus'} onPress={() => setFilter('virus')} icon="virus" />
+        </ScrollView>
+      </View>
 
-               <ScrollView showsVerticalScrollIndicator={false}>
-                  {/* Nivel de Severidad */}
-                  <Text style={styles.label}>Nivel de Severidad:</Text>
-                  <View style={styles.severidadSelector}>
-                    {['Baja', 'Media', 'Alta'].map(sev => (
-                      <TouchableOpacity 
-                        key={sev}
-                        style={[styles.severidadOption, nivelSeveridad === sev && styles.severidadOptionActiva]}
-                        onPress={() => setNivelSeveridad(sev)}
-                      >
-                        <Text style={[styles.severidadOptionText, nivelSeveridad === sev && styles.severidadOptionTextActiva]}>
-                          {sev}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
+      {/* LISTA DINÁMICA DE PLAGAS */}
+      <ScrollView style={styles.listContainer}>
+        {filteredData.length > 0 ? (
+          filteredData.map((item, index) => {
+            const isExpanded = expandedId === item.nombre;
+            
+            // Lógica automática de colores e iconos
+            let typeColor = '#757575';
+            let typeIcon = 'alert-circle';
+            const tipo = item.tipo ? item.tipo.toLowerCase() : '';
+
+            if (tipo.includes('insecto')) { typeColor = '#E65100'; typeIcon = 'bug'; }
+            else if (tipo.includes('hongo')) { typeColor = '#7B1FA2'; typeIcon = 'mushroom'; }
+            else if (tipo.includes('bacteria')) { typeColor = '#0097A7'; typeIcon = 'bacteria'; }
+            else if (tipo.includes('virus')) { typeColor = '#C62828'; typeIcon = 'virus'; }
+
+            return (
+              <View key={index} style={[styles.card, { borderLeftColor: typeColor }]}>
+                {/* CABECERA DE LA TARJETA */}
+                <TouchableOpacity 
+                  style={styles.cardHeader} 
+                  onPress={() => toggleExpand(item.nombre)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.headerIconContainer}>
+                    <MaterialCommunityIcons name={typeIcon} size={28} color={typeColor} />
                   </View>
-
-                  {/* Observaciones */}
-                  <Text style={styles.label}>Observaciones / Síntomas:</Text>
-                  <TextInput 
-                     style={[styles.input, {height:80, textAlignVertical:'top'}]} 
-                     multiline 
-                     value={misSintomas}
-                     onChangeText={setMisSintomas}
-                     placeholder="Ej: Hojas amarillas en el centro, presencia de larvas..."
+                  <View style={{flex: 1, paddingRight: 10}}>
+                    <Text style={styles.plagaName}>{item.nombre}</Text>
+                    
+                    {/* Renderizado condicional: Nombre Científico */}
+                    {item.nombre_cientifico && (
+                      <Text style={styles.scientificName}>{item.nombre_cientifico}</Text>
+                    )}
+                    
+                    <Text style={[styles.plagaType, {color: typeColor}]}>{item.tipo || 'General'}</Text>
+                  </View>
+                  <MaterialCommunityIcons 
+                    name={isExpanded ? "chevron-up" : "chevron-down"} 
+                    size={24} 
+                    color="#999" 
                   />
+                </TouchableOpacity>
 
-                  <View style={styles.divider} />
-                  
-                  {/* Agregar Tratamiento */}
-                  <Text style={styles.label}>➕ Agregar Tratamiento:</Text>
-                  
-                  <View style={styles.addBox}>
-                      <TextInput 
-                         style={[styles.input, {marginTop:0}]} 
-                         value={tempProducto}
-                         onChangeText={setTempProducto}
-                         placeholder="Nombre del producto (Ej: Cipermetrina 20%)"
-                      />
-                      <View style={{flexDirection:'row', gap:10, marginTop:10}}>
-                          <TextInput 
-                             style={[styles.input, {flex:1, marginTop:0}]} 
-                             value={tempDosis}
-                             onChangeText={setTempDosis}
-                             placeholder="Dosis (Ej: 1.5 L/ha)"
-                          />
-                          <TextInput 
-                             style={[styles.input, {flex:1, marginTop:0}]} 
-                             value={fechaAplicacion}
-                             onChangeText={setFechaAplicacion}
-                             placeholder="Fecha (DD/MM/AAAA)"
-                          />
+                {/* CONTENIDO EXPANDIBLE */}
+                {isExpanded && (
+                  <View style={styles.cardBody}>
+                    
+                    {/* Descripción */}
+                    {item.descripcion && (
+                      <Text style={styles.description}>{item.descripcion}</Text>
+                    )}
+
+                    <View style={styles.divider} />
+
+                    {/* Renderizado de Array: Síntomas */}
+                    {item.sintomas && Array.isArray(item.sintomas) && item.sintomas.length > 0 ? (
+                      <View style={styles.sectionBlock}>
+                        <Text style={styles.sectionTitle}>
+                          <MaterialCommunityIcons name="magnify" size={16} color="#555" /> Síntomas
+                        </Text>
+                        {item.sintomas.map((sintoma, idx) => (
+                          <View key={idx} style={styles.bulletRow}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={styles.bulletText}>{sintoma}</Text>
+                          </View>
+                        ))}
                       </View>
-                      <TouchableOpacity style={styles.btnAddItem} onPress={agregarProductoALista}>
-                          <Ionicons name="add-circle" size={20} color="white" />
-                          <Text style={{color: 'white', marginLeft: 5, fontWeight: 'bold'}}>
-                            Agregar a la lista
-                          </Text>
-                      </TouchableOpacity>
+                    ) : item.sintomas && typeof item.sintomas === 'string' && (
+                        // Compatibilidad con datos antiguos (String)
+                        <Text style={styles.description}>Síntomas: {item.sintomas}</Text>
+                    )}
+
+                    {/* Condiciones Favorables */}
+                    {item.condiciones_favorables && (
+                      <View style={styles.sectionBlock}>
+                        <Text style={styles.sectionTitle}>
+                          <MaterialCommunityIcons name="weather-cloudy" size={16} color="#555" /> Condiciones Favorables
+                        </Text>
+                        <Text style={styles.bodyText}>{item.condiciones_favorables}</Text>
+                      </View>
+                    )}
+
+                    {/* Manejo Integrado Desglosado */}
+                    {item.manejo_integrado && typeof item.manejo_integrado === 'object' ? (
+                      <View style={styles.managementContainer}>
+                        <Text style={styles.managementHeader}>🛡️ Manejo Integrado</Text>
+                        
+                        {item.manejo_integrado.cultural && (
+                          <View style={styles.managementRow}>
+                            <Text style={styles.managementLabel}>🌱 Cultural:</Text>
+                            <Text style={styles.managementText}>{item.manejo_integrado.cultural}</Text>
+                          </View>
+                        )}
+                        
+                        {item.manejo_integrado.biologico && (
+                          <View style={styles.managementRow}>
+                            <Text style={styles.managementLabel}>🐞 Biológico:</Text>
+                            <Text style={styles.managementText}>{item.manejo_integrado.biologico}</Text>
+                          </View>
+                        )}
+                        
+                        {item.manejo_integrado.quimico && (
+                          <View style={styles.managementRow}>
+                            <Text style={styles.managementLabel}>🧪 Químico:</Text>
+                            <Text style={styles.managementText}>{item.manejo_integrado.quimico}</Text>
+                          </View>
+                        )}
+                      </View>
+                    ) : (
+                      // Compatibilidad con datos antiguos (Texto plano)
+                      item.manejo_integrado && (
+                        <View style={styles.sectionBlock}>
+                           <Text style={styles.sectionTitle}>🛡️ Manejo</Text>
+                           <Text style={styles.bodyText}>{item.manejo_integrado}</Text>
+                        </View>
+                      )
+                    )}
+
                   </View>
-
-                  {/* Lista de Aplicaciones */}
-                  <Text style={[styles.label, {marginTop:15}]}>
-                    📋 Lista de Aplicación ({listaTratamientos.length}):
-                  </Text>
-                  {listaTratamientos.length > 0 ? (
-                    listaTratamientos.map((item, idx) => (
-                      <View key={item.id} style={styles.itemLista}>
-                          <View style={styles.itemNumero}>
-                            <Text style={styles.itemNumeroText}>{idx + 1}</Text>
-                          </View>
-                          <View style={{flex:1}}>
-                              <Text style={{fontWeight:'bold', color:'#333', fontSize: 15}}>{item.producto}</Text>
-                              <Text style={{fontSize:12, color:'#666'}}>Dosis: {item.dosis}</Text>
-                              {item.fecha && (
-                                <Text style={{fontSize:11, color:'#999'}}>📅 {item.fecha}</Text>
-                              )}
-                          </View>
-                          <TouchableOpacity onPress={() => eliminarProductoDeLista(item.id)}>
-                              <Ionicons name="trash-outline" size={22} color="#D32F2F" />
-                          </TouchableOpacity>
-                      </View>
-                    ))
-                  ) : (
-                    <View style={styles.emptyState}>
-                      <Text style={styles.emptyText}>Sin tratamientos agregados</Text>
-                    </View>
-                  )}
-               </ScrollView>
-
-               <View style={styles.formButtons}>
-                  <TouchableOpacity 
-                    style={[styles.btnForm, {backgroundColor:'#E57373'}]} 
-                    onPress={()=>setModalEditarVisible(false)}
-                  >
-                     <Text style={{color:'white', fontWeight: 'bold'}}>Cancelar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.btnForm, {backgroundColor:'#2E7D32'}]} 
-                    onPress={guardarCambios}
-                  >
-                     <Ionicons name="checkmark-circle" size={18} color="white" />
-                     <Text style={{color:'white', fontWeight:'bold', marginLeft: 5}}>
-                       Guardar Todo
-                     </Text>
-                  </TouchableOpacity>
-               </View>
-            </View>
-         </View>
-      </Modal>
-
-    </SafeAreaView>
+                )}
+              </View>
+            );
+          })
+        ) : (
+          <View style={styles.emptyContainer}>
+            <MaterialCommunityIcons name="check-circle-outline" size={60} color="#C8E6C9" />
+            <Text style={styles.emptyText}>No se encontraron registros para este filtro.</Text>
+          </View>
+        )}
+        <View style={{height: 40}} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  loadingText: { marginTop: 10, fontSize: 14, color: '#666', textAlign: 'center' },
-  
-  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 20, paddingTop: 10, paddingBottom: 15, elevation: 3 },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32' },
-  headerSubtitle: { fontSize: 13, color: '#666', marginTop: 2 },
-  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginLeft: 8 },
+  container: { flex: 1, backgroundColor: '#F5F7FA' },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 10, color: '#666' },
+
+  // Header y Badges
+  header: { padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E0E0E0', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  title: { fontSize: 20, fontWeight: 'bold', color: '#D32F2F' },
+  subtitle: { fontSize: 13, color: '#666', marginTop: 2 },
+  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
   badgeCompleto: { backgroundColor: '#4CAF50' },
-  badgeBasico: { backgroundColor: '#FFA726' },
-  badgeTextHeader: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
+  badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
+  btnDescargar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1976D2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginLeft: 10 },
+  btnDescargarText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+
+  // GDD Styles
+  gddCard: { marginHorizontal: 15, marginTop: 15, marginBottom: 5, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 15, borderWidth: 1, borderColor: '#FFE0B2' },
+  gddHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  gddTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginLeft: 8 },
+  gddContent: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginBottom: 8 },
+  gddItem: { alignItems: 'center' },
+  gddLabel: { fontSize: 12, color: '#E65100', marginBottom: 2 },
+  gddValue: { fontSize: 18, fontWeight: 'bold', color: '#BF360C' },
+  separatorVertical: { width: 1, height: 30, backgroundColor: '#FFCC80' },
+  gddNote: { fontSize: 11, color: '#8D6E63', fontStyle: 'italic', textAlign: 'center', marginTop: 4 },
+
+  // Filters
+  filtersContainer: { marginTop: 10, marginBottom: 5, height: 40 },
+  filterChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#E0E0E0' },
+  filterChipSelected: { backgroundColor: '#D32F2F', borderColor: '#D32F2F' },
+  filterText: { fontSize: 13, color: '#555' },
+  filterTextSelected: { color: '#fff', fontWeight: 'bold' },
+
+  // List Cards
+  listContainer: { paddingHorizontal: 15, paddingTop: 10 },
+  card: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 12, borderLeftWidth: 5, elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', padding: 15 },
+  headerIconContainer: { marginRight: 15, width: 30, alignItems: 'center' },
+  plagaName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  scientificName: { fontSize: 13, color: '#666', fontStyle: 'italic', marginBottom: 2 },
+  plagaType: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 2 },
+
+  cardBody: { paddingHorizontal: 15, paddingBottom: 15 },
+  description: { fontSize: 14, color: '#444', lineHeight: 20, marginBottom: 10 },
+  divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 8 },
   
-  // Estadísticas
-  statsContainer: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, marginBottom: 10, elevation: 2 },
-  statBox: { flex: 1, alignItems: 'center', paddingVertical: 5 },
-  statNumber: { fontSize: 20, fontWeight: 'bold', color: '#333', marginTop: 5 },
-  statLabel: { fontSize: 11, color: '#666', marginTop: 2 },
-  
-  // Búsqueda
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', marginHorizontal: 15, marginBottom: 10, padding: 12, borderRadius: 10, elevation: 2 },
-  searchInput: { flex: 1, fontSize: 15, color: '#333' },
-  
-  // Filtros
-  filtrosContainer: { flexDirection: 'row', paddingHorizontal: 15, marginBottom: 10, gap: 10 },
-  filtroBtn: { flex: 1, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', elevation: 1 },
-  filtroBtnActivo: { backgroundColor: '#2E7D32', elevation: 3 },
-  filtroText: { fontSize: 13, color: '#666', fontWeight: '600' },
-  filtroTextActivo: { color: '#fff' },
-  
-  // Cards
-  card: { flexDirection: 'row', backgroundColor: '#fff', marginVertical: 5, marginHorizontal: 15, padding: 12, borderRadius: 12, alignItems: 'center', elevation: 2 },
-  iconBox: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  cardTitle: { fontWeight: 'bold', fontSize: 16, color: '#333', marginBottom: 4 },
-  cardSubtitle: { color: '#666', fontSize: 13, marginBottom: 4 },
-  ultimaAplicacion: { fontSize: 11, color: '#999', fontStyle: 'italic', marginTop: 2 },
-  badgeEditado: { flexDirection:'row', alignItems:'center', backgroundColor:'#E3F2FD', alignSelf:'flex-start', paddingHorizontal:8, paddingVertical:3, borderRadius:4, marginTop:5 },
-  badgeText: { fontSize:10, color:'#1565C0', marginLeft:4, fontWeight:'600' },
-  
-  severidadBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
-  severidadText: { fontSize: 10, color: '#fff', fontWeight: 'bold' },
-  severidadBadgeLarge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 15 },
-  severidadTextLarge: { fontSize: 13, fontWeight: 'bold' },
-  
-  // Modal Detalle
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  fichaCard: { width: '92%', maxHeight:'88%', backgroundColor: 'white', borderRadius: 20, padding: 20, elevation: 10 },
-  fichaHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15, borderBottomWidth: 2, borderColor: '#E8F5E9', paddingBottom: 12 },
-  fichaTitle: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32' },
-  fichaSubtitle: { fontSize: 14, color: '#777', fontStyle: 'italic', marginTop: 4 },
-  
-  sectionContainer: { marginBottom: 20, paddingBottom: 15, borderBottomWidth: 1, borderColor: '#f0f0f0' },
-  userSection: { backgroundColor: '#F9FAFB', padding: 15, borderRadius: 12, borderBottomWidth:0, borderWidth: 1, borderColor:'#E3F2FD' },
-  sectionHeader: { fontSize: 17, fontWeight: 'bold', color: '#2E7D32', marginBottom: 8 },
-  label: { fontSize: 13, fontWeight: 'bold', color: '#555', marginTop: 5 },
-  bodyText: { fontSize: 14, color: '#444', lineHeight: 22, marginTop: 5 },
-  
-  productoOficialRow: { flexDirection: 'row', alignItems: 'center', marginTop: 5, padding: 8, backgroundColor: '#F1F8E9', borderRadius: 6 },
-  oficialText: { fontSize: 13, color: '#555', marginLeft: 8, flex: 1 },
-  
-  labelUser: { fontSize: 13, fontWeight: 'bold', color: '#1565C0', marginTop: 8 },
-  bodyTextUser: { fontSize: 14, color: '#333', fontStyle: 'italic', marginTop: 4, lineHeight: 20 },
-  btnEditar: { flexDirection: 'row', alignItems: 'center', backgroundColor:'#E3F2FD', paddingHorizontal:12, paddingVertical:6, borderRadius:8 },
-  
-  tratamientoRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, padding: 10, backgroundColor: 'white', borderRadius: 8, borderWidth: 1, borderColor: '#E0E0E0' },
-  tratNumero: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', marginRight: 10 },
-  tratNumeroText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
-  tratProducto: { fontWeight: 'bold', fontSize: 15, color: '#333', marginBottom: 3 },
-  tratDosis: { fontSize: 13, color: '#666', marginBottom: 2 },
-  tratFecha: { fontSize: 11, color: '#999', fontStyle: 'italic' },
-  
-  emptyState: { alignItems: 'center', paddingVertical: 20 },
-  emptyText: { fontSize: 13, color: '#999', fontStyle: 'italic', marginTop: 8 },
-  
-  // Modal Editor
-  modalForm: { width: '92%', backgroundColor: 'white', borderRadius: 20, padding: 20, maxHeight: '90%' },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#2E7D32', marginBottom: 5 },
-  
-  severidadSelector: { flexDirection: 'row', gap: 10, marginTop: 8, marginBottom: 15 },
-  severidadOption: { flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: '#F5F5F5', alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
-  severidadOptionActiva: { backgroundColor: '#E8F5E9', borderColor: '#2E7D32' },
-  severidadOptionText: { fontSize: 14, color: '#666', fontWeight: '600' },
-  severidadOptionTextActiva: { color: '#2E7D32', fontWeight: 'bold' },
-  
-  input: { backgroundColor: '#F8F8F8', borderRadius: 10, padding: 12, marginTop: 8, fontSize: 14, borderWidth: 1, borderColor: '#E0E0E0' },
-  divider: { height: 1, backgroundColor: '#E0E0E0', marginVertical: 20 },
-  
-  addBox: { backgroundColor: '#F5F7FA', padding: 15, borderRadius: 12, marginTop: 8, borderWidth: 1, borderColor: '#E0E0E0' },
-  btnAddItem: { flexDirection: 'row', backgroundColor: '#1976D2', justifyContent: 'center', alignItems: 'center', paddingVertical: 12, borderRadius: 10, marginTop: 12 },
-  
-  itemLista: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12, borderBottomWidth: 1, borderColor: '#F0F0F0', backgroundColor: '#FAFAFA', borderRadius: 8, marginBottom: 8 },
-  itemNumero: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', marginRight: 10 },
-  itemNumeroText: { color: '#fff', fontWeight: 'bold', fontSize: 11 },
-  
-  formButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20, gap: 10 },
-  btnForm: { flex: 1, flexDirection: 'row', padding: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center', elevation: 2 },
+  // Detalle Styles
+  sectionBlock: { marginBottom: 12 },
+  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#555', marginBottom: 6 },
+  bodyText: { fontSize: 13, color: '#666', lineHeight: 19 },
+  bulletRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 2 },
+  bulletPoint: { fontSize: 16, color: '#D32F2F', marginRight: 6, marginTop: -2 },
+  bulletText: { fontSize: 13, color: '#666', flex: 1, lineHeight: 19 },
+
+  // Manejo Styles
+  managementContainer: { backgroundColor: '#FAFAFA', padding: 12, borderRadius: 8, marginTop: 5 },
+  managementHeader: { fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 8 },
+  managementRow: { marginBottom: 8 },
+  managementLabel: { fontSize: 13, fontWeight: 'bold', color: '#444' },
+  managementText: { fontSize: 13, color: '#555', marginTop: 1, lineHeight: 18 },
+
+  emptyContainer: { alignItems: 'center', marginTop: 50 },
+  emptyText: { marginTop: 10, color: '#999', fontSize: 14 },
 });

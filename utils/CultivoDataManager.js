@@ -1,78 +1,91 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import datosBasicos from '../data/cultivos_basico.json'; // Tu archivo local de respaldo
+import datosBasicosLocal from '../data/cultivos_basico.json'; 
 
-// URL directa al archivo completado en tu repositorio de GitHub
-const GITHUB_URL = 'https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/data/cultivos_expandido_ia_completado.json'; 
-const CACHE_KEY = '@cultivos_completos_cache';
+// 👇 TU URL DE FIREBASE (Asegúrate de que sea correcta)
+const FIREBASE_URL = "https://cultivos-d97e2-default-rtdb.firebaseio.com";
 
 class CultivoDataManager {
-    /**
-     * Obtiene los datos de un cultivo específico.
-     * @param {string} nombre - Nombre del cultivo (ej: "Durazno").
-     * @param {string} nivel - 'basico' o 'completo'.
-     */
-    static async obtenerCultivo(nombre, nivel = 'basico') {
-        try {
-            if (nivel === 'basico') {
-                return { ...datosBasicos.cultivos[nombre], _nivel: 'basico' } || null;
-            }
 
-            // Intentar obtener de la caché local primero (AsyncStorage)
-            const cache = await AsyncStorage.getItem(CACHE_KEY);
-            if (cache) {
-                const dataCache = JSON.parse(cache);
-                if (dataCache[nombre]) {
-                    // Verificamos si los datos tienen la estructura completa
-                    return { ...dataCache[nombre], _nivel: 'completo' };
-                }
-            }
+  /**
+   * Obtiene los datos de un cultivo.
+   * IMPORTANTE: El nombre es 'obtenerCultivo' para coincidir con tus pantallas.
+   */
+  async obtenerCultivo(nombreCultivo, nivel = 'completo') {
+    const cacheKey = `@cultivo_data_${nombreCultivo}`;
 
-            // Si no está en caché o se requiere actualización, descargar de GitHub
-            return await this.descargarYActualizar(nombre);
-
-        } catch (error) {
-            console.error("Error en CultivoDataManager:", error);
-            // Fallback: Si todo falla, devolver al menos el básico
-            return datosBasicos.cultivos[nombre] ? { ...datosBasicos.cultivos[nombre], _nivel: 'basico' } : null;
-        }
+    // ---------------------------------------------------------
+    // 1. INTENTO CACHÉ RÁPIDO (Para que la pantalla no parpadee)
+    // ---------------------------------------------------------
+    try {
+      const jsonCache = await AsyncStorage.getItem(cacheKey);
+      if (jsonCache) {
+        console.log(`📂 [CACHE] Datos encontrados para ${nombreCultivo}`);
+        const dataCache = JSON.parse(jsonCache);
+        // Si solo piden básico, retornamos caché inmediatamente
+        if (nivel === 'basico') return dataCache;
+      }
+    } catch (e) {
+      console.error("Error lectura caché inicial", e);
     }
 
-    /**
-     * Descarga el archivo masivo de GitHub y actualiza la caché local.
-     */
-    static async descargarYActualizar(nombreEspecifico = null) {
-        try {
-            console.log("Descargando base de datos completa desde GitHub...");
-            const respuesta = await fetch(GITHUB_URL);
-            const dataCompleta = await respuesta.json();
+    // ---------------------------------------------------------
+    // 2. INTENTO ONLINE (Si piden completo o no había caché)
+    // ---------------------------------------------------------
+    try {
+      console.log(`🌐 [NUBE] Buscando ${nombreCultivo} en Firebase...`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seg timeout
 
-            if (dataCompleta.cultivos) {
-                // Guardar todo el objeto 'cultivos' en caché para futuras consultas rápidas
-                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(dataCompleta.cultivos));
-                console.log("Caché de cultivos actualizada exitosamente.");
+      const response = await fetch(`${FIREBASE_URL}/cultivos/${nombreCultivo}.json`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
 
-                if (nombreEspecifico && dataCompleta.cultivos[nombreEspecifico]) {
-                    return { ...dataCompleta.cultivos[nombreEspecifico], _nivel: 'completo' };
-                }
-            }
-            return null;
-        } catch (error) {
-            console.error("Error descargando desde GitHub:", error);
-            throw error;
+      if (response.ok) {
+        const dataCloud = await response.json();
+        
+        if (dataCloud) {
+          console.log("✅ [ÉXITO] Datos descargados y guardados.");
+          dataCloud._origen = 'nube';
+          dataCloud._fecha_actualizacion = new Date().toISOString();
+          
+          // Guardamos en caché para la próxima
+          await AsyncStorage.setItem(cacheKey, JSON.stringify(dataCloud));
+          return dataCloud;
         }
+      }
+    } catch (error) {
+      console.log("⚠️ [OFFLINE] Falló conexión, usando modo local.");
     }
 
-    /**
-     * Limpia la caché para forzar una nueva descarga (útil para el botón 'Recargar').
-     */
-    static async limpiarCache() {
-        try {
-            await AsyncStorage.removeItem(CACHE_KEY);
-            console.log("Caché eliminada.");
-        } catch (error) {
-            console.error("Error limpiando caché:", error);
-        }
+    // ---------------------------------------------------------
+    // 3. FALLBACK FINAL: Usar el archivo JSON local (Básico)
+    // ---------------------------------------------------------
+    // Si llegamos aquí es porque falló la red y no queremos devolver null si tenemos algo básico
+    try {
+        const jsonCache = await AsyncStorage.getItem(cacheKey);
+        if (jsonCache) return JSON.parse(jsonCache); // Retorna caché viejo si existe
+    } catch (e) {}
+
+    console.log("📦 [LOCAL] Usando datos básicos de emergencia.");
+    const dataLocal = datosBasicosLocal.cultivos[nombreCultivo];
+    
+    if (dataLocal) {
+      return { ...dataLocal, _origen: 'local_basico' };
     }
+
+    return null;
+  }
+
+  /**
+   * Helper para obtener lista simple (Home)
+   */
+  obtenerListaBasica() {
+    return Object.values(datosBasicosLocal.cultivos);
+  }
 }
 
-export default CultivoDataManager;
+// 👇 EXPORTACIÓN LIMPIA: Exportamos una instancia directa
+const cultivoDataManager = new CultivoDataManager();
+export default cultivoDataManager;

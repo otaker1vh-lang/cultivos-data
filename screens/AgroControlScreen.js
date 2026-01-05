@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet, Text, View, ScrollView, Switch,
   ActivityIndicator, TextInput, TouchableOpacity,
-  Alert, Keyboard, SafeAreaView, StatusBar, Dimensions
+  Alert, Keyboard, StatusBar, Dimensions
 } from 'react-native';
-import { initializeApp } from 'firebase/app';
+import { SafeAreaView } from 'react-native-safe-area-context'; // Agregado aquí
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getDatabase, ref, onValue, update } from 'firebase/database';
 import * as Notifications from 'expo-notifications';
 import { LineChart } from 'react-native-chart-kit';
@@ -26,7 +27,21 @@ const firebaseConfig = {
   projectId: "agrocontrol-fd75d",
 };
 
-const app = initializeApp(firebaseConfig);
+// --- CÓDIGO CORREGIDO PARA MULTI-PROYECTO ---
+let app;
+
+// 1. Buscamos si ya existe una app con el apodo específico "AgroControlApp"
+const appName = 'AgroControlApp';
+const existingApp = getApps().find(a => a.name === appName);
+
+if (existingApp) {
+  // Si ya existe, la reutilizamos
+  app = getApp(appName);
+} else {
+  // Si no existe, la creamos PERO pasándole el nombre como segundo parámetro
+  app = initializeApp(firebaseConfig, appName);
+}
+
 const db = getDatabase(app);
 
 const MAX_DELAY = 15000;

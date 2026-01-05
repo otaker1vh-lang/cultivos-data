@@ -1,5 +1,0 @@
-[
-  { "cultivo": "Maíz", "estado": "Sinaloa", "rendimiento": 8.5, "precio_medio": 5200, "superficie_sembrada": 15000 },
-  { "cultivo": "Trigo", "estado": "Sonora", "rendimiento": 7.2, "precio_medio": 4800, "superficie_sembrada": 12000 },
-  { "cultivo": "Sorgo", "estado": "Tamaulipas", "rendimiento": 6.9, "precio_medio": 4600, "superficie_sembrada": 10000 }
-]

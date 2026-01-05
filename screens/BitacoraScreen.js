@@ -25,10 +25,11 @@ const CATALOGO_ETAPAS = {
 // ----------------------------------------------------
 
 const generateHtml = (cultivo, bitacoras) => {
+  // --- MODIFICACIÓN AQUÍ: Se eliminaron 'hour' y 'minute' ---
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString('es-ES', {
-      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      year: 'numeric', month: 'long', day: 'numeric'
     });
   };
 
@@ -171,28 +172,39 @@ export default function BitacoraScreen({ route }) {
   };
 
   // ----------------------
-  // CONVERTIR IMAGEN A BASE64 (CORREGIDO)
+  // CONVERTIR IMAGEN A BASE64 (CORREGIDO V2)
   // ----------------------
   const convertirImagenBase64 = async (uri) => {
     try {
       if (!uri) return null;
 
-      // Corrección de ruta para Android
-      let uriFinal = uri;
-      if (Platform.OS === 'android' && !uri.startsWith('file://') && !uri.startsWith('content://')) {
-        uriFinal = `file://${uri}`;
+      let uriParaLeer = uri;
+
+      // 1. Manejo especial para Android (Content URI a File URI)
+      if (Platform.OS === 'android' && uri.startsWith('content://')) {
+        const nombreArchivo = uri.split('/').pop();
+        const destino = FileSystem.cacheDirectory + 'temp_' + nombreArchivo;
+        try {
+            await FileSystem.copyAsync({ from: uri, to: destino });
+            uriParaLeer = destino;
+        } catch (copyError) {
+            console.log("Error copiando archivo temporal:", copyError);
+            return null; // Si falla la copia, no podemos seguir
+        }
+      } 
+      else if (Platform.OS === 'android' && !uri.includes('://')) {
+        uriParaLeer = `file://${uri}`;
       }
 
-      // LEER EL ARCHIVO
-      // FIX: Usamos el string 'base64' directo para evitar error "undefined"
-      const base64 = await FileSystem.readAsStringAsync(uriFinal, {
+      // 2. LEER EL ARCHIVO
+      const base64 = await FileSystem.readAsStringAsync(uriParaLeer, {
         encoding: 'base64', 
       });
 
       return `data:image/jpeg;base64,${base64}`;
 
     } catch (e) {
-      console.log("Error convirtiendo a Base64:", e.message);
+      console.log("Error detallado convirtiendo a Base64:", e);
       return null;
     }
   };
@@ -278,7 +290,7 @@ export default function BitacoraScreen({ route }) {
   const generarPdf = async () => {
     if (bitacoras.length === 0) return Alert.alert("Vacío", "No hay registros.");
     
-    setIsGeneratingPdf(true); // Mostrar estado de carga
+    setIsGeneratingPdf(true); 
 
     try {
       console.log("Iniciando generación PDF con Base64...");
@@ -288,14 +300,13 @@ export default function BitacoraScreen({ route }) {
         bitacoras.map(async (item) => {
           if (item.imagen) {
             const base64 = await convertirImagenBase64(item.imagen);
-            // Si falla (null), devolvemos el item sin imagen para no romper todo
             return { ...item, imagen: base64 || null };
           }
           return item;
         })
       );
 
-      // 2. Generar HTML (ahora item.imagen es una cadena larga Base64)
+      // 2. Generar HTML
       const html = generateHtml(cultivo, procesadas);
 
       // 3. Crear PDF

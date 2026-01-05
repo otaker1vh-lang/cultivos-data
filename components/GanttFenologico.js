@@ -17,13 +17,17 @@ const COLOR_MAP = {
   'Encañado/Espigado': '#81C784',
   'Floración': '#FFEB3B', // Amarillo
   'Brotación/Floración': '#FFF176',
+  'Brotación Vegetativa': '#FFF176',
   'Floración/Formación de Racimo': '#FFF176',
   'Fructificación': '#FF9800', // Naranja
   'Llenado de Grano': '#FFB74D',
   'Llenado de Vaina': '#FFB74D',
   'Cuajado/Engorde': '#FFA726',
+  'Cuajado del fruto': '#FFA726',
+  'Desarrollo del fruto': '#2638ffff',
   'Cosecha': '#795548', // Marrón
   'Madurez': '#A1887F',
+  'Madurez de cosecha': '#A1887F',
   'Madurez Fisiológica': '#A1887F',
   'Cosecha Continua': '#BCAAA4',
   // Etapas de Frutales o Dormancia

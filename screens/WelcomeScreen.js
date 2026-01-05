@@ -4,10 +4,10 @@ import {
   View,
   Text,
   Image,
-  SafeAreaView,
   Dimensions,
   ActivityIndicator // Opcional: Para mostrar que está cargando
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'; // <--- Se agrega esta línea
 
 // --- Paleta de Colores ---
 const colors = {
