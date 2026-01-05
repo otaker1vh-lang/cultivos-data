@@ -24,7 +24,7 @@
         "backgroundColor": "#4A7C59"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.otaker.roslinapp",
+      "package": "com.otaker.miapp",
       "permissions": [
         "android.permission.CAMERA"
       ]
@@ -37,7 +37,8 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.24",
+            "kotlinVersion": "2.0.20",
+            "kspVersion": "2.0.20-1.0.24",
             "extraMavenRepos": ["https://google.bintray.com/tensorflow"]
           },
           "ios": {
