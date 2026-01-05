@@ -6,7 +6,7 @@ buildscript {
         minSdkVersion = 24
         compileSdkVersion = 35
         targetSdkVersion = 35
-        kotlinVersion = "2.0.21"
+        kotlinVersion = "1.9.24" // <--- Alineado a 1.9.24
     }
 
     repositories {
@@ -16,15 +16,8 @@ buildscript {
     dependencies {
         classpath('com.android.tools.build:gradle')
         classpath('com.facebook.react:react-native-gradle-plugin')
-        // Forzamos la versión en el classpath del script
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}"
-    }
-    
-    // CANDADO 1: Forzar al sistema de construcción a no actualizarse solo
-    configurations.classpath {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}"
-        }
+        // Forzar versión del plugin
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}")
     }
 }
 
@@ -35,13 +28,13 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 
-    // CANDADO 2: Forzar a todas las librerías (incluidas expo-updates) a usar tu versión
+    // CANDADO DE SEGURIDAD
     configurations.all {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.kotlinVersion}"
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            // Si alguien pide Kotlin, le damos la 1.9.24 a la fuerza
+            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-')) {
+                details.useVersion '1.9.24'
+            }
         }
     }
 }
