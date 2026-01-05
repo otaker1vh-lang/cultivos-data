@@ -1,4 +1,4 @@
-package com.otaker.MiApp
+package com.otaker.miapp
 
 import android.os.Build
 import android.os.Bundle

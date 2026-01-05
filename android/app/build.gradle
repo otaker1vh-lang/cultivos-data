@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.otaker.MiApp'
+    namespace 'com.otaker.miapp'
     defaultConfig {
-        applicationId 'com.otaker.MiApp'
+        applicationId 'com.otaker.miapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

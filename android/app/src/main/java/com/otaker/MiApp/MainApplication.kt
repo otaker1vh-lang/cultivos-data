@@ -1,4 +1,4 @@
-package com.otaker.MiApp
+package com.otaker.miapp
 
 import android.app.Application
 import android.content.res.Configuration
