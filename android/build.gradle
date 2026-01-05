@@ -1,13 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    // 1. Definimos la versión explícitamente aquí para que esté disponible globalmente
     ext {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 24
         compileSdkVersion = 35
         targetSdkVersion = 35
-        kotlinVersion = "2.0.21" // <--- LA VERSIÓN MAESTRA
+        kotlinVersion = "2.0.21" // <--- Definimos la versión maestra aquí
     }
 
     repositories {
@@ -17,17 +16,8 @@ buildscript {
     dependencies {
         classpath('com.android.tools.build:gradle')
         classpath('com.facebook.react:react-native-gradle-plugin')
-        // 2. Forzamos la versión AQUÍ MISMO en el classpath
+        // IMPORTANTE: Aquí forzamos al compilador a usar la versión definida arriba
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}")
-    }
-    
-    // 3. CANDADO 1: Forzar versión en las herramientas de construcción
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-gradle-plugin')) {
-                details.useVersion ext.kotlinVersion
-            }
-        }
     }
 }
 
@@ -38,14 +28,11 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 
-    // 4. CANDADO 2: Forzar versión en todas las librerías del proyecto
+    // Candado para las librerías del proyecto
     configurations.all {
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-stdlib')) {
-                details.useVersion "2.0.21"
-            }
-            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-reflect')) {
-                details.useVersion "2.0.21"
+            if (details.requested.group == 'org.jetbrains.kotlin' && details.requested.name.startsWith('kotlin-')) {
+                details.useVersion '2.0.21'
             }
         }
     }
