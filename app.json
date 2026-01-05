@@ -38,8 +38,7 @@
         {
           "android": {
             "kotlinVersion": "2.0.20",
-            "kspVersion": "2.0.20-1.0.24",
-            "extraMavenRepos": ["https://google.bintray.com/tensorflow"]
+            "kspVersion": "2.0.20-1.0.24"
           },
           "ios": {
             "useFrameworks": "static"
