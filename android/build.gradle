@@ -1,49 +1,23 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext {
-        buildToolsVersion = "35.0.0"
-        minSdkVersion = 24
-        compileSdkVersion = 35
-        targetSdkVersion = 35
-        kotlinVersion = "2.0.21" // <--- VERSIÓN MAESTRA
-    }
-
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath('com.android.tools.build:gradle')
-        classpath('com.facebook.react:react-native-gradle-plugin')
-        // CANDADO 1: Forzar versión del plugin aquí mismo
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}")
-    }
-    
-    // CANDADO 2: Bloquear cambios en el script de construcción
-    configurations.classpath {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}"
-        }
-    }
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath('com.android.tools.build:gradle')
+    classpath('com.facebook.react:react-native-gradle-plugin')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+  }
 }
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://www.jitpack.io' }
-    }
-
-    // CANDADO 3: Bloquear cambios en todas las librerías
-    configurations.all {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.kotlinVersion}"
-        }
-    }
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
 }
 
 apply plugin: "expo-root-project"
