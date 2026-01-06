@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/roslin_icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -37,6 +37,9 @@
         "expo-build-properties",
         {
           "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "minSdkVersion": 24,
             "kotlinVersion": "2.0.21",
             "kspVersion": "2.0.21-1.0.25"
           },
@@ -51,9 +54,7 @@
       "expo-asset"
     ],
     "extra": {
-      "eas": {
-        "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
-      }
+      "eas": {}
     }
   }
 }
