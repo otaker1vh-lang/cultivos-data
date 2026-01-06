@@ -6,7 +6,7 @@ buildscript {
         minSdkVersion = 24
         compileSdkVersion = 35
         targetSdkVersion = 35
-        kotlinVersion = "2.0.21"
+        kotlinVersion = "2.0.21" // <--- VERSIÓN MAESTRA
     }
 
     repositories {
@@ -16,11 +16,11 @@ buildscript {
     dependencies {
         classpath('com.android.tools.build:gradle')
         classpath('com.facebook.react:react-native-gradle-plugin')
-        // FORZAR VERSIÓN EN EL CLASSPATH
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}"
+        // CANDADO 1: Forzar versión del plugin aquí mismo
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}")
     }
     
-    // CANDADO 1: Buildscript
+    // CANDADO 2: Bloquear cambios en el script de construcción
     configurations.classpath {
         resolutionStrategy {
             force "org.jetbrains.kotlin:kotlin-gradle-plugin:${ext.kotlinVersion}"
@@ -35,10 +35,12 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 
-    // CANDADO 2: Dependencias
+    // CANDADO 3: Bloquear cambios en todas las librerías
     configurations.all {
         resolutionStrategy {
             force "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
             force "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.kotlinVersion}"
         }
     }
