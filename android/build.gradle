@@ -7,6 +7,7 @@ buildscript {
         compileSdkVersion = 35
         targetSdkVersion = 35
         kotlinVersion = "2.0.21"
+        kspVersion = "2.0.21-1.0.28"
     }
 
     repositories {
