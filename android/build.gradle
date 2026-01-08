@@ -2,25 +2,30 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "36.0.0"
         minSdkVersion = 24
         compileSdkVersion = 35
         targetSdkVersion = 35
-        kotlinVersion = "2.0.21"  // ✅ CAMBIADO: Bajado a 2.0.21 para compatibilidad
-        kspVersion = "2.0.21-1.0.28"  // ✅ CAMBIADO: Compatible con Kotlin 2.0.21
+        ndkVersion = "27.1.12297006"
+        
+        // CONFIGURACIÓN CRÍTICA: Alineación de versiones
+        kotlinVersion = "2.1.0"
+        kspVersion = "2.1.0-1.0.29"
     }
 
     repositories {
         google()
         mavenCentral()
     }
-    
+
     dependencies {
         classpath('com.android.tools.build:gradle')
         classpath('com.facebook.react:react-native-gradle-plugin')
+        // Usamos la variable definida arriba
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     }
-    
+
+    // Forzar la versión de Kotlin en el classpath del buildscript
     configurations.classpath {
         resolutionStrategy {
             force "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
@@ -36,12 +41,14 @@ allprojects {
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
     }
+
+    // Forzar la versión de Kotlin en todos los módulos del proyecto
     configurations.all {
         resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib:2.0.21"  // ✅ Ya estaba correcto
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21"  // ✅ Ya estaba correcto
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21"  // ✅ Ya estaba correcto
-            force "org.jetbrains.kotlin:kotlin-reflect:2.0.21"  // ✅ Ya estaba correcto
+            force "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlinVersion}"
+            force "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
         }
     }
 }
