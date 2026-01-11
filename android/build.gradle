@@ -1,68 +1,36 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext {
-        buildToolsVersion = "36.0.0"
-        minSdkVersion = 24
-        compileSdkVersion = 35
-        targetSdkVersion = 35
-        ndkVersion = "27.1.12297006"
-        
-        // CONFIGURACIÓN CRÍTICA: Alineación de versiones
-        kotlinVersion = "2.1.0"
-        kspVersion = "2.1.0-1.0.29"
-    }
-
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath('com.android.tools.build:gradle')
-        classpath('com.facebook.react:react-native-gradle-plugin')
-        // Usamos la variable definida arriba
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-    }
-
-    // Forzar la versión de Kotlin en el classpath del buildscript
-    configurations.classpath {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlinVersion}"
-        }
-    }
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath('com.android.tools.build:gradle')
+    classpath('com.facebook.react:react-native-gradle-plugin')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+  }
 }
+
+def reactNativeAndroidDir = new File(
+  providers.exec {
+    workingDir(rootDir)
+    commandLine("node", "--print", "require.resolve('react-native/package.json')")
+  }.standardOutput.asText.get().trim(),
+  "../android"
+)
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://www.jitpack.io' }
+  repositories {
+    maven {
+      // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+      url(reactNativeAndroidDir)
     }
 
-    // Forzar la versión de Kotlin en todos los módulos del proyecto
-    configurations.all {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlinVersion}"
-            force "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
-        }
-    }
-}
-
-subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            project.android {
-                defaultConfig {
-                    minSdkVersion 24
-                }
-            }
-        }
-    }
+    google()
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
 }
 
 apply plugin: "expo-root-project"

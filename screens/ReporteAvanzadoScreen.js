@@ -6,7 +6,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system/legacy'; // IMPORTANTE: Librería para crear el archivo CSV
+import * as FileSystem from 'expo-file-system'; // IMPORTANTE: Librería para crear el archivo CSV
 import { supabase } from '../src/services/supabaseClient'; 
 
 // DATOS ESTÁTICOS (Sin cambios)

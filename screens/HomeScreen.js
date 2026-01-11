@@ -14,7 +14,7 @@ import { Camera, useCameraDevice, useCameraPermission } from 'react-native-visio
 import * as ImagePicker from 'expo-image-picker';
 import { useTensorflowModel } from 'react-native-fast-tflite';
 import { Asset } from 'expo-asset';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 // Importamos manipulateAsync y SaveFormat
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
