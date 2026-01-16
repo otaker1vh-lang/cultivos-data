@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Image, StatusBar } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient'; // Asegúrate de tener instalado expo-linear-gradient
+import { LinearGradient } from 'expo-linear-gradient'; 
 import CultivoDataManager from '../utils/CultivoDataManager'; 
 
 export default function MenuDetalleScreen({ navigation, route }) {
@@ -35,6 +35,9 @@ export default function MenuDetalleScreen({ navigation, route }) {
     // Definición de menús con colores personalizados para ser más intuitivo
     const menus = [
         { titulo: 'Estadísticas', descripcion: 'Rendimiento y precios', icono: 'chart-bar', ruta: 'Estadisticas', color: '#1E88E5', bg: '#E3F2FD' },
+        // --- AGREGADO: Guía Técnica ---
+        { titulo: 'Guía Técnica', descripcion: 'Estrategia y manejo', icono: 'compass-rose', ruta: 'Guia', color: '#00ACC1', bg: '#E0F7FA' },
+        // ------------------------------
         { titulo: 'Fenología', descripcion: 'Etapas y BBCH', icono: 'sprout', ruta: 'Fenologia', color: '#43A047', bg: '#E8F5E9' },
         { titulo: 'Labores', descripcion: 'Prácticas de campo', icono: 'shovel', ruta: 'Labores', color: '#FB8C00', bg: '#FFF3E0' },
         { titulo: 'Plagas', descripcion: 'Control sanitario', icono: 'bug', ruta: 'Plagas', color: '#E53935', bg: '#FFEBEE' },

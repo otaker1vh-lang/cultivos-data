@@ -26,6 +26,7 @@ import ReporteAvanzadoScreen from './screens/ReporteAvanzadoScreen'; // Ajusta l
 import FertilizantesScreen from './screens/FertilizantesScreen';
 import DosisScreen from './screens/DosisScreen';
 import WeatherScreen from './screens/WeatherScreen'; // <--- NUEVA IMPORTACIÓN
+import CostosScreen from './screens/CostosScreen';
 
 const Stack = createStackNavigator();
 
@@ -64,7 +65,8 @@ export default function App() {
         <Stack.Screen name="Noticias" component={NoticiasScreen} options={{ title: 'Noticias' }} />
         <Stack.Screen name="About" component={AboutScreen} options={{ title: 'Acerca de' }} />
         <Stack.Screen name="Bitacora" component={BitacoraScreen} options={{ title: 'Mi Bitácora' }} />
-        
+        <Stack.Screen name="Costos" component={CostosScreen} options={{ title: 'Calculadora Financiera' }} />
+
         {/* PANTALLA DE CLIMA DETALLADO (NUEVA) */}
         <Stack.Screen name="Weather" component={WeatherScreen} options={{ title: 'Pronóstico Detallado' }} />
 

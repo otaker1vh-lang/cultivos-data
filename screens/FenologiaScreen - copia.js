@@ -8,7 +8,7 @@ import {
   TouchableOpacity, 
   Alert 
 } from "react-native";
-import { MaterialCommunityIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GanttFenologico from '../components/GanttFenologico';
 
@@ -122,6 +122,7 @@ export default function FenologiaScreen({ route }) {
           const fin = extraerNumero(valStr);
           if (fin > 0) {
             // Si es acumulado, la duración es (fin - anterior)
+            // Si el dato está mal y es menor al anterior, asumimos que es duración directa
             if (fin > ultimoDiaAcumulado) {
               duracion = fin - ultimoDiaAcumulado;
               ultimoDiaAcumulado = fin;
@@ -144,6 +145,8 @@ export default function FenologiaScreen({ route }) {
         
         duracion = d1 || d2 || d3 || 0;
         
+        // Si aún es 0 y es detallado, asignamos un mínimo visual (opcional)
+        // Para que el gráfico no desaparezca si faltan datos en una etapa intermedia
         if (duracion === 0 && esDetallado) duracion = 5; 
         
         ultimoDiaAcumulado += duracion;
@@ -166,35 +169,11 @@ export default function FenologiaScreen({ route }) {
     });
   };
 
-  // --- LÓGICA DE CRUCE DE RIESGOS (NUEVO) ---
-  const obtenerRiesgosDeEtapa = (nombreEtapa, codigoBbch) => {
-    const riesgosRaw = cultivoData?.riesgos_detallados || cultivoData?.plagas_y_enfermedades || {};
-    // Normalizamos a array
-    const listaRiesgos = Array.isArray(riesgosRaw) ? riesgosRaw : Object.values(riesgosRaw);
-    
-    if (listaRiesgos.length === 0) return [];
-
-    const etapaKey = nombreEtapa.toLowerCase();
-    
-    return listaRiesgos.filter(r => {
-        const fases = r.fases_vulnerables || "";
-        const fasesStr = Array.isArray(fases) ? fases.join(" ").toLowerCase() : String(fases).toLowerCase();
-        
-        // Coincidencia por nombre de etapa (ej: "Floración")
-        const matchNombre = fasesStr.includes(etapaKey);
-        
-        // Coincidencia opcional por código BBCH si existe (ej: "60-69")
-        const matchBbch = codigoBbch && fasesStr.includes(String(codigoBbch));
-
-        return matchNombre || matchBbch || fasesStr.includes("todas");
-    });
-  };
-
   if (loading && !cultivoData) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#2E7D32" />
-        <Text style={styles.loadingText}>Cargando datos fenológicos...</Text>
+        <Text style={styles.loadingText}>Cargando datos...</Text>
       </View>
     );
   }
@@ -220,72 +199,68 @@ export default function FenologiaScreen({ route }) {
       
       {/* HEADER */}
       <View style={styles.header}>
-        <View style={{flex: 1}}>
+        <View>
             <Text style={styles.titulo}>Fenología: {cultivo}</Text>
-            <Text style={styles.subtitle}>{modoDetallado ? "Datos fenológicos (BBCH)" : "Ciclo y Tiempos"}</Text>
+            <Text style={styles.subtitle}>{modoDetallado ? "Datos Avanzados (BBCH)" : "Datos Generales"}</Text>
         </View>
         <View style={[styles.badge, modoDetallado ? styles.badgeCompleto : null]}>
             <Text style={styles.badgeText}>{modoDetallado ? "✓ Completo" : "Básico"}</Text>
         </View>
       </View>
 
-      {/* ---------------------------------------------------- */}
-      {/* 1. CALENDARIOS DE SIEMBRA (EL "CUÁNDO")              */}
-      {/* ---------------------------------------------------- */}
-      {calendarios.length > 0 && (
+      {/* 1. SECCIÓN: VARIEDADES */}
+      <View style={styles.card}>
+        <View style={styles.cardHeaderSimple}>
+          <MaterialCommunityIcons name="dna" size={24} color="#7B1FA2" />
+          <Text style={styles.cardTitle}>Variedades Principales</Text>
+        </View>
+        <View style={styles.variedadesList}>
+          {variedades.length > 0 ? (
+            variedades.map((variedad, index) => (
+              <View key={index} style={styles.variedadChip}>
+                <MaterialCommunityIcons name="sprout" size={16} color="#7B1FA2" />
+                <Text style={styles.variedadText}>{variedad}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noData}>No disponible</Text>
+          )}
+        </View>
+      </View>
+
+      {/* 2. SECCIÓN: SISTEMAS DE PLANTACIÓN */}
+      {densidades.length > 0 && (
         <View style={styles.card}>
           <View style={styles.cardHeaderSimple}>
-            <MaterialCommunityIcons name="calendar-clock" size={24} color="#1976D2" />
-            <Text style={styles.cardTitle}>Calendarios Regionales</Text>
+            <MaterialCommunityIcons name="grid" size={24} color="#00897B" />
+            <Text style={styles.cardTitle}>Sistemas de Plantación</Text>
           </View>
-          <Text style={styles.sectionSubtitle}>Fechas óptimas según tu zona</Text>
-          
-          {calendarios.map((cal, index) => (
+          {dataCiclo.densidad_plantacion?.nota && (
+            <Text style={styles.infoText}>💡 {dataCiclo.densidad_plantacion.nota}</Text>
+          )}
+          {densidades.map((sistema, index) => (
             <TouchableOpacity 
               key={index}
-              style={[styles.regionCard, regionSeleccionada === index && styles.regionCardSelected]}
-              onPress={() => setRegionSeleccionada(regionSeleccionada === index ? null : index)}
+              style={[styles.sistemaCard, sistemaExpanded === index && styles.sistemaCardExpanded]}
+              onPress={() => setSistemaExpanded(sistemaExpanded === index ? null : index)}
             >
               <View style={styles.accordionHeader}>
                 <View style={{flex: 1}}>
-                  <Text style={styles.regionNombre}>📍 {cal.region}</Text>
-                  {cal.altitud_msnm && (
-                    <Text style={styles.regionAltitud}>Altitud: {cal.altitud_msnm} msnm</Text>
-                  )}
+                  <Text style={styles.sistemaNombre}>{sistema.nombre}</Text>
+                  <Text style={styles.sistemaArboles}>{sistema.arboles_ha} plantas/ha</Text>
                 </View>
                 <MaterialCommunityIcons 
-                  name={regionSeleccionada === index ? "chevron-up" : "chevron-down"} 
-                  size={24} 
+                  name={sistemaExpanded === index ? "chevron-up" : "chevron-down"} 
+                  size={22} 
                   color="#666" 
                 />
               </View>
-              
-              {regionSeleccionada === index && (
+              {sistemaExpanded === index && (
                 <View style={styles.accordionBody}>
-                  <View style={styles.fechaRow}>
-                    <MaterialCommunityIcons name="seed" size={20} color="#4CAF50" />
-                    <View style={{marginLeft: 10, flex: 1}}>
-                      <Text style={styles.fechaLabel}>Siembra</Text>
-                      <Text style={styles.fechaValue}>
-                        {cal.siembra_inicio} - {cal.siembra_fin}
-                      </Text>
-                    </View>
+                  <View style={styles.detailRow}>
+                    <MaterialCommunityIcons name="ruler" size={18} color="#00897B" />
+                    <Text style={styles.detailText}>Distancia: {sistema.distancia_m}</Text>
                   </View>
-                  <View style={styles.fechaRow}>
-                    <MaterialCommunityIcons name="grain" size={20} color="#FF9800" />
-                    <View style={{marginLeft: 10, flex: 1}}>
-                      <Text style={styles.fechaLabel}>Cosecha</Text>
-                      <Text style={styles.fechaValue}>
-                        {cal.cosecha_inicio} - {cal.cosecha_fin}
-                      </Text>
-                    </View>
-                  </View>
-                  {cal.ventana_comercial && (
-                    <View style={[styles.ventanaBox]}>
-                      <Text style={styles.ventanaLabel}>💡 Ventana Comercial</Text>
-                      <Text style={styles.ventanaTexto}>{cal.ventana_comercial}</Text>
-                    </View>
-                  )}
                 </View>
               )}
             </TouchableOpacity>
@@ -293,37 +268,28 @@ export default function FenologiaScreen({ route }) {
         </View>
       )}
 
-      {/* ---------------------------------------------------- */}
-      {/* 2. CICLO DE VIDA VISUAL (EL DESARROLLO)              */}
-      {/* ---------------------------------------------------- */}
+      {/* 3. SECCIÓN: GANTT - CORRECCIÓN APLICADA */}
       <View style={styles.ganttContainer}>
-        <View style={styles.cardHeaderSimple}>
-            <MaterialCommunityIcons name="chart-timeline-variant" size={24} color="#333" />
-            <Text style={styles.cardTitle}>Ciclo Fenológico ({duracionTotalCalculada} días)</Text>
-        </View>
-        <View style={{marginTop: 10}}>
-            <GanttFenologico 
-              etapas={datosGantt} 
-              duracionTotal={duracionTotalCalculada} 
-            />
-        </View>
+        <Text style={styles.sectionTitle}>Calendario Visual ({duracionTotalCalculada} días)</Text>
+        <GanttFenologico 
+          etapas={datosGantt} 
+          duracionTotal={duracionTotalCalculada} 
+        />
       </View>
 
-      {/* DESGLOSE DE ETAPAS */}
+      {/* LISTA DE ETAPAS (DESPLEGABLES) */}
       <View style={styles.listContainer}>
         <Text style={styles.sectionTitle}>
-          {modoDetallado ? "Desglose Técnico (Escala BBCH)" : "Etapas de Desarrollo"}
+          {modoDetallado ? "Desglose Técnico (BBCH)" : "Etapas de Desarrollo"}
         </Text>
 
         {etapasVisuales.map((etapa, index) => {
+           // Usamos el dato procesado para mostrar la duración coherente con el gráfico
            const datosCalculados = datosGantt[index] || {};
            const isExpanded = etapaExpanded === index;
            
            const nombreEtapa = modoDetallado ? (etapa.fase_original || etapa.descripcion_tecnica) : etapa.nombre;
            const duracionTexto = `${datosCalculados.duracion_dias || '?'} días`;
-           
-           // Cálculo de Riesgos Específicos para esta etapa
-           const riesgosEtapa = isExpanded ? obtenerRiesgosDeEtapa(nombreEtapa, etapa.codigo_bbch) : [];
 
            return (
           <TouchableOpacity 
@@ -389,31 +355,8 @@ export default function FenologiaScreen({ route }) {
                         </View>
                       )}
                     </View>
-                  </View>
-                )}
-                
-                {/* 3. SECCIÓN NUEVA: RIESGOS ESPECÍFICOS DE LA ETAPA */}
-                {riesgosEtapa.length > 0 && (
-                   <View style={styles.riesgosEtapaContainer}>
-                       <View style={styles.riesgosHeader}>
-                           <MaterialCommunityIcons name="shield-alert" size={18} color="#C62828" />
-                           <Text style={styles.riesgosTitle}>Riesgos Fitosanitarios</Text>
-                       </View>
-                       {riesgosEtapa.map((riesgo, rIdx) => (
-                           <View key={rIdx} style={styles.riesgoItem}>
-                               <Text style={styles.riesgoNombre}>🐞 {riesgo.plaga || riesgo.enfermedad || riesgo.nombre}</Text>
-                               {riesgo.tipo && <Text style={styles.riesgoTipo}>{riesgo.tipo}</Text>}
-                               <Text style={styles.riesgoDesc}>{riesgo.sintomas_visuales || riesgo.riesgo || "Sin descripción"}</Text>
-                               {riesgo.control_preventivo && (
-                                   <Text style={styles.riesgoControl}><Text style={{fontWeight:'bold'}}>Control:</Text> {riesgo.control_preventivo}</Text>
-                               )}
-                           </View>
-                       ))}
-                   </View>
-                )}
-
-                {/* 4. Actividades Críticas */}
-                {etapa.actividades_criticas && etapa.actividades_criticas.length > 0 && (
+                    
+                    {etapa.actividades_criticas && etapa.actividades_criticas.length > 0 && (
                       <View style={styles.activitiesContainer}>
                         <Text style={styles.activitiesTitle}>⚠️ Actividades Críticas:</Text>
                         {etapa.actividades_criticas.map((actividad, i) => (
@@ -423,6 +366,8 @@ export default function FenologiaScreen({ route }) {
                           </View>
                         ))}
                       </View>
+                    )}
+                  </View>
                 )}
                 
                 {/* Descripción Simple */}
@@ -435,82 +380,16 @@ export default function FenologiaScreen({ route }) {
         )})}
       </View>
 
-      {/* ---------------------------------------------------- */}
-      {/* 3. DATOS BIOLÓGICOS (GENÉTICA Y ESPACIO)             */}
-      {/* ---------------------------------------------------- */}
-      
-      {/* Variedades */}
-      <View style={styles.card}>
-        <View style={styles.cardHeaderSimple}>
-          <MaterialCommunityIcons name="dna" size={24} color="#7B1FA2" />
-          <Text style={styles.cardTitle}>Variedades Principales</Text>
-        </View>
-        <View style={styles.variedadesList}>
-          {variedades.length > 0 ? (
-            variedades.map((variedad, index) => (
-              <View key={index} style={styles.variedadChip}>
-                <MaterialCommunityIcons name="sprout" size={16} color="#7B1FA2" />
-                <Text style={styles.variedadText}>{variedad}</Text>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noData}>No disponible</Text>
-          )}
-        </View>
-      </View>
-
-      {/* Sistemas de Plantación */}
-      {densidades.length > 0 && (
-        <View style={styles.card}>
-          <View style={styles.cardHeaderSimple}>
-            <MaterialCommunityIcons name="grid" size={24} color="#00897B" />
-            <Text style={styles.cardTitle}>Densidad y Marcos de Plantación</Text>
-          </View>
-          {dataCiclo.densidad_plantacion?.nota && (
-            <Text style={styles.infoText}>💡 {dataCiclo.densidad_plantacion.nota}</Text>
-          )}
-          {densidades.map((sistema, index) => (
-            <TouchableOpacity 
-              key={index}
-              style={[styles.sistemaCard, sistemaExpanded === index && styles.sistemaCardExpanded]}
-              onPress={() => setSistemaExpanded(sistemaExpanded === index ? null : index)}
-            >
-              <View style={styles.accordionHeader}>
-                <View style={{flex: 1}}>
-                  <Text style={styles.sistemaNombre}>{sistema.nombre}</Text>
-                  <Text style={styles.sistemaArboles}>{sistema.arboles_ha} plantas/ha</Text>
-                </View>
-                <MaterialCommunityIcons 
-                  name={sistemaExpanded === index ? "chevron-up" : "chevron-down"} 
-                  size={22} 
-                  color="#666" 
-                />
-              </View>
-              {sistemaExpanded === index && (
-                <View style={styles.accordionBody}>
-                  <View style={styles.detailRow}>
-                    <MaterialCommunityIcons name="ruler" size={18} color="#00897B" />
-                    <Text style={styles.detailText}>Distancia: {sistema.distancia_m}</Text>
-                  </View>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
-      {/* ---------------------------------------------------- */}
-      {/* 4. ALERTAS CLIMÁTICAS (RIESGOS MACRO)                */}
-      {/* ---------------------------------------------------- */}
+      {/* 4. SECCIÓN: ALERTAS */}
       {tieneAlertas && (
         <View style={[styles.card, styles.alertCard]}>
           <View style={styles.cardHeaderSimple}>
-            <MaterialCommunityIcons name="weather-lightning" size={24} color="#D32F2F" />
-            <Text style={[styles.cardTitle, { color: '#D32F2F' }]}>Alertas Climáticas Críticas</Text>
+            <MaterialCommunityIcons name="alert-decagram" size={24} color="#D32F2F" />
+            <Text style={[styles.cardTitle, { color: '#D32F2F' }]}>Alertas Climáticas</Text>
           </View>
           
           <Text style={styles.alertSubtitle}>
-            ⚠️ Riesgos generales por clima y entorno:
+            ⚠️ Riesgos críticos por etapa fenológica:
           </Text>
 
           {Array.isArray(alertas) 
@@ -536,6 +415,66 @@ export default function FenologiaScreen({ route }) {
         </View>
       )}
 
+      {/* 5. SECCIÓN: CALENDARIOS REGIONALES */}
+      {calendarios.length > 0 && (
+        <View style={styles.card}>
+          <View style={styles.cardHeaderSimple}>
+            <MaterialCommunityIcons name="map-marker-multiple" size={24} color="#1976D2" />
+            <Text style={styles.cardTitle}>Calendarios por Región</Text>
+          </View>
+          {calendarios.map((cal, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={[styles.regionCard, regionSeleccionada === index && styles.regionCardSelected]}
+              onPress={() => setRegionSeleccionada(regionSeleccionada === index ? null : index)}
+            >
+              <View style={styles.accordionHeader}>
+                <View style={{flex: 1}}>
+                  <Text style={styles.regionNombre}>📍 {cal.region}</Text>
+                  {cal.altitud_msnm && (
+                    <Text style={styles.regionAltitud}>Altitud: {cal.altitud_msnm} msnm</Text>
+                  )}
+                </View>
+                <MaterialCommunityIcons 
+                  name={regionSeleccionada === index ? "chevron-up" : "chevron-down"} 
+                  size={24} 
+                  color="#666" 
+                />
+              </View>
+              
+              {regionSeleccionada === index && (
+                <View style={styles.accordionBody}>
+                  <View style={styles.fechaRow}>
+                    <MaterialCommunityIcons name="seed" size={20} color="#4CAF50" />
+                    <View style={{marginLeft: 10, flex: 1}}>
+                      <Text style={styles.fechaLabel}>Siembra</Text>
+                      <Text style={styles.fechaValue}>
+                        {cal.siembra_inicio} - {cal.siembra_fin}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.fechaRow}>
+                    <MaterialCommunityIcons name="grain" size={20} color="#FF9800" />
+                    <View style={{marginLeft: 10, flex: 1}}>
+                      <Text style={styles.fechaLabel}>Cosecha</Text>
+                      <Text style={styles.fechaValue}>
+                        {cal.cosecha_inicio} - {cal.cosecha_fin}
+                      </Text>
+                    </View>
+                  </View>
+                  {cal.ventana_comercial && (
+                    <View style={[styles.ventanaBox]}>
+                      <Text style={styles.ventanaLabel}>💡 Ventana Comercial</Text>
+                      <Text style={styles.ventanaTexto}>{cal.ventana_comercial}</Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
     </ScrollView>
   );
 }
@@ -553,9 +492,6 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#E0E0E0' },
   badgeCompleto: { backgroundColor: '#4CAF50' },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
-
-  // SECTION SUBTITLE
-  sectionSubtitle: { marginHorizontal: 15, marginBottom: 10, color: '#666', fontSize: 12, fontStyle:'italic' },
 
   // CARDS GENERALES
   card: { backgroundColor: '#fff', marginHorizontal: 15, padding: 16, borderRadius: 12, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3 },
@@ -609,29 +545,19 @@ const styles = StyleSheet.create({
   infoTag: { flexDirection: 'row', alignItems: 'center', marginRight: 15, marginTop: 4 },
   infoText: { fontSize: 13, color: '#555', marginLeft: 4 },
   
-  // ESTILOS NUEVOS PARA RIESGOS ESPECÍFICOS
-  riesgosEtapaContainer: { backgroundColor: '#FFEBEE', borderRadius: 8, padding: 10, marginBottom: 10, borderWidth:1, borderColor: '#EF9A9A' },
-  riesgosHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 6, borderBottomWidth: 1, borderBottomColor: '#FFCDD2', paddingBottom: 4 },
-  riesgosTitle: { fontWeight: 'bold', color: '#C62828', fontSize: 13 },
-  riesgoItem: { marginBottom: 8 },
-  riesgoNombre: { fontSize: 13, fontWeight: 'bold', color: '#B71C1C' },
-  riesgoTipo: { fontSize: 11, color: '#D32F2F', fontStyle: 'italic', marginBottom: 2 },
-  riesgoDesc: { fontSize: 12, color: '#444', lineHeight: 18 },
-  riesgoControl: { fontSize: 12, color: '#2E7D32', marginTop: 3, fontStyle: 'italic' },
-
   activitiesContainer: { marginTop: 5, backgroundColor: '#fff', padding: 10, borderRadius: 8, borderWidth:1, borderColor:'#E0E0E0' },
   activitiesTitle: { fontSize: 13, fontWeight: 'bold', color: '#455A64', marginBottom: 5 },
   activityRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 4 },
   activityText: { fontSize: 13, color: '#455A64', marginLeft: 6, flex: 1, lineHeight:18 },
   descripcionSimple: { color: '#555', fontSize: 14, fontStyle: 'italic', lineHeight: 20 },
 
-  // ALERTAS GENERALES
-  alertCard: { backgroundColor: '#FFF3E0', borderColor: '#FFCC80', borderWidth: 1 },
-  alertSubtitle: { fontSize: 12, color: '#E65100', marginBottom: 10, fontWeight: '600' },
-  alertItem: { marginBottom: 10, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#FFE0B2' },
-  alertEtapa: { fontSize: 14, fontWeight: 'bold', color: '#EF6C00' },
-  alertDesc: { fontSize: 13, color: '#E65100', marginTop: 2 },
-  alertUmbral: { fontSize: 11, color: '#F57C00', fontStyle: 'italic', marginTop: 2 },
+  // ALERTAS
+  alertCard: { backgroundColor: '#FFEBEE', borderColor: '#FFCDD2', borderWidth: 1 },
+  alertSubtitle: { fontSize: 12, color: '#D32F2F', marginBottom: 10, fontWeight: '600' },
+  alertItem: { marginBottom: 10, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#FFCDD2' },
+  alertEtapa: { fontSize: 14, fontWeight: 'bold', color: '#C62828' },
+  alertDesc: { fontSize: 13, color: '#B71C1C', marginTop: 2 },
+  alertUmbral: { fontSize: 11, color: '#D32F2F', fontStyle: 'italic', marginTop: 2 },
 
   // CALENDARIOS
   regionCard: { backgroundColor: '#F5F5F5', padding: 14, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#E0E0E0' },

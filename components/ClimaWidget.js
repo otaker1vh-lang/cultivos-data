@@ -1,259 +1,361 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image, TouchableOpacity, ScrollView, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { 
+  View, Text, StyleSheet, ActivityIndicator, Image, 
+  TouchableOpacity, TextInput, Keyboard, Alert, Modal, FlatList
+} from 'react-native';
 import * as Location from 'expo-location';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-// Habilitar animaciones
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 const API_KEY = '8dd59ff1da764345cdd89f05c6326380'; 
 
-export default function ClimaWidget({ onEvaluarCondiciones }) {
+export default function ClimaWidget({ onClimaUpdate }) {
   const [weather, setWeather] = useState(null);
-  const [forecastsManana, setForecastsManana] = useState([]); 
-  const [selectedForecast, setSelectedForecast] = useState(null); 
-  const [altitude, setAltitude] = useState(null);
+  const [forecast, setForecast] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [expanded, setExpanded] = useState(false);
 
-  // Función para convertir TIMESTAMP a HORA LOCAL legible (ej: "14:00")
-  const getHoraLocal = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  // Estados visuales y lógica
+  const [esApto, setEsApto] = useState(false);
+  const [recomendacion, setRecomendacion] = useState("Cargando...");
+  const [colorEstado, setColorEstado] = useState("#B0BEC5");
+
+  // Estados de búsqueda
+  const [modoBusqueda, setModoBusqueda] = useState(false);
+  const [ciudadBusqueda, setCiudadBusqueda] = useState("");
+  const [modalVisible, setModalVisible] = useState(false); 
+
+  useEffect(() => {
+    fetchWeather(); 
+  }, []);
+
+  const analizarCondiciones = (temp, windSpeed, weatherMain) => {
+    const vientoKmh = windSpeed * 3.6;
+    
+    if (vientoKmh > 15) return { apto: false, mensaje: "Viento Alto", color: "#EF5350" }; 
+    if (['Rain', 'Thunderstorm', 'Drizzle', 'Snow'].includes(weatherMain)) return { apto: false, mensaje: "Lluvia", color: "#42A5F5" }; 
+    if (temp > 29) return { apto: false, mensaje: "Mucho Calor", color: "#FFA726" }; 
+    
+    return { apto: true, mensaje: "Apto", color: "#4CAF50" }; 
   };
 
-  const fetchWeather = async () => {
+  const fetchWeather = async (busqueda = null) => {
     setLoading(true);
     setErrorMsg(null);
+    Keyboard.dismiss();
+
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') { setErrorMsg('Sin permiso'); setLoading(false); return; }
-
-      let location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude, altitude } = location.coords;
-      setAltitude(altitude ? Math.round(altitude) : 'N/A');
-
-      // 1. Clima Actual
-      const responseCurrent = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`
-      );
-      const dataCurrent = await responseCurrent.json();
-
-      // 2. Pronóstico 5 días / 3 horas
-      const responseForecast = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`
-      );
-      const dataForecast = await responseForecast.json();
-
-      if (responseCurrent.ok && responseForecast.ok) {
-        setWeather(dataCurrent);
-
-        // --- LÓGICA DE FECHAS CORREGIDA ---
-        const hoy = new Date();
-        const manana = new Date(hoy);
-        manana.setDate(hoy.getDate() + 1); // Sumamos 1 día exacto
-        
-        // Obtenemos el día del mes de mañana (ej: si hoy es 7, mañana es 8)
-        const diaManana = manana.getDate();
-
-        const listaManana = dataForecast.list.filter(item => {
-           // Convertimos el timestamp de la API a fecha LOCAL del celular
-           const fechaItem = new Date(item.dt * 1000);
-           // Comparamos si el día del mes coincide con mañana
-           return fechaItem.getDate() === diaManana;
-        });
-
-        setForecastsManana(listaManana);
-        
-        if (listaManana.length > 0) {
-            // Buscamos seleccionar por defecto una hora central (ej: mediodía)
-            const porDefecto = listaManana.find(i => {
-                const h = new Date(i.dt * 1000).getHours();
-                return h >= 12 && h <= 14; 
-            }) || listaManana[0];
-            setSelectedForecast(porDefecto);
-        }
-
-        if (onEvaluarCondiciones) {
-            const temp = dataCurrent.main.temp;
-            const vientoKmH = dataCurrent.wind.speed * 3.6; 
-            const condicion = dataCurrent.weather[0].main; 
-            const hayLluvia = condicion === 'Rain' || condicion === 'Thunderstorm' || condicion === 'Drizzle';
-            const esIdealHoy = (vientoKmH < 15) && (temp < 30) && (!hayLluvia);
-            onEvaluarCondiciones(esIdealHoy);
+      let lat, lon;
+      
+      // 1. OBTENER COORDENADAS (GPS o BÚSQUEDA)
+      if (busqueda) {
+        // --- CAMBIO CLAVE: USAR GEOCODER NATIVO ---
+        // Esto busca localidad, calle, rancho, etc. usando Google/Apple Maps
+        try {
+            const geocodedLocation = await Location.geocodeAsync(busqueda);
+            
+            if (geocodedLocation.length > 0) {
+                lat = geocodedLocation[0].latitude;
+                lon = geocodedLocation[0].longitude;
+            } else {
+                Alert.alert("No encontrada", "No se encontró esa localidad específica.");
+                setLoading(false);
+                return;
+            }
+        } catch (geoError) {
+            Alert.alert("Error", "Error al buscar la ubicación.");
+            setLoading(false);
+            return;
         }
 
       } else {
-        setErrorMsg('Error API');
+        // GPS NORMAL
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setErrorMsg('Sin permiso GPS');
+          setLoading(false);
+          return;
+        }
+        let locationResult = await Location.getCurrentPositionAsync({});
+        lat = locationResult.coords.latitude;
+        lon = locationResult.coords.longitude;
       }
+
+      // 2. PEDIR CLIMA EXACTO CON LAS COORDENADAS
+      // Ya no usamos ?q=ciudad, siempre usamos ?lat=&lon=
+      const urlWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es`;
+      
+      const response = await fetch(urlWeather);
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert("Error API", "Error obteniendo datos del clima.");
+        setLoading(false);
+        return; 
+      }
+
+      setWeather(data);
+
+      const analisis = analizarCondiciones(data.main.temp, data.wind.speed, data.weather[0].main);
+      setEsApto(analisis.apto);
+      setRecomendacion(analisis.mensaje);
+      setColorEstado(analisis.color);
+
+      // 3. PEDIR PRONÓSTICO PARA ESA MISMA UBICACIÓN
+      const urlForecast = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es`;
+      const resForecast = await fetch(urlForecast);
+      const dataForecast = await resForecast.json();
+      
+      if(resForecast.ok){
+          setForecast(dataForecast.list.slice(0, 9)); 
+      }
+
+      if (onClimaUpdate) {
+          onClimaUpdate({
+              temp: data.main.temp,
+              temp_max: data.main.temp_max,
+              temp_min: data.main.temp_min,
+              humedad: data.main.humidity
+          });
+      }
+
     } catch (e) {
-      setErrorMsg('Error Red');
       console.log(e);
+      setErrorMsg('Error de conexión');
     } finally {
       setLoading(false);
+      if(busqueda) setModoBusqueda(false); 
     }
   };
 
-  useEffect(() => {
-    fetchWeather();
-  }, []);
+  const renderForecastItem = ({ item }) => {
+    const date = new Date(item.dt * 1000);
+    const hora = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const analisis = analizarCondiciones(item.main.temp, item.wind.speed, item.weather[0].main);
 
-  const evaluarData = (data) => {
-      if(!data) return { apto: false, texto: "...", color: "#999" };
-      const temp = data.main.temp;
-      const viento = data.wind.speed * 3.6;
-      const mainCond = data.weather[0].main;
-      const lluvia = mainCond === 'Rain' || mainCond === 'Thunderstorm' || mainCond === 'Drizzle' || mainCond === 'Snow';
-      
-      if (viento < 15 && temp < 30 && !lluvia) {
-          return { apto: true, texto: "APTO ✅", color: "#2E7D32" };
-      } else {
-          let razon = "";
-          if (lluvia) razon = "Lluvia";
-          else if (viento >= 15) razon = "Viento";
-          else if (temp >= 30) razon = "Calor";
-          
-          return { apto: false, texto: `NO APTO (${razon}) ⚠️`, color: "#D32F2F" };
-      }
+    return (
+        <View style={styles.forecastItem}>
+            <View style={{flexDirection:'row', alignItems:'center', width: 60}}>
+                <Text style={styles.forecastTime}>{hora}</Text>
+            </View>
+            <View style={{flexDirection:'row', alignItems:'center', flex:1, justifyContent:'center'}}>
+                 <Image 
+                    source={{ uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}.png` }} 
+                    style={{ width: 30, height: 30 }} 
+                />
+                <Text style={styles.forecastTemp}>{Math.round(item.main.temp)}°</Text>
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: analisis.color, width: 90, justifyContent:'center' }]}>
+                <Text style={styles.statusText}>{analisis.mensaje.toUpperCase()}</Text>
+            </View>
+        </View>
+    );
   };
 
-  const toggleExpand = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded(!expanded);
-  };
-
-  if (loading) return <View style={styles.cardSmall}><ActivityIndicator size="large" color="#4CAF50"/></View>;
-  if (errorMsg || !weather) return <TouchableOpacity onPress={fetchWeather} style={styles.cardSmall}><Text style={{color:'red', fontSize: 16}}>Error Clima (Toque para reintentar)</Text></TouchableOpacity>;
-
-  const { main, weather: details, wind, name } = weather;
-  // const iconUrl = `https://openweathermap.org/img/wn/${details[0].icon}@2x.png`; // <-- Ya no necesitamos la URL del ícono principal
-  const evalActual = evaluarData(weather);
+  if (loading && !weather) return <ActivityIndicator size="small" color="#fff" style={{margin: 20}} />;
+  
+  if (errorMsg) return (
+      <TouchableOpacity onPress={() => fetchWeather()} style={styles.errorContainer}>
+        <Text style={{color:'#FFCDD2', fontSize:12}}>Error: {errorMsg}. Toca para reintentar.</Text>
+      </TouchableOpacity>
+  );
 
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={toggleExpand} style={styles.card}>
+    <View style={styles.compactContainer}>
       
-      {/* CABECERA (RESUMEN) */}
-      <View style={styles.compactRow}>
-         <View style={{flexDirection: 'row', alignItems: 'center', width: '35%'}}>
-            {/* <Image source={{ uri: iconUrl }} style={{width: 50, height: 50}} />  <-- IMAGEN ELIMINADA */}
-            <View>
-                <Text style={styles.cityText} numberOfLines={1}>{name}</Text>
-                <Text style={styles.altText}>{altitude} msnm</Text>
-            </View>
+      {/* 1. CABECERA */}
+      <View style={styles.headerRow}>
+         <View style={styles.locationWrap}>
+             <Ionicons name="location-sharp" size={14} color="#E0F2F1" />
+             {/* Mostramos el nombre que devuelve OpenWeather (suele ser el pueblo o municipio más cercano) */}
+             <Text style={styles.cityText} numberOfLines={1}>{weather?.name}</Text>
          </View>
          
-         <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-                <MaterialCommunityIcons name="thermometer" size={18} color="#333"/>
-                <Text style={styles.statVal}>{Math.round(main.temp)}°</Text>
+         <TouchableOpacity 
+            style={[styles.statusBadge, { backgroundColor: colorEstado }]}
+            onPress={() => setModalVisible(true)}
+         >
+            <View style={{flexDirection:'row', alignItems:'center'}}>
+                <Text style={styles.statusText}>{esApto ? "APTO" : "NO APTO"}</Text>
+                <Ionicons name="chevron-down" size={12} color="white" style={{marginLeft:4}} />
             </View>
-            <View style={styles.statItem}>
-                <MaterialCommunityIcons name="weather-windy" size={18} color="#333"/>
-                <Text style={styles.statVal}>{Math.round(wind.speed * 3.6)}</Text>
-            </View>
-            <View style={styles.statItem}>
-                <MaterialCommunityIcons name="water" size={18} color="#1976D2"/>
-                <Text style={styles.statVal}>{main.humidity}%</Text>
-            </View>
-         </View>
+         </TouchableOpacity>
 
-         <View style={[styles.badge, {backgroundColor: evalActual.color}]}>
-            <Text style={styles.badgeText}>{evalActual.apto ? 'APTO' : 'NO'}</Text>
-         </View>
+         <TouchableOpacity onPress={() => setModoBusqueda(!modoBusqueda)} style={{padding:6}}>
+             <Ionicons name={modoBusqueda ? "close" : "search"} size={20} color="#fff" />
+         </TouchableOpacity>
       </View>
 
-      {/* ÁREA EXPANDIBLE (PRONÓSTICO MAÑANA) */}
-      {expanded && forecastsManana.length > 0 && (
-          <View style={styles.expandedContent}>
-              <View style={styles.divider} />
-              <Text style={styles.expandTitle}>📅 Pronóstico para Mañana:</Text>
-              
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
-                  {forecastsManana.map((item, index) => {
-                      const hora = getHoraLocal(item.dt);
-                      const isSelected = selectedForecast && selectedForecast.dt === item.dt;
-                      const evalItem = evaluarData(item);
-                      
-                      return (
-                          <TouchableOpacity 
-                            key={index} 
-                            style={[styles.chip, isSelected && styles.chipSelected, {borderColor: evalItem.color}]} 
-                            onPress={() => setSelectedForecast(item)}
-                          >
-                              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>{hora}</Text>
-                              <View style={[styles.dot, {backgroundColor: evalItem.color}]} />
-                          </TouchableOpacity>
-                      );
-                  })}
-              </ScrollView>
-
-              {selectedForecast && (
-                  <View style={styles.forecastDetail}>
-                       <View style={{flexDirection:'row', alignItems:'center', marginBottom: 8}}>
-                           <Image 
-                               source={{ uri: `https://openweathermap.org/img/wn/${selectedForecast.weather[0].icon}.png` }} 
-                               style={{width: 40, height: 40, marginRight: 10}} 
-                           />
-                           <Text style={{fontSize:16, fontWeight:'bold', color:'#333', textTransform:'capitalize'}}>
-                               {selectedForecast.weather[0].description}
-                           </Text>
-                       </View>
-
-                       <Text style={styles.detailText}>
-                           🌡 {Math.round(selectedForecast.main.temp)}°C    💨 {(selectedForecast.wind.speed * 3.6).toFixed(1)} km/h
-                       </Text>
-                       <Text style={styles.detailText}>
-                           💧 Humedad: {selectedForecast.main.humidity}%
-                       </Text>
-
-                       <View style={[styles.recomendacionBox, { backgroundColor: evaluarData(selectedForecast).apto ? '#E8F5E9' : '#FFEBEE' }]}>
-                           <Text style={[styles.detailRecom, { color: evaluarData(selectedForecast).color }]}>
-                               {evaluarData(selectedForecast).texto} para aplicar
-                           </Text>
-                       </View>
-                  </View>
-              )}
-          </View>
+      {/* 2. BARRA DE BÚSQUEDA */}
+      {modoBusqueda && (
+        <View style={styles.searchRow}>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Ej: Ejido La Machuca, MX" // Placeholder actualizado
+            placeholderTextColor="#ddd"
+            value={ciudadBusqueda}
+            onChangeText={setCiudadBusqueda}
+            onSubmitEditing={() => fetchWeather(ciudadBusqueda)}
+            returnKeyType="search"
+          />
+          <TouchableOpacity 
+             onPress={() => fetchWeather(ciudadBusqueda)} 
+             style={{backgroundColor:'rgba(255,255,255,0.2)', borderRadius:4, padding:4, marginLeft: 4}}
+          >
+             <Ionicons name="arrow-forward" size={18} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { setCiudadBusqueda(""); fetchWeather(null); }} style={{marginLeft: 8}}>
+             <MaterialCommunityIcons name="crosshairs-gps" size={20} color="#80DEEA" />
+          </TouchableOpacity>
+        </View>
       )}
-    </TouchableOpacity>
+
+      {/* 3. DATOS VISUALES */}
+      <View style={styles.dataRow}>
+        <View style={styles.mainInfo}>
+            <Image 
+              source={{ uri: `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png` }} 
+              style={{ width: 40, height: 40 }} 
+            />
+            <View>
+                <Text style={styles.tempBig}>{Math.round(weather.main.temp)}°</Text>
+                <Text style={styles.descTiny}>{weather.weather[0].description}</Text>
+            </View>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.detailsGrid}>
+            <View style={styles.detailItem}>
+                <MaterialCommunityIcons name="weather-windy" size={14} color="#B2DFDB" />
+                <Text style={styles.detailVal}>{(weather.wind.speed * 3.6).toFixed(0)} km/h</Text>
+            </View>
+            <View style={styles.detailItem}>
+                <MaterialCommunityIcons name="water-percent" size={14} color="#B2DFDB" />
+                <Text style={styles.detailVal}>{weather.main.humidity}%</Text>
+            </View>
+            <View style={styles.detailItem}>
+                <MaterialCommunityIcons name={esApto ? "thermometer" : "alert-circle-outline"} size={14} color={esApto ? "#B2DFDB" : "#FFCCBC"} />
+                <Text style={[styles.detailVal, !esApto && {color:'#FFCCBC'}]}>
+                    {esApto ? `ST ${Math.round(weather.main.feels_like)}°` : recomendacion}
+                </Text>
+            </View>
+        </View>
+      </View>
+
+      {/* 4. MODAL */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Pronóstico Local</Text>
+                    <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <Ionicons name="close-circle" size={28} color="#546E7A" />
+                    </TouchableOpacity>
+                </View>
+                
+                <Text style={styles.modalSubtitle}>Próximas 24 horas (Hora Local)</Text>
+
+                <FlatList
+                    data={forecast}
+                    keyExtractor={(item) => item.dt.toString()}
+                    renderItem={renderForecastItem}
+                    style={{maxHeight: 350}}
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                        <Text style={{textAlign:'center', padding:20, color:'#888'}}>
+                             Cargando pronóstico...
+                        </Text>
+                    }
+                />
+            </View>
+        </View>
+      </Modal>
+
+    </View>
   );
 }
 
-// ESTILOS CON FUENTE AUMENTADA
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 4, borderWidth: 1, borderColor: '#ddd' },
-  cardSmall: { padding: 20, alignItems: 'center' },
-  compactRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  compactContainer: { paddingVertical: 5 },
+  errorContainer: { padding: 10, alignItems: 'center' },
   
-  // Textos más grandes
-  cityText: { fontWeight: 'bold', fontSize: 18, color: '#222', flex:1 },
-  altText: { fontSize: 13, color: '#666' },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  locationWrap: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  cityText: { color: '#fff', fontWeight: 'bold', fontSize: 14, marginLeft: 4 },
   
-  statsRow: { flexDirection: 'row', gap: 12 },
-  statItem: { alignItems: 'center' },
-  statVal: { fontSize: 16, fontWeight: 'bold', color: '#444', marginTop: 2 },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4, 
+    borderRadius: 12,
+    marginRight: 10,
+    alignItems: 'center'
+  },
+  statusText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+
+  searchRow: { 
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      marginBottom: 8, 
+      backgroundColor:'rgba(0,0,0,0.3)', 
+      borderRadius:8, 
+      paddingHorizontal:8,
+      paddingVertical: 2
+  },
+  input: { flex: 1, color: '#fff', height: 40, fontSize: 14 },
+
+  dataRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    padding: 8,
+  },
+  mainInfo: { flexDirection: 'row', alignItems: 'center', flex: 2 },
+  tempBig: { fontSize: 26, fontWeight: 'bold', color: '#fff', lineHeight: 30 },
+  descTiny: { fontSize: 11, color: '#B2DFDB', textTransform: 'capitalize', marginTop: -2 },
+  divider: { width: 1, height: '80%', backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 10 },
+  detailsGrid: { flex: 2, justifyContent: 'center', gap: 2 },
+  detailItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' },
+  detailVal: { color: '#fff', fontSize: 11, marginLeft: 6 },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end', 
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 40,
+    minHeight: '50%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#37474F' },
+  modalSubtitle: { fontSize: 12, color: '#78909C', marginBottom: 15 },
   
-  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, marginLeft: 5 },
-  badgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  
-  expandedContent: { marginTop: 15 },
-  divider: { height: 1, backgroundColor: '#eee', marginVertical: 10 },
-  expandTitle: { fontSize: 16, fontWeight: 'bold', color: '#444', marginBottom: 10 },
-  
-  chipsContainer: { flexDirection: 'row', marginBottom: 15 },
-  chip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f5f5f5', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 20, marginRight: 8, borderWidth: 1.5 },
-  chipSelected: { backgroundColor: '#E0F2F1', borderColor: '#00695C', borderWidth: 2 },
-  
-  chipText: { fontSize: 14, color: '#555' },
-  chipTextSelected: { fontWeight: 'bold', color: '#00695C', fontSize: 15 },
-  dot: { width: 10, height: 10, borderRadius: 5, marginLeft: 6 },
-  
-  forecastDetail: { backgroundColor: '#FAFAFA', padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#eee' },
-  detailText: { fontSize: 16, color: '#333', marginVertical: 3 },
-  
-  recomendacionBox: { marginTop: 10, padding: 8, borderRadius: 5, alignItems: 'center', width: '100%' },
-  detailRecom: { fontSize: 16, fontWeight: 'bold' }
+  forecastItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE'
+  },
+  forecastTime: { fontSize: 15, fontWeight:'600', color: '#455A64' },
+  forecastTemp: { fontSize: 15, fontWeight:'bold', color: '#333', marginLeft: 5 },
 });
