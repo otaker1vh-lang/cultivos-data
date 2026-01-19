@@ -36,6 +36,41 @@ if (Platform.OS === 'android') {
   }
 }
 
+// --- FUNCIÓN HELPER PARA ÍCONOS (NUEVA) ---
+const obtenerIconoCultivo = (nombre, categoria) => {
+  const n = nombre ? nombre.toLowerCase() : "";
+  const c = categoria ? categoria.toLowerCase() : "";
+
+  // 1. Búsqueda específica por nombre
+  if (n.includes("maiz") || n.includes("elote")) return "corn";
+  if (n.includes("trigo") || n.includes("cebada") || n.includes("avena") || n.includes("sorgo")) return "barley";
+  if (n.includes("frijol") || n.includes("soja") || n.includes("haba")) return "seed";
+  if (n.includes("tomate") || n.includes("jitomate")) return "fruit-cherries"; // Aproximación visual
+  if (n.includes("chile") || n.includes("pimiento") || n.includes("jalape")) return "chili-hot";
+  if (n.includes("zanahoria")) return "carrot";
+  if (n.includes("papa") || n.includes("patata")) return "food-steak"; // A veces usado para tubérculos
+  if (n.includes("cafe") || n.includes("café")) return "coffee";
+  if (n.includes("limon") || n.includes("naranja") || n.includes("citrico") || n.includes("mandarina")) return "fruit-citrus";
+  if (n.includes("uva") || n.includes("vid")) return "fruit-grapes";
+  if (n.includes("calabaza") || n.includes("zapallo")) return "pumpkin";
+  if (n.includes("hongo") || n.includes("seta")) return "mushroom";
+  if (n.includes("flor")) return "flower";
+  if (n.includes("arroz")) return "grass";
+  if (n.includes("piña")) return "fruit-pineapple";
+  if (n.includes("sandia")) return "fruit-watermelon";
+  if (n.includes("caña")) return "corn"; // Aproximación visual
+
+  // 2. Búsqueda por categoría (Fallback)
+  if (c.includes("frut")) return "food-apple";
+  if (c.includes("hort")) return "carrot";
+  if (c.includes("gran") || c.includes("cereal")) return "corn";
+  if (c.includes("flor")) return "flower-tulip";
+  if (c.includes("forest")) return "tree";
+
+  // 3. Default
+  return "sprout";
+};
+
 export default function HomeScreen({ navigation }) {
   // --- ESTADOS ORIGINALES ---
   const [busqueda, setBusqueda] = useState("");
@@ -53,8 +88,8 @@ export default function HomeScreen({ navigation }) {
   const [showCropSelector, setShowCropSelector] = useState(false);
   
   // Estados de expansión
-  const [gddSectionExpanded, setGddSectionExpanded] = useState(false); // [NUEVO] Para la ficha principal
-  const [expandedGddId, setExpandedGddId] = useState(null); // Para los items internos
+  const [gddSectionExpanded, setGddSectionExpanded] = useState(false); 
+  const [expandedGddId, setExpandedGddId] = useState(null); 
 
   // --- IA Y CÁMARA ---
   const device = useCameraDevice('back');
@@ -171,13 +206,11 @@ export default function HomeScreen({ navigation }) {
       setClimaActual(data);
   };
 
-  // [NUEVO] Función para alternar expansión de la SECCIÓN PRINCIPAL
   const toggleSectionMain = () => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setGddSectionExpanded(!gddSectionExpanded);
   };
 
-  // Función para alternar expansión de items internos
   const toggleGddExpand = (id) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setExpandedGddId(expandedGddId === id ? null : id);
@@ -192,46 +225,38 @@ export default function HomeScreen({ navigation }) {
     setLoadingGDD(true);
 
     try {
-        // 1. Generar clave única para este cultivo
         const storageKey = `@gdd_historial_${cultivo.id}`;
-        
-        // 2. Cargar historial existente
         const historialStr = await AsyncStorage.getItem(storageKey);
         let historial = historialStr ? JSON.parse(historialStr) : [];
         
-        // 3. Agregar día actual si no existe O actualizar si cambió
-  const hoy = new Date().toISOString().split('T')[0];
-  const indexExistente = historial.findIndex(d => d.fecha === hoy);
+        const hoy = new Date().toISOString().split('T')[0];
+        const indexExistente = historial.findIndex(d => d.fecha === hoy);
       
-  if (indexExistente !== -1) {
-      // Si existe, actualizar solo si las temperaturas cambiaron
-      const diaExistente = historial[indexExistente];
-      if (diaExistente.tmax !== parseFloat(clima.temp_max) || 
-          diaExistente.tmin !== parseFloat(clima.temp_min)) {
-          historial[indexExistente] = {
-              fecha: hoy,
-              tmax: parseFloat(clima.temp_max),
-              tmin: parseFloat(clima.temp_min)
-          };
-          await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
-      }
-  } else {
-      // Si no existe, agregar nuevo día
-      historial.push({
-          fecha: hoy,
-          tmax: parseFloat(clima.temp_max),
-          tmin: parseFloat(clima.temp_min)
-    });
-    
-    // OPTIMIZACIÓN: Mantener solo últimos 180 días (6 meses)
-    if (historial.length > 180) {
-        historial = historial.slice(-180);
-    }
-    
-    await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
-}
+        if (indexExistente !== -1) {
+            const diaExistente = historial[indexExistente];
+            if (diaExistente.tmax !== parseFloat(clima.temp_max) || 
+                diaExistente.tmin !== parseFloat(clima.temp_min)) {
+                historial[indexExistente] = {
+                    fecha: hoy,
+                    tmax: parseFloat(clima.temp_max),
+                    tmin: parseFloat(clima.temp_min)
+                };
+                await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
+            }
+        } else {
+            historial.push({
+                fecha: hoy,
+                tmax: parseFloat(clima.temp_max),
+                tmin: parseFloat(clima.temp_min)
+            });
+            
+            if (historial.length > 180) {
+                historial = historial.slice(-180);
+            }
+            
+            await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
+        }
 
-        // 4. Cargar configuración de riesgos del cultivo
         const riesgos = cargarRiesgosDesdeJSON(cultivo);
         
         if (riesgos.length === 0) {
@@ -239,13 +264,9 @@ export default function HomeScreen({ navigation }) {
             return;
         }
 
-        // 5. Calcular predicciones usando la calculadora avanzada
         const predicciones = calcularRiesgosMultiples(historial, riesgos);
-        
-        // 6. Generar alertas (umbral 75% = advertencia, 100% = crítico)
         const alertasGeneradas = generarAlertas(predicciones, 0);
 
-        // 7. Convertir a formato de la UI
         const nuevasAlertas = alertasGeneradas.map(alerta => {
             const prediccion = predicciones[alerta.riesgo];
             const detalle = cultivo.riesgos_detallados?.[alerta.riesgo];
@@ -273,7 +294,6 @@ export default function HomeScreen({ navigation }) {
     }
 };
 
-// ===== AGREGAR NUEVA FUNCIÓN PARA REINICIAR TEMPORADA =====
 const reiniciarTemporadaGDD = async () => {
     if (!selectedCropGDD) return;
     
@@ -357,12 +377,9 @@ const reiniciarTemporadaGDD = async () => {
 
   // --- RENDERIZADO TARJETAS ---
   const renderCultivo = ({ item }) => {
-    let iconName = "sprout";
-    const cat = item.categoria ? item.categoria.toLowerCase() : "";
-    if (cat.includes("frut")) iconName = "food-apple";
-    if (cat.includes("hort")) iconName = "carrot";
-    if (cat.includes("gran")) iconName = "corn";
-
+    // MODIFICACIÓN: Usar función helper para íconos
+    const iconName = obtenerIconoCultivo(item.nombre, item.categoria);
+    
     const tieneImagen = item.imagen_url && item.imagen_url.trim() !== "";
     const esFavorito = cultivosGuardados.some(c => c.nombre === item.nombre);
 
@@ -398,17 +415,22 @@ const reiniciarTemporadaGDD = async () => {
     );
   };
 
-  const renderFavoritoItem = ({ item }) => (
-    <TouchableOpacity style={styles.favItem} onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}>
-      <View style={styles.favIconCircle}>
-        <MaterialCommunityIcons name="sprout" size={18} color="#fff" />
-      </View>
-      <Text style={styles.favText} numberOfLines={1}>{item.nombre}</Text>
-      <TouchableOpacity style={styles.favRemove} onPress={() => toggleFavorito(item)}>
-        <View style={styles.favRemoveBg}><Ionicons name="close" size={10} color="#FFF" /></View>
+  const renderFavoritoItem = ({ item }) => {
+    // MODIFICACIÓN: Usar función helper también para favoritos
+    const iconName = obtenerIconoCultivo(item.nombre, item.categoria);
+    
+    return (
+      <TouchableOpacity style={styles.favItem} onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}>
+        <View style={styles.favIconCircle}>
+          <MaterialCommunityIcons name={iconName} size={18} color="#fff" />
+        </View>
+        <Text style={styles.favText} numberOfLines={1}>{item.nombre}</Text>
+        <TouchableOpacity style={styles.favRemove} onPress={() => toggleFavorito(item)}>
+          <View style={styles.favRemoveBg}><Ionicons name="close" size={10} color="#FFF" /></View>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -547,10 +569,9 @@ const reiniciarTemporadaGDD = async () => {
           </View>
 
           {/* 1.5. SECCIÓN GDD (MODIFICADA: FICHA COMPRIMIBLE) */}
-          {/* El contenedor ahora es una tarjeta independiente */}
           <View style={styles.gddMainCard}>
              
-             {/* Header de la Ficha: Siempre visible y tocable para expandir */}
+             {/* Header de la Ficha */}
              <TouchableOpacity 
                 activeOpacity={0.8}
                 onPress={toggleSectionMain}
@@ -576,7 +597,7 @@ const reiniciarTemporadaGDD = async () => {
              {gddSectionExpanded && (
                  <View style={styles.gddContentArea}>
                     
-                    {/* Selector de cultivo dentro de la ficha expandida */}
+                    {/* Selector de cultivo */}
                     <View style={styles.gddSelectorRow}>
                          <Text style={styles.labelSelector}>Analizando para:</Text>
                          {dbCultivos ? (
@@ -593,104 +614,104 @@ const reiniciarTemporadaGDD = async () => {
 
                     {!climaActual && <Text style={styles.loadingText}>Esperando datos del clima...</Text>}
                     
-                    {/* Lista de Alertas (también con acordeón interno) */}
+                    {/* Lista de Alertas */}
                     {alertasGDD.length > 0 ? (
-    alertasGDD.map((alerta, index) => {
-        const isExpanded = expandedGddId === alerta.id;
-        return (
-            <TouchableOpacity 
-                key={index} 
-                style={[styles.gddCard, isExpanded && styles.gddCardExpanded]} 
-                onPress={() => toggleGddExpand(alerta.id)}
-                activeOpacity={0.9}
-            >
-                <View style={styles.gddHeader}>
-                    <View style={[styles.gddIcon, { backgroundColor: alerta.nivel === 'ALTO' ? '#FFEBEE' : '#E8F5E9' }]}>
-                        <FontAwesome5 name="bug" size={16} color={alerta.nivel === 'ALTO' ? '#D32F2F' : '#2E7D32'} />
-                    </View>
-                    <View style={{flex:1, marginLeft: 10}}>
-                        <Text style={styles.gddTitle}>{alerta.nombre}</Text>
-                        <Text style={styles.gddSubtitle}>
-                            Acumulado: <Text style={{fontWeight:'bold'}}>{alerta.gdd}</Text> / {alerta.gddRequeridos} GDD
-                        </Text>
-                        {/* NUEVO: Barra de progreso */}
-                        <View style={styles.progressBarContainer}>
-                            <View style={[styles.progressBarFill, { 
-                                width: `${Math.min(alerta.progreso, 100)}%`,
-                                backgroundColor: alerta.nivel === 'ALTO' ? '#D32F2F' : '#4CAF50'
-                            }]} />
-                        </View>
-                        <Text style={styles.progressText}>{alerta.progreso}% completado</Text>
-                    </View>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <View style={[styles.riskBadge, { 
-                            backgroundColor: alerta.nivel === 'ALTO' ? '#FFCDD2' : '#C8E6C9', 
-                            marginRight: 8 
-                        }]}>
-                            <Text style={[styles.riskText, { 
-                                color: alerta.nivel === 'ALTO' ? '#B71C1C' : '#1B5E20' 
-                            }]}>
-                                {alerta.nivel}
+                    alertasGDD.map((alerta, index) => {
+                        const isExpanded = expandedGddId === alerta.id;
+                        return (
+                            <TouchableOpacity 
+                                key={index} 
+                                style={[styles.gddCard, isExpanded && styles.gddCardExpanded]} 
+                                onPress={() => toggleGddExpand(alerta.id)}
+                                activeOpacity={0.9}
+                            >
+                                <View style={styles.gddHeader}>
+                                    <View style={[styles.gddIcon, { backgroundColor: alerta.nivel === 'ALTO' ? '#FFEBEE' : '#E8F5E9' }]}>
+                                        <FontAwesome5 name="bug" size={16} color={alerta.nivel === 'ALTO' ? '#D32F2F' : '#2E7D32'} />
+                                    </View>
+                                    <View style={{flex:1, marginLeft: 10}}>
+                                        <Text style={styles.gddTitle}>{alerta.nombre}</Text>
+                                        <Text style={styles.gddSubtitle}>
+                                            Acumulado: <Text style={{fontWeight:'bold'}}>{alerta.gdd}</Text> / {alerta.gddRequeridos} GDD
+                                        </Text>
+                                        {/* Barra de progreso */}
+                                        <View style={styles.progressBarContainer}>
+                                            <View style={[styles.progressBarFill, { 
+                                                width: `${Math.min(alerta.progreso, 100)}%`,
+                                                backgroundColor: alerta.nivel === 'ALTO' ? '#D32F2F' : '#4CAF50'
+                                            }]} />
+                                        </View>
+                                        <Text style={styles.progressText}>{alerta.progreso}% completado</Text>
+                                    </View>
+                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <View style={[styles.riskBadge, { 
+                                            backgroundColor: alerta.nivel === 'ALTO' ? '#FFCDD2' : '#C8E6C9', 
+                                            marginRight: 8 
+                                        }]}>
+                                            <Text style={[styles.riskText, { 
+                                                color: alerta.nivel === 'ALTO' ? '#B71C1C' : '#1B5E20' 
+                                            }]}>
+                                                {alerta.nivel}
+                                            </Text>
+                                        </View>
+                                        <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={20} color="#B0BEC5" />
+                                    </View>
+                                </View>
+                                
+                                {isExpanded && (
+                                    <View style={styles.gddBody}>
+                                        <View style={styles.divider} />
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Tipo:</Text>
+                                            <Text style={styles.detailValue}>{alerta.detalle?.tipo || "No especificado"}</Text>
+                                        </View>
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Síntomas:</Text>
+                                            <Text style={styles.detailValue}>
+                                                {alerta.detalle?.sintomas_visuales || "Consulte la guía técnica."}
+                                            </Text>
+                                        </View>
+                                        {alerta.diasRestantes > 0 && (
+                                            <View style={styles.detailRow}>
+                                                <Text style={styles.detailLabel}>Estimación:</Text>
+                                                <Text style={styles.detailValue}>
+                                                    Ciclo completo en ~{alerta.diasRestantes} días
+                                                </Text>
+                                            </View>
+                                        )}
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Mensaje:</Text>
+                                            <Text style={[styles.detailValue, {fontStyle: 'italic'}]}>
+                                                {alerta.mensaje}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        );
+                    })
+                ) : (
+                    <View style={styles.emptyGdd}>
+                        {loadingGDD ? (
+                            <ActivityIndicator size="small" color="#4CAF50"/>
+                        ) : (
+                            <Text style={styles.emptyTextGdd}>
+                                {climaActual ? "Riesgo bajo o datos no disponibles." : "Esperando datos del clima..."}
                             </Text>
-                        </View>
-                        <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={20} color="#B0BEC5" />
-                    </View>
-                </View>
-                
-                {isExpanded && (
-                    <View style={styles.gddBody}>
-                        <View style={styles.divider} />
-                        <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Tipo:</Text>
-                            <Text style={styles.detailValue}>{alerta.detalle?.tipo || "No especificado"}</Text>
-                        </View>
-                        <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Síntomas:</Text>
-                            <Text style={styles.detailValue}>
-                                {alerta.detalle?.sintomas_visuales || "Consulte la guía técnica."}
-                            </Text>
-                        </View>
-                        {alerta.diasRestantes > 0 && (
-                            <View style={styles.detailRow}>
-                                <Text style={styles.detailLabel}>Estimación:</Text>
-                                <Text style={styles.detailValue}>
-                                    Ciclo completo en ~{alerta.diasRestantes} días
-                                </Text>
-                            </View>
                         )}
-                        <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Mensaje:</Text>
-                            <Text style={[styles.detailValue, {fontStyle: 'italic'}]}>
-                                {alerta.mensaje}
-                            </Text>
-                        </View>
                     </View>
                 )}
-            </TouchableOpacity>
-        );
-    })
-) : (
-    <View style={styles.emptyGdd}>
-        {loadingGDD ? (
-            <ActivityIndicator size="small" color="#4CAF50"/>
-        ) : (
-            <Text style={styles.emptyTextGdd}>
-                {climaActual ? "Riesgo bajo o datos no disponibles." : "Esperando datos del clima..."}
-            </Text>
-        )}
-    </View>
-)}
 
-{/* NUEVO: Botón para reiniciar temporada */}
-{alertasGDD.length > 0 && (
-    <TouchableOpacity 
-        style={styles.btnReiniciarTemporada} 
-        onPress={reiniciarTemporadaGDD}
-    >
-        <MaterialCommunityIcons name="restart" size={16} color="#F57C00" />
-        <Text style={styles.btnReiniciarText}>Reiniciar Temporada</Text>
-    </TouchableOpacity>
-)}
+                {/* Botón para reiniciar temporada */}
+                {alertasGDD.length > 0 && (
+                    <TouchableOpacity 
+                        style={styles.btnReiniciarTemporada} 
+                        onPress={reiniciarTemporadaGDD}
+                    >
+                        <MaterialCommunityIcons name="restart" size={16} color="#F57C00" />
+                        <Text style={styles.btnReiniciarText}>Reiniciar Temporada</Text>
+                    </TouchableOpacity>
+                )}
                  </View>
              )}
           </View>

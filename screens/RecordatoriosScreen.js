@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,17 @@ import {
   Platform,
   Keyboard,
   Switch,
+  Modal,       // Nuevo: Para la pantalla de alarma
+  Vibration,   // Nuevo: Para vibración continua
 } from "react-native";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Audio } from "expo-av"; // Nuevo: Para reproducir sonido en bucle
 
-// Configuración del Handler: Esto define qué pasa si la app está ABIERTA cuando llega la hora
+// Configuración del Handler: Define qué pasa si la app está ABIERTA
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -38,12 +41,71 @@ export default function RecordatoriosScreen({ route }) {
   const [esRepetitivo, setEsRepetitivo] = useState(false);
   const [diasIntervalo, setDiasIntervalo] = useState("");
 
+  // --- ESTADOS PARA LA ALARMA ---
+  const [alarmaVisible, setAlarmaVisible] = useState(false);
+  const [soundObject, setSoundObject] = useState(null);
+  const [tituloAlarmaActual, setTituloAlarmaActual] = useState("");
+  // ------------------------------
+
   useEffect(() => {
     configurarNotificaciones();
     cargarDatosGuardados();
+
+    // Listener 1: Si la app está abierta y llega la notificación
+    const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
+      activarPantallaAlarma(notification.request.content.title);
+    });
+
+    // Listener 2: Si la app está en segundo plano y el usuario toca la notificación
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      activarPantallaAlarma(response.notification.request.content.title);
+    });
+
+    return () => {
+      foregroundSubscription.remove();
+      responseSubscription.remove();
+      detenerAlarma(); // Limpieza al salir
+    };
   }, []);
 
-  // --- CONFIGURACIÓN DE ALARMA ROBUSTA ---
+  // --- LÓGICA DE PANTALLA DE ALARMA Y SONIDO ---
+  const activarPantallaAlarma = async (tituloNotif) => {
+    setTituloAlarmaActual(tituloNotif || "¡Recordatorio!");
+    setAlarmaVisible(true);
+    
+    // Vibración en patrón infinito (Android) o larga (iOS)
+    const pattern = [1000, 2000, 1000, 2000];
+    Vibration.vibrate(pattern, true); // 'true' para repetir en Android
+
+    try {
+      // Cargar y reproducir sonido
+      const { sound } = await Audio.Sound.createAsync(
+        // Usamos un sonido de sistema o una URL externa si no tienes un archivo local
+        // Puedes reemplazar esto con require('./assets/tu_alarma.mp3')
+        { uri: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' }, 
+        { shouldPlay: true, isLooping: true }
+      );
+      setSoundObject(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.log("No se pudo reproducir el audio de la alarma", error);
+    }
+  };
+
+  const detenerAlarma = async () => {
+    Vibration.cancel();
+    if (soundObject) {
+      try {
+        await soundObject.stopAsync();
+        await soundObject.unloadAsync();
+      } catch (e) { console.log(e); }
+    }
+    setSoundObject(null);
+    setAlarmaVisible(false);
+  };
+  // ---------------------------------------------
+
+  // --- CONFIGURACIÓN DE NOTIFICACIONES ---
   const configurarNotificaciones = async () => {
     if (Device.isDevice) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -53,21 +115,21 @@ export default function RecordatoriosScreen({ route }) {
         finalStatus = status;
       }
       if (finalStatus !== "granted") {
-        Alert.alert("Permisos requeridos", "Habilita las notificaciones en ajustes para que suene la alarma.");
+        Alert.alert("Permisos requeridos", "Habilita las notificaciones para que suene la alarma.");
         return;
       }
     }
 
-    // CRÍTICO PARA ANDROID: Configuración de "Alarma"
     if (Platform.OS === 'android') {
-      await Notifications.deleteNotificationChannelAsync('default'); // Borramos el anterior para asegurar que se actualice la config
+      await Notifications.deleteNotificationChannelAsync('default'); 
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'Alarmas Agrícolas', // Nombre visible en ajustes
-        importance: Notifications.AndroidImportance.MAX, // Máxima prioridad (suena fuerte y aparece encima)
-        vibrationPattern: [0, 500, 200, 500], // Patrón de vibración más largo
+        name: 'Alarmas Agrícolas', 
+        importance: Notifications.AndroidImportance.MAX, 
+        vibrationPattern: [0, 500, 200, 500], 
         lightColor: '#FF231F7C',
-        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, // Visible en pantalla de bloqueo
-        sound: true, // Asegura el sonido
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, 
+        sound: true, 
+        bypassDnd: true, // Intenta saltar el modo No Molestar
       });
     }
   };
@@ -169,25 +231,22 @@ export default function RecordatoriosScreen({ route }) {
           continue;
         }
 
-        // --- CORRECCIÓN PARA QUE SUENE COMO ALARMA ---
         const id = await Notifications.scheduleNotificationAsync({
           content: {
             title: `🚜 ${cultivo}: ${titulo}`,
-            body: i === 0 ? "¡Es hora de tu actividad!" : `Recordatorio recurrente (Día ${i * intervaloNum}).`,
-            sound: true, // Usa sonido por defecto del sistema
+            body: i === 0 ? "¡Es hora de tu actividad! Toca para apagar." : `Recordatorio recurrente (Día ${i * intervaloNum}).`,
+            sound: true, 
             color: '#2E7D32',
-            // Prioridad máxima para Android (Despierta pantalla en versiones viejas)
             priority: Notifications.AndroidNotificationPriority.MAX,
-            // Datos adicionales para el canal
             vibrate: [0, 500, 200, 500],
-            // Importante para iOS para que suene incluso en modos de concentración suaves
-            interruptionLevel: 'timeSensitive', 
+            interruptionLevel: 'timeSensitive',
+            data: { esAlarma: true } // Dato extra para identificar
           },
           trigger: { 
             type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
             seconds: diffSec,
             repeats: false,
-            channelId: 'default', // Vinculado al canal de ALTA importancia creado arriba
+            channelId: 'default', 
           }, 
         });
         
@@ -260,6 +319,7 @@ export default function RecordatoriosScreen({ route }) {
     <View style={styles.container}>
       <Text style={styles.titulo}>⏰ Agenda para {cultivo}</Text>
 
+      {/* --- FORMULARIO --- */}
       <View style={styles.cardForm}>
         <Text style={styles.label}>Actividad:</Text>
         <TextInput
@@ -337,6 +397,30 @@ export default function RecordatoriosScreen({ route }) {
           </View>
         )}
       />
+
+      {/* --- MODAL DE ALARMA (PANTALLA COMPLETA) --- */}
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={alarmaVisible}
+        onRequestClose={detenerAlarma} // Botón físico atrás
+      >
+        <View style={styles.alarmContainer}>
+          <MaterialCommunityIcons name="alarm-light" size={100} color="#fff" style={styles.alarmIcon} />
+          <Text style={styles.alarmTitle}>¡ES HORA!</Text>
+          <Text style={styles.alarmText}>{tituloAlarmaActual}</Text>
+          
+          <View style={styles.alarmAnimation}>
+            <MaterialCommunityIcons name="bell-ring" size={60} color="#FFEB3B" />
+          </View>
+
+          <TouchableOpacity style={styles.stopButton} onPress={detenerAlarma}>
+            <MaterialCommunityIcons name="alarm-off" size={32} color="#D32F2F" />
+            <Text style={styles.stopButtonText}>APAGAR ALARMA</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -360,5 +444,14 @@ const styles = StyleSheet.create({
   itemRepetitivo: { borderLeftColor: "#FF9800" },
   itemTitle: { fontSize: 16, fontWeight: "bold", color: "#333" },
   itemDate: { fontSize: 14, color: "#666", marginTop: 4 },
-  tagRepetitivo: { fontSize: 12, color: "#FF9800", fontWeight: 'bold', marginTop: 4 }
+  tagRepetitivo: { fontSize: 12, color: "#FF9800", fontWeight: 'bold', marginTop: 4 },
+  
+  // ESTILOS DE LA PANTALLA DE ALARMA
+  alarmContainer: { flex: 1, backgroundColor: "#D32F2F", justifyContent: "center", alignItems: "center", padding: 30 },
+  alarmIcon: { marginBottom: 20 },
+  alarmTitle: { fontSize: 32, fontWeight: "900", color: "#fff", marginBottom: 10, letterSpacing: 2 },
+  alarmText: { fontSize: 20, color: "#fff", textAlign: "center", marginBottom: 50, fontWeight: "500" },
+  alarmAnimation: { marginBottom: 50, padding: 20, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 100 },
+  stopButton: { flexDirection: 'row', backgroundColor: "#fff", paddingVertical: 20, paddingHorizontal: 40, borderRadius: 50, alignItems: "center", elevation: 10 },
+  stopButtonText: { color: "#D32F2F", fontWeight: "bold", fontSize: 18, marginLeft: 10 }
 });
