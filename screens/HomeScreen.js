@@ -535,6 +535,13 @@ const reiniciarTemporadaGDD = async () => {
           <View style={styles.quickAccessContainer}>
              <Text style={styles.sectionTitleFav}>Herramientas</Text>
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessScroll}>
+                <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('AgroControl')}>
+                    <View style={[styles.quickIcon, {backgroundColor:'#E0F2F1'}]}>
+                        <MaterialCommunityIcons name="router-wireless" size={26} color="#00695C" />
+                    </View>
+                    <Text style={styles.quickText}>AgroControl</Text>
+                </TouchableOpacity>
+                
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Fertilizantes')}>
                     <View style={[styles.quickIcon, {backgroundColor:'#E8F5E9'}]}><MaterialCommunityIcons name="sack" size={26} color="#2E7D32" /></View>
                     <Text style={styles.quickText}>Fertilizantes</Text>
@@ -549,6 +556,7 @@ const reiniciarTemporadaGDD = async () => {
                     <View style={[styles.quickIcon, {backgroundColor:'#FFF3E0'}]}><MaterialCommunityIcons name="notebook" size={26} color="#E65100" /></View>
                     <Text style={styles.quickText}>Bitácora</Text>
                 </TouchableOpacity>
+                
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Noticias')}>
                     <View style={[styles.quickIcon, {backgroundColor:'#F3E5F5'}]}><MaterialCommunityIcons name="newspaper" size={26} color="#7B1FA2" /></View>
                     <Text style={styles.quickText}>Noticias</Text>
