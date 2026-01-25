@@ -84,6 +84,8 @@ export default function AgroControlScreen() {
   const pendingTimerR1 = useRef(0);
   const pendingTimerR2 = useRef(0);
 
+  const [autoMode, setAutoMode] = useState(true); // Nuevo estado
+
   /* ---------------- PERMISOS ---------------- */
   useEffect(() => {
     Notifications.requestPermissionsAsync();
@@ -114,6 +116,10 @@ export default function AgroControlScreen() {
 
       setR1Estado(!!d.r1);
       setR2Estado(!!d.r2);
+
+      if (d.auto_mode !== undefined) {
+          setAutoMode(d.auto_mode);
+      }
 
       // Verificamos si es una respuesta a nuestro comando reciente
       if (lastCmdTsRef.current && d.ts >= lastCmdTsRef.current) {
@@ -226,6 +232,13 @@ export default function AgroControlScreen() {
     setCountdownR2(0);
     pendingTimerR2.current = 0;
     enviarComando({ timerR2: 0 }, setLoadingR2);
+  };
+
+  const activarAutoMode = () => {
+      // Enviamos true a set_auto. El ESP32 lo leerá, activará su variable y borrará el comando.
+      update(ref(db, `/${deviceId}/comandos`), { set_auto: true })
+      .then(() => Alert.alert("Comando Enviado", "Modo Automático Reactivado"))
+      .catch(e => Alert.alert("Error", e.message));
   };
 
   const guardarConfig = () => {
@@ -346,6 +359,18 @@ export default function AgroControlScreen() {
               <Switch value={r1Estado} onValueChange={toggleR1} trackColor={{ false: "#ccc", true: "#A5D6A7" }} thumbColor={r1Estado ? "#2E7D32" : "#f4f3f4"} />
             }
           </View>
+
+          <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', backgroundColor:'#E8F5E9', padding:8, borderRadius:8, marginVertical:10}}>
+              <Text style={{color: autoMode ? '#2E7D32' : '#D32F2F', fontWeight:'bold', fontSize:12}}>
+                  {autoMode ? "🤖 MODO AUTOMÁTICO: ACTIVO" : "⚠️ MODO MANUAL (Auto Desactivado)"}
+              </Text>
+              {!autoMode && (
+                  <TouchableOpacity onPress={activarAutoMode} style={{backgroundColor:'#2E7D32', paddingHorizontal:10, paddingVertical:4, borderRadius:4}}>
+                      <Text style={{color:'#fff', fontSize:10, fontWeight:'bold'}}>ACTIVAR</Text>
+                  </TouchableOpacity>
+              )}
+          </View>
+          
           <View style={styles.timerBox}>
              <Text style={{fontSize:12, marginBottom:5, color: countdownR1 > 0 ? '#D32F2F' : '#666'}}>
                {countdownR1 > 0 ? `⏳ Apagado en: ${countdownR1}s` : "Temporizador:"}
