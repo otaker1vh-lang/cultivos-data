@@ -1,251 +1,467 @@
-#include <WiFi.h>
-#include <Firebase_ESP_Client.h>
-#include "addons/TokenHelper.h"
-#include "addons/RTDBHelper.h"
+import React, { useState, useEffect } from 'react';
+import { 
+  View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, 
+  Alert, ActivityIndicator, Platform 
+} from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system'; 
+import { supabase } from '../src/services/supabaseClient'; 
 
-// --- LIBRERÍAS DE PANTALLA ---
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_ST7789.h>
+// --- 1. DATOS ESTÁTICOS ---
+const ESTADOS_MX = [
+  "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
+  "Coahuila", "Colima", "Chiapas", "Chihuahua", "Ciudad de México", 
+  "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", 
+  "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", 
+  "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", 
+  "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", 
+  "Veracruz", "Yucatán", "Zacatecas"
+];
 
-// --- DEFINICIÓN DE PINES DE PANTALLA (Ideaspark/TTGO Standard) ---
-#define TFT_MOSI 19
-#define TFT_SCLK 18
-#define TFT_CS    5
-#define TFT_DC   16
-#define TFT_RST  23
-#define TFT_BL    4 
+const ANIOS = Array.from({length: 11}, (_, i) => (2025 - i).toString());
+const CICLOS = ["Otoño-Invierno", "Primavera-Verano", "Perennes"];
+const MODALIDADES = ["Riego", "Temporal"];
+const NIVELES_DESGLOSE = ["Municipal (Detallado)", "Resumen por Estado", "Resumen por Cultivo"];
 
-// Inicialización de Pantalla
-Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+// --- 2. COMPONENTE AUTOCOMPLETE (Corregido: Sin auto-despliegue y con Z-Index) ---
+const FiltroAutocomplete = ({ label, valor, setValor, opciones = [], zIndex = 1, placeholder = "Seleccionar..." }) => {
+    const [sugerencias, setSugerencias] = useState([]);
+    const [showList, setShowList] = useState(false);
 
-// --- CONFIGURACIÓN MULTI-WIFI (HASTA 3 REDES) ---
-struct WifiCreds {
-  const char* ssid;
-  const char* pass;
+    const filtrar = (texto) => {
+        setValor(texto);
+        if (texto.length > 0 && opciones.length > 0) {
+            const matches = opciones.filter(op => op && op.toString().toLowerCase().includes(texto.toLowerCase()));
+            const uniqueMatches = [...new Set(matches)];
+            setSugerencias(uniqueMatches);
+            setShowList(true);
+        } else {
+            setShowList(false);
+        }
+    };
+
+    const seleccionar = (item) => {
+        setValor(item);
+        setShowList(false);
+    };
+
+    // Se eliminó onFocus para que el campo Municipio no se abra solo al seleccionar un Estado
+    return (
+        <View style={{ marginBottom: 15, zIndex: zIndex, position: 'relative' }}>
+            <Text style={styles.label}>{label}</Text>
+            <View style={styles.inputContainer}>
+                <TextInput 
+                    style={styles.input} 
+                    value={valor} 
+                    onChangeText={filtrar}
+                    placeholder={placeholder}
+                    keyboardType={opciones === ANIOS ? 'numeric' : 'default'} 
+                />
+                {valor.length > 0 && (
+                    <TouchableOpacity onPress={() => { setValor(''); setShowList(false); }} style={styles.clearBtn}>
+                        <MaterialCommunityIcons name="close-circle" size={20} color="#ccc" />
+                    </TouchableOpacity>
+                )}
+            </View>
+            {showList && sugerencias.length > 0 && (
+                <View style={styles.dropdownList}>
+                    <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="always" style={{maxHeight: 150}}>
+                        {sugerencias.slice(0, 20).map((item, index) => (
+                            <TouchableOpacity key={index} style={styles.dropdownItem} onPress={() => seleccionar(item)}>
+                                <Text>{item}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                </View>
+            )}
+        </View>
+    );
 };
 
-// EDITA AQUÍ TUS 3 REDES:
-WifiCreds misRedes[] = {
-  {"WIFI_CASA_1", "CLAVE_1"},      // Prioridad 1
-  {"WIFI_CASA_2", "CLAVE_2"},      // Prioridad 2
-  {"DATOS_MOVIL", "CLAVE_MOVIL"}   // Prioridad 3 (Respaldo)
-};
-const int numRedes = sizeof(misRedes) / sizeof(misRedes[0]);
+// --- 3. PANTALLA PRINCIPAL ---
+export default function ReporteAvanzadoScreen() {
+  const [filtros, setFiltros] = useState({
+    anio: '2024',
+    cultivo: '',
+    estado: '',
+    municipio: '',
+    ciclo: '',
+    modalidad: '',
+  });
 
-// --- FIREBASE CREDENCIALES ---
-#define API_KEY "TU_API_KEY_FIREBASE"
-#define DATABASE_URL "agrocontrol-fd75d-default-rtdb.firebaseio.com"
+  const [nivelDesglose, setNivelDesglose] = useState("Municipal (Detallado)");
+  const [listaCultivos, setListaCultivos] = useState([]);
+  const [listaMunicipios, setListaMunicipios] = useState([]);
+  const [rawData, setRawData] = useState([]); 
+  const [resultados, setResultados] = useState([]); 
+  const [cargando, setCargando] = useState(false);
+  const [mostrarTabla, setMostrarTabla] = useState(false);
 
-// --- PINES ACTUADORES ---
-const int PIN_BOMBA_MAIN = 13; 
-const int PIN_DOSIS_A = 12;    
-const int PIN_DOSIS_B = 14;    
+  const [totales, setTotales] = useState({
+    valor: 0, volumen: 0, sembrada: 0, cosechada: 0, siniestrada: 0
+  });
 
-// --- OBJETOS FIREBASE ---
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
-bool signupOK = false;
+  // Cargar cultivos iniciales
+  useEffect(() => {
+    const fetchCultivos = async () => {
+        try {
+            const { data, error } = await supabase.from('produccion_agricola').select('nomcultivo');
+            if (!error && data) {
+                const unicos = [...new Set(data.map(item => item.nomcultivo))].sort();
+                setListaCultivos(unicos);
+            }
+        } catch (e) { console.log("Error cargando cultivos", e); }
+    };
+    fetchCultivos();
+  }, []);
 
-// --- VARIABLES DE ESTADO ---
-unsigned long lastCycle = 0;
-const long interval = 2000; 
-String DEVICE_PATH = "/esp32_hydro";
-bool estadoBombaMain = false; 
-bool estadoAnteriorBomba = !estadoBombaMain; 
-
-// --- DECLARACIÓN DE FUNCIONES ---
-void dibujarInterfazBase();
-void actualizarIndicadorBomba(bool encendida);
-void mostrarAvisoDosis(bool activo, String tipo, int segundos);
-
-void setup() {
-  Serial.begin(115200);
-
-  // 1. INICIAR PANTALLA
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, HIGH); 
-  
-  tft.init(170, 320);           
-  tft.setRotation(1);           
-  tft.fillScreen(ST77XX_BLACK);
-  
-  // Mensaje de Inicio
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(10, 20);
-  tft.println("ROSLIN APP");
-  tft.setTextSize(1);
-  tft.setCursor(10, 50);
-  tft.println("Sistema Hidroponico");
-
-  // 2. INICIAR PINES
-  pinMode(PIN_BOMBA_MAIN, OUTPUT);
-  pinMode(PIN_DOSIS_A, OUTPUT);
-  pinMode(PIN_DOSIS_B, OUTPUT);
-  
-  digitalWrite(PIN_BOMBA_MAIN, HIGH); 
-  digitalWrite(PIN_DOSIS_A, LOW);
-  digitalWrite(PIN_DOSIS_B, LOW);
-
-  // 3. LÓGICA DE CONEXIÓN MULTI-WIFI
-  bool conectado = false;
-  
-  // Bucle para intentar cada red
-  for (int i = 0; i < numRedes; i++) {
-    // Si el nombre de la red está vacío, saltar
-    if (strlen(misRedes[i].ssid) == 0) continue;
-
-    // Actualizar Pantalla con la red actual
-    tft.fillRect(0, 70, 320, 40, ST77XX_BLACK); // Borrar texto anterior
-    tft.setCursor(10, 70);
-    tft.setTextColor(ST77XX_YELLOW);
-    tft.printf("Probando Red %d:\n%s", i + 1, misRedes[i].ssid);
-    Serial.printf("\nIntentando conectar a: %s", misRedes[i].ssid);
-
-    WiFi.begin(misRedes[i].ssid, misRedes[i].pass);
-
-    // Esperar hasta 10 segundos por red
-    unsigned long startAttempt = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttempt < 10000) {
-      delay(500);
-      Serial.print(".");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-      conectado = true;
-      tft.setTextColor(ST77XX_GREEN);
-      tft.println("\nCONECTADO!");
-      delay(1000); // Pausa para que el usuario vea el éxito
-      break; // Salir del bucle for, ya tenemos internet
+  // Cargar municipios por estado
+  useEffect(() => {
+    if (filtros.estado) {
+        const fetchMunicipios = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('produccion_agricola')
+                    .select('nommunicipio')
+                    .ilike('nomestado', `%${filtros.estado}%`);
+                if (!error && data) {
+                    const unicos = [...new Set(data.map(item => item.nommunicipio))].sort();
+                    setListaMunicipios(unicos);
+                }
+            } catch (e) { console.log("Error cargando municipios", e); }
+        };
+        fetchMunicipios();
     } else {
-      Serial.println(" Fallo.");
+        setListaMunicipios([]);
     }
-  }
+  }, [filtros.estado]);
 
-  // Si después de probar las 3 redes no hay conexión:
-  if (!conectado) {
-    tft.fillScreen(ST77XX_RED);
-    tft.setTextColor(ST77XX_WHITE);
-    tft.setCursor(10, 50);
-    tft.println("ERROR WIFI:");
-    tft.println("Ninguna red disponible");
-    tft.println("Reiniciando en 5s...");
-    delay(5000);
-    ESP.restart(); // Reiniciar para volver a intentar
-  }
-  
-  // Actualizar Pantalla Final con IP
-  tft.fillScreen(ST77XX_BLACK);
-  dibujarInterfazBase();
-  Serial.println("\nIP Asignada: " + WiFi.localIP().toString());
-
-  // 4. CONFIGURAR FIREBASE
-  config.api_key = API_KEY;
-  config.database_url = DATABASE_URL;
-  
-  if (Firebase.signUp(&config, &auth, "", "")) {
-    signupOK = true;
-  }
-  Firebase.begin(&config, &auth);
-  Firebase.reconnectWiFi(true);
-}
-
-void loop() {
-  if (Firebase.ready() && signupOK && (millis() - lastCycle > interval)) {
-    lastCycle = millis();
-
-    // --- 1. CONTROL BOMBA PRINCIPAL ---
-    if (Firebase.RTDB.getBool(&fbdo, DEVICE_PATH + "/bomba_main")) {
-      bool estadoFirebase = fbdo.boolData();
+  const consultarBaseDatos = async () => {
+    setCargando(true);
+    setMostrarTabla(false);
+    try {
+      let query = supabase.from('produccion_agricola').select('*');
+      if (filtros.anio) query = query.eq('anio', parseInt(filtros.anio)); 
+      if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
+      if (filtros.estado) query = query.ilike('nomestado', `%${filtros.estado}%`);
+      if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
+      if (filtros.ciclo) query = query.ilike('nomcicloproductivo', `%${filtros.ciclo}%`);
+      if (filtros.modalidad) query = query.ilike('nommodalidad', `%${filtros.modalidad}%`);
       
-      if (estadoFirebase != estadoBombaMain) {
-        estadoBombaMain = estadoFirebase;
-        digitalWrite(PIN_BOMBA_MAIN, estadoBombaMain ? LOW : HIGH); 
-        actualizarIndicadorBomba(estadoBombaMain);
+      const { data, error } = await query.limit(4000);
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        Alert.alert("Sin resultados", "No se encontraron registros con esos filtros.");
+        setResultados([]);
+        setRawData([]);
+      } else {
+        setRawData(data);
+        procesarDatos(data, nivelDesglose);
       }
+    } catch (error) {
+      Alert.alert("Error", "Fallo de conexión: " + error.message);
+    } finally {
+      setCargando(false);
     }
+  };
 
-    // --- 2. CONTROL DOSIFICACIÓN ---
-    if (Firebase.RTDB.getInt(&fbdo, DEVICE_PATH + "/dosis_a_sec")) {
-      int seg = fbdo.intData();
-      if (seg > 0) {
-        mostrarAvisoDosis(true, "Nutriente A", seg);
-        
-        Serial.printf("Dosificando A por %d seg\n", seg);
-        digitalWrite(PIN_DOSIS_A, HIGH);
-        
-        delay(seg * 1000); 
-        
-        digitalWrite(PIN_DOSIS_A, LOW); 
-        
-        Firebase.RTDB.setInt(&fbdo, DEVICE_PATH + "/dosis_a_sec", 0);
-        
-        mostrarAvisoDosis(false, "", 0);
-        actualizarIndicadorBomba(estadoBombaMain);
+  const procesarDatos = (data, nivel) => {
+      let datosProcesados = [];
+      if (nivel === "Municipal (Detallado)") {
+          datosProcesados = data;
+      } else {
+          const keyField = nivel === "Resumen por Estado" ? 'nomestado' : 'nomcultivo';
+          const grouped = data.reduce((acc, item) => {
+              const key = item[keyField] || 'Desconocido';
+              if (!acc[key]) {
+                  acc[key] = {
+                      nomestado: nivel === "Resumen por Estado" ? key : 'Varios',
+                      nommunicipio: 'Agrupado',
+                      nomcultivo: nivel === "Resumen por Cultivo" ? key : 'Varios',
+                      nomcicloproductivo: filtros.ciclo || 'Todos',
+                      nommodalidad: filtros.modalidad || 'Todas',
+                      anio: item.anio,
+                      sembrada: 0, cosechada: 0, siniestrada: 0, volumenproduccion: 0, valorproduccion: 0
+                  };
+              }
+              acc[key].sembrada += (item.sembrada || 0);
+              acc[key].cosechada += (item.cosechada || 0);
+              acc[key].siniestrada += (item.siniestrada || 0);
+              acc[key].volumenproduccion += (item.volumenproduccion || 0);
+              acc[key].valorproduccion += (item.valorproduccion || 0);
+              return acc;
+          }, {});
+
+          datosProcesados = Object.values(grouped).map(obj => ({
+              ...obj,
+              rendimiento: obj.cosechada > 0 ? (obj.volumenproduccion / obj.cosechada) : 0,
+              preciomediorural: obj.volumenproduccion > 0 ? (obj.valorproduccion / obj.volumenproduccion) : 0
+          }));
       }
+
+      datosProcesados.sort((a, b) => b.valorproduccion - a.valorproduccion);
+      const calcTotales = datosProcesados.reduce((acc, item) => ({
+        valor: acc.valor + (item.valorproduccion || 0),
+        volumen: acc.volumen + (item.volumenproduccion || 0),
+        sembrada: acc.sembrada + (item.sembrada || 0),
+        cosechada: acc.cosechada + (item.cosechada || 0),
+        siniestrada: acc.siniestrada + (item.siniestrada || 0),
+      }), { valor: 0, volumen: 0, sembrada: 0, cosechada: 0, siniestrada: 0 });
+
+      setTotales(calcTotales);
+      setResultados(datosProcesados);
+      setMostrarTabla(true);
+  };
+
+  useEffect(() => {
+      if (rawData.length > 0) procesarDatos(rawData, nivelDesglose);
+  }, [nivelDesglose]);
+
+  const formatMoney = (amount) => amount ? '$' + amount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '$0.00';
+  const formatNumber = (num) => num ? num.toLocaleString('es-MX', { maximumFractionDigits: 1 }) : '0';
+
+  const handleCSV = async () => {
+    if (!resultados.length) {
+        Alert.alert("Atención", "Primero realiza una consulta.");
+        return;
     }
-  }
+    try {
+        let csvContent = "\uFEFFAño,Nivel,Estado,Municipio,Cultivo,Ciclo,Modalidad,Sembrada_Ha,Cosechada_Ha,Siniestrada_Ha,Volumen_Ton,Rendimiento,Precio_Medio,Valor_Produccion\n";
+        resultados.forEach(item => {
+            const row = [
+                item.anio, `"${nivelDesglose}"`, `"${item.nomestado}"`, `"${item.nommunicipio}"`, `"${item.nomcultivo}"`,
+                `"${item.nomcicloproductivo}"`, `"${item.nommodalidad}"`, item.sembrada, item.cosechada, item.siniestrada,
+                item.volumenproduccion, item.rendimiento, item.preciomediorural, item.valorproduccion
+            ].join(",");
+            csvContent += row + "\n";
+        });
+        const fileUri = FileSystem.cacheDirectory + "reporte_agricola.csv";
+        await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: 'utf8' });
+        await Sharing.shareAsync(fileUri);
+    } catch (error) { Alert.alert("Error Exportación", "No se pudo generar el archivo CSV."); }
+  };
+
+  const handlePDF = async () => {
+    if (resultados.length === 0) return;
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: 'Helvetica', sans-serif; padding: 10px; }
+            h1 { color: #2E7D32; text-align: center; font-size: 16px; }
+            .meta { font-size: 10px; color: #666; text-align: center; margin-bottom: 10px; }
+            .resumen { text-align: center; margin-bottom: 10px; font-size: 9px; color: #333; background: #e8f5e9; padding: 8px; border-radius: 4px; border: 1px solid #c8e6c9; }
+            table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 7px; }
+            th, td { border: 1px solid #ddd; padding: 3px; text-align: right; }
+            th { background-color: #2E7D32; color: white; text-align: center; }
+            td.text-left { text-align: left; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+          </style>
+        </head>
+        <body>
+          <h1>Reporte SIACON - ${nivelDesglose}</h1>
+          <div class="meta">Año: ${filtros.anio || 'Varios'} | Generado: ${new Date().toLocaleDateString()}</div>
+          <div class="resumen">
+            <p><strong>Totales Generales</strong></p>
+            <p>Valor: ${formatMoney(totales.valor)} | Volumen: ${formatNumber(totales.volumen)} Ton</p>
+            <p>Sem: ${formatNumber(totales.sembrada)} | Cos: ${formatNumber(totales.cosechada)} | Sin: ${formatNumber(totales.siniestrada)}</p>
+          </div>
+          <table>
+            <thead>
+                <tr>
+                    <th>Entidad</th><th>Mpio/Agrup</th><th>Cultivo</th><th>Sem(Ha)</th><th>Cos(Ha)</th><th>Sin(Ha)</th><th>Vol(Ton)</th><th>Rend</th><th>$ Medio</th><th>Valor ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+            ${resultados.map(item => `
+              <tr>
+                <td class="text-left">${item.nomestado}</td><td class="text-left">${item.nommunicipio}</td><td class="text-left">${item.nomcultivo}</td>
+                <td>${formatNumber(item.sembrada)}</td><td>${formatNumber(item.cosechada)}</td><td>${formatNumber(item.siniestrada)}</td>
+                <td>${formatNumber(item.volumenproduccion)}</td><td>${formatNumber(item.rendimiento)}</td><td>${formatMoney(item.preciomediorural)}</td><td>${formatMoney(item.valorproduccion)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>`;
+    try {
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      await Sharing.shareAsync(uri);
+    } catch (error) { Alert.alert("Error PDF", "No se pudo generar."); }
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
+        
+        <View style={styles.header}>
+          <MaterialCommunityIcons name="database-search" size={40} color="#2E7D32" />
+          <Text style={styles.title}>Consulta SIACON</Text>
+          <Text style={styles.subtitle}>Histórico 2015 - 2024</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Filtros de Búsqueda</Text>
+          <Text style={styles.label}>Nivel de Desglose:</Text>
+          <View style={styles.tabContainer}>
+              {NIVELES_DESGLOSE.map((tab) => (
+                  <TouchableOpacity key={tab} style={[styles.tab, nivelDesglose === tab && styles.tabActive]} onPress={() => setNivelDesglose(tab)}>
+                      <Text style={[styles.tabText, nivelDesglose === tab && styles.tabTextActive]}>{tab.replace("Resumen por ", "")}</Text>
+                  </TouchableOpacity>
+              ))}
+          </View>
+          
+          <View style={{height: 10}} />
+
+          {/* JERARQUÍA DE Z-INDEX PARA QUE EL DROPDOWN DE CULTIVO FLOTE ARRIBA */}
+          <View style={[styles.row, { zIndex: 5000 }]}>
+             <View style={{flex: 0.6, marginRight: 5}}>
+                <FiltroAutocomplete 
+                    label="Año" valor={filtros.anio} 
+                    setValor={(t) => setFiltros({...filtros, anio: t})} 
+                    opciones={ANIOS} zIndex={5000} placeholder="2024" />
+             </View>
+             <View style={{flex: 1.4, marginLeft: 5}}>
+                <FiltroAutocomplete 
+                    label="Cultivo" valor={filtros.cultivo} 
+                    setValor={(t) => setFiltros({...filtros, cultivo: t})} 
+                    opciones={listaCultivos} zIndex={5000} placeholder="Ej. Maíz grano" />
+             </View>
+          </View>
+
+          <FiltroAutocomplete 
+            label="Estado" valor={filtros.estado} 
+            setValor={(t) => setFiltros({...filtros, estado: t})} 
+            opciones={ESTADOS_MX} zIndex={4000} placeholder="Ej. Sinaloa" />
+
+          <FiltroAutocomplete 
+            label="Municipio" valor={filtros.municipio} 
+            setValor={(t) => setFiltros({...filtros, municipio: t})} 
+            opciones={listaMunicipios} zIndex={3000} 
+            placeholder={filtros.estado ? "Selecciona municipio..." : "Primero selecciona un Estado"} />
+          
+          <View style={[styles.row, { zIndex: 2000 }]}>
+             <View style={{flex:1, marginRight:5}}>
+                <FiltroAutocomplete label="Ciclo" valor={filtros.ciclo} setValor={(t) => setFiltros({...filtros, ciclo: t})} opciones={CICLOS} zIndex={2000} />
+             </View>
+             <View style={{flex:1, marginLeft:5}}>
+                <FiltroAutocomplete label="Modalidad" valor={filtros.modalidad} setValor={(t) => setFiltros({...filtros, modalidad: t})} opciones={MODALIDADES} zIndex={2000} />
+             </View>
+          </View>
+
+          <View style={styles.botonesRow}>
+              <TouchableOpacity style={styles.btnConsultar} onPress={consultarBaseDatos} disabled={cargando}>
+                {cargando ? <ActivityIndicator color="#fff"/> : (
+                    <><MaterialCommunityIcons name="table-search" size={24} color="#fff" style={{marginRight:5}}/><Text style={styles.btnText}>Consultar</Text></>
+                )}
+              </TouchableOpacity>
+          </View>
+        </View>
+
+        {mostrarTabla && (
+            <View style={{ zIndex: -1 }}>
+                <View style={styles.summaryCard}>
+                    <Text style={styles.summaryTitle}>Resumen de Totales ({nivelDesglose})</Text>
+                    <View style={styles.summaryRow}>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>Valor Producción</Text><Text style={styles.summaryValueMoney}>{formatMoney(totales.valor)}</Text></View>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>Volumen (Ton)</Text><Text style={styles.summaryValue}>{formatNumber(totales.volumen)}</Text></View>
+                    </View>
+                    <View style={styles.summaryRow}>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>Sembrada (Ha)</Text><Text style={styles.summaryValue}>{formatNumber(totales.sembrada)}</Text></View>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>Cosechada (Ha)</Text><Text style={styles.summaryValue}>{formatNumber(totales.cosechada)}</Text></View>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>Siniestrada (Ha)</Text><Text style={[styles.summaryValue, {color: '#ef5350'}]}>{formatNumber(totales.siniestrada)}</Text></View>
+                    </View>
+                </View>
+
+                <View style={styles.exportButtonsRow}>
+                    <TouchableOpacity style={[styles.btnExport, { backgroundColor: '#D32F2F', marginRight: 5 }]} onPress={handlePDF}>
+                        <MaterialCommunityIcons name="file-pdf-box" size={20} color="#fff" style={{marginRight:5}}/><Text style={styles.btnText}>PDF</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.btnExport, { backgroundColor: '#1E88E5', marginLeft: 5 }]} onPress={handleCSV}>
+                        <MaterialCommunityIcons name="file-excel" size={20} color="#fff" style={{marginRight:5}}/><Text style={styles.btnText}>Excel / CSV</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.resultadosContainer}>
+                    <Text style={styles.resTitle}>Resultados ({resultados.length})</Text>
+                    <ScrollView horizontal persistentScrollbar={true}>
+                        <View>
+                            <View style={[styles.tableRow, styles.tableHeader]}>
+                                <Text style={[styles.cell, {width: 100, color:'white'}]}>Entidad</Text>
+                                <Text style={[styles.cell, {width: 100, color:'white'}]}>Mpio/Agrup</Text>
+                                <Text style={[styles.cell, {width: 110, color:'white'}]}>Cultivo</Text>
+                                <Text style={[styles.cell, {width: 70, color:'white', textAlign:'right'}]}>Sem</Text>
+                                <Text style={[styles.cell, {width: 70, color:'white', textAlign:'right'}]}>Cos</Text>
+                                <Text style={[styles.cell, {width: 60, color:'white', textAlign:'right'}]}>Sin</Text>
+                                <Text style={[styles.cell, {width: 80, color:'white', textAlign:'right'}]}>Vol(t)</Text>
+                                <Text style={[styles.cell, {width: 50, color:'white', textAlign:'right'}]}>Rend</Text>
+                                <Text style={[styles.cell, {width: 70, color:'white', textAlign:'right'}]}>$Medio</Text>
+                                <Text style={[styles.cell, {width: 100, color:'white', textAlign:'right'}]}>Valor ($)</Text>
+                            </View>
+                            {resultados.map((item, i) => (
+                                <View key={i} style={styles.tableRow}>
+                                    <Text style={[styles.cell, {width: 100}]}>{item.nomestado}</Text>
+                                    <Text style={[styles.cell, {width: 100}]}>{item.nommunicipio}</Text>
+                                    <Text style={[styles.cell, {width: 110}]}>{item.nomcultivo}</Text>
+                                    <Text style={[styles.cell, {width: 70, textAlign:'right'}]}>{formatNumber(item.sembrada)}</Text>
+                                    <Text style={[styles.cell, {width: 70, textAlign:'right'}]}>{formatNumber(item.cosechada)}</Text>
+                                    <Text style={[styles.cell, {width: 60, textAlign:'right', color: item.siniestrada > 0 ? '#d32f2f' : '#333'}]}>{formatNumber(item.siniestrada)}</Text>
+                                    <Text style={[styles.cell, {width: 80, textAlign:'right'}]}>{formatNumber(item.volumenproduccion)}</Text>
+                                    <Text style={[styles.cell, {width: 50, textAlign:'right'}]}>{formatNumber(item.rendimiento)}</Text>
+                                    <Text style={[styles.cell, {width: 70, textAlign:'right'}]}>{formatMoney(item.preciomediorural)}</Text>
+                                    <Text style={[styles.cell, {width: 100, textAlign:'right'}]}>{formatMoney(item.valorproduccion)}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </ScrollView>
+                </View>
+            </View>
+        )}
+      </ScrollView>
+    </View>
+  );
 }
 
-// --- FUNCIONES GRÁFICAS ---
-
-void dibujarInterfazBase() {
-  tft.fillRect(0, 0, 320, 30, ST77XX_BLUE);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(10, 5);
-  tft.print("AgroControl V2");
-  
-  tft.setTextSize(1);
-  tft.setCursor(200, 10);
-  tft.print(WiFi.localIP());
-
-  tft.setCursor(10, 50);
-  tft.setTextSize(2);
-  tft.setTextColor(ST77XX_CYAN);
-  tft.print("Oxigenacion:");
-  
-  tft.setCursor(10, 100);
-  tft.print("Estado:");
-  
-  actualizarIndicadorBomba(estadoBombaMain);
-}
-
-void actualizarIndicadorBomba(bool encendida) {
-  tft.fillRect(160, 45, 100, 30, ST77XX_BLACK);
-  
-  tft.setTextSize(2);
-  if (encendida) {
-    tft.setTextColor(ST77XX_GREEN);
-    tft.setCursor(160, 50);
-    tft.print("ACTIVA");
-    tft.fillCircle(280, 57, 10, ST77XX_GREEN);
-  } else {
-    tft.setTextColor(ST77XX_RED);
-    tft.setCursor(160, 50);
-    tft.print("APAGADA");
-    tft.drawCircle(280, 57, 10, ST77XX_RED);
-  }
-}
-
-void mostrarAvisoDosis(bool activo, String tipo, int segundos) {
-  if (activo) {
-    tft.fillRect(20, 90, 280, 60, ST77XX_ORANGE);
-    tft.setTextColor(ST77XX_BLACK);
-    tft.setTextSize(2);
-    tft.setCursor(40, 100);
-    tft.print("DOSIFICANDO...");
-    tft.setCursor(40, 125);
-    tft.print(tipo + ": " + String(segundos) + "s");
-  } else {
-    tft.fillRect(20, 90, 280, 60, ST77XX_BLACK);
-    tft.setTextColor(ST77XX_CYAN);
-    tft.setCursor(10, 100);
-    tft.print("Estado:");
-    tft.setTextColor(ST77XX_WHITE);
-    tft.setCursor(100, 100);
-    tft.print("Monitoreando...");
-  }
-}
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#eceff1' },
+  scroll: { padding: 20, paddingBottom: 50 },
+  header: { alignItems: 'center', marginBottom: 15 },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32' },
+  subtitle: { fontSize: 12, color: '#666', marginBottom: 5 },
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 20, elevation: 3, zIndex: 10 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#455A64', marginBottom: 15 },
+  tabContainer: { flexDirection: 'row', backgroundColor: '#f5f5f5', borderRadius: 8, padding: 4, marginBottom: 10 },
+  tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
+  tabActive: { backgroundColor: '#fff', elevation: 2 },
+  tabText: { fontSize: 11, color: '#666' },
+  tabTextActive: { color: '#2E7D32', fontWeight: 'bold' },
+  label: { fontSize: 12, fontWeight: 'bold', color: '#546e7a', marginBottom: 5 },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f5f5f5', borderRadius: 8, borderWidth: 1, borderColor: '#cfd8dc' },
+  input: { flex: 1, paddingHorizontal: 15, height: 45, color: '#333' },
+  clearBtn: { padding: 10 },
+  dropdownList: { 
+    position: 'absolute', top: 75, left: 0, right: 0, 
+    backgroundColor: 'white', borderRadius: 5, elevation: 15, zIndex: 10000, borderWidth: 1, borderColor: '#ddd'
+  },
+  dropdownItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  row: { flexDirection: 'row' },
+  botonesRow: { marginTop: 20 },
+  btnConsultar: { backgroundColor: '#1976D2', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 12, borderRadius: 8 },
+  summaryCard: { backgroundColor: '#263238', borderRadius: 12, padding: 15, marginTop: 20 },
+  summaryTitle: { color: '#fff', fontSize: 14, fontWeight: 'bold', borderBottomWidth: 1, borderBottomColor: '#546E7A', marginBottom: 10 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  summaryItem: { flex: 1, alignItems: 'center' },
+  summaryLabel: { color: '#B0BEC5', fontSize: 10 },
+  summaryValue: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
+  summaryValueMoney: { color: '#81C784', fontSize: 17, fontWeight: 'bold' },
+  exportButtonsRow: { flexDirection: 'row', marginTop: 15, marginBottom: 5 },
+  btnExport: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10, borderRadius: 8 },
+  btnText: { color: '#fff', fontWeight: 'bold' },
+  resultadosContainer: { marginTop: 15, backgroundColor: 'white', borderRadius: 10, padding: 10, elevation: 2 },
+  resTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 10, color: '#333' },
+  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 8 },
+  tableHeader: { backgroundColor: '#2E7D32', borderRadius: 5 },
+  cell: { fontSize: 10, paddingHorizontal: 4 }
+});
