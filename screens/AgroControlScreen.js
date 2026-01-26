@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'; // Agregado aquí
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getDatabase, ref, onValue, update } from 'firebase/database';
+import { getDatabase, ref, onValue, update, query, limitToLast } from 'firebase/database';
 import * as Notifications from 'expo-notifications';
 import { LineChart } from 'react-native-chart-kit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -150,7 +150,9 @@ export default function AgroControlScreen() {
     });
 
     // 4. Histórico
-    const u4 = onValue(ref(db, base + '/historico/hora'), s => setHistHora(s.val() || {}));
+    const u4 = onValue(query(ref(db, base + '/historico/hora'), limitToLast(50)), s => {
+      setHistHora(s.val() || {});
+    });
 
     return () => { 
         u1(); u2(); u3(); u4(); 

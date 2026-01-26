@@ -122,7 +122,7 @@ export default function HomeScreen({ navigation }) {
   // --- CONEXIÓN FIREBASE ---
   useEffect(() => {
     const db = getDatabase(app);
-    const dbRef = ref(db); 
+    const dbRef = ref(db, 'cultivos'); 
 
     const unsubscribe = onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
