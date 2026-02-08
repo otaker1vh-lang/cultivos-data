@@ -29,26 +29,23 @@ import { cargarRiesgosDesdeJSON, calcularRiesgosMultiples, generarAlertas } from
 
 const { width } = Dimensions.get('window');
 
-// Habilitar animaciones en Android
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 }
 
-// --- FUNCIÓN HELPER PARA ÍCONOS (NUEVA) ---
 const obtenerIconoCultivo = (nombre, categoria) => {
   const n = nombre ? nombre.toLowerCase() : "";
   const c = categoria ? categoria.toLowerCase() : "";
 
-  // 1. Búsqueda específica por nombre
   if (n.includes("maiz") || n.includes("elote")) return "corn";
   if (n.includes("trigo") || n.includes("cebada") || n.includes("avena") || n.includes("sorgo")) return "barley";
   if (n.includes("frijol") || n.includes("soja") || n.includes("haba")) return "seed";
-  if (n.includes("tomate") || n.includes("jitomate")) return "fruit-cherries"; // Aproximación visual
+  if (n.includes("tomate") || n.includes("jitomate")) return "fruit-cherries"; 
   if (n.includes("chile") || n.includes("pimiento") || n.includes("jalape")) return "chili-hot";
   if (n.includes("zanahoria")) return "carrot";
-  if (n.includes("papa") || n.includes("patata")) return "food-steak"; // A veces usado para tubérculos
+  if (n.includes("papa") || n.includes("patata")) return "food-steak"; 
   if (n.includes("cafe") || n.includes("café")) return "coffee";
   if (n.includes("limon") || n.includes("naranja") || n.includes("citrico") || n.includes("mandarina")) return "fruit-citrus";
   if (n.includes("uva") || n.includes("vid")) return "fruit-grapes";
@@ -58,28 +55,24 @@ const obtenerIconoCultivo = (nombre, categoria) => {
   if (n.includes("arroz")) return "grass";
   if (n.includes("piña")) return "fruit-pineapple";
   if (n.includes("sandia")) return "fruit-watermelon";
-  if (n.includes("caña")) return "corn"; // Aproximación visual
+  if (n.includes("caña")) return "corn"; 
 
-  // 2. Búsqueda por categoría (Fallback)
   if (c.includes("frut")) return "food-apple";
   if (c.includes("hort")) return "carrot";
   if (c.includes("gran") || c.includes("cereal")) return "corn";
   if (c.includes("flor")) return "flower-tulip";
   if (c.includes("forest")) return "tree";
 
-  // 3. Default
   return "sprout";
 };
 
 export default function HomeScreen({ navigation }) {
-  // --- ESTADOS ORIGINALES ---
   const [busqueda, setBusqueda] = useState("");
   const [cultivosFiltrados, setCultivosFiltrados] = useState([]);
   const [mostrarLista, setMostrarLista] = useState(false);
   const [cultivosGuardados, setCultivosGuardados] = useState([]); 
   const [modalCameraVisible, setModalCameraVisible] = useState(false);
   
-  // --- ESTADOS GDD & FIREBASE ---
   const [dbCultivos, setDbCultivos] = useState(null);
   const [climaActual, setClimaActual] = useState(null);
   const [alertasGDD, setAlertasGDD] = useState([]);
@@ -87,11 +80,9 @@ export default function HomeScreen({ navigation }) {
   const [selectedCropGDD, setSelectedCropGDD] = useState(null);
   const [showCropSelector, setShowCropSelector] = useState(false);
   
-  // Estados de expansión
   const [gddSectionExpanded, setGddSectionExpanded] = useState(false); 
   const [expandedGddId, setExpandedGddId] = useState(null); 
 
-  // --- IA Y CÁMARA ---
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
   const cameraRef = useRef(null);
@@ -103,7 +94,6 @@ export default function HomeScreen({ navigation }) {
   const tflite = useTensorflowModel(require('../assets/model/roslin_model.tflite'));
   const model = tflite.model;
 
-  // --- EFECTOS DE CARGA ---
   useEffect(() => {
     async function loadLabels() {
       try {
@@ -112,27 +102,26 @@ export default function HomeScreen({ navigation }) {
         const uri = labelsAsset.localUri || labelsAsset.uri;
         const text = await FileSystem.readAsStringAsync(uri);
         setLabels(text.split('\n').map(l => l.trim()).filter(l => l.length > 0));
-      } catch (e) { console.log("Nota: Etiquetas IA pendientes o error al cargar"); }
+      } catch (e) { console.log("Error al cargar etiquetas"); }
     }
     loadLabels();
   }, []);
 
   useEffect(() => { cargarFavoritos(); }, []);
 
-  // --- CONEXIÓN FIREBASE ---
   useEffect(() => {
     const db = getDatabase(app);
     const dbRef = ref(db, 'cultivos'); 
 
     const unsubscribe = onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
-      if (data && data.cultivos) {
-        setDbCultivos(data.cultivos);
+      if (data) {
+        setDbCultivos(data);
         if (!selectedCropGDD) {
-            const keys = Object.keys(data.cultivos);
+            const keys = Object.keys(data);
             if (keys.length > 0) {
                 const firstKey = keys[0];
-                setSelectedCropGDD({ id: firstKey, ...data.cultivos[firstKey] });
+                setSelectedCropGDD({ id: firstKey, ...data[firstKey] });
             }
         }
       }
@@ -142,20 +131,20 @@ export default function HomeScreen({ navigation }) {
 
   const isCalculatingRef = useRef(false);
 
-    useEffect(() => {
-        if (climaActual && selectedCropGDD && !isCalculatingRef.current) {
-            isCalculatingRef.current = true;
-            calcularRiesgoGDD(selectedCropGDD, climaActual).finally(() => {
-                isCalculatingRef.current = false;
-            });
-        }
-    }, [climaActual, selectedCropGDD]);
+  useEffect(() => {
+    if (climaActual && selectedCropGDD && !isCalculatingRef.current) {
+        isCalculatingRef.current = true;
+        calcularRiesgoGDD(selectedCropGDD, climaActual).finally(() => {
+            isCalculatingRef.current = false;
+        });
+    }
+  }, [climaActual, selectedCropGDD]);
 
   const cargarFavoritos = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@mis_cultivos');
       if (jsonValue != null) setCultivosGuardados(JSON.parse(jsonValue));
-    } catch(e) { console.log("Error cargando cultivos"); }
+    } catch(e) { console.log("Error cargando favoritos"); }
   }
 
   const toggleFavorito = async (item) => {
@@ -167,7 +156,7 @@ export default function HomeScreen({ navigation }) {
       
       setCultivosGuardados(nuevoArray);
       await AsyncStorage.setItem('@mis_cultivos', JSON.stringify(nuevoArray));
-    } catch (e) { console.log("Error guardando"); }
+    } catch (e) { console.log("Error guardando favorito"); }
   };
 
   const [listaCultivos, setListaCultivos] = useState(() => {
@@ -201,7 +190,6 @@ export default function HomeScreen({ navigation }) {
     setMostrarLista(true);
   }, [busqueda, listaCultivos]);
 
-  // --- LÓGICA GDD ---
   const handleClimaUpdate = (data) => {
       setClimaActual(data);
   };
@@ -217,15 +205,13 @@ export default function HomeScreen({ navigation }) {
   };
 
   const calcularRiesgoGDD = async (cultivo, clima) => {
-    if (!clima || !cultivo || !clima.temp_max || !clima.temp_min) {
-        console.log("Datos climáticos incompletos para GDD");
-        return;
-    }
-    
-    setLoadingGDD(true);
+    if (!clima || !cultivo || !clima.temp_max || !clima.temp_min) return;
 
+    setLoadingGDD(true);
     try {
-        const storageKey = `@gdd_historial_${cultivo.id}`;
+        const cropId = cultivo.id;
+        const storageKey = `@gdd_historial_${cropId}`;
+        
         const historialStr = await AsyncStorage.getItem(storageKey);
         let historial = historialStr ? JSON.parse(historialStr) : [];
         
@@ -233,38 +219,41 @@ export default function HomeScreen({ navigation }) {
         const indexExistente = historial.findIndex(d => d.fecha === hoy);
       
         if (indexExistente !== -1) {
-            const diaExistente = historial[indexExistente];
-            if (diaExistente.tmax !== parseFloat(clima.temp_max) || 
-                diaExistente.tmin !== parseFloat(clima.temp_min)) {
-                historial[indexExistente] = {
-                    fecha: hoy,
-                    tmax: parseFloat(clima.temp_max),
-                    tmin: parseFloat(clima.temp_min)
-                };
-                await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
-            }
+            historial[indexExistente] = {
+                fecha: hoy,
+                tmax: parseFloat(clima.temp_max),
+                tmin: parseFloat(clima.temp_min)
+            };
         } else {
             historial.push({
                 fecha: hoy,
                 tmax: parseFloat(clima.temp_max),
                 tmin: parseFloat(clima.temp_min)
             });
-            
-            if (historial.length > 180) {
-                historial = historial.slice(-180);
-            }
-            
-            await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
+            if (historial.length > 180) historial = historial.slice(-180);
+        }
+        await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
+
+        // Extraer riesgos del formato de Firebase
+        const riesgosConfig = [];
+        if (cultivo.riesgos_detallados) {
+            Object.keys(cultivo.riesgos_detallados).forEach(key => {
+                const r = cultivo.riesgos_detallados[key];
+                riesgosConfig.push({
+                    nombre: key,
+                    metodo: "PROMEDIO",
+                    umbral_base: r.gdd_base || 10,
+                    gdd_requeridos: r.gdd_requeridos || 100
+                });
+            });
         }
 
-        const riesgos = cargarRiesgosDesdeJSON(cultivo);
-        
-        if (riesgos.length === 0) {
+        if (riesgosConfig.length === 0) {
             setAlertasGDD([]);
             return;
         }
 
-        const predicciones = calcularRiesgosMultiples(historial, riesgos);
+        const predicciones = calcularRiesgosMultiples(historial, riesgosConfig);
         const alertasGeneradas = generarAlertas(predicciones, 0);
 
         const nuevasAlertas = alertasGeneradas.map(alerta => {
@@ -276,7 +265,7 @@ export default function HomeScreen({ navigation }) {
                 nombre: alerta.riesgo,
                 gdd: prediccion.prediccion.gdd_alcanzado.toFixed(1),
                 gddRequeridos: prediccion.gdd_requeridos,
-                nivel: (alerta.nivel === 'CRÍTICO' || alerta.nivel === 'CRITICO') ? 'ALTO' : 'MEDIO',
+                nivel: (alerta.nivel === 'CRÍTICO' || alerta.nivel === 'CRITICO' || alerta.nivel === 'ALTO') ? 'ALTO' : 'MEDIO',
                 detalle: detalle,
                 mensaje: alerta.mensaje,
                 diasRestantes: alerta.dias_restantes || 0,
@@ -288,18 +277,17 @@ export default function HomeScreen({ navigation }) {
 
     } catch (error) {
         console.error("Error calculando GDD:", error);
-        Alert.alert("Error", "No se pudo calcular el riesgo de plagas.");
     } finally {
         setLoadingGDD(false);
     }
-};
+  };
 
-const reiniciarTemporadaGDD = async () => {
+  const reiniciarTemporadaGDD = async () => {
     if (!selectedCropGDD) return;
     
     Alert.alert(
         "Reiniciar Temporada",
-        `¿Deseas reiniciar el monitoreo de ${selectedCropGDD.id}? Se perderán los datos acumulados.`,
+        `¿Deseas reiniciar el monitoreo de ${selectedCropGDD.id}?`,
         [
             { text: "Cancelar", style: "cancel" },
             {
@@ -310,25 +298,23 @@ const reiniciarTemporadaGDD = async () => {
                         const storageKey = `@gdd_historial_${selectedCropGDD.id}`;
                         await AsyncStorage.removeItem(storageKey);
                         setAlertasGDD([]);
-                        Alert.alert("Éxito", "Temporada reiniciada correctamente.");
-                    } catch (error) {
-                        console.error("Error reiniciando:", error);
-                    }
+                        Alert.alert("Éxito", "Datos reiniciados.");
+                    } catch (error) { console.error(error); }
                 }
             }
         ]
     );
   };
+
   const selectCropForGDD = (key, data) => {
       setSelectedCropGDD({ id: key, ...data });
       setShowCropSelector(false);
   };
 
-  // --- FUNCIONES CÁMARA E IA ---
   const abrirCamara = async () => { 
     if (!hasPermission) {
       const permisoConcedido = await requestPermission();
-      if (!permisoConcedido) return Alert.alert("Permiso requerido", "Se necesita acceso a la cámara.");
+      if (!permisoConcedido) return Alert.alert("Permiso", "Se requiere cámara.");
     }
     setModalCameraVisible(true); 
   };
@@ -340,7 +326,7 @@ const reiniciarTemporadaGDD = async () => {
       try {
         const photo = await cameraRef.current.takePhoto({ flash: 'off' });
         setImage(`file://${photo.path}`); 
-      } catch (error) { console.log("Error foto:", error); }
+      } catch (error) { console.log(error); }
     }
   };
   
@@ -368,18 +354,13 @@ const reiniciarTemporadaGDD = async () => {
         if (probabilities[i] > maxProb) { maxProb = probabilities[i]; maxIndex = i; } 
       }
       setPrediction({ label: labels[maxIndex] || "Desconocido", confidence: maxProb });
-
     } catch (error) { 
-      console.log("Error en clasificación:", error);
-      Alert.alert("Error", "No se pudo analizar la imagen. Verifica el formato."); 
+      Alert.alert("Error", "No se pudo analizar la imagen."); 
     } finally { setLoadingIA(false); }
   };
 
-  // --- RENDERIZADO TARJETAS ---
   const renderCultivo = ({ item }) => {
-    // MODIFICACIÓN: Usar función helper para íconos
     const iconName = obtenerIconoCultivo(item.nombre, item.categoria);
-    
     const tieneImagen = item.imagen_url && item.imagen_url.trim() !== "";
     const esFavorito = cultivosGuardados.some(c => c.nombre === item.nombre);
 
@@ -416,9 +397,7 @@ const reiniciarTemporadaGDD = async () => {
   };
 
   const renderFavoritoItem = ({ item }) => {
-    // MODIFICACIÓN: Usar función helper también para favoritos
     const iconName = obtenerIconoCultivo(item.nombre, item.categoria);
-    
     return (
       <TouchableOpacity style={styles.favItem} onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}>
         <View style={styles.favIconCircle}>
@@ -444,7 +423,6 @@ const reiniciarTemporadaGDD = async () => {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-          {/* 1. TOP SECTION: BIENVENIDA Y CLIMA */}
           <View style={styles.topSection}>
             <View style={styles.headerRow}>
                 <View>
@@ -466,7 +444,6 @@ const reiniciarTemporadaGDD = async () => {
             </View>
           </View>
 
-          {/* 2. HERO: DIAGNÓSTICO IA */}
           <View style={styles.heroSection}>
             <TouchableOpacity style={styles.diagnoseCard} onPress={abrirCamara}>
                 <LinearGradient colors={['#FF8F00', '#FF6F00']} style={styles.diagnoseGradient} start={{x: 0, y: 0}} end={{x: 1, y: 0}}>
@@ -484,7 +461,6 @@ const reiniciarTemporadaGDD = async () => {
             </TouchableOpacity>
           </View>
 
-          {/* 3. SECCIÓN DE CULTIVOS */}
           {cultivosGuardados.length > 0 && (
             <View style={styles.favSection}>
                <View style={styles.sectionHeader}>
@@ -531,7 +507,6 @@ const reiniciarTemporadaGDD = async () => {
             />
           ) : null}
 
-          {/* 4. HERRAMIENTAS GLOBALES */}
           <View style={styles.quickAccessContainer}>
              <Text style={styles.sectionTitleFav}>Herramientas</Text>
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessScroll}>
@@ -541,32 +516,26 @@ const reiniciarTemporadaGDD = async () => {
                     </View>
                     <Text style={styles.quickText}>AgroControl</Text>
                 </TouchableOpacity>
-                
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Fertilizantes')}>
                     <View style={[styles.quickIcon, {backgroundColor:'#E8F5E9'}]}><MaterialCommunityIcons name="sack" size={26} color="#2E7D32" /></View>
                     <Text style={styles.quickText}>Fertilizantes</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Dosis')}>
                     <View style={[styles.quickIcon, {backgroundColor:'#E0F7FA'}]}><MaterialCommunityIcons name="flask" size={26} color="#006064" /></View>
                     <Text style={styles.quickText}>Dosis</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Bitacora')}>
                     <View style={[styles.quickIcon, {backgroundColor:'#FFF3E0'}]}><MaterialCommunityIcons name="notebook" size={26} color="#E65100" /></View>
                     <Text style={styles.quickText}>Bitácora</Text>
                 </TouchableOpacity>
-                
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Noticias')}>
                     <View style={[styles.quickIcon, {backgroundColor:'#F3E5F5'}]}><MaterialCommunityIcons name="newspaper" size={26} color="#7B1FA2" /></View>
                     <Text style={styles.quickText}>Noticias</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('ReporteAvanzado')}>
                       <View style={[styles.quickIcon, {backgroundColor:'#FFEBEE'}]}><MaterialCommunityIcons name="file-chart" size={26} color="#D32F2F" /></View>
                       <Text style={styles.quickText}>Reportes</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Costos', { cultivo: selectedCropGDD?.id || 'Mi Cultivo' })}>
                     <View style={[styles.quickIcon, {backgroundColor:'#FFFDE7'}]}>
                         <MaterialCommunityIcons name="finance" size={26} color="#FBC02D" />
@@ -576,23 +545,14 @@ const reiniciarTemporadaGDD = async () => {
              </ScrollView>
           </View>
 
-          {/* 1.5. SECCIÓN GDD (MODIFICADA: FICHA COMPRIMIBLE) */}
           <View style={styles.gddMainCard}>
-             
-             {/* Header de la Ficha */}
-             <TouchableOpacity 
-                activeOpacity={0.8}
-                onPress={toggleSectionMain}
-                style={styles.gddHeaderRow}
-             >
+             <TouchableOpacity activeOpacity={0.8} onPress={toggleSectionMain} style={styles.gddHeaderRow}>
                 <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
                     <View style={styles.gddHeaderIcon}>
                         <FontAwesome5 name="temperature-low" size={18} color="#FFF" />
                     </View>
                     <View style={{marginLeft: 12}}>
-                        <Text style={styles.gddTitleMain}>
-                            Riesgo de Plagas (GDD)
-                        </Text>
+                        <Text style={styles.gddTitleMain}>Riesgo de Plagas (GDD)</Text>
                         <Text style={styles.gddSubtitleMain}>
                             {selectedCropGDD?.id ? `Cultivo: ${selectedCropGDD.id}` : "Toque para configurar"}
                         </Text>
@@ -601,98 +561,53 @@ const reiniciarTemporadaGDD = async () => {
                 <Ionicons name={gddSectionExpanded ? "chevron-up" : "chevron-down"} size={24} color="#546E7A" />
              </TouchableOpacity>
 
-             {/* Contenido Expandible */}
              {gddSectionExpanded && (
                  <View style={styles.gddContentArea}>
-                    
-                    {/* Selector de cultivo */}
                     <View style={styles.gddSelectorRow}>
                          <Text style={styles.labelSelector}>Analizando para:</Text>
                          {dbCultivos ? (
                             <TouchableOpacity onPress={() => setShowCropSelector(true)} style={styles.gddSelectorBtn}>
-                                <Text style={styles.gddSelectorText}>
-                                     {selectedCropGDD ? selectedCropGDD.id : "Seleccionar"}
-                                </Text>
+                                <Text style={styles.gddSelectorText}>{selectedCropGDD ? selectedCropGDD.id : "Seleccionar"}</Text>
                                 <Ionicons name="caret-down" size={12} color="#2E7D32" />
                             </TouchableOpacity>
                          ) : <ActivityIndicator size="small" color="#4CAF50"/>}
                     </View>
-
                     <View style={styles.dividerMain} />
-
                     {!climaActual && <Text style={styles.loadingText}>Esperando datos del clima...</Text>}
                     
-                    {/* Lista de Alertas */}
                     {alertasGDD.length > 0 ? (
                     alertasGDD.map((alerta, index) => {
                         const isExpanded = expandedGddId === alerta.id;
                         return (
-                            <TouchableOpacity 
-                                key={index} 
-                                style={[styles.gddCard, isExpanded && styles.gddCardExpanded]} 
-                                onPress={() => toggleGddExpand(alerta.id)}
-                                activeOpacity={0.9}
-                            >
+                            <TouchableOpacity key={index} style={[styles.gddCard, isExpanded && styles.gddCardExpanded]} onPress={() => toggleGddExpand(alerta.id)} activeOpacity={0.9}>
                                 <View style={styles.gddHeader}>
                                     <View style={[styles.gddIcon, { backgroundColor: alerta.nivel === 'ALTO' ? '#FFEBEE' : '#E8F5E9' }]}>
                                         <FontAwesome5 name="bug" size={16} color={alerta.nivel === 'ALTO' ? '#D32F2F' : '#2E7D32'} />
                                     </View>
                                     <View style={{flex:1, marginLeft: 10}}>
                                         <Text style={styles.gddTitle}>{alerta.nombre}</Text>
-                                        <Text style={styles.gddSubtitle}>
-                                            Acumulado: <Text style={{fontWeight:'bold'}}>{alerta.gdd}</Text> / {alerta.gddRequeridos} GDD
-                                        </Text>
-                                        {/* Barra de progreso */}
+                                        <Text style={styles.gddSubtitle}>Acumulado: <Text style={{fontWeight:'bold'}}>{alerta.gdd}</Text> / {alerta.gddRequeridos} GDD</Text>
                                         <View style={styles.progressBarContainer}>
-                                            <View style={[styles.progressBarFill, { 
-                                                width: `${Math.min(alerta.progreso, 100)}%`,
-                                                backgroundColor: alerta.nivel === 'ALTO' ? '#D32F2F' : '#4CAF50'
-                                            }]} />
+                                            <View style={[styles.progressBarFill, { width: `${Math.min(alerta.progreso, 100)}%`, backgroundColor: alerta.nivel === 'ALTO' ? '#D32F2F' : '#4CAF50' }]} />
                                         </View>
                                         <Text style={styles.progressText}>{alerta.progreso}% completado</Text>
                                     </View>
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <View style={[styles.riskBadge, { 
-                                            backgroundColor: alerta.nivel === 'ALTO' ? '#FFCDD2' : '#C8E6C9', 
-                                            marginRight: 8 
-                                        }]}>
-                                            <Text style={[styles.riskText, { 
-                                                color: alerta.nivel === 'ALTO' ? '#B71C1C' : '#1B5E20' 
-                                            }]}>
-                                                {alerta.nivel}
-                                            </Text>
+                                        <View style={[styles.riskBadge, { backgroundColor: alerta.nivel === 'ALTO' ? '#FFCDD2' : '#C8E6C9', marginRight: 8 }]}>
+                                            <Text style={[styles.riskText, { color: alerta.nivel === 'ALTO' ? '#B71C1C' : '#1B5E20' }]}>{alerta.nivel}</Text>
                                         </View>
                                         <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={20} color="#B0BEC5" />
                                     </View>
                                 </View>
-                                
                                 {isExpanded && (
                                     <View style={styles.gddBody}>
                                         <View style={styles.divider} />
-                                        <View style={styles.detailRow}>
-                                            <Text style={styles.detailLabel}>Tipo:</Text>
-                                            <Text style={styles.detailValue}>{alerta.detalle?.tipo || "No especificado"}</Text>
-                                        </View>
-                                        <View style={styles.detailRow}>
-                                            <Text style={styles.detailLabel}>Síntomas:</Text>
-                                            <Text style={styles.detailValue}>
-                                                {alerta.detalle?.sintomas_visuales || "Consulte la guía técnica."}
-                                            </Text>
-                                        </View>
+                                        <View style={styles.detailRow}><Text style={styles.detailLabel}>Tipo:</Text><Text style={styles.detailValue}>{alerta.detalle?.tipo || "No especificado"}</Text></View>
+                                        <View style={styles.detailRow}><Text style={styles.detailLabel}>Síntomas:</Text><Text style={styles.detailValue}>{alerta.detalle?.sintomas_visuales || "Consulte la guía técnica."}</Text></View>
                                         {alerta.diasRestantes > 0 && (
-                                            <View style={styles.detailRow}>
-                                                <Text style={styles.detailLabel}>Estimación:</Text>
-                                                <Text style={styles.detailValue}>
-                                                    Ciclo completo en ~{alerta.diasRestantes} días
-                                                </Text>
-                                            </View>
+                                            <View style={styles.detailRow}><Text style={styles.detailLabel}>Estimación:</Text><Text style={styles.detailValue}>Ciclo completo en ~{alerta.diasRestantes} días</Text></View>
                                         )}
-                                        <View style={styles.detailRow}>
-                                            <Text style={styles.detailLabel}>Mensaje:</Text>
-                                            <Text style={[styles.detailValue, {fontStyle: 'italic'}]}>
-                                                {alerta.mensaje}
-                                            </Text>
-                                        </View>
+                                        <View style={styles.detailRow}><Text style={styles.detailLabel}>Mensaje:</Text><Text style={[styles.detailValue, {fontStyle: 'italic'}]}>{alerta.mensaje}</Text></View>
                                     </View>
                                 )}
                             </TouchableOpacity>
@@ -700,22 +615,12 @@ const reiniciarTemporadaGDD = async () => {
                     })
                 ) : (
                     <View style={styles.emptyGdd}>
-                        {loadingGDD ? (
-                            <ActivityIndicator size="small" color="#4CAF50"/>
-                        ) : (
-                            <Text style={styles.emptyTextGdd}>
-                                {climaActual ? "Riesgo bajo o datos no disponibles." : "Esperando datos del clima..."}
-                            </Text>
-                        )}
+                        {loadingGDD ? <ActivityIndicator size="small" color="#4CAF50"/> : <Text style={styles.emptyTextGdd}>{climaActual ? "Riesgo bajo o datos no disponibles." : "Esperando datos del clima..."}</Text>}
                     </View>
                 )}
 
-                {/* Botón para reiniciar temporada */}
                 {alertasGDD.length > 0 && (
-                    <TouchableOpacity 
-                        style={styles.btnReiniciarTemporada} 
-                        onPress={reiniciarTemporadaGDD}
-                    >
+                    <TouchableOpacity style={styles.btnReiniciarTemporada} onPress={reiniciarTemporadaGDD}>
                         <MaterialCommunityIcons name="restart" size={16} color="#F57C00" />
                         <Text style={styles.btnReiniciarText}>Reiniciar Temporada</Text>
                     </TouchableOpacity>
@@ -723,11 +628,9 @@ const reiniciarTemporadaGDD = async () => {
                  </View>
              )}
           </View>
-
         </ScrollView>
       </SafeAreaView>
 
-      {/* MODAL CÁMARA */}
       <Modal visible={modalCameraVisible} animationType="fade" onRequestClose={cerrarCamara}>
          <View style={{flex: 1, backgroundColor: 'black'}}>
              <View style={styles.cameraHeader}>
@@ -766,7 +669,6 @@ const reiniciarTemporadaGDD = async () => {
          </View>
       </Modal>
 
-      {/* MODAL SELECTOR CULTIVO GDD */}
       <Modal visible={showCropSelector} transparent animationType="slide" onRequestClose={()=>setShowCropSelector(false)}>
          <View style={styles.modalOverlay}>
              <View style={styles.modalContent}>
@@ -789,13 +691,11 @@ const reiniciarTemporadaGDD = async () => {
              </View>
          </View>
       </Modal>
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // ... ESTILOS ORIGINALES ...
   container: { flex: 1, backgroundColor: '#F8F9FA' },
   safeArea: { flex: 1 },
   scrollContent: { paddingBottom: 40 },
@@ -818,51 +718,17 @@ const styles = StyleSheet.create({
   diagnoseIconCircle: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center' },
   diagnoseTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFF' },
   diagnoseSub: { fontSize: 12, color: 'rgba(255,255,255,0.9)', marginTop: 2 },
-  
-  // ... ESTILOS NUEVOS DE LA FICHA GDD ...
-  gddMainCard: {
-    backgroundColor: '#fff',
-    marginHorizontal: 24,
-    marginTop: 15,
-    borderRadius: 16,
-    paddingVertical: 4, 
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#E8F5E9'
-  },
-  gddHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  gddHeaderIcon: {
-    width: 36, height: 36, borderRadius: 18, backgroundColor: '#2E7D32',
-    justifyContent: 'center', alignItems: 'center'
-  },
+  gddMainCard: { backgroundColor: '#fff', marginHorizontal: 24, marginTop: 15, borderRadius: 16, paddingVertical: 4, elevation: 3, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, borderWidth: 1, borderColor: '#E8F5E9' },
+  gddHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
+  gddHeaderIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center' },
   gddTitleMain: { fontSize: 16, fontWeight: '700', color: '#2E7D32' },
   gddSubtitleMain: { fontSize: 12, color: '#78909C' },
-  
-  gddContentArea: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  gddSelectorRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10
-  },
+  gddContentArea: { paddingHorizontal: 16, paddingBottom: 16 },
+  gddSelectorRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   labelSelector: { fontSize: 12, color: '#90A4AE', fontWeight: '600' },
-  gddSelectorBtn: {
-    flexDirection:'row', alignItems:'center', backgroundColor:'#F1F8E9', 
-    padding:6, paddingHorizontal:12, borderRadius:12 
-  },
+  gddSelectorBtn: { flexDirection:'row', alignItems:'center', backgroundColor:'#F1F8E9', padding:6, paddingHorizontal:12, borderRadius:12 },
   gddSelectorText: { color:'#33691E', fontWeight:'600', marginRight:5, fontSize:12 },
   dividerMain: { height: 1, backgroundColor: '#EEEEEE', marginBottom: 12 },
-
-  // Estilos de las tarjetas internas (alertas)
   gddCard: { backgroundColor: '#FAFAFA', borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: '#ECEFF1' },
   gddCardExpanded: { backgroundColor: '#FFF', borderColor: '#C8E6C9', elevation: 1 },
   gddHeader: { flexDirection: 'row', alignItems: 'center', padding: 12 },
@@ -874,13 +740,11 @@ const styles = StyleSheet.create({
   detailRow: { flexDirection: 'row', marginBottom: 5 },
   detailLabel: { fontSize: 12, color: '#90A4AE', width: 70, fontWeight: '600' },
   detailValue: { fontSize: 12, color: '#455A64', flex: 1 },
-
   riskBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   riskText: { fontSize: 10, fontWeight: '700' },
   emptyGdd: { padding: 15, backgroundColor: '#F5F5F5', borderRadius: 12, alignItems: 'center', borderStyle: 'dashed', borderWidth:1, borderColor:'#CFD8DC' },
   emptyTextGdd: { color: '#90A4AE', fontStyle: 'italic', fontSize: 12 },
   loadingText: { textAlign:'center', color:'#90A4AE', fontSize:12, marginBottom:5 },
-  
   modalOverlay: { flex: 1, backgroundColor:'rgba(0,0,0,0.5)', justifyContent:'center', padding: 20 },
   modalContent: { backgroundColor:'white', borderRadius:20, padding:20, maxHeight:'60%' },
   modalTitle: { fontSize:18, fontWeight:'bold', marginBottom:15, textAlign:'center' },
@@ -888,8 +752,6 @@ const styles = StyleSheet.create({
   modalItemText: { fontSize:16 },
   closeModalBtn: { marginTop:15, alignSelf:'center', padding:10 },
   closeModalText: { color:'red', fontWeight:'bold' },
-
-  // ... RESTO DE ESTILOS ...
   sectionHeader: { marginBottom: 12, paddingHorizontal: 24 },
   sectionTitleFav: { fontSize: 18, fontWeight: '700', color: '#263238' },
   quickAccessContainer: { marginBottom: 20, marginTop: 10 },
@@ -917,8 +779,6 @@ const styles = StyleSheet.create({
   favRemoveBg: { backgroundColor: '#FF5252', borderRadius: 10, width: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
   emptyState: { alignItems: 'center', marginTop: 20 },
   emptyText: { color: '#B0BEC5' },
-  
-  // ESTILOS CAMARA
   cameraHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, paddingTop: 50, backgroundColor: 'rgba(0,0,0,0.5)' },
   closeCameraBtn: { padding: 5 },
   previewImage: { width: 224, height: 224, borderRadius: 20, marginBottom: 20, borderWidth:2, borderColor:'#FFF' },
@@ -928,38 +788,9 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 10 },
   captureOuter: { width: 80, height: 80, borderRadius: 40, borderWidth: 5, borderColor: 'white', justifyContent: 'center', alignItems: 'center' },
   captureInner: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'white' },
-  // Agregar al final de StyleSheet.create:
-progressBarContainer: {
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2,
-    marginTop: 6,
-    overflow: 'hidden'
-},
-progressBarFill: {
-    height: '100%',
-    borderRadius: 2
-},
-progressText: {
-    fontSize: 10,
-    color: '#78909C',
-    marginTop: 3
-},
-btnReiniciarTemporada: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFF3E0',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: '#FFE0B2'
-},
-btnReiniciarText: {
-    color: '#F57C00',
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 6
-}
+  progressBarContainer: { height: 4, backgroundColor: '#E0E0E0', borderRadius: 2, marginTop: 6, overflow: 'hidden' },
+  progressBarFill: { height: '100%', borderRadius: 2 },
+  progressText: { fontSize: 10, color: '#78909C', marginTop: 3 },
+  btnReiniciarTemporada: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF3E0', padding: 10, borderRadius: 8, marginTop: 12, borderWidth: 1, borderColor: '#FFE0B2' },
+  btnReiniciarText: { color: '#F57C00', fontSize: 12, fontWeight: '600', marginLeft: 6 }
 });

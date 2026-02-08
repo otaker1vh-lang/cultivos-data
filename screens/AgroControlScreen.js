@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet, Text, View, ScrollView, Switch,
   ActivityIndicator, TextInput, TouchableOpacity,
-  Alert, Keyboard, StatusBar, Dimensions
+  Alert, StatusBar, Dimensions
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // Agregado aquí
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getDatabase, ref, onValue, update, query, limitToLast } from 'firebase/database';
+// OPTIMIZACIÓN: Importamos query, limitToLast y orderByKey para ahorrar datos
+import { getDatabase, ref, onValue, update, query, limitToLast, orderByKey } from 'firebase/database';
 import * as Notifications from 'expo-notifications';
 import { LineChart } from 'react-native-chart-kit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -27,114 +28,163 @@ const firebaseConfig = {
   projectId: "agrocontrol-fd75d",
 };
 
-// --- CÓDIGO CORREGIDO PARA MULTI-PROYECTO ---
 let app;
-
-// 1. Buscamos si ya existe una app con el apodo específico "AgroControlApp"
 const appName = 'AgroControlApp';
 const existingApp = getApps().find(a => a.name === appName);
 
 if (existingApp) {
-  // Si ya existe, la reutilizamos
   app = getApp(appName);
 } else {
-  // Si no existe, la creamos PERO pasándole el nombre como segundo parámetro
   app = initializeApp(firebaseConfig, appName);
 }
 
 const db = getDatabase(app);
 
-const MAX_DELAY = 15000;
+const MAX_DELAY = 15000; // Tiempo para considerar "Offline"
 const CMD_TIMEOUT = 5000;
 
-export default function AgroControlScreen() {
-  const [deviceId] = useState('esp32_1');
+/* ---------------- DISPOSITIVOS DISPONIBLES ---------------- */
+const DISPOSITIVOS = [
+  {
+    id: 'esp32_germinacion',
+    nombre: 'Germinación',
+    icono: 'sprout',
+    color: '#4CAF50',
+    descripcion: 'Control de riego y temperatura'
+  },
+  {
+    id: 'esp32_esquejes',
+    nombre: 'Esquejes',
+    icono: 'water',
+    color: '#2196F3',
+    descripcion: 'Nebulización y humedad'
+  },
+  {
+    id: 'esp32_hidroponico',
+    nombre: 'Hidropónico',
+    icono: 'flower',
+    color: '#FF9800',
+    descripcion: 'Sistema NFT/DWC'
+  }
+];
 
-  // --- ESTADOS SENSORES ---
+export default function AgroControlScreen() {
+  // ============= SELECTOR DE DISPOSITIVO =============
+  const [deviceId, setDeviceId] = useState('esp32_esquejes');
+  const [showDeviceSelector, setShowDeviceSelector] = useState(false);
+
+  // ============= ESTADOS SENSORES =============
   const [temp, setTemp] = useState(0);
   const [hum, setHum] = useState(0);
+  const [humedadSuelo, setHumedadSuelo] = useState(0);
+  const [tempAgua, setTempAgua] = useState(0);
+  const [nivelAgua, setNivelAgua] = useState(true);
   
   const watchdogRef = useRef(null);
 
-  // --- ESTADOS RELÉS ---
-  const [r1Estado, setR1Estado] = useState(false);
-  const [loadingR1, setLoadingR1] = useState(false);
-  const [inputTimerR1, setInputTimerR1] = useState('');
-  const [unitR1, setUnitR1] = useState('min');
-  const [countdownR1, setCountdownR1] = useState(0);
+  // ============= ESTADOS RELÉS/BOMBAS =============
+  const [bombaEstado, setBombaEstado] = useState(false);
+  const [loadingBomba, setLoadingBomba] = useState(false);
+  const [inputTimerBomba, setInputTimerBomba] = useState('');
+  const [unitBomba, setUnitBomba] = useState('min');
+  const [countdownBomba, setCountdownBomba] = useState(0);
 
-  const [r2Estado, setR2Estado] = useState(false);
-  const [loadingR2, setLoadingR2] = useState(false);
-  const [inputTimerR2, setInputTimerR2] = useState('');
-  const [unitR2, setUnitR2] = useState('min');
-  const [countdownR2, setCountdownR2] = useState(0);
+  const [ventEstado, setVentEstado] = useState(false);
+  const [loadingVent, setLoadingVent] = useState(false);
 
-  // --- CONFIGURACIÓN ---
-  const [cfgTempAlta, setCfgTempAlta] = useState('');
-  const [cfgTempBaja, setCfgTempBaja] = useState('');
-  const [cfgHumBaja, setCfgHumBaja] = useState('');
+  // ============= CONTROL DE CICLOS =============
+  const [cicloON, setCicloON] = useState('10');
+  const [cicloOFF, setCicloOFF] = useState('30');
+  const [cicloHabilitado, setCicloHabilitado] = useState(true);
+  const [modoManual, setModoManual] = useState(false);
 
-  // --- CONEXIÓN Y GRÁFICA ---
+  // ============= CONFIGURACIÓN =============
+  const [cfgTempMax, setCfgTempMax] = useState('');
+  const [cfgTempMin, setCfgTempMin] = useState('');
+  const [cfgHumMin, setCfgHumMin] = useState('');
+  const [cfgSoilMin, setCfgSoilMin] = useState('');
+
+  // ============= CONEXIÓN Y GRÁFICA =============
   const [conectado, setConectado] = useState(false);
   const lastCmdTsRef = useRef(null);
   const [histHora, setHistHora] = useState({});
 
-  // --- REFS PARA SINCRONIZACIÓN DE TIMER ---
-  // Guardan el tiempo deseado hasta que el ESP32 confirma
-  const pendingTimerR1 = useRef(0);
-  const pendingTimerR2 = useRef(0);
-
-  const [autoMode, setAutoMode] = useState(true); // Nuevo estado
+  const pendingTimerBomba = useRef(0);
 
   /* ---------------- PERMISOS ---------------- */
   useEffect(() => {
     Notifications.requestPermissionsAsync();
   }, []);
 
-  /* ---------------- LISTENERS ---------------- */
+  /* ---------------- LISTENERS FIREBASE ---------------- */
   useEffect(() => {
     const base = `/${deviceId}`;
+    setConectado(false); // Reset al cambiar dispositivo
 
-    // 1. Sensores (CORRECCIÓN 1: Math.round para enteros)
+    // 1. Sensores (Tiempo Real)
     const u1 = onValue(ref(db, base + '/sensores'), snap => {
       const d = snap.val();
       if (d) {
-          // Redondeamos para quitar decimales
-          setTemp(Math.round(d.temperatura ?? 0));
-          setHum(Math.round(d.humedad ?? 0));
+        setTemp(Math.round(d.temperatura ?? 0));
+        setHum(Math.round(d.humedad ?? 0));
+        
+        // Sensor específico según dispositivo
+        if (deviceId === 'esp32_esquejes' || deviceId === 'esp32_germinacion') {
+          setHumedadSuelo(Math.round(d.humedad_suelo ?? 0));
           
-          setConectado(true);
-          if (watchdogRef.current) clearTimeout(watchdogRef.current);
-          watchdogRef.current = setTimeout(() => setConectado(false), MAX_DELAY);
+          if (d.humedad_suelo < 30) {
+            enviarAlerta('💧 Sustrato Seco', `Humedad: ${d.humedad_suelo}%`);
+          }
+        }
+        
+        if (deviceId === 'esp32_hidroponico') {
+          setTempAgua(Math.round(d.temp_agua ?? 0));
+          setNivelAgua(d.nivel_agua ?? true);
+          
+          if (!d.nivel_agua) {
+            enviarAlerta('⚠️ Nivel Bajo', 'Verificar depósito de agua');
+          }
+        }
+        
+        if (d.temperatura > 35) {
+          enviarAlerta('🌡️ Temperatura Alta', `${d.temperatura}°C detectada`);
+        }
+        
+        // WATCHDOG: Lógica para saber si está online
+        // Si recibimos datos, está conectado.
+        setConectado(true);
+        if (watchdogRef.current) clearTimeout(watchdogRef.current);
+        // Si no recibimos nada nuevo en 15s (MAX_DELAY), marcamos offline.
+        watchdogRef.current = setTimeout(() => setConectado(false), MAX_DELAY);
       }
     });
 
-    // 2. Estado (CORRECCIÓN 2: El Timer inicia SOLO al confirmar)
+    // 2. Estado
     const u2 = onValue(ref(db, base + '/estado'), snap => {
       const d = snap.val();
       if (!d) return;
 
-      setR1Estado(!!d.r1);
-      setR2Estado(!!d.r2);
-
-      if (d.auto_mode !== undefined) {
-          setAutoMode(d.auto_mode);
+      if (deviceId === 'esp32_esquejes') {
+        setBombaEstado(!!d.nebulizacion);
+        setVentEstado(!!d.ventilacion);
+        setModoManual(!!d.modo_manual);
+        setCicloHabilitado(!!d.ciclo_activo);
+      } else if (deviceId === 'esp32_germinacion') {
+        setBombaEstado(!!d.r1);
+        setModoManual(!d.auto_mode);
+      } else if (deviceId === 'esp32_hidroponico') {
+        setBombaEstado(!!d.bomba);
+        setModoManual(!d.auto_mode);
       }
 
-      // Verificamos si es una respuesta a nuestro comando reciente
       if (lastCmdTsRef.current && d.ts >= lastCmdTsRef.current) {
-        setLoadingR1(false);
-        setLoadingR2(false);
+        setLoadingBomba(false);
+        setLoadingVent(false);
         lastCmdTsRef.current = null;
 
-        // ¡AQUÍ INICIA EL TEMPORIZADOR! (Sincronizado con ESP32)
-        if (pendingTimerR1.current > 0) {
-            setCountdownR1(pendingTimerR1.current);
-            pendingTimerR1.current = 0; // Reset
-        }
-        if (pendingTimerR2.current > 0) {
-            setCountdownR2(pendingTimerR2.current);
-            pendingTimerR2.current = 0; // Reset
+        if (pendingTimerBomba.current > 0) {
+          setCountdownBomba(pendingTimerBomba.current);
+          pendingTimerBomba.current = 0;
         }
       }
     });
@@ -143,36 +193,61 @@ export default function AgroControlScreen() {
     const u3 = onValue(ref(db, base + '/config'), snap => {
       const d = snap.val();
       if (d) {
-        if (d.tempAlta) setCfgTempAlta(d.tempAlta.toString());
-        if (d.tempBaja) setCfgTempBaja(d.tempBaja.toString());
-        if (d.humBaja) setCfgHumBaja(d.humBaja.toString());
+        if (d.temp_max) setCfgTempMax(d.temp_max.toString());
+        if (d.temp_min) setCfgTempMin(d.temp_min.toString());
+        if (d.hum_min) setCfgHumMin(d.hum_min.toString());
+        if (d.soil_moisture_min) setCfgSoilMin(d.soil_moisture_min.toString());
+        
+        if (deviceId === 'esp32_esquejes') {
+          if (d.ciclo_on_ms) setCicloON((d.ciclo_on_ms / 1000).toString());
+          if (d.ciclo_off_ms) setCicloOFF((d.ciclo_off_ms / 60000).toString());
+          if (d.ciclo_habilitado !== undefined) setCicloHabilitado(d.ciclo_habilitado);
+        }
       }
     });
 
-    // 4. Histórico
-    const u4 = onValue(query(ref(db, base + '/historico/hora'), limitToLast(50)), s => {
-      setHistHora(s.val() || {});
-    });
+    // 4. Histórico OPTIMIZADO: Solo traer las últimas 24 horas
+    // Esto reduce el consumo de datos enormemente.
+    const statsQuery = query(
+        ref(db, base + '/estadisticas'), 
+        orderByKey(), 
+        limitToLast(24)
+    );
+    const u4 = onValue(statsQuery, s => setHistHora(s.val() || {}));
 
-    return () => { 
-        u1(); u2(); u3(); u4(); 
-        if (watchdogRef.current) clearTimeout(watchdogRef.current);
+    return () => {
+      u1();
+      u2();
+      u3();
+      u4();
+      if (watchdogRef.current) clearTimeout(watchdogRef.current);
     };
-  }, []);
+  }, [deviceId]);
 
   /* ---------------- CONTADORES LOCALES ---------------- */
   useEffect(() => {
     const i = setInterval(() => {
-      setCountdownR1(v => (v > 0 ? v - 1 : 0));
-      setCountdownR2(v => (v > 0 ? v - 1 : 0));
+      setCountdownBomba(v => (v > 0 ? v - 1 : 0));
     }, 1000);
     return () => clearInterval(i);
   }, []);
 
+  /* ---------------- ALERTAS PUSH ---------------- */
+  const enviarAlerta = async (titulo, mensaje) => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: titulo,
+        body: mensaje,
+        sound: true,
+      },
+      trigger: null,
+    });
+  };
+
   /* ---------------- COMANDOS ---------------- */
   const enviarComando = (payload, setLoading) => {
     if (!conectado) {
-      Alert.alert('Sin Conexión', 'El ESP32 no está reportando datos.');
+      Alert.alert('Sin Conexión', 'El dispositivo no está reportando datos.');
       return;
     }
     const cmdTs = Date.now();
@@ -188,275 +263,480 @@ export default function AgroControlScreen() {
     setTimeout(() => {
       if (setLoading) setLoading(prev => {
         if (prev) {
-            Alert.alert("Aviso", "El ESP32 tardó en confirmar. El temporizador no iniciará.");
-            // Limpiamos los pendientes si falló
-            pendingTimerR1.current = 0;
-            pendingTimerR2.current = 0;
+          Alert.alert("Aviso", "El dispositivo tardó en confirmar.");
+          pendingTimerBomba.current = 0;
         }
         return false;
       });
     }, CMD_TIMEOUT);
   };
 
-  // --- R1 ---
-  const toggleR1 = () => enviarComando({ r1: !r1Estado }, setLoadingR1);
-  const timerR1 = () => {
-    const val = parseInt(inputTimerR1);
-    if (!val || val <= 0) return;
-    const segs = unitR1 === 'min' ? val * 60 : val;
-    
-    // NO iniciamos setCountdownR1 aquí. Lo guardamos en ref.
-    pendingTimerR1.current = segs;
-    
-    enviarComando({ timerR1: segs }, setLoadingR1);
-    setInputTimerR1(''); Keyboard.dismiss();
-  };
-  const cancelarTimerR1 = () => {
-    setCountdownR1(0); 
-    pendingTimerR1.current = 0;
-    enviarComando({ timerR1: 0 }, setLoadingR1);
+  const toggleBomba = () => {
+    const comando = deviceId === 'esp32_esquejes' ? 'nebulizacion' : 
+                    deviceId === 'esp32_hidroponico' ? 'bomba' : 'r1';
+    enviarComando({ [comando]: !bombaEstado }, setLoadingBomba);
   };
 
-  // --- R2 ---
-  const toggleR2 = () => enviarComando({ r2: !r2Estado }, setLoadingR2);
-  const timerR2 = () => {
-    const val = parseInt(inputTimerR2);
-    if (!val || val <= 0) return;
-    const segs = unitR2 === 'min' ? val * 60 : val;
+  const toggleVent = () => {
+    enviarComando({ ventilacion: !ventEstado }, setLoadingVent);
+  };
+
+  const timerBomba = () => {
+    const val = parseInt(inputTimerBomba);
+    if (isNaN(val) || val <= 0) {
+      Alert.alert("Error", "Ingresa un valor válido");
+      return;
+    }
+    const secs = unitBomba === 'min' ? val * 60 : val;
+    pendingTimerBomba.current = secs;
     
-    // NO iniciamos setCountdownR2 aquí. Lo guardamos en ref.
-    pendingTimerR2.current = segs;
-
-    enviarComando({ timerR2: segs }, setLoadingR2);
-    setInputTimerR2(''); Keyboard.dismiss();
-  };
-  const cancelarTimerR2 = () => {
-    setCountdownR2(0);
-    pendingTimerR2.current = 0;
-    enviarComando({ timerR2: 0 }, setLoadingR2);
+    const comando = deviceId === 'esp32_esquejes' ? 'nebulizacion' : 
+                    deviceId === 'esp32_hidroponico' ? 'bomba' : 'r1';
+    enviarComando({ [comando]: true }, setLoadingBomba);
   };
 
-  const activarAutoMode = () => {
-      // Enviamos true a set_auto. El ESP32 lo leerá, activará su variable y borrará el comando.
-      update(ref(db, `/${deviceId}/comandos`), { set_auto: true })
-      .then(() => Alert.alert("Comando Enviado", "Modo Automático Reactivado"))
+  const cancelarTimerBomba = () => {
+    setCountdownBomba(0);
+    const comando = deviceId === 'esp32_esquejes' ? 'nebulizacion' : 
+                    deviceId === 'esp32_hidroponico' ? 'bomba' : 'r1';
+    enviarComando({ [comando]: false }, setLoadingBomba);
+  };
+
+  const toggleModoAuto = () => {
+    enviarComando({ set_auto: !modoManual });
+  };
+
+  /* ---------------- CONFIGURACIÓN ---------------- */
+  const guardarConfig = () => {
+    const cfg = {};
+    if (cfgTempMax && !isNaN(parseFloat(cfgTempMax))) cfg.temp_max = parseFloat(cfgTempMax);
+    if (cfgTempMin && !isNaN(parseFloat(cfgTempMin))) cfg.temp_min = parseFloat(cfgTempMin);
+    if (cfgHumMin && !isNaN(parseFloat(cfgHumMin))) cfg.hum_min = parseFloat(cfgHumMin);
+    if (cfgSoilMin && !isNaN(parseInt(cfgSoilMin))) cfg.soil_moisture_min = parseInt(cfgSoilMin);
+
+    if (Object.keys(cfg).length === 0) {
+        Alert.alert("Error", "Ingresa valores numéricos válidos");
+        return;
+    }
+
+    update(ref(db, `/${deviceId}/config`), cfg)
+      .then(() => Alert.alert("✓", "Configuración guardada"))
       .catch(e => Alert.alert("Error", e.message));
   };
 
-  const guardarConfig = () => {
-    const tAlta = parseFloat(cfgTempAlta);
-    const tBaja = parseFloat(cfgTempBaja);
-    const hBaja = parseFloat(cfgHumBaja);
-    if (isNaN(tAlta) || isNaN(tBaja) || isNaN(hBaja)) return;
-    update(ref(db, `/${deviceId}/config`), { tempAlta: tAlta, tempBaja: tBaja, humBaja: hBaja })
-      .then(() => { Alert.alert("Guardado", "Umbrales actualizados"); Keyboard.dismiss(); });
-  };
+  const guardarCiclo = () => {
+    const onVal = parseInt(cicloON);
+    const offVal = parseInt(cicloOFF);
 
-  // --- DATOS GRÁFICA (CORRECCIÓN 3: Intervalos de 20 min) ---
-  const processChartData = () => {
-    // 1. Obtener todas las claves ordenadas
-    const keys = Object.keys(histHora).sort((a, b) => Number(a) - Number(b));
-    if (keys.length === 0) return null;
-
-    // 2. Filtrar para tener intervalos de aprox 20 min
-    // Recorremos de atrás (más reciente) hacia adelante para asegurar el último dato
-    const filteredKeys = [];
-    let lastAddedTs = 0;
-    const INTERVAL_MS = 20 * 60 * 1000; // 20 minutos en milisegundos
-
-    for (let i = keys.length - 1; i >= 0; i--) {
-        const currentTs = Number(keys[i]);
-        
-        // Si es el primero (el más reciente) o la diferencia es >= 20 min
-        if (filteredKeys.length === 0 || (lastAddedTs - currentTs >= INTERVAL_MS)) {
-            filteredKeys.unshift(keys[i]); // Agregamos al principio para mantener orden cronológico
-            lastAddedTs = currentTs;
-        }
-
-        // Limitamos a 6 puntos para que se vea bien en pantalla
-        if (filteredKeys.length >= 6) break;
+    if (isNaN(onVal) || isNaN(offVal)) {
+        Alert.alert("Error", "Tiempos de ciclo inválidos");
+        return;
     }
 
-    // 3. Formatear datos filtrados
-    const labels = filteredKeys.map(key => {
-        let ts = Number(key);
-        if (ts < 10000000000) ts *= 1000; 
-        const date = new Date(ts);
-        return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-    });
+    const onMs = onVal * 1000;
+    const offMs = offVal * 60000;
 
-    const data = filteredKeys.map(key => {
-        const val = Number(histHora[key]?.temp);
-        return isNaN(val) ? 0 : val;
-    });
-
-    return { labels, datasets: [{ data }] };
+    update(ref(db, `/${deviceId}/config`), {
+      ciclo_on_ms: onMs,
+      ciclo_off_ms: offMs,
+      ciclo_habilitado: cicloHabilitado
+    })
+      .then(() => Alert.alert("✓", "Ciclo configurado"))
+      .catch(e => Alert.alert("Error", e.message));
   };
 
-  const chartData = processChartData();
+  /* ---------------- GRÁFICA ---------------- */
+  const chartData = React.useMemo(() => {
+    // Ordenar cronológicamente las claves (timestamps/fechas)
+    const entries = Object.entries(histHora)
+        .sort((a, b) => a[0].localeCompare(b[0]));
+    
+    // Si no hay suficientes datos para una línea, retornamos null
+    if (entries.length < 2) return null;
+    
+    return {
+      // Tomamos solo los últimos 6 puntos para que se vea bien en el ancho del celular
+      labels: entries.slice(-6).map(([k]) => k.slice(-2) + 'h'),
+      datasets: [{ 
+          data: entries.slice(-6).map(([, v]) => v.temp_promedio ?? v.temp ?? 0) 
+      }]
+    };
+  }, [histHora]);
 
+  /* ---------------- OBTENER INFO DEL DISPOSITIVO ACTUAL ---------------- */
+  const dispositivoActual = DISPOSITIVOS.find(d => d.id === deviceId);
+  const nombreBomba = deviceId === 'esp32_esquejes' ? 'Nebulización' :
+                      deviceId === 'esp32_hidroponico' ? 'Bomba NFT' : 'Riego';
+  const iconoBomba = deviceId === 'esp32_esquejes' ? 'water' :
+                     deviceId === 'esp32_hidroponico' ? 'pump' : 'sprinkler';
+
+  /* ---------------- RENDER ---------------- */
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F5F7FA" />
-
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      
+      {/* HEADER CON SELECTOR Y ESTADO ONLINE/OFFLINE */}
       <View style={styles.header}>
-        <Text style={styles.title}>AgroControl 🚜</Text>
-        <View style={[styles.badge, { borderColor: conectado ? '#4CAF50' : '#F44336' }]}>
-          <Text style={{ color: conectado ? '#4CAF50' : '#F44336', fontWeight: 'bold', fontSize: 10 }}>
+        <TouchableOpacity 
+          style={styles.deviceSelector}
+          onPress={() => setShowDeviceSelector(!showDeviceSelector)}
+        >
+          <MaterialCommunityIcons 
+            name={dispositivoActual?.icono || 'apps'} 
+            size={24} 
+            color={dispositivoActual?.color || '#333'} 
+          />
+          <View style={{marginLeft: 10}}>
+            <Text style={styles.title}>{dispositivoActual?.nombre || 'Dispositivo'}</Text>
+            <Text style={styles.subtitle}>{dispositivoActual?.descripcion}</Text>
+          </View>
+          <MaterialCommunityIcons 
+            name={showDeviceSelector ? "chevron-up" : "chevron-down"} 
+            size={20} 
+            color="#666" 
+          />
+        </TouchableOpacity>
+        
+        {/* INDICADOR DE CONEXIÓN */}
+        <View style={[
+          styles.badge,
+          { borderColor: conectado ? '#4CAF50' : '#F44336' }
+        ]}>
+          <View style={[
+            styles.statusDot,
+            { backgroundColor: conectado ? '#4CAF50' : '#F44336' }
+          ]} />
+          <Text style={{ fontSize: 11, color: conectado ? '#4CAF50' : '#F44336', fontWeight:'bold' }}>
             {conectado ? 'ONLINE' : 'OFFLINE'}
           </Text>
         </View>
       </View>
 
+      {/* LISTA DESPLEGABLE DE DISPOSITIVOS */}
+      {showDeviceSelector && (
+        <View style={styles.deviceList}>
+          {DISPOSITIVOS.map(disp => (
+            <TouchableOpacity
+              key={disp.id}
+              style={[
+                styles.deviceItem,
+                deviceId === disp.id && { backgroundColor: '#F0F2F5' }
+              ]}
+              onPress={() => {
+                setDeviceId(disp.id);
+                setShowDeviceSelector(false);
+              }}
+            >
+              <MaterialCommunityIcons name={disp.icono} size={28} color={disp.color} />
+              <View style={{marginLeft: 12, flex: 1}}>
+                <Text style={styles.deviceName}>{disp.nombre}</Text>
+                <Text style={styles.deviceDesc}>{disp.descripcion}</Text>
+              </View>
+              {deviceId === disp.id && (
+                <MaterialCommunityIcons name="check-circle" size={20} color={disp.color} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
       <ScrollView contentContainerStyle={styles.scroll}>
 
-        {/* SENSORES (Enteros) */}
+        {/* SENSORES */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Clima Tiempo Real</Text>
           <View style={styles.rowCenter}>
             <View style={styles.metric}>
-              <MaterialCommunityIcons name="thermometer" size={30} color={temp > 35 ? "#D32F2F" : "#2E7D32"} />
-              <Text style={styles.val}>{temp}°C</Text> 
+              <MaterialCommunityIcons 
+                name="thermometer" 
+                size={30} 
+                color={temp > 35 ? "#D32F2F" : "#2E7D32"} 
+              />
+              <Text style={styles.val}>{temp}°C</Text>
               <Text style={styles.lbl}>Temp</Text>
             </View>
-            <View style={{ width: 1, height: 40, backgroundColor: '#eee' }} />
+            
+            <View style={styles.separator} />
+            
             <View style={styles.metric}>
-              <MaterialCommunityIcons name="water-percent" size={30} color={hum < 40 ? "#D32F2F" : "#1976D2"} />
+              <MaterialCommunityIcons 
+                name="water-percent" 
+                size={30} 
+                color={hum < 40 ? "#D32F2F" : "#1976D2"} 
+              />
               <Text style={styles.val}>{hum}%</Text>
               <Text style={styles.lbl}>Humedad</Text>
             </View>
+            
+            {(deviceId === 'esp32_esquejes' || deviceId === 'esp32_germinacion') && (
+              <>
+                <View style={styles.separator} />
+                <View style={styles.metric}>
+                  <MaterialCommunityIcons 
+                    name="watering-can" 
+                    size={30} 
+                    color={humedadSuelo < 40 ? "#D32F2F" : "#2E7D32"} 
+                  />
+                  <Text style={styles.val}>{humedadSuelo}%</Text>
+                  <Text style={styles.lbl}>Sustrato</Text>
+                </View>
+              </>
+            )}
+            
+            {deviceId === 'esp32_hidroponico' && (
+              <>
+                <View style={styles.separator} />
+                <View style={styles.metric}>
+                  <MaterialCommunityIcons 
+                    name="coolant-temperature" 
+                    size={30} 
+                    color={tempAgua > 24 ? "#D32F2F" : "#1976D2"} 
+                  />
+                  <Text style={styles.val}>{tempAgua}°C</Text>
+                  <Text style={styles.lbl}>Agua</Text>
+                </View>
+                <View style={styles.separator} />
+                <View style={styles.metric}>
+                  <MaterialCommunityIcons 
+                    name={nivelAgua ? "water" : "water-off"} 
+                    size={30} 
+                    color={nivelAgua ? "#1976D2" : "#D32F2F"} 
+                  />
+                  <Text style={[styles.val, {fontSize: 14}]}>
+                    {nivelAgua ? 'OK' : 'BAJO'}
+                  </Text>
+                  <Text style={styles.lbl}>Nivel</Text>
+                </View>
+              </>
+            )}
           </View>
         </View>
+
+        {/* CICLOS AUTOMÁTICOS (Solo Esquejes) */}
+        {deviceId === 'esp32_esquejes' && (
+          <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#2196F3' }]}>
+            <Text style={styles.cardTitle}>⏱️ Ciclo Automático de Nebulización</Text>
+            <View style={styles.rowSpace}>
+              <View style={styles.cfgItem}>
+                <Text style={styles.lbl}>ON (seg)</Text>
+                <TextInput 
+                  style={styles.inpCfg} 
+                  value={cicloON} 
+                  onChangeText={setCicloON} 
+                  keyboardType="numeric" 
+                  placeholder="10" 
+                />
+              </View>
+              <View style={styles.cfgItem}>
+                <Text style={styles.lbl}>OFF (min)</Text>
+                <TextInput 
+                  style={styles.inpCfg} 
+                  value={cicloOFF} 
+                  onChangeText={setCicloOFF} 
+                  keyboardType="numeric" 
+                  placeholder="30" 
+                />
+              </View>
+              <View style={styles.cfgItem}>
+                <Text style={styles.lbl}>Activo</Text>
+                <Switch 
+                  value={cicloHabilitado} 
+                  onValueChange={setCicloHabilitado} 
+                  trackColor={{ false: "#ccc", true: "#90CAF9" }}
+                  thumbColor={cicloHabilitado ? "#2196F3" : "#f4f3f4"}
+                />
+              </View>
+            </View>
+            <TouchableOpacity style={[styles.btnSave, {backgroundColor: '#2196F3'}]} onPress={guardarCiclo}>
+              <Text style={{color:'#fff', fontWeight:'bold', fontSize:12}}>GUARDAR CICLO</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* CONFIGURACIÓN */}
         <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#FF9800' }]}>
-          <Text style={styles.cardTitle}>Configuración Automática</Text>
+          <Text style={styles.cardTitle}>⚙️ Configuración</Text>
           <View style={styles.rowSpace}>
             <View style={styles.cfgItem}>
               <Text style={styles.lbl}>Max T°</Text>
-              <TextInput style={styles.inpCfg} value={cfgTempAlta} onChangeText={setCfgTempAlta} keyboardType="numeric" placeholder="35" />
+              <TextInput 
+                style={styles.inpCfg} 
+                value={cfgTempMax} 
+                onChangeText={setCfgTempMax} 
+                keyboardType="numeric" 
+                placeholder="35" 
+              />
             </View>
             <View style={styles.cfgItem}>
               <Text style={styles.lbl}>Min T°</Text>
-              <TextInput style={styles.inpCfg} value={cfgTempBaja} onChangeText={setCfgTempBaja} keyboardType="numeric" placeholder="33" />
+              <TextInput 
+                style={styles.inpCfg} 
+                value={cfgTempMin} 
+                onChangeText={setCfgTempMin} 
+                keyboardType="numeric" 
+                placeholder="22" 
+              />
             </View>
             <View style={styles.cfgItem}>
               <Text style={styles.lbl}>Min Hum</Text>
-              <TextInput style={styles.inpCfg} value={cfgHumBaja} onChangeText={setCfgHumBaja} keyboardType="numeric" placeholder="40" />
+              <TextInput 
+                style={styles.inpCfg} 
+                value={cfgHumMin} 
+                onChangeText={setCfgHumMin} 
+                keyboardType="numeric" 
+                placeholder="70" 
+              />
             </View>
+            {(deviceId === 'esp32_esquejes' || deviceId === 'esp32_germinacion') && (
+              <View style={styles.cfgItem}>
+                <Text style={styles.lbl}>Min Suelo</Text>
+                <TextInput 
+                  style={styles.inpCfg} 
+                  value={cfgSoilMin} 
+                  onChangeText={setCfgSoilMin} 
+                  keyboardType="numeric" 
+                  placeholder="60" 
+                />
+              </View>
+            )}
           </View>
           <TouchableOpacity style={styles.btnSave} onPress={guardarConfig}>
-             <Text style={{color:'#fff', fontWeight:'bold', fontSize:12}}>GUARDAR</Text>
+            <Text style={{color:'#fff', fontWeight:'bold', fontSize:12}}>GUARDAR CONFIG</Text>
           </TouchableOpacity>
         </View>
 
-        {/* RIEGO */}
+        {/* CONTROL PRINCIPAL (BOMBA) */}
         <View style={styles.card}>
           <View style={styles.rowSpace}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaterialCommunityIcons name="sprinkler" size={24} color={r1Estado ? "#2E7D32" : "#ccc"} />
-                <Text style={[styles.cardTitle, {marginBottom:0, marginLeft:8}]}>Riego</Text>
-            </View>
-            {loadingR1 ? <ActivityIndicator color="#2E7D32" /> :
-              <Switch value={r1Estado} onValueChange={toggleR1} trackColor={{ false: "#ccc", true: "#A5D6A7" }} thumbColor={r1Estado ? "#2E7D32" : "#f4f3f4"} />
-            }
-          </View>
-
-          <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', backgroundColor:'#E8F5E9', padding:8, borderRadius:8, marginVertical:10}}>
-              <Text style={{color: autoMode ? '#2E7D32' : '#D32F2F', fontWeight:'bold', fontSize:12}}>
-                  {autoMode ? "🤖 MODO AUTOMÁTICO: ACTIVO" : "⚠️ MODO MANUAL (Auto Desactivado)"}
+              <MaterialCommunityIcons 
+                name={iconoBomba} 
+                size={24} 
+                color={bombaEstado ? dispositivoActual?.color : "#ccc"} 
+              />
+              <Text style={[styles.cardTitle, {marginBottom:0, marginLeft:8}]}>
+                {nombreBomba}
               </Text>
-              {!autoMode && (
-                  <TouchableOpacity onPress={activarAutoMode} style={{backgroundColor:'#2E7D32', paddingHorizontal:10, paddingVertical:4, borderRadius:4}}>
-                      <Text style={{color:'#fff', fontSize:10, fontWeight:'bold'}}>ACTIVAR</Text>
-                  </TouchableOpacity>
+            </View>
+            
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+              <View style={[
+                styles.modeBadge,
+                { backgroundColor: modoManual ? '#FF9800' : '#4CAF50' }
+              ]}>
+                <Text style={styles.modeText}>
+                  {modoManual ? 'MANUAL' : 'AUTO'}
+                </Text>
+              </View>
+              
+              {loadingBomba ? (
+                <ActivityIndicator color={dispositivoActual?.color} />
+              ) : (
+                <Switch 
+                  value={bombaEstado} 
+                  onValueChange={toggleBomba} 
+                  trackColor={{ false: "#ccc", true: "#A5D6A7" }} 
+                  thumbColor={bombaEstado ? dispositivoActual?.color : "#f4f3f4"} 
+                />
               )}
+            </View>
           </View>
           
           <View style={styles.timerBox}>
-             <Text style={{fontSize:12, marginBottom:5, color: countdownR1 > 0 ? '#D32F2F' : '#666'}}>
-               {countdownR1 > 0 ? `⏳ Apagado en: ${countdownR1}s` : "Temporizador:"}
-             </Text>
-             <View style={styles.rowSpace}>
-                <TextInput 
-                   style={[styles.inpTimer, countdownR1 > 0 && {backgroundColor:'#eee'}]} 
-                   value={inputTimerR1} 
-                   onChangeText={setInputTimerR1} 
-                   keyboardType="numeric" 
-                   placeholder="0"
-                   editable={countdownR1 === 0}
+            <Text style={{fontSize:12, marginBottom:5, color: countdownBomba > 0 ? '#D32F2F' : '#666'}}>
+              {countdownBomba > 0 ? `⏳ Apagado en: ${countdownBomba}s` : "Temporizador:"}
+            </Text>
+            <View style={styles.rowSpace}>
+              <TextInput 
+                style={[styles.inpTimer, countdownBomba > 0 && {backgroundColor:'#eee'}]} 
+                value={inputTimerBomba} 
+                onChangeText={setInputTimerBomba} 
+                keyboardType="numeric" 
+                placeholder="0"
+                editable={countdownBomba === 0}
+              />
+              <View style={styles.unitSel}>
+                <UnitBtn u={unitBomba} v="min" set={setUnitBomba} />
+                <UnitBtn u={unitBomba} v="sec" set={setUnitBomba} />
+              </View>
+              <TouchableOpacity 
+                style={[
+                  styles.btnGo, 
+                  { backgroundColor: countdownBomba > 0 ? '#D32F2F' : dispositivoActual?.color }
+                ]} 
+                onPress={countdownBomba > 0 ? cancelarTimerBomba : timerBomba}
+              >
+                <MaterialCommunityIcons 
+                  name={countdownBomba > 0 ? "stop" : "play"} 
+                  size={20} 
+                  color="#fff" 
                 />
-                <View style={styles.unitSel}>
-                   <UnitBtn u={unitR1} v="min" set={setUnitR1} />
-                   <UnitBtn u={unitR1} v="sec" set={setUnitR1} />
-                </View>
-                <TouchableOpacity 
-                   style={[styles.btnGo, countdownR1 > 0 && { backgroundColor: '#D32F2F' }]} 
-                   onPress={countdownR1 > 0 ? cancelarTimerR1 : timerR1}
-                >
-                   <MaterialCommunityIcons name={countdownR1 > 0 ? "stop" : "play"} size={20} color="#fff" />
-                </TouchableOpacity>
-             </View>
-          </View>
-        </View>
-
-        {/* VENTILACIÓN */}
-        <View style={styles.card}>
-          <View style={styles.rowSpace}>
-            <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaterialCommunityIcons name="fan" size={24} color={r2Estado ? "#1976D2" : "#ccc"} />
-                <Text style={[styles.cardTitle, {marginBottom:0, marginLeft:8}]}>Ventilación</Text>
+              </TouchableOpacity>
             </View>
-            {loadingR2 ? <ActivityIndicator color="#1976D2" /> :
-              <Switch value={r2Estado} onValueChange={toggleR2} trackColor={{ false: "#ccc", true: "#90CAF9" }} thumbColor={r2Estado ? "#1976D2" : "#f4f3f4"} />
-            }
           </View>
-          <View style={styles.timerBox}>
-             <Text style={{fontSize:12, marginBottom:5, color: countdownR2 > 0 ? '#1976D2' : '#666'}}>
-               {countdownR2 > 0 ? `⏳ Apagado en: ${countdownR2}s` : "Temporizador:"}
-             </Text>
-             <View style={styles.rowSpace}>
-                <TextInput 
-                   style={[styles.inpTimer, countdownR2 > 0 && {backgroundColor:'#eee'}]} 
-                   value={inputTimerR2} 
-                   onChangeText={setInputTimerR2} 
-                   keyboardType="numeric" 
-                   placeholder="0"
-                   editable={countdownR2 === 0}
-                />
-                <View style={styles.unitSel}>
-                   <UnitBtn u={unitR2} v="min" set={setUnitR2} />
-                   <UnitBtn u={unitR2} v="sec" set={setUnitR2} />
-                </View>
-                <TouchableOpacity 
-                   style={[styles.btnGo, {backgroundColor: countdownR2 > 0 ? '#D32F2F' : '#1976D2'}]} 
-                   onPress={countdownR2 > 0 ? cancelarTimerR2 : timerR2}
-                >
-                   <MaterialCommunityIcons name={countdownR2 > 0 ? "stop" : "play"} size={20} color="#fff" />
-                </TouchableOpacity>
-             </View>
-          </View>
+          
+          <TouchableOpacity 
+            style={[styles.btnMode, { backgroundColor: modoManual ? '#4CAF50' : '#FF9800' }]}
+            onPress={toggleModoAuto}
+          >
+            <MaterialCommunityIcons 
+              name={modoManual ? "auto-fix" : "hand-back-right"} 
+              size={16} 
+              color="#fff" 
+            />
+            <Text style={styles.btnModeText}>
+              {modoManual ? 'Cambiar a AUTOMÁTICO' : 'Cambiar a MANUAL'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* HISTÓRICO (20 min) */}
+        {/* VENTILACIÓN (Solo Esquejes) */}
+        {deviceId === 'esp32_esquejes' && (
+          <View style={styles.card}>
+            <View style={styles.rowSpace}>
+              <View style={{flexDirection:'row', alignItems:'center'}}>
+                <MaterialCommunityIcons 
+                  name="fan" 
+                  size={24} 
+                  color={ventEstado ? "#1976D2" : "#ccc"} 
+                />
+                <Text style={[styles.cardTitle, {marginBottom:0, marginLeft:8}]}>
+                  Ventilación
+                </Text>
+              </View>
+              {loadingVent ? (
+                <ActivityIndicator color="#1976D2" />
+              ) : (
+                <Switch 
+                  value={ventEstado} 
+                  onValueChange={toggleVent} 
+                  trackColor={{ false: "#ccc", true: "#90CAF9" }} 
+                  thumbColor={ventEstado ? "#1976D2" : "#f4f3f4"} 
+                />
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* HISTÓRICO OPTIMIZADO */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Histórico Temp (Cada ~20 min)</Text>
+          <Text style={styles.cardTitle}>📊 Histórico Temp (Últimas 24h)</Text>
           {chartData ? (
             <LineChart
               data={chartData}
               width={Dimensions.get('window').width - 60}
               height={200}
               yAxisSuffix="°C"
-              fromZero={false} 
-              segments={4} 
+              fromZero={false}
+              segments={4}
               chartConfig={{
-                backgroundColor: '#fff', 
-                backgroundGradientFrom: '#fff', 
+                backgroundColor: '#fff',
+                backgroundGradientFrom: '#fff',
                 backgroundGradientTo: '#fff',
-                decimalPlaces: 1, // Mantiene 1 decimal en la gráfica para precisión visual
+                decimalPlaces: 1,
                 color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
-                labelColor: () => `#333`, 
-                propsForDots: { r: '4', strokeWidth: '2', stroke: '#2E7D32' },
+                labelColor: () => `#333`,
+                propsForDots: { r: '4', strokeWidth: '2', stroke: dispositivoActual?.color },
                 style: { borderRadius: 16 }
               }}
               bezier
@@ -464,7 +744,7 @@ export default function AgroControlScreen() {
             />
           ) : (
             <Text style={{ textAlign: 'center', padding: 20, color: '#aaa', fontSize:12 }}>
-                Recopilando datos históricos...
+              Esperando datos del historial...
             </Text>
           )}
         </View>
@@ -474,32 +754,219 @@ export default function AgroControlScreen() {
   );
 }
 
+/* ---------------- COMPONENTES AUXILIARES ---------------- */
 const UnitBtn = ({ u, v, set }) => (
-  <TouchableOpacity style={[styles.ubtn, u === v && styles.ubtnA]} onPress={() => set(v)}>
-    <Text style={{ fontSize: 10, color: u === v ? '#fff' : '#333' }}>{v.toUpperCase()}</Text>
+  <TouchableOpacity 
+    style={[styles.ubtn, u === v && styles.ubtnA]} 
+    onPress={() => set(v)}
+  >
+    <Text style={{ fontSize: 10, color: u === v ? '#fff' : '#333' }}>
+      {v.toUpperCase()}
+    </Text>
   </TouchableOpacity>
 );
 
+/* ---------------- ESTILOS ---------------- */
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F0F2F5' },
-  header: { padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', elevation: 2 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#333' },
-  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, borderWidth: 1 },
-  scroll: { padding: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, elevation: 2 },
-  cardTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 12, color: '#333' },
-  rowCenter: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
-  rowSpace: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  metric: { alignItems: 'center' },
-  val: { fontSize: 22, fontWeight: 'bold', color: '#333' },
-  lbl: { fontSize: 11, color: '#666' },
-  cfgItem: { flex: 1, alignItems: 'center', marginHorizontal: 4 },
-  inpCfg: { borderWidth: 1, borderColor: '#FFB74D', borderRadius: 8, width: '100%', textAlign: 'center', height: 40, backgroundColor:'#FFF8E1' },
-  btnSave: { backgroundColor: '#FF9800', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 15 },
-  timerBox: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
-  inpTimer: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, flex: 1, height: 40, textAlign: 'center', backgroundColor: '#f9f9f9', marginRight: 8 },
-  unitSel: { flexDirection: 'row', backgroundColor: '#eee', borderRadius: 8, padding: 2, marginRight: 8 },
-  ubtn: { paddingVertical: 8, paddingHorizontal: 8, borderRadius: 6 },
-  ubtnA: { backgroundColor: '#333' },
-  btnGo: { backgroundColor: '#2E7D32', width: 40, height: 40, borderRadius: 8, justifyContent: 'center', alignItems: 'center' }
+  safeArea: { 
+    flex: 1, 
+    backgroundColor: '#F0F2F5' 
+  },
+  header: { 
+    padding: 16, 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    backgroundColor: '#fff', 
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4
+  },
+  deviceSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1
+  },
+  title: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#333' 
+  },
+  subtitle: {
+    fontSize: 11,
+    color: '#666',
+    marginTop: 2
+  },
+  badge: { 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    borderRadius: 16, 
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5
+  },
+  deviceList: {
+    backgroundColor: '#fff',
+    elevation: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee'
+  },
+  deviceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0'
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333'
+  },
+  deviceDesc: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2
+  },
+  scroll: { 
+    padding: 16 
+  },
+  card: { 
+    backgroundColor: '#fff', 
+    borderRadius: 12, 
+    padding: 16, 
+    marginBottom: 16, 
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3
+  },
+  cardTitle: { 
+    fontWeight: 'bold', 
+    fontSize: 16, 
+    marginBottom: 12, 
+    color: '#333' 
+  },
+  rowCenter: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-around', 
+    alignItems: 'center' 
+  },
+  rowSpace: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center' 
+  },
+  metric: { 
+    alignItems: 'center' 
+  },
+  separator: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#eee'
+  },
+  val: { 
+    fontSize: 22, 
+    fontWeight: 'bold', 
+    color: '#333',
+    marginTop: 4
+  },
+  lbl: { 
+    fontSize: 11, 
+    color: '#666',
+    marginTop: 2
+  },
+  cfgItem: { 
+    flex: 1, 
+    alignItems: 'center', 
+    marginHorizontal: 4 
+  },
+  inpCfg: { 
+    borderWidth: 1, 
+    borderColor: '#FFB74D', 
+    borderRadius: 8, 
+    width: '100%', 
+    textAlign: 'center', 
+    height: 40, 
+    backgroundColor:'#FFF8E1',
+    marginTop: 4
+  },
+  btnSave: { 
+    backgroundColor: '#FF9800', 
+    padding: 12, 
+    borderRadius: 8, 
+    alignItems: 'center', 
+    marginTop: 15 
+  },
+  timerBox: { 
+    marginTop: 10, 
+    paddingTop: 10, 
+    borderTopWidth: 1, 
+    borderTopColor: '#f0f0f0' 
+  },
+  inpTimer: { 
+    borderWidth: 1, 
+    borderColor: '#ddd', 
+    borderRadius: 8, 
+    flex: 1, 
+    height: 40, 
+    textAlign: 'center', 
+    backgroundColor: '#f9f9f9', 
+    marginRight: 8 
+  },
+  unitSel: { 
+    flexDirection: 'row', 
+    backgroundColor: '#eee', 
+    borderRadius: 8, 
+    padding: 2, 
+    marginRight: 8 
+  },
+  ubtn: { 
+    paddingVertical: 8, 
+    paddingHorizontal: 8, 
+    borderRadius: 6 
+  },
+  ubtnA: { 
+    backgroundColor: '#333' 
+  },
+  btnGo: { 
+    width: 40, 
+    height: 40, 
+    borderRadius: 8, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  modeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8
+  },
+  modeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  btnMode: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+    gap: 6
+  },
+  btnModeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600'
+  }
 });
