@@ -234,19 +234,16 @@ export default function HomeScreen({ navigation }) {
         }
         await AsyncStorage.setItem(storageKey, JSON.stringify(historial));
 
-        // Extraer riesgos del formato de Firebase
-        const riesgosConfig = [];
-        if (cultivo.riesgos_detallados) {
-            Object.keys(cultivo.riesgos_detallados).forEach(key => {
-                const r = cultivo.riesgos_detallados[key];
-                riesgosConfig.push({
-                    nombre: key,
-                    metodo: "PROMEDIO",
-                    umbral_base: r.gdd_base || 10,
-                    gdd_requeridos: r.gdd_requeridos || 100
-                });
-            });
-        }
+        // Usamos la función importada que ya sabe leer tu estructura JSON compleja
+        const riesgosRaw = cargarRiesgosDesdeJSON(cultivo); 
+
+        const riesgosConfig = riesgosRaw.map(r => ({
+            nombre: r.nombre,
+            metodo: "PROMEDIO", 
+            // Mapeamos desde la estructura limpia que devuelve cargarRiesgosDesdeJSON
+            umbral_base: r.ciclo_desarrollo.grados_dia_desarrollo.base_termica,
+            gdd_requeridos: r.ciclo_desarrollo.grados_dia_desarrollo.gdd_ciclo_completo
+        }));
 
         if (riesgosConfig.length === 0) {
             setAlertasGDD([]);
