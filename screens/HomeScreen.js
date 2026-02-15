@@ -215,7 +215,8 @@ export default function HomeScreen({ navigation }) {
         const historialStr = await AsyncStorage.getItem(storageKey);
         let historial = historialStr ? JSON.parse(historialStr) : [];
         
-        const hoy = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const hoy = now.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD local
         const indexExistente = historial.findIndex(d => d.fecha === hoy);
       
         if (indexExistente !== -1) {
