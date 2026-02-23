@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, 
-  Alert, ActivityIndicator, Keyboard, Share
+  Alert, ActivityIndicator, Keyboard, Platform
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
@@ -9,7 +9,7 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system'; 
 import { supabase } from '../src/services/supabaseClient'; 
 
-// --- CONSTANTES ---
+// --- 1. DATOS ESTÁTICOS ---
 const ESTADOS_MX = [
   "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
   "Coahuila", "Colima", "Chiapas", "Chihuahua", "Ciudad de México", 
@@ -35,7 +35,7 @@ const METRICAS_DISPONIBLES = [
     { id: 'valor', label: 'Valor Producción', key: 'valorproduccion' },
 ];
 
-// --- COMPONENTE AUTOCOMPLETE ---
+// --- 2. COMPONENTE AUTOCOMPLETE MEJORADO ---
 const FiltroAutocomplete = ({ 
     label, valor, setValor, opciones = [], zIndex = 1, 
     placeholder = "Seleccionar...", isMulti = false,
@@ -45,7 +45,9 @@ const FiltroAutocomplete = ({
     const isOpen = openMenu === id;
 
     const filtrar = (texto) => {
-        const matches = opciones.filter(op => op && op.toString().toLowerCase().includes(texto.toLowerCase()));
+        const matches = opciones.filter(op => 
+            op && op.toString().toLowerCase().includes(texto.toLowerCase())
+        );
         setSugerencias(matches);
         setOpenMenu(id);
         if (!isMulti) setValor(texto);
@@ -65,7 +67,7 @@ const FiltroAutocomplete = ({
     };
 
     return (
-        <View style={{ marginBottom: 15, zIndex: isOpen ? 10000 : zIndex, position: 'relative' }}>
+        <View style={[styles.filterWrapper, { zIndex: isOpen ? 1000 : zIndex }]}>
             <Text style={styles.label}>{label}</Text>
             <View style={styles.inputContainer}>
                 <TextInput 
@@ -73,34 +75,49 @@ const FiltroAutocomplete = ({
                     value={isMulti ? valor.join(', ') : valor} 
                     onChangeText={filtrar}
                     placeholder={placeholder}
+                    placeholderTextColor="#999"
                     onFocus={() => {
                         setSugerencias(opciones);
                         setOpenMenu(id);
                     }}
                 />
-                {valor.length > 0 && (
-                    <TouchableOpacity onPress={() => { setValor(isMulti ? [] : ''); setOpenMenu(null); }} style={styles.clearBtn}>
+                {(isMulti ? valor.length > 0 : valor !== '') && (
+                    <TouchableOpacity 
+                        onPress={() => { setValor(isMulti ? [] : ''); setOpenMenu(null); }} 
+                        style={styles.clearBtn}
+                    >
                         <MaterialCommunityIcons name="close-circle" size={20} color="#ccc" />
                     </TouchableOpacity>
                 )}
             </View>
-            {isOpen && sugerencias.length > 0 && (
+            
+            {isOpen && (
                 <View style={styles.dropdownList}>
-                    <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="always" style={{maxHeight: 200}}>
-                        {sugerencias.slice(0, 32).map((item, index) => (
-                            <TouchableOpacity 
-                                key={index} 
-                                style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
-                                onPress={() => seleccionar(item)}
-                            >
-                                <Text style={isMulti && valor.includes(item) ? {color: '#2E7D32', fontWeight: 'bold'} : {}}>{item}</Text>
-                                {isMulti && valor.includes(item) && <MaterialCommunityIcons name="check" size={18} color="#2E7D32" />}
-                            </TouchableOpacity>
-                        ))}
+                    <ScrollView 
+                        nestedScrollEnabled={true} 
+                        keyboardShouldPersistTaps="always" 
+                        style={{maxHeight: 200}}
+                    >
+                        {sugerencias.length > 0 ? (
+                            sugerencias.slice(0, 50).map((item, index) => (
+                                <TouchableOpacity 
+                                    key={index} 
+                                    style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
+                                    onPress={() => seleccionar(item)}
+                                >
+                                    <Text style={[styles.itemText, isMulti && valor.includes(item) && styles.itemTextActive]}>
+                                        {item}
+                                    </Text>
+                                    {isMulti && valor.includes(item) && <MaterialCommunityIcons name="check" size={18} color="#2E7D32" />}
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noResults}>Sin resultados</Text>
+                        )}
                     </ScrollView>
                     {isMulti && (
                         <TouchableOpacity style={styles.btnCloseMulti} onPress={() => setOpenMenu(null)}>
-                            <Text style={{color: '#fff', textAlign: 'center', fontWeight: 'bold'}}>CONFIRMAR</Text>
+                            <Text style={styles.btnCloseText}>CONFIRMAR SELECCIÓN</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -109,6 +126,7 @@ const FiltroAutocomplete = ({
     );
 };
 
+// --- 3. PANTALLA PRINCIPAL ---
 export default function ReporteAvanzadoScreen() {
   const [openMenu, setOpenMenu] = useState(null);
   const [filtros, setFiltros] = useState({
@@ -120,12 +138,12 @@ export default function ReporteAvanzadoScreen() {
     modalidad: '',
   });
 
-  const [metricasSeleccionadas, setMetricasSeleccionadas] = useState(['valor', 'volumen', 'rendimiento']);
+  const [metricasSeleccionadas, setMetricasSeleccionadas] = useState(['valor', 'volumen', 'sembrada']);
   const [nivelDesglose, setNivelDesglose] = useState("Por Cultivo");
   const [listaCultivos, setListaCultivos] = useState([]);
   const [listaMunicipios, setListaMunicipios] = useState([]);
   const [resultados, setResultados] = useState([]); 
-  const [resumenGeneral, setResumenGeneral] = useState(null);
+  const [resumenGeneral, setResumenGeneral] = useState({ val: 0, vol: 0, sem: 0, cos: 0 });
   const [variacionFinal, setVariacionFinal] = useState(null);
   const [cargando, setCargando] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
@@ -156,7 +174,6 @@ export default function ReporteAvanzadoScreen() {
 
   const consultarBaseDatos = async () => {
     if (metricasSeleccionadas.length === 0) return Alert.alert("Error", "Selecciona al menos una métrica.");
-    
     setCargando(true);
     setMostrarTabla(false);
     setOpenMenu(null);
@@ -170,31 +187,29 @@ export default function ReporteAvanzadoScreen() {
       if (filtros.ciclo) query = query.ilike('nomcicloproductivo', `%${filtros.ciclo}%`);
       if (filtros.modalidad) query = query.ilike('nommodalidad', `%${filtros.modalidad}%`);
       
-      const { data, error } = await query;
+      const { data, error } = await query.limit(5000);
       if (error) throw error;
       if (!data || data.length === 0) {
-        Alert.alert("Aviso", "No se encontraron datos con esos filtros.");
+        Alert.alert("Aviso", "No hay datos para esta consulta.");
       } else {
-        procesarDatos(data);
+        procesarTodo(data);
       }
     } catch (error) {
-      Alert.alert("Error de conexión", error.message);
+      Alert.alert("Error", error.message);
     } finally {
       setCargando(false);
     }
   };
 
-  const procesarDatos = (data) => {
+  const procesarTodo = (data) => {
     const keyField = nivelDesglose === "Estatal" ? 'nomestado' : 
                      nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
 
-    // Agrupación y Resumen
     const totals = { val: 0, vol: 0, sem: 0, cos: 0 };
     const grouped = data.reduce((acc, item) => {
         const id = `${item[keyField]}-${item.anio}`;
-        if (!acc[id]) {
-            acc[id] = { ...item, valorproduccion: 0, sembrada: 0, siniestrada: 0, volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 };
-        }
+        if (!acc[id]) acc[id] = { ...item, valorproduccion: 0, sembrada: 0, siniestrada: 0, volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 };
+        
         acc[id].valorproduccion += (item.valorproduccion || 0);
         acc[id].sembrada += (item.sembrada || 0);
         acc[id].siniestrada += (item.siniestrada || 0);
@@ -213,17 +228,15 @@ export default function ReporteAvanzadoScreen() {
     const listaFinal = Object.values(grouped).map(i => ({
         ...i,
         rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
-        preciomediorural: i.sumPrecio / i.counter
+        preciomediorural: i.sumPrecio / i.counter,
+        percSiniestro: (i.siniestrada / i.sembrada) * 100 || 0
     })).sort((a,b) => b.anio - a.anio || b.valorproduccion - a.valorproduccion);
 
-    // Variación interanual
     if (filtros.anio.length > 1) {
-        const aniosSorted = [...filtros.anio].sort((a, b) => a - b);
-        const a1 = aniosSorted[0];
-        const a2 = aniosSorted[aniosSorted.length - 1];
-        const v1 = data.filter(d => d.anio == a1).reduce((s, c) => s + c.valorproduccion, 0);
-        const v2 = data.filter(d => d.anio == a2).reduce((s, c) => s + c.valorproduccion, 0);
-        setVariacionFinal({ i: a1, f: a2, p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0 });
+        const aniosS = [...filtros.anio].sort();
+        const v1 = data.filter(d => d.anio == aniosS[0]).reduce((s, c) => s + c.valorproduccion, 0);
+        const v2 = data.filter(d => d.anio == aniosS[aniosS.length-1]).reduce((s, c) => s + c.valorproduccion, 0);
+        setVariacionFinal({ i: aniosS[0], f: aniosS[aniosS.length-1], p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0 });
     } else {
         setVariacionFinal(null);
     }
@@ -233,60 +246,57 @@ export default function ReporteAvanzadoScreen() {
     setMostrarTabla(true);
   };
 
-  const formatVal = (v, id) => {
-    if (id === 'valor' || id === 'precio') return '$' + Math.round(v).toLocaleString();
-    return v.toLocaleString(undefined, {maximumFractionDigits: 1});
-  };
+  const formatMoney = (n) => '$' + Math.round(n || 0).toLocaleString('es-MX');
+  const formatNum = (n) => (n || 0).toLocaleString('es-MX', { maximumFractionDigits: 1 });
 
-  // --- FUNCIONES DE EXPORTACIÓN (RESTAURADAS) ---
-  const exportarPDF = async () => {
-    const rows = resultados.map(r => `
-      <tr>
-        <td>${r.anio}</td>
-        <td>${nivelDesglose === "Por Cultivo" ? r.nomcultivo : (r.nommunicipio || r.nomestado)}</td>
-        ${metricasSeleccionadas.map(m => `<td>${formatVal(r[METRICAS_DISPONIBLES.find(x=>x.id===m).key], m)}</td>`).join('')}
-      </tr>`).join('');
-
-    const html = `
-      <html>
-        <style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; font-size: 10px; }</style>
-        <body>
-          <h2>Reporte SIACON - Desglose ${nivelDesglose}</h2>
-          <table>
-            <tr style="background: #f2f2f2">
-              <th>Año</th><th>Nombre</th>
-              ${metricasSeleccionadas.map(m => `<th>${METRICAS_DISPONIBLES.find(x=>x.id===m).label}</th>`).join('')}
-            </tr>
-            ${rows}
-          </table>
-        </body>
-      </html>`;
+  const handlePDF = async () => {
+    const html = `<html><body style="font-family:sans-serif; padding: 20px;">
+      <h2 style="color:#2E7D32;">Reporte SIACON - Desglose ${nivelDesglose}</h2>
+      <p>Periodo: ${filtros.anio.join(', ')}</p>
+      <table style="width:100%; border-collapse:collapse;">
+        <tr style="background:#455A64; color:white;">
+          <th style="padding:8px; border:1px solid #ccc;">Año</th>
+          <th style="padding:8px; border:1px solid #ccc;">Descripción</th>
+          ${metricasSeleccionadas.map(m => `<th style="padding:8px; border:1px solid #ccc;">${METRICAS_DISPONIBLES.find(x=>x.id===m).label}</th>`).join('')}
+        </tr>
+        ${resultados.slice(0, 500).map(r => `<tr>
+          <td style="padding:8px; border:1px solid #ccc;">${r.anio}</td>
+          <td style="padding:8px; border:1px solid #ccc;">${nivelDesglose === "Por Cultivo" ? r.nomcultivo : (r.nommunicipio || r.nomestado)}</td>
+          ${metricasSeleccionadas.map(m => `<td style="padding:8px; border:1px solid #ccc; text-align:right;">${formatNum(r[METRICAS_DISPONIBLES.find(x=>x.id===m).key])}</td>`).join('')}
+        </tr>`).join('')}
+      </table>
+    </body></html>`;
     const { uri } = await Print.printToFileAsync({ html });
     await Sharing.shareAsync(uri);
   };
 
-  const exportarExcel = async () => {
-    let csv = `Año,Nombre,${metricasSeleccionadas.map(m => METRICAS_DISPONIBLES.find(x=>x.id===m).label).join(',')}\n`;
+  const handleExcel = async () => {
+    let csv = `Año,Descripción,${metricasSeleccionadas.map(m => METRICAS_DISPONIBLES.find(x=>x.id===m).label).join(',')}\n`;
     resultados.forEach(r => {
-        const nombre = nivelDesglose === "Por Cultivo" ? r.nomcultivo : (r.nommunicipio || r.nomestado);
+        const desc = nivelDesglose === "Por Cultivo" ? r.nomcultivo : (r.nommunicipio || r.nomestado);
         const vals = metricasSeleccionadas.map(m => r[METRICAS_DISPONIBLES.find(x=>x.id===m).key]);
-        csv += `${r.anio},${nombre},${vals.join(',')}\n`;
+        csv += `${r.anio},"${desc}",${vals.join(',')}\n`;
     });
-    const path = `${FileSystem.documentDirectory}Reporte_SIACON.csv`;
-    await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
-    await Sharing.shareAsync(path);
+    const uri = FileSystem.cacheDirectory + "Reporte_SIACON.csv";
+    await FileSystem.writeAsStringAsync(uri, csv, { encoding: 'utf8' });
+    await Sharing.shareAsync(uri);
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+      <ScrollView 
+        contentContainerStyle={styles.scroll} 
+        nestedScrollEnabled={true} 
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
-          <MaterialCommunityIcons name="file-chart" size={40} color="#2E7D32" />
-          <Text style={styles.title}>Reporte Detallado</Text>
+          <MaterialCommunityIcons name="finance" size={40} color="#2E7D32" />
+          <Text style={styles.title}>SIACON BI</Text>
+          <Text style={styles.subtitle}>Análisis Multianual y Regional</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Nivel de Consulta</Text>
+          <Text style={styles.sectionTitle}>1. Nivel de Desglose</Text>
           <View style={styles.tabContainer}>
               {NIVELES_DESGLOSE.map((tab) => (
                   <TouchableOpacity key={tab} style={[styles.tab, nivelDesglose === tab && styles.tabActive]} onPress={() => setNivelDesglose(tab)}>
@@ -297,16 +307,17 @@ export default function ReporteAvanzadoScreen() {
 
           <View style={styles.row}>
              <View style={{flex: 1, marginRight: 5}}>
-                <FiltroAutocomplete id="anio" label="Años" valor={filtros.anio} setValor={(v) => setFiltros({...filtros, anio: v})} opciones={ANIOS} isMulti openMenu={openMenu} setOpenMenu={setOpenMenu} />
+                <FiltroAutocomplete id="anio" label="Años" valor={filtros.anio} setValor={(v) => setFiltros({...filtros, anio: v})} opciones={ANIOS} isMulti={true} zIndex={100} openMenu={openMenu} setOpenMenu={setOpenMenu} />
              </View>
              <View style={{flex: 1.2, marginLeft: 5}}>
-                <FiltroAutocomplete id="cultivo" label="Cultivo" valor={filtros.cultivo} setValor={(t) => setFiltros({...filtros, cultivo: t})} opciones={listaCultivos} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+                <FiltroAutocomplete id="cultivo" label="Cultivo" valor={filtros.cultivo} setValor={(t) => setFiltros({...filtros, cultivo: t})} opciones={listaCultivos} zIndex={100} openMenu={openMenu} setOpenMenu={setOpenMenu} />
              </View>
           </View>
 
-          <FiltroAutocomplete id="estado" label="Estados" valor={filtros.estado} setValor={(v) => setFiltros({...filtros, estado: v})} opciones={ESTADOS_MX} isMulti openMenu={openMenu} setOpenMenu={setOpenMenu} />
+          <FiltroAutocomplete id="estado" label="Estado(s)" valor={filtros.estado} setValor={(v) => setFiltros({...filtros, estado: v})} opciones={ESTADOS_MX} isMulti={true} zIndex={90} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+          <FiltroAutocomplete id="municipio" label="Municipio" valor={filtros.municipio} setValor={(t) => setFiltros({...filtros, municipio: t})} opciones={listaMunicipios} zIndex={80} openMenu={openMenu} setOpenMenu={setOpenMenu} />
           
-          <Text style={styles.sectionTitle}>Selecciona Datos a Visualizar</Text>
+          <Text style={styles.sectionTitle}>2. Datos a Mostrar</Text>
           <View style={styles.metricsGrid}>
             {METRICAS_DISPONIBLES.map(m => (
                 <TouchableOpacity key={m.id} style={[styles.metricChip, metricasSeleccionadas.includes(m.id) && styles.metricChipActive]} onPress={() => toggleMetrica(m.id)}>
@@ -316,70 +327,70 @@ export default function ReporteAvanzadoScreen() {
           </View>
 
           <TouchableOpacity style={styles.btnConsultar} onPress={consultarBaseDatos} disabled={cargando}>
-            {cargando ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>GENERAR INFORME DETALLADO</Text>}
+            {cargando ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>ANALIZAR DATOS</Text>}
           </TouchableOpacity>
         </View>
 
         {mostrarTabla && (
             <View style={{ marginTop: 20 }}>
-                {/* RESUMEN GENERAL (Restaurado) */}
                 <View style={styles.summaryCard}>
-                    <Text style={styles.summaryTitle}>Resumen de Selección</Text>
+                    <Text style={styles.summaryTitle}>Resumen Ejecutivo</Text>
                     <View style={styles.summaryRow}>
                         <View style={styles.summaryItem}>
                             <Text style={styles.summaryLabel}>VALOR TOTAL</Text>
-                            <Text style={styles.summaryValueMoney}>${Math.round(resumenGeneral.val/1000000).toLocaleString()}M</Text>
+                            <Text style={styles.summaryValueMoney}>{formatMoney(resumenGeneral.val)}</Text>
                         </View>
                         <View style={styles.summaryItem}>
-                            <Text style={styles.summaryLabel}>VOLUMEN</Text>
-                            <Text style={styles.summaryValue}>{Math.round(resumenGeneral.vol).toLocaleString()} t</Text>
+                            <Text style={styles.summaryLabel}>SUPERFICIE SEMB.</Text>
+                            <Text style={styles.summaryValue}>{formatNum(resumenGeneral.sem)} Ha</Text>
                         </View>
                     </View>
                     {variacionFinal && (
-                        <View style={styles.variacionBox}>
-                            <Text style={styles.variacionText}>Variación {variacionFinal.i}-{variacionFinal.f}: </Text>
-                            <Text style={[styles.variacionText, {fontWeight: 'bold', color: variacionFinal.p >= 0 ? '#81C784' : '#ff8a80'}]}>
+                        <View style={styles.varBox}>
+                            <Text style={styles.varLabel}>Variación {variacionFinal.i}-{variacionFinal.f}: </Text>
+                            <Text style={[styles.varValue, {color: variacionFinal.p >= 0 ? '#81C784' : '#ff8a80'}]}>
                                 {variacionFinal.p > 0 ? '+' : ''}{variacionFinal.p.toFixed(1)}%
                             </Text>
                         </View>
                     )}
                 </View>
 
-                {/* BOTONES EXPORTACIÓN (Restaurado) */}
                 <View style={styles.exportRow}>
-                    <TouchableOpacity style={[styles.btnExp, {backgroundColor: '#d32f2f'}]} onPress={exportarPDF}>
-                        <MaterialCommunityIcons name="file-pdf-box" size={18} color="#fff" />
+                    <TouchableOpacity style={[styles.btnExp, {backgroundColor:'#D32F2F'}]} onPress={handlePDF}>
+                        <MaterialCommunityIcons name="file-pdf-box" size={20} color="#fff" />
                         <Text style={styles.btnExpText}>PDF</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.btnExp, {backgroundColor: '#2e7d32'}]} onPress={exportarExcel}>
-                        <MaterialCommunityIcons name="microsoft-excel" size={18} color="#fff" />
+                    <TouchableOpacity style={[styles.btnExp, {backgroundColor:'#1b5e20'}]} onPress={handleExcel}>
+                        <MaterialCommunityIcons name="microsoft-excel" size={20} color="#fff" />
                         <Text style={styles.btnExpText}>EXCEL</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* TABLA DE DATOS */}
-                <ScrollView horizontal style={styles.tableContainer}>
+                <ScrollView horizontal style={styles.tableScroll}>
                     <View>
                         <View style={[styles.tableRow, styles.tableHeader]}>
-                            <Text style={[styles.cellHeader, {width: 60}]}>Año</Text>
-                            <Text style={[styles.cellHeader, {width: 140}]}>Descripción</Text>
+                            <Text style={[styles.cellHeader, {width: 50}]}>Año</Text>
+                            <Text style={[styles.cellHeader, {width: 130}]}>Descripción</Text>
                             {metricasSeleccionadas.map(mId => (
-                                <Text key={mId} style={[styles.cellHeader, {width: 110, textAlign: 'right'}]}>
+                                <Text key={mId} style={[styles.cellHeader, {width: 100, textAlign: 'right'}]}>
                                     {METRICAS_DISPONIBLES.find(m => m.id === mId).label}
                                 </Text>
                             ))}
                         </View>
-                        {resultados.map((item, idx) => (
-                            <View key={idx} style={[styles.tableRow, {backgroundColor: idx % 2 === 0 ? '#fff' : '#fcfcfc'}]}>
-                                <Text style={[styles.cell, {width: 60}]}>{item.anio}</Text>
-                                <Text style={[styles.cell, {width: 140}]} numberOfLines={1}>
+                        {resultados.map((item, i) => (
+                            <View key={i} style={[styles.tableRow, {backgroundColor: i % 2 === 0 ? '#fff' : '#f9f9f9'}]}>
+                                <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
+                                <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>
                                     {nivelDesglose === "Por Cultivo" ? item.nomcultivo : (item.nommunicipio || item.nomestado)}
                                 </Text>
-                                {metricasSeleccionadas.map(mId => (
-                                    <Text key={mId} style={[styles.cell, {width: 110, textAlign: 'right'}]}>
-                                        {formatVal(item[METRICAS_DISPONIBLES.find(m => m.id === mId).key], mId)}
-                                    </Text>
-                                ))}
+                                {metricasSeleccionadas.map(mId => {
+                                    const key = METRICAS_DISPONIBLES.find(m => m.id === mId).key;
+                                    return (
+                                        <Text key={mId} style={[styles.cell, {width: 100, textAlign: 'right'}]}>
+                                            {mId === 'valor' || mId === 'precio' ? formatMoney(item[key]) : formatNum(item[key])}
+                                        </Text>
+                                    );
+                                })}
                             </View>
                         ))}
                     </View>
@@ -392,45 +403,52 @@ export default function ReporteAvanzadoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f7f8' },
-  scroll: { padding: 15, paddingBottom: 60 },
+  container: { flex: 1, backgroundColor: '#eceff1' },
+  scroll: { padding: 15, paddingBottom: 100 },
   header: { alignItems: 'center', marginBottom: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#1b5e20' },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 16, elevation: 3, zIndex: 100 },
-  sectionTitle: { fontSize: 13, fontWeight: 'bold', color: '#455A64', marginVertical: 10 },
-  tabContainer: { flexDirection: 'row', backgroundColor: '#f0f0f0', borderRadius: 10, padding: 4, marginBottom: 15 },
-  tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#2E7D32' },
+  subtitle: { fontSize: 13, color: '#666' },
+  card: { backgroundColor: '#fff', borderRadius: 16, padding: 16, elevation: 4, zIndex: 100 },
+  sectionTitle: { fontSize: 13, fontWeight: 'bold', color: '#455A64', marginVertical: 12 },
+  tabContainer: { flexDirection: 'row', backgroundColor: '#f5f5f5', borderRadius: 10, padding: 4, marginBottom: 15 },
+  tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
   tabActive: { backgroundColor: '#fff', elevation: 2 },
   tabText: { fontSize: 11, color: '#90a4ae', fontWeight: 'bold' },
   tabTextActive: { color: '#2E7D32' },
+  filterWrapper: { marginBottom: 15, position: 'relative' },
+  label: { fontSize: 11, fontWeight: 'bold', color: '#546e7a', marginBottom: 5 },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fafafa', borderRadius: 10, borderWidth: 1, borderColor: '#cfd8dc' },
+  input: { flex: 1, paddingHorizontal: 15, height: 45, fontSize: 14, color: '#333' },
+  clearBtn: { padding: 10 },
+  dropdownList: { position: 'absolute', top: 70, left: 0, right: 0, backgroundColor: 'white', borderRadius: 10, elevation: 20, zIndex: 2000, borderWidth: 1, borderColor: '#cfd8dc', overflow: 'hidden' },
+  dropdownItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#f5f5f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  itemText: { fontSize: 14, color: '#444' },
+  itemTextActive: { color: '#2E7D32', fontWeight: 'bold' },
+  noResults: { padding: 15, color: '#999', textAlign: 'center' },
+  btnCloseMulti: { backgroundColor: '#2E7D32', padding: 12, margin: 8, borderRadius: 8 },
+  btnCloseText: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 12 },
   row: { flexDirection: 'row' },
-  label: { fontSize: 11, fontWeight: 'bold', color: '#546e7a', marginBottom: 4 },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fafafa', borderRadius: 8, borderWidth: 1, borderColor: '#cfd8dc' },
-  input: { flex: 1, paddingHorizontal: 12, height: 40, fontSize: 13 },
-  clearBtn: { padding: 8 },
-  dropdownList: { position: 'absolute', top: 65, left: 0, right: 0, backgroundColor: 'white', borderRadius: 10, elevation: 20, zIndex: 10000, borderWidth: 1, borderColor: '#cfd8dc' },
-  dropdownItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#f5f5f5', flexDirection: 'row', justifyContent: 'space-between' },
-  btnCloseMulti: { backgroundColor: '#2E7D32', padding: 10, margin: 5, borderRadius: 8 },
   metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 15 },
-  metricChip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 15, borderWidth: 1, borderColor: '#cfd8dc' },
+  metricChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#cfd8dc', backgroundColor: '#fff' },
   metricChipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
   metricChipText: { fontSize: 10, color: '#546e7a' },
   metricChipTextActive: { color: '#fff', fontWeight: 'bold' },
-  btnConsultar: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 12, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: 'bold' },
-  summaryCard: { backgroundColor: '#37474f', borderRadius: 15, padding: 15, marginBottom: 15 },
-  summaryTitle: { color: '#fff', fontSize: 14, fontWeight: 'bold', marginBottom: 10 },
-  summaryRow: { flexDirection: 'row' },
+  btnConsultar: { backgroundColor: '#2E7D32', padding: 16, borderRadius: 12, alignItems: 'center' },
+  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  summaryCard: { backgroundColor: '#37474f', borderRadius: 15, padding: 18, marginBottom: 15 },
+  summaryTitle: { color: '#fff', fontSize: 15, fontWeight: 'bold', marginBottom: 12 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
   summaryItem: { flex: 1 },
-  summaryLabel: { color: '#b0bec5', fontSize: 9, fontWeight: 'bold' },
+  summaryLabel: { color: '#90a4ae', fontSize: 9, fontWeight: 'bold' },
   summaryValue: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   summaryValueMoney: { color: '#81C784', fontSize: 18, fontWeight: 'bold' },
-  variacionBox: { marginTop: 10, flexDirection: 'row', borderTopWidth: 0.5, borderColor: '#546e7a', paddingTop: 8 },
-  variacionText: { color: '#cfd8dc', fontSize: 11 },
+  varBox: { marginTop: 12, paddingTop: 10, borderTopWidth: 0.5, borderColor: '#546e7a', flexDirection: 'row' },
+  varLabel: { color: '#cfd8dc', fontSize: 12 },
+  varValue: { fontSize: 12, fontWeight: 'bold' },
   exportRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   btnExp: { flex: 0.48, flexDirection: 'row', padding: 12, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  btnExpText: { color: '#fff', fontWeight: 'bold', marginLeft: 8, fontSize: 12 },
-  tableContainer: { backgroundColor: '#fff', borderRadius: 12, elevation: 2 },
+  btnExpText: { color: '#fff', fontWeight: 'bold', marginLeft: 8, fontSize: 13 },
+  tableScroll: { backgroundColor: '#fff', borderRadius: 12, elevation: 2 },
   tableRow: { flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee' },
   tableHeader: { backgroundColor: '#455A64' },
   cellHeader: { color: '#fff', fontWeight: 'bold', fontSize: 11, paddingHorizontal: 10 },

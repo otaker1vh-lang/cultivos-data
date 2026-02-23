@@ -27,6 +27,8 @@ import FertilizantesScreen from './screens/FertilizantesScreen';
 import DosisScreen from './screens/DosisScreen';
 import WeatherScreen from './screens/WeatherScreen'; // <--- NUEVA IMPORTACIÓN
 import CostosScreen from './screens/CostosScreen';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
 
 const Stack = createStackNavigator();
 
