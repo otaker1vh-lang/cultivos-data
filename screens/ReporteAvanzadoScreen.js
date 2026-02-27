@@ -41,10 +41,20 @@ const FiltroAutocomplete = ({
     placeholder = "Seleccionar...", isMulti = false,
     openMenu, setOpenMenu, id 
 }) => {
+    const [busqueda, setBusqueda] = useState('');
     const [sugerencias, setSugerencias] = useState([]);
     const isOpen = openMenu === id;
 
+    // Cuando se abre el menú, reiniciamos la búsqueda para mostrar todas las opciones
+    useEffect(() => {
+        if (isOpen) {
+            setBusqueda('');
+            setSugerencias(opciones);
+        }
+    }, [isOpen, opciones]);
+
     const filtrar = (texto) => {
+        setBusqueda(texto);
         const matches = opciones.filter(op => 
             op && op.toString().toLowerCase().includes(texto.toLowerCase())
         );
@@ -72,12 +82,12 @@ const FiltroAutocomplete = ({
             <View style={styles.inputContainer}>
                 <TextInput 
                     style={styles.input} 
-                    value={isMulti ? valor.join(', ') : valor} 
+                    // Si está abierto mostramos lo que el usuario teclea, si está cerrado mostramos la selección
+                    value={isOpen ? busqueda : (isMulti ? valor.join(', ') : valor)} 
                     onChangeText={filtrar}
                     placeholder={placeholder}
                     placeholderTextColor="#999"
                     onFocus={() => {
-                        setSugerencias(opciones);
                         setOpenMenu(id);
                     }}
                 />
@@ -96,7 +106,7 @@ const FiltroAutocomplete = ({
                     <ScrollView 
                         nestedScrollEnabled={true} 
                         keyboardShouldPersistTaps="always" 
-                        style={{maxHeight: 200}}
+                        style={{maxHeight: 300}} // Aumentado para ver más estados
                     >
                         {sugerencias.length > 0 ? (
                             sugerencias.slice(0, 50).map((item, index) => (
@@ -225,18 +235,36 @@ export default function ReporteAvanzadoScreen() {
         return acc;
     }, {});
 
-    const listaFinal = Object.values(grouped).map(i => ({
-        ...i,
-        rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
-        preciomediorural: i.sumPrecio / i.counter,
-        percSiniestro: (i.siniestrada / i.sembrada) * 100 || 0
-    })).sort((a,b) => b.anio - a.anio || b.valorproduccion - a.valorproduccion);
+    const listaFinal = Object.values(grouped).map(i => {
+        // Asignamos una descripción estricta para no mezclar municipios en vista estatal
+        let desc = "";
+        if (nivelDesglose === "Estatal") desc = i.nomestado;
+        else if (nivelDesglose === "Por Cultivo") desc = i.nomcultivo;
+        else desc = i.nommunicipio || i.nomestado;
 
-    if (filtros.anio.length > 1) {
+        return {
+            ...i,
+            descripcion: desc,
+            rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
+            preciomediorural: i.sumPrecio / i.counter,
+            percSiniestro: (i.siniestrada / i.sembrada) * 100 || 0
+        };
+    }).sort((a,b) => b.anio - a.anio || b.valorproduccion - a.valorproduccion);
+
+    // Comparativa de variación dependiente de la primera métrica seleccionada
+    if (filtros.anio.length > 1 && metricasSeleccionadas.length > 0) {
         const aniosS = [...filtros.anio].sort();
-        const v1 = data.filter(d => d.anio == aniosS[0]).reduce((s, c) => s + c.valorproduccion, 0);
-        const v2 = data.filter(d => d.anio == aniosS[aniosS.length-1]).reduce((s, c) => s + c.valorproduccion, 0);
-        setVariacionFinal({ i: aniosS[0], f: aniosS[aniosS.length-1], p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0 });
+        const metricaRef = METRICAS_DISPONIBLES.find(m => m.id === metricasSeleccionadas[0]);
+        
+        const v1 = data.filter(d => d.anio == aniosS[0]).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
+        const v2 = data.filter(d => d.anio == aniosS[aniosS.length-1]).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
+        
+        setVariacionFinal({ 
+            i: aniosS[0], 
+            f: aniosS[aniosS.length-1], 
+            p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0,
+            nombreMetrica: metricaRef.label
+        });
     } else {
         setVariacionFinal(null);
     }
@@ -261,7 +289,7 @@ export default function ReporteAvanzadoScreen() {
         </tr>
         ${resultados.slice(0, 500).map(r => `<tr>
           <td style="padding:8px; border:1px solid #ccc;">${r.anio}</td>
-          <td style="padding:8px; border:1px solid #ccc;">${nivelDesglose === "Por Cultivo" ? r.nomcultivo : (r.nommunicipio || r.nomestado)}</td>
+          <td style="padding:8px; border:1px solid #ccc;">${r.descripcion}</td>
           ${metricasSeleccionadas.map(m => `<td style="padding:8px; border:1px solid #ccc; text-align:right;">${formatNum(r[METRICAS_DISPONIBLES.find(x=>x.id===m).key])}</td>`).join('')}
         </tr>`).join('')}
       </table>
@@ -273,9 +301,8 @@ export default function ReporteAvanzadoScreen() {
   const handleExcel = async () => {
     let csv = `Año,Descripción,${metricasSeleccionadas.map(m => METRICAS_DISPONIBLES.find(x=>x.id===m).label).join(',')}\n`;
     resultados.forEach(r => {
-        const desc = nivelDesglose === "Por Cultivo" ? r.nomcultivo : (r.nommunicipio || r.nomestado);
         const vals = metricasSeleccionadas.map(m => r[METRICAS_DISPONIBLES.find(x=>x.id===m).key]);
-        csv += `${r.anio},"${desc}",${vals.join(',')}\n`;
+        csv += `${r.anio},"${r.descripcion}",${vals.join(',')}\n`;
     });
     const uri = FileSystem.cacheDirectory + "Reporte_SIACON.csv";
     await FileSystem.writeAsStringAsync(uri, csv, { encoding: 'utf8' });
@@ -290,7 +317,7 @@ export default function ReporteAvanzadoScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <MaterialCommunityIcons name="finance" size={40} color="#2E7D32" />
+            <MaterialCommunityIcons name="finance" size={40} color="#2E7D32" />
           <Text style={styles.title}>SIACON BI</Text>
           <Text style={styles.subtitle}>Análisis Multianual y Regional</Text>
         </View>
@@ -347,7 +374,7 @@ export default function ReporteAvanzadoScreen() {
                     </View>
                     {variacionFinal && (
                         <View style={styles.varBox}>
-                            <Text style={styles.varLabel}>Variación {variacionFinal.i}-{variacionFinal.f}: </Text>
+                            <Text style={styles.varLabel}>Var. {variacionFinal.nombreMetrica} ({variacionFinal.i}-{variacionFinal.f}): </Text>
                             <Text style={[styles.varValue, {color: variacionFinal.p >= 0 ? '#81C784' : '#ff8a80'}]}>
                                 {variacionFinal.p > 0 ? '+' : ''}{variacionFinal.p.toFixed(1)}%
                             </Text>
@@ -381,7 +408,7 @@ export default function ReporteAvanzadoScreen() {
                             <View key={i} style={[styles.tableRow, {backgroundColor: i % 2 === 0 ? '#fff' : '#f9f9f9'}]}>
                                 <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
                                 <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>
-                                    {nivelDesglose === "Por Cultivo" ? item.nomcultivo : (item.nommunicipio || item.nomestado)}
+                                    {item.descripcion}
                                 </Text>
                                 {metricasSeleccionadas.map(mId => {
                                     const key = METRICAS_DISPONIBLES.find(m => m.id === mId).key;
