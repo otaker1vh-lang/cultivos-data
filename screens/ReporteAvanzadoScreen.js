@@ -35,7 +35,7 @@ const METRICAS_DISPONIBLES = [
     { id: 'valor', label: 'Valor Producción', key: 'valorproduccion' },
 ];
 
-// --- 2. COMPONENTE AUTOCOMPLETE MEJORADO ---
+// --- 2. COMPONENTE AUTOCOMPLETE ---
 const FiltroAutocomplete = ({ 
     label, valor, setValor, opciones = [], zIndex = 1, 
     placeholder = "Seleccionar...", isMulti = false,
@@ -45,7 +45,6 @@ const FiltroAutocomplete = ({
     const [sugerencias, setSugerencias] = useState([]);
     const isOpen = openMenu === id;
 
-    // Cuando se abre el menú, reiniciamos la búsqueda para mostrar todas las opciones
     useEffect(() => {
         if (isOpen) {
             setBusqueda('');
@@ -82,14 +81,11 @@ const FiltroAutocomplete = ({
             <View style={styles.inputContainer}>
                 <TextInput 
                     style={styles.input} 
-                    // Si está abierto mostramos lo que el usuario teclea, si está cerrado mostramos la selección
                     value={isOpen ? busqueda : (isMulti ? valor.join(', ') : valor)} 
                     onChangeText={filtrar}
                     placeholder={placeholder}
                     placeholderTextColor="#999"
-                    onFocus={() => {
-                        setOpenMenu(id);
-                    }}
+                    onFocus={() => setOpenMenu(id)}
                 />
                 {(isMulti ? valor.length > 0 : valor !== '') && (
                     <TouchableOpacity 
@@ -106,10 +102,10 @@ const FiltroAutocomplete = ({
                     <ScrollView 
                         nestedScrollEnabled={true} 
                         keyboardShouldPersistTaps="always" 
-                        style={{maxHeight: 300}} // Aumentado para ver más estados
+                        style={{maxHeight: 280}} 
                     >
                         {sugerencias.length > 0 ? (
-                            sugerencias.slice(0, 50).map((item, index) => (
+                            sugerencias.map((item, index) => (
                                 <TouchableOpacity 
                                     key={index} 
                                     style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
@@ -127,7 +123,7 @@ const FiltroAutocomplete = ({
                     </ScrollView>
                     {isMulti && (
                         <TouchableOpacity style={styles.btnCloseMulti} onPress={() => setOpenMenu(null)}>
-                            <Text style={styles.btnCloseText}>CONFIRMAR SELECCIÓN</Text>
+                            <Text style={styles.btnCloseText}>CONFIRMAR SELECCIÓN ({valor.length})</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -154,7 +150,7 @@ export default function ReporteAvanzadoScreen() {
   const [listaMunicipios, setListaMunicipios] = useState([]);
   const [resultados, setResultados] = useState([]); 
   const [resumenGeneral, setResumenGeneral] = useState({ val: 0, vol: 0, sem: 0, cos: 0 });
-  const [variacionFinal, setVariacionFinal] = useState(null);
+  const [variacionesMultiples, setVariacionesMultiples] = useState([]); // Nueva lógica
   const [cargando, setCargando] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
 
@@ -194,6 +190,7 @@ export default function ReporteAvanzadoScreen() {
       if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
       if (filtros.estado.length > 0) query = query.in('nomestado', filtros.estado);
       if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
+      // VERIFICACIÓN: Mantenemos filtros de ciclo y modalidad
       if (filtros.ciclo) query = query.ilike('nomcicloproductivo', `%${filtros.ciclo}%`);
       if (filtros.modalidad) query = query.ilike('nommodalidad', `%${filtros.modalidad}%`);
       
@@ -236,11 +233,8 @@ export default function ReporteAvanzadoScreen() {
     }, {});
 
     const listaFinal = Object.values(grouped).map(i => {
-        // Asignamos una descripción estricta para no mezclar municipios en vista estatal
-        let desc = "";
-        if (nivelDesglose === "Estatal") desc = i.nomestado;
-        else if (nivelDesglose === "Por Cultivo") desc = i.nomcultivo;
-        else desc = i.nommunicipio || i.nomestado;
+        let desc = nivelDesglose === "Estatal" ? i.nomestado : 
+                   nivelDesglose === "Por Cultivo" ? i.nomcultivo : (i.nommunicipio || i.nomestado);
 
         return {
             ...i,
@@ -251,22 +245,22 @@ export default function ReporteAvanzadoScreen() {
         };
     }).sort((a,b) => b.anio - a.anio || b.valorproduccion - a.valorproduccion);
 
-    // Comparativa de variación dependiente de la primera métrica seleccionada
-    if (filtros.anio.length > 1 && metricasSeleccionadas.length > 0) {
-        const aniosS = [...filtros.anio].sort();
-        const metricaRef = METRICAS_DISPONIBLES.find(m => m.id === metricasSeleccionadas[0]);
+    // NUEVA LÓGICA: Variación multivariable (compara año min vs año max)
+    if (filtros.anio.length > 1) {
+        const aniosS = [...filtros.anio].map(Number).sort((a, b) => a - b);
+        const anioIni = aniosS[0];
+        const anioFin = aniosS[aniosS.length - 1];
         
-        const v1 = data.filter(d => d.anio == aniosS[0]).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
-        const v2 = data.filter(d => d.anio == aniosS[aniosS.length-1]).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
-        
-        setVariacionFinal({ 
-            i: aniosS[0], 
-            f: aniosS[aniosS.length-1], 
-            p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0,
-            nombreMetrica: metricaRef.label
+        const nuevasVariaciones = metricasSeleccionadas.map(mId => {
+            const metricaRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
+            const v1 = data.filter(d => d.anio == anioIni).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
+            const v2 = data.filter(d => d.anio == anioFin).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
+            const porc = v1 > 0 ? ((v2 - v1) / v1) * 100 : 0;
+            return { label: metricaRef.label, p: porc, i: anioIni, f: anioFin };
         });
+        setVariacionesMultiples(nuevasVariaciones);
     } else {
-        setVariacionFinal(null);
+        setVariacionesMultiples([]);
     }
 
     setResumenGeneral(totals);
@@ -311,15 +305,11 @@ export default function ReporteAvanzadoScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.scroll} 
-        nestedScrollEnabled={true} 
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
             <MaterialCommunityIcons name="finance" size={40} color="#2E7D32" />
-          <Text style={styles.title}>SIACON BI</Text>
-          <Text style={styles.subtitle}>Análisis Multianual y Regional</Text>
+          <Text style={styles.title}>SIACON</Text>
+          <Text style={styles.subtitle}>Análisis Multianual</Text>
         </View>
 
         <View style={styles.card}>
@@ -372,12 +362,21 @@ export default function ReporteAvanzadoScreen() {
                             <Text style={styles.summaryValue}>{formatNum(resumenGeneral.sem)} Ha</Text>
                         </View>
                     </View>
-                    {variacionFinal && (
-                        <View style={styles.varBox}>
-                            <Text style={styles.varLabel}>Var. {variacionFinal.nombreMetrica} ({variacionFinal.i}-{variacionFinal.f}): </Text>
-                            <Text style={[styles.varValue, {color: variacionFinal.p >= 0 ? '#81C784' : '#ff8a80'}]}>
-                                {variacionFinal.p > 0 ? '+' : ''}{variacionFinal.p.toFixed(1)}%
-                            </Text>
+                    
+                    {/* SECCIÓN ACTUALIZADA: Variaciones de todas las variables */}
+                    {variacionesMultiples.length > 0 && (
+                        <View style={styles.multiVarContainer}>
+                            <Text style={styles.multiVarTitle}>Variación Periodo ({variacionesMultiples[0].i}-{variacionesMultiples[0].f}):</Text>
+                            <View style={styles.varGrid}>
+                                {variacionesMultiples.map((v, idx) => (
+                                    <View key={idx} style={styles.varChip}>
+                                        <Text style={styles.varChipLabel}>{v.label}: </Text>
+                                        <Text style={[styles.varChipValue, {color: v.p >= 0 ? '#81C784' : '#ff8a80'}]}>
+                                            {v.p > 0 ? '+' : ''}{v.p.toFixed(1)}%
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
                         </View>
                     )}
                 </View>
@@ -407,9 +406,7 @@ export default function ReporteAvanzadoScreen() {
                         {resultados.map((item, i) => (
                             <View key={i} style={[styles.tableRow, {backgroundColor: i % 2 === 0 ? '#fff' : '#f9f9f9'}]}>
                                 <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
-                                <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>
-                                    {item.descripcion}
-                                </Text>
+                                <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>{item.descripcion}</Text>
                                 {metricasSeleccionadas.map(mId => {
                                     const key = METRICAS_DISPONIBLES.find(m => m.id === mId).key;
                                     return (
@@ -469,9 +466,12 @@ const styles = StyleSheet.create({
   summaryLabel: { color: '#90a4ae', fontSize: 9, fontWeight: 'bold' },
   summaryValue: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   summaryValueMoney: { color: '#81C784', fontSize: 18, fontWeight: 'bold' },
-  varBox: { marginTop: 12, paddingTop: 10, borderTopWidth: 0.5, borderColor: '#546e7a', flexDirection: 'row' },
-  varLabel: { color: '#cfd8dc', fontSize: 12 },
-  varValue: { fontSize: 12, fontWeight: 'bold' },
+  multiVarContainer: { marginTop: 15, paddingTop: 10, borderTopWidth: 0.5, borderColor: '#546e7a' },
+  multiVarTitle: { color: '#cfd8dc', fontSize: 11, fontWeight: 'bold', marginBottom: 8 },
+  varGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  varChip: { backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 8, paddingVertical: 5, borderRadius: 6, flexDirection: 'row' },
+  varChipLabel: { color: '#90a4ae', fontSize: 10 },
+  varChipValue: { fontSize: 10, fontWeight: 'bold' },
   exportRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   btnExp: { flex: 0.48, flexDirection: 'row', padding: 12, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   btnExpText: { color: '#fff', fontWeight: 'bold', marginLeft: 8, fontSize: 13 },

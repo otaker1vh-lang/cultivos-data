@@ -266,6 +266,30 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
 
+          {cultivosGuardados.length > 0 && (
+            <View style={styles.favoritosMinContainer}>
+              <Text style={styles.sectionTitleFav}>Mis Cultivos</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.favoritosScroll}>
+                {cultivosGuardados.map((item, index) => (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.favMinCard}
+                    onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}
+                  >
+                    <View style={styles.favMinIconBadge}>
+                      <MaterialCommunityIcons 
+                        name={obtenerIconoCultivo(item.nombre, item.categoria)} 
+                        size={22} 
+                        color="#2E7D32" 
+                      />
+                    </View>
+                    <Text numberOfLines={1} style={styles.favMinText}>{item.nombre}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {/* Banner Diagnóstico */}
           <View style={styles.heroSection}>
             <TouchableOpacity style={styles.diagnoseCard} onPress={abrirCamara}>
@@ -274,7 +298,7 @@ export default function HomeScreen({ navigation }) {
                         <MaterialCommunityIcons name="camera-iris" size={30} color="#FFF" />
                         <View style={{marginLeft: 15, flex: 1}}>
                             <Text style={styles.diagnoseTitle}>Diagnóstico Inteligente</Text>
-                            <Text style={styles.diagnoseSub}>Analiza la salud de tus hojas con IA</Text>
+                            <Text style={styles.diagnoseSub}>Analiza la salud de tus plantas</Text>
                         </View>
                     </View>
                 </LinearGradient>
@@ -480,5 +504,42 @@ const styles = StyleSheet.create({
   closeModalBtn: { marginTop:15, alignSelf:'center' },
   closeModalText: { color:'red', fontWeight:'bold' },
   btnReiniciarTemporada: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF3E0', padding: 8, borderRadius: 10, marginTop: 10 },
-  btnReiniciarText: { color: '#F57C00', fontSize: 12, fontWeight: '700', marginLeft: 6 }
+  btnReiniciarText: { color: '#F57C00', fontSize: 12, fontWeight: '700', marginLeft: 6 },
+  // Estilos para Favoritos Minimizados
+  favoritosMinContainer: {
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  favoritosScroll: {
+    paddingLeft: 24,
+    paddingRight: 10,
+    paddingBottom: 10,
+  },
+  favMinCard: {
+    alignItems: 'center',
+    marginRight: 20,
+    width: 70,
+  },
+  favMinIconBadge: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: '#E8F5E9',
+  },
+  favMinText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#37474F',
+    textAlign: 'center',
+  },
 });
