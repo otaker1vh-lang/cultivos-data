@@ -53,6 +53,7 @@ export default function HomeScreen({ navigation }) {
   const [mostrarLista, setMostrarLista] = useState(false);
   const [listaCultivos, setListaCultivos] = useState([]);
   const [cultivosGuardados, setCultivosGuardados] = useState([]); 
+  const [favoritosExpanded, setFavoritosExpanded] = useState(true);
 
   // Estados de GDD y Firebase
   const [dbCultivos, setDbCultivos] = useState(null);
@@ -249,44 +250,79 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1B5E20" />
-      <View style={styles.headerContainer}>
-        <LinearGradient colors={['#1B5E20', '#2E7D32', '#43A047']} style={styles.headerBackground} />
-      </View>
-
+      
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Header y Clima */}
-          <View style={styles.topSection}>
-            <View style={styles.headerRow}>
-                <View><Text style={styles.welcomeSub}>Bienvenido a</Text><Text style={styles.appName}>RóslinApp</Text></View>
-                <TouchableOpacity onPress={() => navigation.navigate('About')}><Ionicons name="information-circle" size={28} color="#FFF" /></TouchableOpacity>
-            </View>
-            <View style={styles.weatherContainer}>
+          
+          {/* CONTENEDOR DINÁMICO AJUSTADO AL CLIMA */}
+          <View style={styles.dynamicHeaderWrapper}>
+            <LinearGradient 
+              colors={['#1B5E20', '#2E7D32', '#43A047']} 
+              style={styles.headerGradientBackground} 
+            />
+            
+            <View style={styles.topSection}>
+              <View style={styles.headerRow}>
+                <View>
+                  <Text style={styles.welcomeSub}>Bienvenido a</Text>
+                  <Text style={styles.appName}>RóslinApp</Text>
+                </View>
+                <TouchableOpacity onPress={() => navigation.navigate('About')}>
+                  <Ionicons name="information-circle" size={28} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.weatherContainer}>
                 <ClimaWidget onClimaUpdate={setClimaActual} />
+              </View>
             </View>
           </View>
 
+          {/* Sección Favoritos Desplegable */}
           {cultivosGuardados.length > 0 && (
             <View style={styles.favoritosMinContainer}>
-              <Text style={styles.sectionTitleFav}>Mis Cultivos</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.favoritosScroll}>
-                {cultivosGuardados.map((item, index) => (
-                  <TouchableOpacity 
-                    key={index} 
-                    style={styles.favMinCard}
-                    onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}
-                  >
-                    <View style={styles.favMinIconBadge}>
-                      <MaterialCommunityIcons 
-                        name={obtenerIconoCultivo(item.nombre, item.categoria)} 
-                        size={22} 
-                        color="#2E7D32" 
-                      />
-                    </View>
-                    <Text numberOfLines={1} style={styles.favMinText}>{item.nombre}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+              <TouchableOpacity 
+                onPress={() => {
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  setFavoritosExpanded(!favoritosExpanded);
+                }}
+                style={[styles.gddHeaderRow, { paddingHorizontal: 24, paddingBottom: 10 }]}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <MaterialCommunityIcons name="heart-multiple" size={20} color="#2E7D32" />
+                  <Text style={[styles.sectionTitleFav, { marginLeft: 10, marginBottom: 0 }]}>Mis Cultivos</Text>
+                </View>
+                <Ionicons 
+                  name={favoritosExpanded ? "chevron-up" : "chevron-down"} 
+                  size={20} 
+                  color="#546E7A" 
+                />
+              </TouchableOpacity>
+              
+              {favoritosExpanded && (
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false} 
+                  contentContainerStyle={styles.favoritosScroll}
+                >
+                  {cultivosGuardados.map((item, index) => (
+                    <TouchableOpacity 
+                      key={index} 
+                      style={styles.favMinCard}
+                      onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}
+                    >
+                      <View style={styles.favMinIconBadge}>
+                        <MaterialCommunityIcons 
+                          name={obtenerIconoCultivo(item.nombre, item.categoria)} 
+                          size={22} 
+                          color="#2E7D32" 
+                        />
+                      </View>
+                      <Text numberOfLines={1} style={styles.favMinText}>{item.nombre}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
             </View>
           )}
 
@@ -315,9 +351,9 @@ export default function HomeScreen({ navigation }) {
 
           {mostrarLista && <FlatList data={cultivosFiltrados} keyExtractor={(item) => item.nombre} renderItem={renderCultivo} scrollEnabled={false} />}
 
-          {/* Herramientas - INTEGRADO COMPLETAMENTE */}
+          {/* Herramientas */}
           <View style={styles.quickAccessContainer}>
-             <Text style={styles.sectionTitleFav}>Herramientas de Campo</Text>
+             <Text style={[styles.sectionTitleFav, {paddingHorizontal: 24}]}>Herramientas de Campo</Text>
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessScroll}>
                 {[
                   {n: 'AgroControl', i: 'router-wireless', c: '#00695C', bg: '#E0F2F1'},
@@ -445,8 +481,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F9FA' },
   safeArea: { flex: 1 },
   scrollContent: { paddingBottom: 60 },
-  headerContainer: { position: 'absolute', top: 0, width: '100%', height: 280, borderBottomLeftRadius: 40, borderBottomRightRadius: 40, overflow: 'hidden' },
-  headerBackground: { width: '100%', height: '100%' },
+  
+  // ELIMINADO headerContainer absoluto para permitir scroll del fondo verde
+  dynamicHeaderWrapper: {
+    width: '100%',
+    paddingBottom: 25,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    overflow: 'hidden',
+    backgroundColor: '#1B5E20',
+  },
+  headerGradientBackground: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  
   topSection: { paddingHorizontal: 24, paddingTop: 20 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   welcomeSub: { color: '#A5D6A7', fontSize: 14 },
@@ -462,7 +510,7 @@ const styles = StyleSheet.create({
   searchBar: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 15, paddingHorizontal: 15, height: 50, elevation: 2 },
   searchInput: { flex: 1, fontSize: 15 },
   quickAccessContainer: { marginBottom: 20 },
-  sectionTitleFav: { fontSize: 18, fontWeight: '700', color: '#263238', marginLeft: 24, marginBottom: 12 },
+  sectionTitleFav: { fontSize: 18, fontWeight: '700', color: '#263238', marginBottom: 12 },
   quickAccessScroll: { paddingLeft: 24 },
   quickBtn: { alignItems: 'center', marginRight: 18, width: 75 },
   quickIcon: { width: 55, height: 55, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginBottom: 5 },
@@ -475,7 +523,7 @@ const styles = StyleSheet.create({
   cardSubtitle: { fontSize: 12, color: "#90A4AE" },
   btnGuiaArea: { padding: 12, backgroundColor: '#FAFAFA', alignItems: 'center' },
   btnGuiaText: { fontSize: 9, color: '#F57C00', fontWeight: 'bold' },
-  gddMainCard: { backgroundColor: '#fff', marginHorizontal: 24, borderRadius: 15, elevation: 2, borderWidth: 1, borderColor: '#E8F5E9', paddingBottom: 10 },
+  gddMainCard: { backgroundColor: '#fff', marginHorizontal: 24, borderRadius: 15, elevation: 2, borderWidth: 1, borderColor: '#E8F5E9', paddingBottom: 10, marginBottom: 20 },
   gddHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 15 },
   gddTitleMain: { fontSize: 16, fontWeight: '700', color: '#2E7D32' },
   gddContentArea: { paddingHorizontal: 15 },
@@ -505,10 +553,10 @@ const styles = StyleSheet.create({
   closeModalText: { color:'red', fontWeight:'bold' },
   btnReiniciarTemporada: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF3E0', padding: 8, borderRadius: 10, marginTop: 10 },
   btnReiniciarText: { color: '#F57C00', fontSize: 12, fontWeight: '700', marginLeft: 6 },
-  // Estilos para Favoritos Minimizados
   favoritosMinContainer: {
     marginTop: 15,
     marginBottom: 5,
+    backgroundColor: 'transparent',
   },
   favoritosScroll: {
     paddingLeft: 24,

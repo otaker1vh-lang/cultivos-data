@@ -99,11 +99,7 @@ const FiltroAutocomplete = ({
             
             {isOpen && (
                 <View style={styles.dropdownList}>
-                    <ScrollView 
-                        nestedScrollEnabled={true} 
-                        keyboardShouldPersistTaps="always" 
-                        style={{maxHeight: 280}} 
-                    >
+                    <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="always" style={{maxHeight: 280}}>
                         {sugerencias.length > 0 ? (
                             sugerencias.map((item, index) => (
                                 <TouchableOpacity 
@@ -123,7 +119,7 @@ const FiltroAutocomplete = ({
                     </ScrollView>
                     {isMulti && (
                         <TouchableOpacity style={styles.btnCloseMulti} onPress={() => setOpenMenu(null)}>
-                            <Text style={styles.btnCloseText}>CONFIRMAR SELECCIÓN ({valor.length})</Text>
+                            <Text style={styles.btnCloseText}>CONFIRMAR ({valor.length})</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -140,8 +136,8 @@ export default function ReporteAvanzadoScreen() {
     cultivo: '',
     estado: [], 
     municipio: '',
-    ciclo: '',
-    modalidad: '',
+    ciclo: [], // Cambiado a arreglo para multiselección
+    modalidad: [], // Cambiado a arreglo para multiselección
   });
 
   const [metricasSeleccionadas, setMetricasSeleccionadas] = useState(['valor', 'volumen', 'sembrada']);
@@ -150,7 +146,7 @@ export default function ReporteAvanzadoScreen() {
   const [listaMunicipios, setListaMunicipios] = useState([]);
   const [resultados, setResultados] = useState([]); 
   const [resumenGeneral, setResumenGeneral] = useState({ val: 0, vol: 0, sem: 0, cos: 0 });
-  const [variacionesMultiples, setVariacionesMultiples] = useState([]); // Nueva lógica
+  const [variacionesMultiples, setVariacionesMultiples] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
 
@@ -173,9 +169,7 @@ export default function ReporteAvanzadoScreen() {
   }, [filtros.estado]);
 
   const toggleMetrica = (id) => {
-    setMetricasSeleccionadas(prev => 
-        prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
-    );
+    setMetricasSeleccionadas(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]);
   };
 
   const consultarBaseDatos = async () => {
@@ -190,9 +184,10 @@ export default function ReporteAvanzadoScreen() {
       if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
       if (filtros.estado.length > 0) query = query.in('nomestado', filtros.estado);
       if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
-      // VERIFICACIÓN: Mantenemos filtros de ciclo y modalidad
-      if (filtros.ciclo) query = query.ilike('nomcicloproductivo', `%${filtros.ciclo}%`);
-      if (filtros.modalidad) query = query.ilike('nommodalidad', `%${filtros.modalidad}%`);
+      
+      // FILTROS ACTUALIZADOS: Ciclo y Modalidad con selección múltiple
+      if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
+      if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
       
       const { data, error } = await query.limit(5000);
       if (error) throw error;
@@ -213,14 +208,27 @@ export default function ReporteAvanzadoScreen() {
                      nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
 
     const totals = { val: 0, vol: 0, sem: 0, cos: 0 };
+    
     const grouped = data.reduce((acc, item) => {
-        const id = `${item[keyField]}-${item.anio}`;
-        if (!acc[id]) acc[id] = { ...item, valorproduccion: 0, sembrada: 0, siniestrada: 0, volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 };
+        const entity = item[keyField] || "N/A";
+        const year = item.anio;
+        const id = `${entity}-${year}`;
+
+        if (!acc[id]) {
+            acc[id] = { 
+                ...item, 
+                descripcion: entity,
+                anio: year,
+                valorproduccion: 0, sembrada: 0, siniestrada: 0, 
+                volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 
+            };
+        }
         
         acc[id].valorproduccion += (item.valorproduccion || 0);
         acc[id].sembrada += (item.sembrada || 0);
         acc[id].siniestrada += (item.siniestrada || 0);
         acc[id].volumenproduccion += (item.volumenproduccion || 0);
+        acc[id].harvested = (acc[id].harvested || 0) + (item.cosechada || 0);
         acc[id].cosechada += (item.cosechada || 0);
         acc[id].sumPrecio += (item.preciomediorural || 0);
         acc[id].counter++;
@@ -232,20 +240,28 @@ export default function ReporteAvanzadoScreen() {
         return acc;
     }, {});
 
-    const listaFinal = Object.values(grouped).map(i => {
-        let desc = nivelDesglose === "Estatal" ? i.nomestado : 
-                   nivelDesglose === "Por Cultivo" ? i.nomcultivo : (i.nommunicipio || i.nomestado);
+    let listaFinal = Object.values(grouped).map(i => ({
+        ...i,
+        rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
+        preciomediorural: i.sumPrecio / i.counter,
+    })).sort((a,b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
 
-        return {
-            ...i,
-            descripcion: desc,
-            rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
-            preciomediorural: i.sumPrecio / i.counter,
-            percSiniestro: (i.siniestrada / i.sembrada) * 100 || 0
-        };
-    }).sort((a,b) => b.anio - a.anio || b.valorproduccion - a.valorproduccion);
+    listaFinal = listaFinal.map((curr, idx, arr) => {
+        const prev = arr.find(item => item.descripcion === curr.descripcion && item.anio === curr.anio - 1);
+        const variaciones = {};
+        
+        metricasSeleccionadas.forEach(mId => {
+            const mRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
+            const key = mRef.key;
+            if (prev && prev[key] > 0) {
+                variaciones[`var_${mId}`] = ((curr[key] - prev[key]) / prev[key]) * 100;
+            } else {
+                variaciones[`var_${mId}`] = null;
+            }
+        });
+        return { ...curr, ...variaciones };
+    });
 
-    // NUEVA LÓGICA: Variación multivariable (compara año min vs año max)
     if (filtros.anio.length > 1) {
         const aniosS = [...filtros.anio].map(Number).sort((a, b) => a - b);
         const anioIni = aniosS[0];
@@ -253,10 +269,24 @@ export default function ReporteAvanzadoScreen() {
         
         const nuevasVariaciones = metricasSeleccionadas.map(mId => {
             const metricaRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
-            const v1 = data.filter(d => d.anio == anioIni).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
-            const v2 = data.filter(d => d.anio == anioFin).reduce((s, c) => s + (c[metricaRef.key] || 0), 0);
-            const porc = v1 > 0 ? ((v2 - v1) / v1) * 100 : 0;
-            return { label: metricaRef.label, p: porc, i: anioIni, f: anioFin };
+            const getT = (anio) => {
+                const f = data.filter(d => d.anio == anio);
+                return {
+                    v: f.reduce((s, c) => s + (c[metricaRef.key] || 0), 0),
+                    vol: f.reduce((s, c) => s + (c.volumenproduccion || 0), 0),
+                    cos: f.reduce((s, c) => s + (c.cosechada || 0), 0)
+                };
+            };
+            const t1 = getT(anioIni);
+            const t2 = getT(anioFin);
+            let v1, v2;
+            if (mId === 'rendimiento') {
+                v1 = t1.cos > 0 ? (t1.vol / t1.cos) : 0;
+                v2 = t2.cos > 0 ? (t2.vol / t2.cos) : 0;
+            } else {
+                v1 = t1.v; v2 = t2.v;
+            }
+            return { label: metricaRef.label, p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0, i: anioIni, f: anioFin };
         });
         setVariacionesMultiples(nuevasVariaciones);
     } else {
@@ -275,16 +305,26 @@ export default function ReporteAvanzadoScreen() {
     const html = `<html><body style="font-family:sans-serif; padding: 20px;">
       <h2 style="color:#2E7D32;">Reporte SIACON - Desglose ${nivelDesglose}</h2>
       <p>Periodo: ${filtros.anio.join(', ')}</p>
-      <table style="width:100%; border-collapse:collapse;">
+      <table style="width:100%; border-collapse:collapse; font-size:10px;">
         <tr style="background:#455A64; color:white;">
-          <th style="padding:8px; border:1px solid #ccc;">Año</th>
-          <th style="padding:8px; border:1px solid #ccc;">Descripción</th>
-          ${metricasSeleccionadas.map(m => `<th style="padding:8px; border:1px solid #ccc;">${METRICAS_DISPONIBLES.find(x=>x.id===m).label}</th>`).join('')}
+          <th style="padding:5px; border:1px solid #ccc;">${nivelDesglose}</th>
+          <th style="padding:5px; border:1px solid #ccc;">Año</th>
+          ${metricasSeleccionadas.map(m => `
+            <th style="padding:5px; border:1px solid #ccc;">${METRICAS_DISPONIBLES.find(x=>x.id===m).label}</th>
+            <th style="padding:5px; border:1px solid #ccc; color:#81C784;">Var %</th>
+          `).join('')}
         </tr>
-        ${resultados.slice(0, 500).map(r => `<tr>
-          <td style="padding:8px; border:1px solid #ccc;">${r.anio}</td>
-          <td style="padding:8px; border:1px solid #ccc;">${r.descripcion}</td>
-          ${metricasSeleccionadas.map(m => `<td style="padding:8px; border:1px solid #ccc; text-align:right;">${formatNum(r[METRICAS_DISPONIBLES.find(x=>x.id===m).key])}</td>`).join('')}
+        ${resultados.map(r => `<tr>
+          <td style="padding:5px; border:1px solid #ccc;">${r.descripcion}</td>
+          <td style="padding:5px; border:1px solid #ccc;">${r.anio}</td>
+          ${metricasSeleccionadas.map(m => {
+              const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
+              const v = r[`var_${m}`];
+              return `
+                <td style="padding:5px; border:1px solid #ccc; text-align:right;">${formatNum(r[key])}</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:right;">${v !== null ? v.toFixed(1)+'%' : '-'}</td>
+              `;
+          }).join('')}
         </tr>`).join('')}
       </table>
     </body></html>`;
@@ -293,12 +333,17 @@ export default function ReporteAvanzadoScreen() {
   };
 
   const handleExcel = async () => {
-    let csv = `Año,Descripción,${metricasSeleccionadas.map(m => METRICAS_DISPONIBLES.find(x=>x.id===m).label).join(',')}\n`;
+    let csv = `${nivelDesglose},Año,${metricasSeleccionadas.map(m => `${METRICAS_DISPONIBLES.find(x=>x.id===m).label},Variación %`).join(',')}\n`;
     resultados.forEach(r => {
-        const vals = metricasSeleccionadas.map(m => r[METRICAS_DISPONIBLES.find(x=>x.id===m).key]);
-        csv += `${r.anio},"${r.descripcion}",${vals.join(',')}\n`;
+        let fila = `"${r.descripcion}",${r.anio}`;
+        metricasSeleccionadas.forEach(m => {
+            const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
+            const v = r[`var_${m}`];
+            fila += `,${r[key]},${v !== null ? v.toFixed(2) : ''}`;
+        });
+        csv += fila + `\n`;
     });
-    const uri = FileSystem.cacheDirectory + "Reporte_SIACON.csv";
+    const uri = FileSystem.cacheDirectory + "Reporte_SIACON_BI.csv";
     await FileSystem.writeAsStringAsync(uri, csv, { encoding: 'utf8' });
     await Sharing.shareAsync(uri);
   };
@@ -308,12 +353,12 @@ export default function ReporteAvanzadoScreen() {
       <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
             <MaterialCommunityIcons name="finance" size={40} color="#2E7D32" />
-          <Text style={styles.title}>SIACON</Text>
-          <Text style={styles.subtitle}>Análisis Multianual</Text>
+            <Text style={styles.title}>SIACON BI</Text>
+            <Text style={styles.subtitle}>Análisis Multianual y Territorial</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>1. Nivel de Desglose</Text>
+          <Text style={styles.sectionTitle}>1. Configuración de Análisis</Text>
           <View style={styles.tabContainer}>
               {NIVELES_DESGLOSE.map((tab) => (
                   <TouchableOpacity key={tab} style={[styles.tab, nivelDesglose === tab && styles.tabActive]} onPress={() => setNivelDesglose(tab)}>
@@ -334,7 +379,17 @@ export default function ReporteAvanzadoScreen() {
           <FiltroAutocomplete id="estado" label="Estado(s)" valor={filtros.estado} setValor={(v) => setFiltros({...filtros, estado: v})} opciones={ESTADOS_MX} isMulti={true} zIndex={90} openMenu={openMenu} setOpenMenu={setOpenMenu} />
           <FiltroAutocomplete id="municipio" label="Municipio" valor={filtros.municipio} setValor={(t) => setFiltros({...filtros, municipio: t})} opciones={listaMunicipios} zIndex={80} openMenu={openMenu} setOpenMenu={setOpenMenu} />
           
-          <Text style={styles.sectionTitle}>2. Datos a Mostrar</Text>
+          {/* NUEVOS FILTROS: Ciclo y Modalidad */}
+          <View style={styles.row}>
+             <View style={{flex: 1, marginRight: 5}}>
+                <FiltroAutocomplete id="ciclo" label="Ciclo" valor={filtros.ciclo} setValor={(v) => setFiltros({...filtros, ciclo: v})} opciones={CICLOS} isMulti={true} zIndex={70} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+             </View>
+             <View style={{flex: 1, marginLeft: 5}}>
+                <FiltroAutocomplete id="modalidad" label="Modalidad" valor={filtros.modalidad} setValor={(v) => setFiltros({...filtros, modalidad: v})} opciones={MODALIDADES} isMulti={true} zIndex={70} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+             </View>
+          </View>
+
+          <Text style={styles.sectionTitle}>2. Variables</Text>
           <View style={styles.metricsGrid}>
             {METRICAS_DISPONIBLES.map(m => (
                 <TouchableOpacity key={m.id} style={[styles.metricChip, metricasSeleccionadas.includes(m.id) && styles.metricChipActive]} onPress={() => toggleMetrica(m.id)}>
@@ -344,7 +399,7 @@ export default function ReporteAvanzadoScreen() {
           </View>
 
           <TouchableOpacity style={styles.btnConsultar} onPress={consultarBaseDatos} disabled={cargando}>
-            {cargando ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>ANALIZAR DATOS</Text>}
+            {cargando ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>GENERAR REPORTE</Text>}
           </TouchableOpacity>
         </View>
 
@@ -352,18 +407,10 @@ export default function ReporteAvanzadoScreen() {
             <View style={{ marginTop: 20 }}>
                 <View style={styles.summaryCard}>
                     <Text style={styles.summaryTitle}>Resumen Ejecutivo</Text>
-                    <View style={styles.summaryRow}>
-                        <View style={styles.summaryItem}>
-                            <Text style={styles.summaryLabel}>VALOR TOTAL</Text>
-                            <Text style={styles.summaryValueMoney}>{formatMoney(resumenGeneral.val)}</Text>
-                        </View>
-                        <View style={styles.summaryItem}>
-                            <Text style={styles.summaryLabel}>SUPERFICIE SEMB.</Text>
-                            <Text style={styles.summaryValue}>{formatNum(resumenGeneral.sem)} Ha</Text>
-                        </View>
-                    </View>
-                    
-                    {/* SECCIÓN ACTUALIZADA: Variaciones de todas las variables */}
+                    <div style={styles.summaryRow}>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>VALOR TOTAL</Text><Text style={styles.summaryValueMoney}>{formatMoney(resumenGeneral.val)}</Text></View>
+                        <View style={styles.summaryItem}><Text style={styles.summaryLabel}>SUP. SEMBRADA</Text><Text style={styles.summaryValue}>{formatNum(resumenGeneral.sem)} Ha</Text></View>
+                    </div>
                     {variacionesMultiples.length > 0 && (
                         <View style={styles.multiVarContainer}>
                             <Text style={styles.multiVarTitle}>Variación Periodo ({variacionesMultiples[0].i}-{variacionesMultiples[0].f}):</Text>
@@ -371,9 +418,7 @@ export default function ReporteAvanzadoScreen() {
                                 {variacionesMultiples.map((v, idx) => (
                                     <View key={idx} style={styles.varChip}>
                                         <Text style={styles.varChipLabel}>{v.label}: </Text>
-                                        <Text style={[styles.varChipValue, {color: v.p >= 0 ? '#81C784' : '#ff8a80'}]}>
-                                            {v.p > 0 ? '+' : ''}{v.p.toFixed(1)}%
-                                        </Text>
+                                        <Text style={[styles.varChipValue, {color: v.p >= 0 ? '#81C784' : '#ff8a80'}]}>{v.p > 0 ? '+' : ''}{v.p.toFixed(1)}%</Text>
                                     </View>
                                 ))}
                             </View>
@@ -395,24 +440,31 @@ export default function ReporteAvanzadoScreen() {
                 <ScrollView horizontal style={styles.tableScroll}>
                     <View>
                         <View style={[styles.tableRow, styles.tableHeader]}>
+                            <Text style={[styles.cellHeader, {width: 130}]}>{nivelDesglose}</Text>
                             <Text style={[styles.cellHeader, {width: 50}]}>Año</Text>
-                            <Text style={[styles.cellHeader, {width: 130}]}>Descripción</Text>
                             {metricasSeleccionadas.map(mId => (
-                                <Text key={mId} style={[styles.cellHeader, {width: 100, textAlign: 'right'}]}>
-                                    {METRICAS_DISPONIBLES.find(m => m.id === mId).label}
-                                </Text>
+                                <React.Fragment key={mId}>
+                                    <Text style={[styles.cellHeader, {width: 100, textAlign: 'right'}]}>{METRICAS_DISPONIBLES.find(m => m.id === mId).label}</Text>
+                                    <Text style={[styles.cellHeader, {width: 70, textAlign: 'right', color: '#81C784'}]}>Var %</Text>
+                                </React.Fragment>
                             ))}
                         </View>
                         {resultados.map((item, i) => (
                             <View key={i} style={[styles.tableRow, {backgroundColor: i % 2 === 0 ? '#fff' : '#f9f9f9'}]}>
-                                <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
                                 <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>{item.descripcion}</Text>
+                                <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
                                 {metricasSeleccionadas.map(mId => {
                                     const key = METRICAS_DISPONIBLES.find(m => m.id === mId).key;
+                                    const varVal = item[`var_${mId}`];
                                     return (
-                                        <Text key={mId} style={[styles.cell, {width: 100, textAlign: 'right'}]}>
-                                            {mId === 'valor' || mId === 'precio' ? formatMoney(item[key]) : formatNum(item[key])}
-                                        </Text>
+                                        <React.Fragment key={mId}>
+                                            <Text style={[styles.cell, {width: 100, textAlign: 'right'}]}>
+                                                {mId === 'valor' || mId === 'precio' ? formatMoney(item[key]) : formatNum(item[key])}
+                                            </Text>
+                                            <Text style={[styles.cell, {width: 70, textAlign: 'right', fontWeight: 'bold', color: varVal >= 0 ? '#2E7D32' : '#D32F2F'}]}>
+                                                {varVal !== null ? `${varVal > 0 ? '+' : ''}${varVal.toFixed(1)}%` : '-'}
+                                            </Text>
+                                        </React.Fragment>
                                     );
                                 })}
                             </View>
@@ -444,21 +496,21 @@ const styles = StyleSheet.create({
   inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fafafa', borderRadius: 10, borderWidth: 1, borderColor: '#cfd8dc' },
   input: { flex: 1, paddingHorizontal: 15, height: 45, fontSize: 14, color: '#333' },
   clearBtn: { padding: 10 },
-  dropdownList: { position: 'absolute', top: 70, left: 0, right: 0, backgroundColor: 'white', borderRadius: 10, elevation: 20, zIndex: 2000, borderWidth: 1, borderColor: '#cfd8dc', overflow: 'hidden' },
-  dropdownItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#f5f5f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  itemText: { fontSize: 14, color: '#444' },
+  dropdownList: { position: 'absolute', top: 70, left: 0, right: 0, backgroundColor: 'white', borderRadius: 10, elevation: 20, zIndex: 2000, borderWidth: 1, borderColor: '#cfd8dc' },
+  dropdownItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#f5f5f5', flexDirection: 'row', justifyContent: 'space-between' },
+  itemText: { fontSize: 14 },
   itemTextActive: { color: '#2E7D32', fontWeight: 'bold' },
   noResults: { padding: 15, color: '#999', textAlign: 'center' },
   btnCloseMulti: { backgroundColor: '#2E7D32', padding: 12, margin: 8, borderRadius: 8 },
-  btnCloseText: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 12 },
+  btnCloseText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
   row: { flexDirection: 'row' },
   metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 15 },
-  metricChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#cfd8dc', backgroundColor: '#fff' },
+  metricChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#cfd8dc' },
   metricChipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
   metricChipText: { fontSize: 10, color: '#546e7a' },
   metricChipTextActive: { color: '#fff', fontWeight: 'bold' },
   btnConsultar: { backgroundColor: '#2E7D32', padding: 16, borderRadius: 12, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  btnText: { color: '#fff', fontWeight: 'bold' },
   summaryCard: { backgroundColor: '#37474f', borderRadius: 15, padding: 18, marginBottom: 15 },
   summaryTitle: { color: '#fff', fontSize: 15, fontWeight: 'bold', marginBottom: 12 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
@@ -475,7 +527,7 @@ const styles = StyleSheet.create({
   exportRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   btnExp: { flex: 0.48, flexDirection: 'row', padding: 12, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   btnExpText: { color: '#fff', fontWeight: 'bold', marginLeft: 8, fontSize: 13 },
-  tableScroll: { backgroundColor: '#fff', borderRadius: 12, elevation: 2 },
+  tableScroll: { backgroundColor: '#fff', borderRadius: 12 },
   tableRow: { flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee' },
   tableHeader: { backgroundColor: '#455A64' },
   cellHeader: { color: '#fff', fontWeight: 'bold', fontSize: 11, paddingHorizontal: 10 },
