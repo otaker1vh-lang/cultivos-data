@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, 
-  Alert, ActivityIndicator, Keyboard, Platform
+  Alert, ActivityIndicator, Keyboard, Platform, FlatList
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
@@ -136,8 +136,8 @@ export default function ReporteAvanzadoScreen() {
     cultivo: '',
     estado: [], 
     municipio: '',
-    ciclo: [], // Cambiado a arreglo para multiselección
-    modalidad: [], // Cambiado a arreglo para multiselección
+    ciclo: [], 
+    modalidad: [], 
   });
 
   const [metricasSeleccionadas, setMetricasSeleccionadas] = useState(['valor', 'volumen', 'sembrada']);
@@ -185,7 +185,6 @@ export default function ReporteAvanzadoScreen() {
       if (filtros.estado.length > 0) query = query.in('nomestado', filtros.estado);
       if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
       
-      // FILTROS ACTUALIZADOS: Ciclo y Modalidad con selección múltiple
       if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
       if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
       
@@ -228,7 +227,6 @@ export default function ReporteAvanzadoScreen() {
         acc[id].sembrada += (item.sembrada || 0);
         acc[id].siniestrada += (item.siniestrada || 0);
         acc[id].volumenproduccion += (item.volumenproduccion || 0);
-        acc[id].harvested = (acc[id].harvested || 0) + (item.cosechada || 0);
         acc[id].cosechada += (item.cosechada || 0);
         acc[id].sumPrecio += (item.preciomediorural || 0);
         acc[id].counter++;
@@ -348,6 +346,43 @@ export default function ReporteAvanzadoScreen() {
     await Sharing.shareAsync(uri);
   };
 
+  // --- NUEVAS FUNCIONES PARA EL FLATLIST ---
+  const renderCabeceraTabla = () => (
+    <View style={[styles.tableRow, styles.tableHeader]}>
+        <Text style={[styles.cellHeader, {width: 130}]}>{nivelDesglose}</Text>
+        <Text style={[styles.cellHeader, {width: 50}]}>Año</Text>
+        {metricasSeleccionadas.map(mId => (
+            <React.Fragment key={mId}>
+                <Text style={[styles.cellHeader, {width: 100, textAlign: 'right'}]}>
+                  {METRICAS_DISPONIBLES.find(m => m.id === mId).label}
+                </Text>
+                <Text style={[styles.cellHeader, {width: 70, textAlign: 'right', color: '#81C784'}]}>Var %</Text>
+            </React.Fragment>
+        ))}
+    </View>
+  );
+
+  const renderFilaTabla = ({ item, index }) => (
+    <View style={[styles.tableRow, {backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9'}]}>
+        <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>{item.descripcion}</Text>
+        <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
+        {metricasSeleccionadas.map(mId => {
+            const key = METRICAS_DISPONIBLES.find(m => m.id === mId).key;
+            const varVal = item[`var_${mId}`];
+            return (
+                <React.Fragment key={mId}>
+                    <Text style={[styles.cell, {width: 100, textAlign: 'right'}]}>
+                        {mId === 'valor' || mId === 'precio' ? formatMoney(item[key]) : formatNum(item[key])}
+                    </Text>
+                    <Text style={[styles.cell, {width: 70, textAlign: 'right', fontWeight: 'bold', color: varVal >= 0 ? '#2E7D32' : '#D32F2F'}]}>
+                        {varVal !== null ? `${varVal > 0 ? '+' : ''}${varVal.toFixed(1)}%` : '-'}
+                    </Text>
+                </React.Fragment>
+            );
+        })}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
@@ -379,7 +414,6 @@ export default function ReporteAvanzadoScreen() {
           <FiltroAutocomplete id="estado" label="Estado(s)" valor={filtros.estado} setValor={(v) => setFiltros({...filtros, estado: v})} opciones={ESTADOS_MX} isMulti={true} zIndex={90} openMenu={openMenu} setOpenMenu={setOpenMenu} />
           <FiltroAutocomplete id="municipio" label="Municipio" valor={filtros.municipio} setValor={(t) => setFiltros({...filtros, municipio: t})} opciones={listaMunicipios} zIndex={80} openMenu={openMenu} setOpenMenu={setOpenMenu} />
           
-          {/* NUEVOS FILTROS: Ciclo y Modalidad */}
           <View style={styles.row}>
              <View style={{flex: 1, marginRight: 5}}>
                 <FiltroAutocomplete id="ciclo" label="Ciclo" valor={filtros.ciclo} setValor={(v) => setFiltros({...filtros, ciclo: v})} opciones={CICLOS} isMulti={true} zIndex={70} openMenu={openMenu} setOpenMenu={setOpenMenu} />
@@ -407,10 +441,14 @@ export default function ReporteAvanzadoScreen() {
             <View style={{ marginTop: 20 }}>
                 <View style={styles.summaryCard}>
                     <Text style={styles.summaryTitle}>Resumen Ejecutivo</Text>
-                    <div style={styles.summaryRow}>
+                    
+                    {/* CORREGIDO: <View> con mayúscula */}
+                    <View style={styles.summaryRow}>
                         <View style={styles.summaryItem}><Text style={styles.summaryLabel}>VALOR TOTAL</Text><Text style={styles.summaryValueMoney}>{formatMoney(resumenGeneral.val)}</Text></View>
                         <View style={styles.summaryItem}><Text style={styles.summaryLabel}>SUP. SEMBRADA</Text><Text style={styles.summaryValue}>{formatNum(resumenGeneral.sem)} Ha</Text></View>
-                    </div>
+                    </View>
+                    {/* CORREGIDO: </View> con mayúscula */}
+
                     {variacionesMultiples.length > 0 && (
                         <View style={styles.multiVarContainer}>
                             <Text style={styles.multiVarTitle}>Variación Periodo ({variacionesMultiples[0].i}-{variacionesMultiples[0].f}):</Text>
@@ -437,40 +475,26 @@ export default function ReporteAvanzadoScreen() {
                     </TouchableOpacity>
                 </View>
 
+                {/* CORREGIDO: Se implementó FlatList y se retiró el .map() */}
                 <ScrollView horizontal style={styles.tableScroll}>
                     <View>
-                        <View style={[styles.tableRow, styles.tableHeader]}>
-                            <Text style={[styles.cellHeader, {width: 130}]}>{nivelDesglose}</Text>
-                            <Text style={[styles.cellHeader, {width: 50}]}>Año</Text>
-                            {metricasSeleccionadas.map(mId => (
-                                <React.Fragment key={mId}>
-                                    <Text style={[styles.cellHeader, {width: 100, textAlign: 'right'}]}>{METRICAS_DISPONIBLES.find(m => m.id === mId).label}</Text>
-                                    <Text style={[styles.cellHeader, {width: 70, textAlign: 'right', color: '#81C784'}]}>Var %</Text>
-                                </React.Fragment>
-                            ))}
+                        {renderCabeceraTabla()}
+                        <View style={{ maxHeight: 400 }}> 
+                            <FlatList
+                                data={resultados}
+                                keyExtractor={(item, index) => `${item.descripcion}-${item.anio}-${index}`}
+                                renderItem={renderFilaTabla}
+                                nestedScrollEnabled={true}
+                                initialNumToRender={15}
+                                maxToRenderPerBatch={15}
+                                windowSize={5}
+                                removeClippedSubviews={true}
+                                ListEmptyComponent={<Text style={{padding: 20, textAlign: 'center'}}>No hay datos para mostrar</Text>}
+                            />
                         </View>
-                        {resultados.map((item, i) => (
-                            <View key={i} style={[styles.tableRow, {backgroundColor: i % 2 === 0 ? '#fff' : '#f9f9f9'}]}>
-                                <Text style={[styles.cell, {width: 130}]} numberOfLines={1}>{item.descripcion}</Text>
-                                <Text style={[styles.cell, {width: 50}]}>{item.anio}</Text>
-                                {metricasSeleccionadas.map(mId => {
-                                    const key = METRICAS_DISPONIBLES.find(m => m.id === mId).key;
-                                    const varVal = item[`var_${mId}`];
-                                    return (
-                                        <React.Fragment key={mId}>
-                                            <Text style={[styles.cell, {width: 100, textAlign: 'right'}]}>
-                                                {mId === 'valor' || mId === 'precio' ? formatMoney(item[key]) : formatNum(item[key])}
-                                            </Text>
-                                            <Text style={[styles.cell, {width: 70, textAlign: 'right', fontWeight: 'bold', color: varVal >= 0 ? '#2E7D32' : '#D32F2F'}]}>
-                                                {varVal !== null ? `${varVal > 0 ? '+' : ''}${varVal.toFixed(1)}%` : '-'}
-                                            </Text>
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </View>
-                        ))}
                     </View>
                 </ScrollView>
+
             </View>
         )}
       </ScrollView>
