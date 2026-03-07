@@ -64,7 +64,8 @@ export default function GuiaScreen({ route }) {
 
   // 1. VIABILIDAD TÉCNICA
   const agro = infoCultivo.requerimientos_agroclimaticos || {};
-  const sistemasRiego = infoCultivo.sistemas_riego || [];
+  // AJUSTE JSON 07: Soporta la nueva estructura de objeto o el array clásico
+  const sistemasRiego = infoCultivo.sistemas_recomendados?.sistemas_riego || infoCultivo.sistemas_riego;
 
   // 2. NEGOCIO Y RENTABILIDAD
   const rentabilidad = infoCultivo.analisis_rentabilidad || {};

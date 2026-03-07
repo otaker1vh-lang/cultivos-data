@@ -25,134 +25,90 @@ export default function EstadisticasScreen({ route }) {
     cargarDatos();
   }, [cultivo]);
 
+    // --- SUSTITUIR ESTAS FUNCIONES EN EstadisticasScreen.js ---
+
+  const procesarHistoricoPrecios = (data) => {
+    // El JSON 07 guarda esto en 'economia_expandida'
+    const eco = data.economia_expandida || {};
+    const precioMax = eco.precio_max_mxn_ton || 0;
+    const precioMin = eco.precio_min_mxn_ton || 0;
+    const precioProm = eco.precio_promedio_mxn_ton || 0;
+
+    // Convertimos de Tonelada a Kilo (dividido entre 1000) para la gráfica
+    const labels = ["Mínimo", "Promedio", "Máximo"];
+    const valores = [precioMin / 1000, precioProm / 1000, precioMax / 1000];
+
+    setHistoricoPrecios({
+      labels,
+      datasets: [{ data: valores }]
+    });
+  };
+
+  const procesarCostos = (data) => {
+    // El JSON 07 usa 'costos_produccion_detallados'
+    const costos = data.costos_produccion_detallados || {};
+    
+    // Mapeo de rubros típicos del JSON 07
+    const labels = ["Insumos", "Mano Obra", "Riego", "Otros"];
+    const valores = [
+      (costos.semillas || 0) + (costos.fertilizantes || 0),
+      (costos.mano_obra_poda || 0) + (costos.mano_obra_cosecha || 0),
+      (costos.energia_riego || 0),
+      (costos.mantenimiento_maquinaria || 0)
+    ];
+
+    setCostosData({
+      labels,
+      datasets: [{ data: valores }]
+    });
+  };
+
+  const procesarRentabilidad = (data) => {
+    const rent = data.analisis_rentabilidad || {};
+    
+    // Datos para PieChart
+    const pieData = [
+      {
+        name: "Inversión",
+        poblacion: rent.inversion_inicial_ha || 0,
+        color: "#E57373",
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 12
+      },
+      {
+        name: "Ingreso Anual",
+        poblacion: rent.ingreso_anual_esperado_ha || 0,
+        color: "#81C784",
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 12
+      }
+    ];
+    setRentabilidadData(pieData);
+  };
+
   const cargarDatos = async (manual = false) => {
     try {
-        setLoading(true);
-        console.log(`🔍 Intentando cargar datos para: ${cultivo} (Manual: ${manual})`);
-        
-        // Intentamos obtener datos completos. El Manager ya debe manejar la fusión.
-        const datos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
-        
-        console.log("📦 Datos recibidos:", datos ? "Sí" : "No");
-
-        setInfoCultivo(datos);
-
-        if (datos) {
-            // Procesamiento robusto de secciones
-            procesarHistoricoPrecios(datos);
-            procesarCostos(datos);
-            procesarRentabilidad(datos);
-            
-            if (datos.estadisticas) {
-                setStatsExpandidas(datos.estadisticas);
-            } else {
-                setStatsExpandidas(null);
-            }
-
-            if (datos.mercado_comercializacion) {
-                setMercadoData(datos.mercado_comercializacion);
-            } else {
-                setMercadoData(null);
-            }
-
-            if (manual) {
-                Alert.alert("Actualización", "Datos actualizados correctamente.");
-            }
-        } else {
-            if (manual) Alert.alert("Aviso", "No se encontraron datos para este cultivo.");
-        }
-
-    } catch (error) {
-        console.error("Error cargando estadísticas:", error);
-        if (manual) Alert.alert("Error", "Ocurrió un error al cargar los datos.");
-    } finally {
-        setLoading(false);
-    }
-  };
-
-  // --- PROCESAMIENTO DE DATOS ---
-
-  const procesarHistoricoPrecios = (datos) => {
-      // CORRECCIÓN 2026: Soporta precio por tonelada del nuevo JSON y lo convierte a kilo, con fallback a precio_medio
-      const economia = datos.economia_expandida || {};
-      let precioProm = 15;
-
-      if (economia.precio_max_mxn_ton) {
-          const maxKg = parseFloat(economia.precio_max_mxn_ton) / 1000;
-          const minKg = parseFloat(economia.precio_min_mxn_ton || economia.precio_max_mxn_ton) / 1000;
-          precioProm = (maxKg + minKg) / 2;
-      } else {
-          precioProm = parseFloat(economia.precio_promedio_mxn_kg || datos.precio_medio || 15);
-      }
-
-      // Simulación de variación estacional basada en el precio base (si no hay datos reales mensuales)
-      const preciosMensuales = [
-          precioProm * 0.9, precioProm * 0.85, precioProm * 0.9, 
-          precioProm * 1.0, precioProm * 1.1, precioProm * 1.2, 
-          precioProm * 1.15, precioProm * 1.0, precioProm * 0.95, 
-          precioProm * 1.05, precioProm * 1.25, precioProm * 1.3
-      ];
-
-      setHistoricoPrecios({
-          labels: ["Ene", "Mar", "May", "Jul", "Sep", "Nov"], 
-          datasets: [{ data: preciosMensuales }]
-      });
-  };
-
-  const procesarCostos = (datos) => {
-      const presupuesto = datos.presupuesto_labores_detallado || {};
-      const categorias = [];
-      const colores = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
-
-      let i = 0;
-      // Intenta extraer del presupuesto detallado
-      if (presupuesto && Object.keys(presupuesto).length > 0) {
-        for (const [key, value] of Object.entries(presupuesto)) {
-            if (value && value.actividades) {
-                const totalCat = value.actividades.reduce((sum, act) => sum + (parseFloat(act.costo_ha) || 0), 0);
-                if (totalCat > 0) {
-                    categorias.push({
-                        name: key.charAt(0).toUpperCase() + key.slice(1),
-                        population: totalCat,
-                        color: colores[i % colores.length],
-                        legendFontColor: "#7F7F7F",
-                        legendFontSize: 11
-                    });
-                    i++;
-                }
-            }
-        }
-      }
+      setLoading(true);
+      // Usamos el Manager que ya maneja la URL de Firebase
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
-      // Fallback: Si no hay presupuesto detallado, usar costos macro o genéricos (AJUSTADO PARA JSON 2026 CON _pct)
-      if (categorias.length === 0 && datos.costos_produccion_detallados) {
-         const costosMacro = datos.costos_produccion_detallados;
-         if (costosMacro.insumos || costosMacro.insumos_pct) categorias.push({ name: 'Insumos', population: parseFloat(costosMacro.insumos || costosMacro.insumos_pct) || 15000, color: '#FF6384', legendFontColor: "#7F7F7F", legendFontSize: 11 });
-         if (costosMacro.mano_obra || costosMacro.mano_obra_pct) categorias.push({ name: 'Mano de Obra', population: parseFloat(costosMacro.mano_obra || costosMacro.mano_obra_pct) || 12000, color: '#36A2EB', legendFontColor: "#7F7F7F", legendFontSize: 11 });
-         if (costosMacro.operacion_pct) categorias.push({ name: 'Operación', population: parseFloat(costosMacro.operacion_pct) || 30, color: '#FFCE56', legendFontColor: "#7F7F7F", legendFontSize: 11 });
+      if (data) {
+        setInfoCultivo(data);
+        procesarHistoricoPrecios(data);
+        procesarCostos(data);
+        procesarRentabilidad(data);
+        
+        // Datos adicionales del mercado para la UI
+        if (data.mercado_y_comercializacion) {
+          setMercadoData(data.mercado_y_comercializacion);
+        }
       }
-
-      setCostosData(categorias.length > 0 ? categorias : null);
-  };
-
-  const procesarRentabilidad = (datos) => {
-      const rent = datos.analisis_rentabilidad || {};
-      // CORRECCIÓN: Buscar ROI en rentabilidad o calcular estimado simple
-      const utilidad = parseFloat(rent.utilidad_neta_anual_ha) || (datos.precio_medio * (datos.rendimiento || 10) * 0.3) || 0; 
-      const inversion = parseFloat(rent.inversion_inicial_ha) || (utilidad * 0.8) || 0; 
-
-      if (utilidad > 0 || inversion > 0) {
-          setRentabilidadData({
-              labels: ["Inversión", "Ventas", "Utilidad"],
-              datasets: [{
-                  data: [
-                      inversion,
-                      inversion + utilidad, 
-                      utilidad
-                  ]
-              }]
-          });
-      }
+    } catch (error) {
+      console.error("Error cargando estadísticas:", error);
+      Alert.alert("Error", "No se pudieron procesar los datos estadísticos.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const obtenerDatosRiesgo = () => {

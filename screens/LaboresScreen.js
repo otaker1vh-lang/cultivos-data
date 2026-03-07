@@ -87,30 +87,47 @@ export default function LaboresScreen({ route }) {
   };
 
   // --- FUNCIÓN DE FIREBASE ---
-  const obtenerDatosFirebase = async () => {
+  const obtenerDatosFirebase = async (manual = false) => {
     try {
-      addDebug(`🔥 Consultando Realtime DB para: ${cultivo}`);
-      const rtdb = getDatabase(app); 
-      const dbRef = ref(rtdb);
-      const ruta = `cultivos/${cultivo}`;
-      const snapshot = await get(child(dbRef, ruta));
+      setLoadingCompleto(true);
+      const db = getDatabase(app);
+      // Referencia directa al nodo del cultivo en la estructura del JSON 07
+      const cultivoRef = ref(db, `cultivos/${cultivo}`);
+      const snapshot = await get(cultivoRef);
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        addDebug('✅ Datos encontrados en RTDB');
-        return {
+        
+        // Mapeo y Normalización para compatibilidad con JSON 07
+        const dataNormalizada = {
           ...data,
-          presupuesto_labores_detallado: data.presupuesto_labores_detallado || data.presupuesto || {},
-          calendario_riego: data.calendario_riego_mensual || data.calendario_riego || {},
-          sistemas_riego: data.sistemas_riego || []
+          // 1. Asegurar que el calendario de riego se lea de la clave correcta
+          calendario_riego: data.calendario_riego_mensual || data.calendario_riego || [],
+          
+          // 2. Normalizar Labores/Actividades (el JSON 07 las tiene en 'labores_culturales')
+          labores_culturales: data.labores_culturales || [],
+          
+          // 3. Manejo de Infraestructura de Riego (sistemas_recomendados en JSON 07)
+          sistemas_recomendados: data.sistemas_recomendados || [],
+          
+          // 4. Costos y Presupuesto (costos_produccion_detallados en JSON 07)
+          presupuesto_estimado: data.costos_produccion_detallados || data.presupuesto_estimado || null,
+          
+          _origen: 'firebase_rt',
+          _fecha: new Date().toISOString()
         };
+
+        setCultivoData(dataNormalizada);
+        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(dataNormalizada));
+        setNivel('completo');
+        if(manual) Alert.alert("Éxito", "Datos actualizados desde la nube.");
       } else {
-        addDebug('⚠️ El cultivo no existe en la ruta especificada');
-        return null;
+        console.log("No se hallaron datos en el nodo: cultivos/" + cultivo);
       }
     } catch (error) {
-      addDebug(`🚨 Error RTDB: ${error.message}`);
-      return null;
+      console.error("Error RTDB:", error);
+    } finally {
+      setLoadingCompleto(false);
     }
   };
 
@@ -172,7 +189,8 @@ export default function LaboresScreen({ route }) {
   const laboresRaw = cultivoData?.labores_culturales || cultivoData?.labores || {};
   const fertPrograma = cultivoData?.programa_fertilizacion || [];
   const fertCalculo = cultivoData?.calculo_fertilizacion?.recomendada || {};
-  const sistemasRiego = cultivoData?.sistemas_riego || [];
+  const sistemasRiego = cultivoData?.sistemas_riego?.sistemas_recomendados || 
+                      (Array.isArray(cultivoData?.sistemas_riego) ? cultivoData.sistemas_riego : []);
   const costos = cultivoData?.costos_produccion_detallados || {};
   
   // VARIABLES (POSTCOSECHA Y DEFICIENCIAS)

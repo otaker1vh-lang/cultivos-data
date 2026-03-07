@@ -67,11 +67,13 @@ export default function FenologiaScreen({ route }) {
   };
 
   const procesarYSetearDatos = (data) => {
-    // Detectamos si hay BBCH detallado
-    if (data.bbch_detallado && Array.isArray(data.bbch_detallado) && data.bbch_detallado.length > 0) {
+    // AJUSTE JSON 07: Buscar bbch_detallado en la raíz o dentro de ciclo_fenologico
+    const bbchData = data.bbch_detallado || data.ciclo_fenologico?.bbch_detallado;
+    
+    if (bbchData && Array.isArray(bbchData) && bbchData.length > 0) {
       setModoDetallado(true);
       // Ordenamos por código BBCH para secuencia lógica
-      const bbchOrdenado = [...data.bbch_detallado].sort((a, b) => {
+      const bbchOrdenado = [...bbchData].sort((a, b) => {
         const valA = parseFloat(a.codigo_bbch) || 0;
         const valB = parseFloat(b.codigo_bbch) || 0;
         return valA - valB;

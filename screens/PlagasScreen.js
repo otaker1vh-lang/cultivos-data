@@ -16,7 +16,7 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CultivoDataManager from "../utils/CultivoDataManager";
 
-// Componente para chips de filtro (Mantenido igual)
+// Componente para chips de filtro
 const FilterChip = ({ label, selected, onPress, icon }) => (
   <TouchableOpacity 
     style={[styles.filterChip, selected && styles.filterChipSelected]} 
@@ -43,18 +43,17 @@ export default function PlagasScreen({ route }) {
 
   // --- NUEVOS ESTADOS PARA EDICIÓN ---
   const [modalVisible, setModalVisible] = useState(false);
-  const [editItem, setEditItem] = useState(null); // Elemento temporal siendo editado
-  const [editIndex, setEditIndex] = useState(-1); // Índice para actualizar la lista
+  const [editItem, setEditItem] = useState(null);
+  const [editIndex, setEditIndex] = useState(-1);
 
   useEffect(() => {
     cargarDatos();
   }, [cultivo]);
 
-  // 1. LÓGICA DE CARGA HÍBRIDA (MANTENIDA)
+  // 1. LÓGICA DE CARGA HÍBRIDA
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      // A. Carga rápida desde caché
       const datosGuardados = await AsyncStorage.getItem(CACHE_KEY);
 
       if (datosGuardados) {
@@ -63,7 +62,6 @@ export default function PlagasScreen({ route }) {
         setLoading(false);
       }
 
-      // B. Carga desde DataManager (Fallback)
       const datosBasicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
       
       if (datosBasicos) {
@@ -82,7 +80,7 @@ export default function PlagasScreen({ route }) {
     }
   };
 
-  // 2. DESCARGA MANUAL (MANTENIDA)
+  // 2. DESCARGA MANUAL
   const descargarDatosCompletos = async () => {
     try {
       setLoadingCompleto(true);
@@ -105,14 +103,14 @@ export default function PlagasScreen({ route }) {
     }
   };
 
-  // 3. PROCESAMIENTO (ACTUALIZADO PARA DOSIS Y ESTRUCTURA)
+  // 3. PROCESAMIENTO
   const procesarYSetearDatos = (data) => {
     // A. Detectar GDD
     if (data.grados_dia_desarrollo) {
       setGddInfo(data.grados_dia_desarrollo);
     }
 
-    // B. Detectar Lista de Plagas (Misma lógica de detección de origen)
+    // B. Detectar Lista de Plagas
     let rawList = [];
     if (data.riesgos_detallados) {
         rawList = Object.entries(data.riesgos_detallados).map(([key, value]) => ({ nombre: value.nombre || key, ...value }));
@@ -124,10 +122,10 @@ export default function PlagasScreen({ route }) {
         rawList = data.plagas;
     }
 
-    // C. Normalización (ACTUALIZADA con Dosis)
+    // C. Normalización
     const listaNormalizada = rawList.map(item => {
-        // 1. Síntomas
-        const sintomas = item.sintomas || item.sintomas_visuales || item.descripcion || "";
+        // 1. Síntomas (Corregido para evitar duplicar "descripción" como "síntomas")
+        const sintomas = item.sintomas || item.sintomas_visuales || "";
 
         // 2. Condiciones
         let condiciones = item.condiciones_favorables || item.condiciones_desarrollo || "";
@@ -144,15 +142,13 @@ export default function PlagasScreen({ route }) {
             condiciones = partes.join(', ');
         }
 
-        // 3. Manejo Integrado (CON LOGICA DE DOSIS)
+        // 3. Manejo Integrado
         let manejo = item.manejo_integrado || {}; 
         
-        // Si manejo no viene como objeto estructurado, intentamos armarlo
         if (typeof manejo !== 'object' || manejo === null) {
-             manejo = {}; // Inicializar vacío si era string o null para llenarlo abajo
+             manejo = {};
         }
 
-        // Recuperar datos sueltos si el objeto manejo está incompleto
         if (!manejo.cultural && item.control_cultural) {
             manejo.cultural = Array.isArray(item.control_cultural) ? item.control_cultural.join('. ') : item.control_cultural;
         }
@@ -160,10 +156,8 @@ export default function PlagasScreen({ route }) {
             manejo.biologico = item.control_biologico;
         }
         
-        // --- LÓGICA DE DOSIS AÑADIDA AQUÍ ---
         if (!manejo.quimico && item.control_quimico) {
             if (Array.isArray(item.control_quimico)) {
-                // Mapeamos para sacar nombre, ingrediente Y DOSIS
                 manejo.quimico = item.control_quimico.map(q => {
                     let texto = `• ${q.nombre_comercial || 'Producto'} (${q.ingrediente_activo || ''})`;
                     if (q.dosis) {
@@ -176,9 +170,24 @@ export default function PlagasScreen({ route }) {
             }
         }
         
-        // Fallback final si sigue vacío
-        if (Object.keys(manejo).length === 0 && (item.control_recomendado || item.control)) {
-            manejo = { general: item.control_recomendado || item.control };
+        // Procesar control general / recomendado (Corregido el parseo seguro de objetos desde la DB)
+        let controlGeneral = item.control_recomendado;
+        if (!controlGeneral && item.control) {
+            if (typeof item.control === 'object') {
+                const partesControl = [];
+                if (item.control.mecanismo) partesControl.push(`Mecanismo: ${item.control.mecanismo}`);
+                if (Array.isArray(item.control.productos_activos_mexico)) {
+                    const prods = item.control.productos_activos_mexico.map(p => `• ${p.ingrediente} (${p.dosis_tipo || ''})`).join('\n');
+                    partesControl.push(`Productos:\n${prods}`);
+                }
+                controlGeneral = partesControl.join('\n\n');
+            } else {
+                controlGeneral = item.control;
+            }
+        }
+
+        if (controlGeneral) {
+            manejo.general = controlGeneral;
         }
 
         return {
@@ -199,13 +208,11 @@ export default function PlagasScreen({ route }) {
     }
   };
 
-  // --- FUNCIONES DE EDICIÓN (NUEVAS) ---
+  // --- FUNCIONES DE EDICIÓN ---
   const abrirEditor = (item, index) => {
-    // Preparamos los datos para los inputs del modal
     setEditIndex(index);
     setEditItem({
         ...item,
-        // Convertimos arrays a texto para editar fácilmente
         sintomasTexto: Array.isArray(item.sintomas) ? item.sintomas.join('\n') : item.sintomas,
         manejoQuimicoTexto: typeof item.manejo_integrado === 'object' ? item.manejo_integrado.quimico : item.manejo_integrado,
         manejoCulturalTexto: item.manejo_integrado?.cultural || '',
@@ -217,30 +224,26 @@ export default function PlagasScreen({ route }) {
   const guardarCambios = async () => {
     if (editIndex === -1 || !editItem) return;
 
-    // 1. Crear copia de la lista
     const nuevaLista = [...plagasList];
     
-    // 2. Actualizar el objeto modificado
     const itemActualizado = {
         ...nuevaLista[editIndex],
         nombre: editItem.nombre,
         descripcion: editItem.descripcion,
-        sintomas: editItem.sintomasTexto, // Guardamos lo editado
+        sintomas: editItem.sintomasTexto, 
         condiciones_favorables: editItem.condiciones_favorables,
         manejo_integrado: {
             ...nuevaLista[editIndex].manejo_integrado,
             cultural: editItem.manejoCulturalTexto,
             biologico: editItem.manejoBiologicoTexto,
-            quimico: editItem.manejoQuimicoTexto // Aquí va la dosis editada si estaba en texto
+            quimico: editItem.manejoQuimicoTexto
         }
     };
 
     nuevaLista[editIndex] = itemActualizado;
     setPlagasList(nuevaLista);
     
-    // 3. Persistir en AsyncStorage (Guardar localmente)
     try {
-        // Reconstruimos un objeto compatible con lo que espera `procesarYSetearDatos` al recargar
         const dataToSave = {
             grados_dia_desarrollo: gddInfo,
             plagas_y_enfermedades: nuevaLista
@@ -255,11 +258,15 @@ export default function PlagasScreen({ route }) {
     setModalVisible(false);
   };
 
+  // Corregido el mapeo de filtros para adaptarse a cómo Firebase cataloga los tipos.
   const getFilteredList = () => {
     if (filter === 'todos') return plagasList;
-    return plagasList.filter(item => 
-      item.tipo && item.tipo.toLowerCase().includes(filter.toLowerCase())
-    );
+    return plagasList.filter(item => {
+      const tipoStr = (item.tipo || '').toLowerCase();
+      if (filter === 'insecto') return tipoStr.includes('insecto') || tipoStr.includes('plaga');
+      if (filter === 'hongo') return tipoStr.includes('hongo') || tipoStr.includes('enfermedad');
+      return tipoStr.includes(filter.toLowerCase());
+    });
   };
 
   const toggleExpand = (nombre) => {
@@ -309,7 +316,7 @@ export default function PlagasScreen({ route }) {
         )}
       </View>
 
-      {/* TARJETA GDD (MANTENIDA) */}
+      {/* TARJETA GDD */}
       {gddInfo && (
         <View style={styles.gddCard}>
           <View style={styles.gddHeader}>
@@ -378,7 +385,7 @@ export default function PlagasScreen({ route }) {
                     <Text style={[styles.plagaType, {color: typeColor}]}>{item.tipo || 'General'}</Text>
                   </View>
                   
-                  {/* BOTÓN DE EDICIÓN (NUEVO) */}
+                  {/* BOTÓN DE EDICIÓN */}
                   <TouchableOpacity style={styles.btnEditar} onPress={() => abrirEditor(item, index)}>
                     <MaterialCommunityIcons name="pencil-outline" size={22} color="#1976D2" />
                   </TouchableOpacity>
@@ -399,14 +406,14 @@ export default function PlagasScreen({ route }) {
                     <View style={styles.divider} />
 
                     {/* Síntomas */}
-                    {item.sintomas ? (
+                    {item.sintomas !== "" && (
                       <View style={styles.sectionBlock}>
                         <Text style={styles.sectionTitle}>
                           <MaterialCommunityIcons name="magnify" size={16} color="#555" /> Síntomas
                         </Text>
                         <Text style={styles.bodyText}>{Array.isArray(item.sintomas) ? item.sintomas.join('. ') : item.sintomas}</Text>
                       </View>
-                    ) : null}
+                    )}
 
                     {/* Condiciones */}
                     {item.condiciones_favorables && item.condiciones_favorables !== "" && (
@@ -440,7 +447,6 @@ export default function PlagasScreen({ route }) {
                           {item.manejo_integrado.quimico && (
                             <View style={styles.managementRow}>
                               <Text style={[styles.managementLabel, {color: '#D32F2F'}]}>🧪 Químico / Dosis:</Text>
-                              {/* Renderiza el texto con saltos de línea para que se vea la dosis */}
                               <Text style={styles.managementText}>{item.manejo_integrado.quimico}</Text>
                             </View>
                           )}
@@ -465,7 +471,7 @@ export default function PlagasScreen({ route }) {
         <View style={{height: 60}} />
       </ScrollView>
 
-      {/* --- MODAL DE EDICIÓN (NUEVO) --- */}
+      {/* --- MODAL DE EDICIÓN --- */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -557,7 +563,7 @@ const styles = StyleSheet.create({
   plagaName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   scientificName: { fontSize: 13, color: '#666', fontStyle: 'italic', marginBottom: 2 },
   plagaType: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginTop: 2 },
-  btnEditar: { padding: 5, marginRight: 5 }, // Estilo botón lápiz
+  btnEditar: { padding: 5, marginRight: 5 },
 
   cardBody: { paddingHorizontal: 15, paddingBottom: 15 },
   description: { fontSize: 14, color: '#444', lineHeight: 20, marginBottom: 10 },
@@ -578,7 +584,7 @@ const styles = StyleSheet.create({
   emptyContainer: { alignItems: 'center', marginTop: 50 },
   emptyText: { marginTop: 10, color: '#999', fontSize: 14 },
 
-  // Modal Styles (NUEVOS)
+  // Modal Styles
   modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, height: '85%', paddingBottom: 20 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderColor: '#eee' },
