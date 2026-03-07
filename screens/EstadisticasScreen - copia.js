@@ -73,17 +73,9 @@ export default function EstadisticasScreen({ route }) {
   // --- PROCESAMIENTO DE DATOS ---
 
   const procesarHistoricoPrecios = (datos) => {
-      // CORRECCIÓN 2026: Soporta precio por tonelada del nuevo JSON y lo convierte a kilo, con fallback a precio_medio
+      // CORRECCIÓN: Busca precio en economia_expandida O en la raíz (precio_medio) para evitar gráficas vacías
       const economia = datos.economia_expandida || {};
-      let precioProm = 15;
-
-      if (economia.precio_max_mxn_ton) {
-          const maxKg = parseFloat(economia.precio_max_mxn_ton) / 1000;
-          const minKg = parseFloat(economia.precio_min_mxn_ton || economia.precio_max_mxn_ton) / 1000;
-          precioProm = (maxKg + minKg) / 2;
-      } else {
-          precioProm = parseFloat(economia.precio_promedio_mxn_kg || datos.precio_medio || 15);
-      }
+      const precioProm = parseFloat(economia.precio_promedio_mxn_kg || datos.precio_medio || 15);
 
       // Simulación de variación estacional basada en el precio base (si no hay datos reales mensuales)
       const preciosMensuales = [
@@ -124,12 +116,11 @@ export default function EstadisticasScreen({ route }) {
         }
       }
       
-      // Fallback: Si no hay presupuesto detallado, usar costos macro o genéricos (AJUSTADO PARA JSON 2026 CON _pct)
+      // Fallback: Si no hay presupuesto detallado, usar costos macro o genéricos
       if (categorias.length === 0 && datos.costos_produccion_detallados) {
          const costosMacro = datos.costos_produccion_detallados;
-         if (costosMacro.insumos || costosMacro.insumos_pct) categorias.push({ name: 'Insumos', population: parseFloat(costosMacro.insumos || costosMacro.insumos_pct) || 15000, color: '#FF6384', legendFontColor: "#7F7F7F", legendFontSize: 11 });
-         if (costosMacro.mano_obra || costosMacro.mano_obra_pct) categorias.push({ name: 'Mano de Obra', population: parseFloat(costosMacro.mano_obra || costosMacro.mano_obra_pct) || 12000, color: '#36A2EB', legendFontColor: "#7F7F7F", legendFontSize: 11 });
-         if (costosMacro.operacion_pct) categorias.push({ name: 'Operación', population: parseFloat(costosMacro.operacion_pct) || 30, color: '#FFCE56', legendFontColor: "#7F7F7F", legendFontSize: 11 });
+         if (costosMacro.insumos) categorias.push({ name: 'Insumos', population: parseFloat(costosMacro.insumos) || 15000, color: '#FF6384', legendFontColor: "#7F7F7F", legendFontSize: 11 });
+         if (costosMacro.mano_obra) categorias.push({ name: 'Mano de Obra', population: parseFloat(costosMacro.mano_obra) || 12000, color: '#36A2EB', legendFontColor: "#7F7F7F", legendFontSize: 11 });
       }
 
       setCostosData(categorias.length > 0 ? categorias : null);

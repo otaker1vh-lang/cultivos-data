@@ -1,86 +1,89 @@
 // ============================================================================
-// CALCULADORA DE GRADOS-DÍA ACUMULADOS (GDD) - VERSIÓN REACT NATIVE
+// CALCULADORA DE GRADOS-DÍA ACUMULADOS (GDD) - VERSIÓN DE PRODUCCIÓN 050326
 // ============================================================================
 
 /**
- * Calcula Grados-Día (GDD) para un día usando el método simple
+ * Calcula Grados-Día (GDD) usando el método de la curva de seno (Single Sine)
+ * con corte horizontal, ideal para el desarrollo de insectos y plantas.
  */
-export function calcularGDD_Simple(tmax, tmin, baseTermica, umbralSuperior = null) {
-  if (umbralSuperior !== null) {
-    if (tmax > umbralSuperior) tmax = umbralSuperior;
-    if (tmin > umbralSuperior) tmin = umbralSuperior;
+export function calcularGDD_Seno(tmax, tmin, baseTermica, umbralSuperior = null) {
+  if (tmax <= baseTermica) return 0;
+  
+  const tMedia = (tmax + tmin) / 2;
+  const amplitud = (tmax - tmin) / 2;
+  
+  if (umbralSuperior !== null && tmin >= umbralSuperior) {
+    return umbralSuperior - baseTermica;
   }
 
-  const tPromedio = (tmax + tmin) / 2;
-  return Math.max(0, tPromedio - baseTermica);
+  if (tmin >= baseTermica && (umbralSuperior === null || tmax <= umbralSuperior)) {
+    return tMedia - baseTermica;
+  }
+
+  if (tmin < baseTermica && (umbralSuperior === null || tmax <= umbralSuperior)) {
+    const theta = Math.asin((baseTermica - tMedia) / amplitud);
+    return (1 / Math.PI) * ((tMedia - baseTermica) * (Math.PI / 2 - theta) + amplitud * Math.cos(theta));
+  }
+
+  if (tmin >= baseTermica && umbralSuperior !== null && tmax > umbralSuperior) {
+    const thetaUpper = Math.asin((umbralSuperior - tMedia) / amplitud);
+    return (1 / Math.PI) * ((tMedia - baseTermica) * (thetaUpper + Math.PI / 2) + 
+           (umbralSuperior - baseTermica) * (Math.PI / 2 - thetaUpper) - amplitud * Math.cos(thetaUpper));
+  }
+
+  if (tmin < baseTermica && umbralSuperior !== null && tmax > umbralSuperior) {
+    const thetaBase = Math.asin((baseTermica - tMedia) / amplitud);
+    const thetaUpper = Math.asin((umbralSuperior - tMedia) / amplitud);
+    return (1 / Math.PI) * ((tMedia - baseTermica) * (thetaUpper - thetaBase) + 
+           amplitud * (Math.cos(thetaBase) - Math.cos(thetaUpper)) + 
+           (umbralSuperior - baseTermica) * (Math.PI / 2 - thetaUpper));
+  }
+
+  return Math.max(0, tMedia - baseTermica);
 }
 
 /**
- * Calcula Grados-Día usando el método modificado (más preciso)
+ * Procesa valores de texto o rangos del JSON (ej: "1040-1100" o "10").
+ * Para alertas tempranas, se prioriza el valor mínimo del rango.
  */
-export function calcularGDD_Modificado(tmax, tmin, baseTermica, umbralSuperior = null) {
-  if (umbralSuperior !== null) {
-    tmax = Math.min(tmax, umbralSuperior);
-    tmin = Math.min(tmin, umbralSuperior);
+function parseVal(val) {
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string' && val.includes('-')) {
+    const parts = val.split('-').map(p => parseFloat(p.trim()));
+    return parts[0]; // Usamos el límite inferior para mayor seguridad preventiva.
   }
-
-  // En el método modificado, si Tmax < Base, no hay acumulación.
-  if (tmax < baseTermica) return 0;
-
-  if (tmin < baseTermica) {
-    tmin = baseTermica;
-  }
-
-  const tPromedio = (tmax + tmin) / 2;
-  return Math.max(0, tPromedio - baseTermica);
+  return parseFloat(val) || 0;
 }
 
 /**
- * Ordena los riesgos por nivel de severidad
- */
-export function ordenarRiesgosPorNivel(riesgos) {
-  const prioridad = { 'CRÍTICO': 4, 'ALTO': 3, 'MEDIO': 2, 'BAJO': 1, 'NINGUNO': 0 };
-  return [...riesgos].sort((a, b) => {
-    return (prioridad[b.nivel] || 0) - (prioridad[a.nivel] || 0);
-  });
-}
-
-/**
- * Extrae la configuración de riesgos del JSON del cultivo desde Firebase
+ * Carga los riesgos mapeando correctamente las claves del JSON.
  */
 export function cargarRiesgosDesdeJSON(cultivoData) {
   const riesgos = [];
-  const riesgosDetallados = cultivoData.riesgos_detallados;
+  // Soporta ambas nomenclaturas encontradas en el JSON: riesgos_detallados o riesgos_fitosanitarios.
+  const dataRiesgos = cultivoData.riesgos_detallados || cultivoData.riesgos_fitosanitarios;
 
-  if (!riesgosDetallados) return riesgos;
+  if (!dataRiesgos) return riesgos;
 
-  Object.keys(riesgosDetallados).forEach(nombre => {
-    const info = riesgosDetallados[nombre];
+  Object.keys(dataRiesgos).forEach(nombre => {
+    const info = dataRiesgos[nombre];
     const gddInfo = info.ciclo_desarrollo?.grados_dia_desarrollo;
 
     if (gddInfo && gddInfo.base_termica && gddInfo.base_termica !== "N/A") {
-      const parseVal = (val) => {
-        if (typeof val === 'number') return val;
-        if (typeof val === 'string' && val.includes('-')) {
-          const parts = val.split('-').map(p => parseFloat(p.trim()));
-          return (parts[0] + (parts[1] || parts[0])) / 2;
-        }
-        return parseFloat(val) || 0;
-      };
+      // Extracción de humedad desde condiciones_desarrollo (donde está en su JSON).
+      const humedadUmbral = info.condiciones_desarrollo?.humedad_relativa?.minima || 80;
 
       riesgos.push({
         nombre: nombre,
-        nombre_cientifico: info.nombre_cientifico || "",
-        tipo: info.tipo || "plaga",
-        ciclo_desarrollo: {
-          grados_dia_desarrollo: {
-            base_termica: parseVal(gddInfo.base_termica),
-            umbral_superior: gddInfo.umbral_superior !== "N/A" ? parseVal(gddInfo.umbral_superior) : null,
-            gdd_ciclo_completo: parseVal(gddInfo.gdd_ciclo_completo),
-            metodo_calculo: gddInfo.metodo_calculo || "Método simple"
-          }
-        },
-        fases_vulnerables: info.fases_vulnerables || []
+        cientifico: info.nombre_cientifico || "",
+        tipo: (info.tipo || info.modelo_fenologico || "plaga").toLowerCase(),
+        config: {
+          base_termica: parseVal(gddInfo.base_termica),
+          umbral_superior: gddInfo.umbral_superior !== "N/A" ? parseVal(gddInfo.umbral_superior) : null,
+          gdd_requeridos: parseVal(gddInfo.gdd_ciclo_completo),
+          metodo_calculo: gddInfo.metodo_calculo || "seno",
+          humedad_relativa_min: humedadUmbral
+        }
       });
     }
   });
@@ -89,27 +92,39 @@ export function cargarRiesgosDesdeJSON(cultivoData) {
 }
 
 /**
- * Calcula el acumulado de GDD para múltiples riesgos basándose en el historial
+ * Ejecuta el cálculo epidemiológico diferenciado.
  */
 export function calcularRiesgosMultiples(historial, riesgosConfig) {
   const resultados = {};
 
   riesgosConfig.forEach(riesgo => {
     let gddAcumulado = 0;
+    const { config, tipo, nombre, cientifico } = riesgo;
     
-    // Recorremos el historial y sumamos los GDD diarios
     historial.forEach(dia => {
-      // Usamos el método simple por defecto (puedes cambiarlo si riesgo.metodo lo requiere)
-      const gddDia = calcularGDD_Simple(dia.tmax, dia.tmin, riesgo.umbral_base);
+      let gddDia = calcularGDD_Seno(dia.tmax, dia.tmin, config.base_termica, config.umbral_superior);
+
+      // Lógica específica para Enfermedades (Hongos/Bacterias)
+      const esEnfermedad = tipo.includes('enfermedad') || tipo.includes('hongo') || cientifico.includes('Erwinia');
+
+      if (esEnfermedad) {
+        if (dia.humedad_relativa >= config.humedad_relativa_min) {
+            // Multiplicador para bacterias si la temperatura es óptima (24-30°C).
+            if (cientifico.includes('Erwinia') && dia.tmax >= 24 && dia.tmax <= 30) {
+                gddDia *= 1.5;
+            }
+        } else {
+            gddDia = 0; // Sin humedad no hay infección activa.
+        }
+      }
+      
       gddAcumulado += gddDia;
     });
 
-    resultados[riesgo.nombre] = {
-      gdd_requeridos: riesgo.gdd_requeridos,
-      prediccion: {
-        gdd_alcanzado: gddAcumulado,
-        // Aquí podrías agregar lógica para estimar fecha fin si tuvieras pronóstico
-      }
+    resultados[nombre] = {
+      gdd_requeridos: config.gdd_requeridos,
+      gdd_alcanzado: gddAcumulado,
+      progreso: (gddAcumulado / config.gdd_requeridos) * 100
     };
   });
 
@@ -117,51 +132,42 @@ export function calcularRiesgosMultiples(historial, riesgosConfig) {
 }
 
 /**
- * Genera alertas basadas en el porcentaje de GDD acumulado
+ * Genera el reporte de alertas finales basado en severidad.
  */
-export function generarAlertas(predicciones, diasPronostico = 0) {
+export function generarAlertas(predicciones) {
   const alertas = [];
   
-  Object.keys(predicciones).forEach(nombreRiesgo => {
-    const data = predicciones[nombreRiesgo];
-    const porcentaje = (data.prediccion.gdd_alcanzado / data.gdd_requeridos) * 100;
+  Object.keys(predicciones).forEach(nombre => {
+    const data = predicciones[nombre];
+    const porcentaje = data.progreso;
     
     let nivel = 'BAJO';
-    let mensaje = 'Riesgo bajo por el momento.';
+    let mensaje = 'Monitoreo de rutina.';
 
-    // Definición de umbrales de alerta
     if (porcentaje >= 100) {
       nivel = 'CRÍTICO';
-      mensaje = 'Ciclo biológico completado. Aparición inminente o activa.';
+      mensaje = 'Ciclo biológico completado. Presencia inminente o activa.';
     } else if (porcentaje >= 80) {
       nivel = 'ALTO';
-      mensaje = 'Desarrollo muy avanzado. Monitoreo constante recomendado.';
+      mensaje = 'Riesgo inminente. Prepare intervenciones preventivas.';
     } else if (porcentaje >= 50) {
       nivel = 'MEDIO';
-      mensaje = 'Plaga en desarrollo activo. Prepare medidas preventivas.';
+      mensaje = 'Desarrollo en curso. Incremente la frecuencia de inspección.';
     }
 
-    // Estimación simple de días restantes (si hay progreso > 0)
-    // Se asume un avance lineal basado en el acumulado actual vs días transcurridos
-    // Para una mejor estimación, se necesitaría el promedio histórico de T° de la zona
-    let diasRestantes = 0;
-    if (data.prediccion.gdd_alcanzado > 0 && porcentaje < 100) {
-        const gddFaltante = data.gdd_requeridos - data.prediccion.gdd_alcanzado;
-        // Estimamos avance diario promedio (muy simplificado, usa último valor > 0 o 10 como fallback)
-        const avanceDiario = (data.prediccion.gdd_alcanzado / 30) || 10; // Suponiendo ventana de 30 días o fallback
-        diasRestantes = Math.ceil(gddFaltante / avanceDiario);
-    }
-
-    // Filtramos para no llenar de alertas irrelevantes (ej. < 10% progreso)
     if (porcentaje > 5) { 
         alertas.push({
-            riesgo: nombreRiesgo,
+            riesgo: nombre,
             nivel: nivel,
             mensaje: mensaje,
-            dias_restantes: diasRestantes
+            progreso: porcentaje.toFixed(1),
+            gdd_actual: data.gdd_alcanzado.toFixed(1)
         });
     }
   });
 
-  return ordenarRiesgosPorNivel(alertas);
+  return alertas.sort((a, b) => {
+    const p = { 'CRÍTICO': 4, 'ALTO': 3, 'MEDIO': 2, 'BAJO': 1 };
+    return p[b.nivel] - p[a.nivel];
+  });
 }

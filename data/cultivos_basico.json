@@ -1,8 +1,8 @@
 {
   "meta": {
-    "version": "basico_offline_ligero",
+    "version": "basico_offline_v2025",
     "tipo": "listado",
-    "ultima_actualizacion": "2025-12-18T19:05:43.333107",
+    "ultima_actualizacion": "2026-03-02T23:03:01.018032",
     "total_cultivos": 76,
     "nota": "Versión optimizada offline (sin riego/mercados/calendarios)",
     "total_enriquecidos": 76
@@ -11,27 +11,22 @@
     "Durazno": {
       "nombre": "Durazno",
       "categoria": "frutal",
-      "rendimiento": 10.4,
+      "rendimiento": 8.8,
       "precio_medio": 12534,
       "roi": 19.5,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 10.4,
+        "rendimiento_promedio_t_por_ha": 8.8,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 9.8,
-            "produccion_ton": 217000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 10.1,
+            "year": 2023,
+            "rendimiento_t_ha": 8.5,
             "produccion_ton": 230000
           },
           {
-            "year": 2023,
-            "rendimiento_t_ha": 10.4,
-            "produccion_ton": 258000
+            "year": 2024,
+            "rendimiento_t_ha": 8.8,
+            "produccion_ton": 266400
           }
         ],
         "panorama_2023_summary": {
@@ -40,6 +35,13 @@
           "ranking_mundial": "11º",
           "consumo_per_capita": "2.1 kg",
           "principales_estados_valor": "Zacatecas (58.7%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 266.4,
+          "variacion_anual_pct": 15.8,
+          "ranking_mundial": "16º",
+          "consumo_per_capita": "1.8 kg",
+          "principales_estados_valor": "Zacatecas, Michoacán, Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -421,16 +423,34 @@
     "Frambuesa": {
       "nombre": "Frambuesa",
       "categoria": "frutal",
-      "rendimiento": 20.5,
+      "rendimiento": 18.1,
       "precio_medio": 45000,
       "roi": 140,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 20.5,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 18.1,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 17.5,
+            "produccion_ton": 178000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 18.1,
+            "produccion_ton": 185000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 180,
           "principales_estados_valor": "Jalisco (70%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 185,
+          "variacion_anual_pct": 3.9,
+          "ranking_mundial": "2º",
+          "consumo_per_capita": "0.3 kg",
+          "principales_estados_valor": "Jalisco (73%), Michoacán, Baja California"
         }
       },
       "ciclo_fenologico": {
@@ -573,17 +593,22 @@
     "Granada china": {
       "nombre": "Granada china",
       "categoria": "frutal",
-      "rendimiento": 14.0,
+      "rendimiento": 6.1,
       "precio_medio": 22000,
       "roi": 332,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 14.0,
+        "rendimiento_promedio_t_por_ha": 6.1,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 14.0,
-            "produccion_ton": 12000
+            "rendimiento_t_ha": 5.9,
+            "produccion_ton": 2650
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 6.1,
+            "produccion_ton": 2720
           }
         ],
         "panorama_2023_summary": {
@@ -592,6 +617,12 @@
           "ranking_mundial": "N/A (Cultivo exótico)",
           "consumo_per_capita": "0.3 kg",
           "principales_estados_valor": "Puebla (Principal productor en Sierra Nororiental)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 2.7,
+          "variacion_anual_pct": 2.6,
+          "ranking_mundial": "N/A",
+          "principales_estados_valor": "Veracruz, Michoacán"
         }
       },
       "ciclo_fenologico": {
@@ -838,16 +869,34 @@
     "Arándano": {
       "nombre": "Arándano",
       "categoria": "frutal",
-      "rendimiento": 18.0,
+      "rendimiento": 14.5,
       "precio_medio": 70000,
       "roi": 142,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 18.0,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 14.5,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 13.2,
+            "produccion_ton": 72000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 14.5,
+            "produccion_ton": 81000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 140,
           "principales_estados_valor": "Jalisco (50%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 81,
+          "variacion_anual_pct": 12.5,
+          "ranking_mundial": "6º",
+          "consumo_per_capita": "0.1 kg",
+          "principales_estados_valor": "Jalisco (52%), Michoacán, Sinaloa"
         }
       },
       "ciclo_fenologico": {
@@ -966,16 +1015,34 @@
     "Naranja": {
       "nombre": "Naranja",
       "categoria": "frutal",
-      "rendimiento": 14.2,
+      "rendimiento": 14.5,
       "precio_medio": 4500,
       "roi": 25,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 14.2,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 14.5,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 14.8,
+            "produccion_ton": 5000000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 14.5,
+            "produccion_ton": 4800000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 4800,
           "principales_estados_valor": "Veracruz (50%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 4800,
+          "variacion_anual_pct": -4.0,
+          "ranking_mundial": "5º",
+          "consumo_per_capita": "35.2 kg",
+          "principales_estados_valor": "Veracruz (50%), Tamaulipas, San Luis Potosí"
         }
       },
       "ciclo_fenologico": {
@@ -1149,16 +1216,34 @@
     "Toronja": {
       "nombre": "Toronja",
       "categoria": "frutal",
-      "rendimiento": 25.0,
+      "rendimiento": 22.9,
       "precio_medio": 3800,
       "roi": 23.5,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 25.0,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 22.9,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 22.5,
+            "produccion_ton": 490000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 22.9,
+            "produccion_ton": 480829
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 480,
           "principales_estados_valor": "Veracruz (60%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 480.8,
+          "variacion_anual_pct": -1.8,
+          "ranking_mundial": "4º",
+          "consumo_per_capita": "3.2 kg",
+          "principales_estados_valor": "Veracruz (51%), Michoacán, Tamaulipas"
         }
       },
       "ciclo_fenologico": {
@@ -1279,16 +1364,34 @@
     "Uva fruta": {
       "nombre": "Uva fruta",
       "categoria": "frutal",
-      "rendimiento": 22.0,
+      "rendimiento": 15.5,
       "precio_medio": 25000,
       "roi": 124,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 22.0,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 15.5,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 15.1,
+            "produccion_ton": 385000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 15.5,
+            "produccion_ton": 397315
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 450,
           "principales_estados_valor": "Sonora (80%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 397.3,
+          "variacion_anual_pct": 3.2,
+          "ranking_mundial": "26º (Total)",
+          "consumo_per_capita": "2.1 kg",
+          "principales_estados_valor": "Sonora (88%), Zacatecas"
         }
       },
       "ciclo_fenologico": {
@@ -1469,14 +1572,26 @@
     "Uva industrial": {
       "nombre": "Uva industrial",
       "categoria": "agroindustriales",
-      "rendimiento": 10.0,
+      "rendimiento": 12.2,
       "precio_medio": null,
       "roi": 19.4,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 10.0,
-        "historial_produccion": [],
-        "panorama_2023_summary": {}
+        "rendimiento_promedio_t_por_ha": 12.2,
+        "historial_produccion": [
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 12.2,
+            "produccion_ton": 75800
+          }
+        ],
+        "panorama_2023_summary": {},
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 75.8,
+          "variacion_anual_pct": 1.5,
+          "ranking_mundial": "N/A",
+          "principales_estados_valor": "Baja California (58%), Zacatecas"
+        }
       },
       "ciclo_fenologico": {
         "etapas": []
@@ -1582,14 +1697,26 @@
     "Uva pasa": {
       "nombre": "Uva pasa",
       "categoria": "agroindustriales",
-      "rendimiento": 25.0,
+      "rendimiento": 5.4,
       "precio_medio": null,
       "roi": 67,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 25.0,
-        "historial_produccion": [],
-        "panorama_2023_summary": {}
+        "rendimiento_promedio_t_por_ha": 5.4,
+        "historial_produccion": [
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 5.4,
+            "produccion_ton": 26025
+          }
+        ],
+        "panorama_2023_summary": {},
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 26.0,
+          "variacion_anual_pct": 2.1,
+          "ranking_mundial": "N/A",
+          "principales_estados_valor": "Sonora (95%)"
+        }
       },
       "ciclo_fenologico": {
         "etapas": []
@@ -1695,18 +1822,13 @@
     "Aguacate": {
       "nombre": "Aguacate",
       "categoria": "frutal",
-      "rendimiento": 11.7,
+      "rendimiento": 11.9,
       "precio_medio": 20212,
       "roi": 95.7,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 11.7,
+        "rendimiento_promedio_t_por_ha": 11.9,
         "historial_produccion": [
-          {
-            "year": 2021,
-            "rendimiento_t_ha": 10.8,
-            "produccion_ton": 2450000
-          },
           {
             "year": 2022,
             "rendimiento_t_ha": 11.2,
@@ -1716,6 +1838,11 @@
             "year": 2023,
             "rendimiento_t_ha": 11.7,
             "produccion_ton": 2973000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 11.9,
+            "produccion_ton": 3050000
           }
         ],
         "panorama_2023_summary": {
@@ -1724,6 +1851,13 @@
           "ranking_mundial": "1º",
           "consumo_per_capita": "12.3 kg",
           "principales_estados_valor": "Michoacán (72.7%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 3050,
+          "variacion_anual_pct": 2.6,
+          "ranking_mundial": "1º",
+          "consumo_per_capita": "12.8 kg",
+          "principales_estados_valor": "Michoacán (71.5%), Jalisco (13.2%)"
         }
       },
       "ciclo_fenologico": {
@@ -2103,18 +2237,13 @@
     "Maiz": {
       "nombre": "Maiz",
       "categoria": "cereales",
-      "rendimiento": 4.3,
+      "rendimiento": 4.1,
       "precio_medio": 6256,
       "roi": 18.1,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 4.3,
+        "rendimiento_promedio_t_por_ha": 4.1,
         "historial_produccion": [
-          {
-            "year": 2021,
-            "rendimiento_t_ha": 4.2,
-            "produccion_ton": 27000000
-          },
           {
             "year": 2022,
             "rendimiento_t_ha": 4.1,
@@ -2124,6 +2253,11 @@
             "year": 2023,
             "rendimiento_t_ha": 4.3,
             "produccion_ton": 27550000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 4.1,
+            "produccion_ton": 26900000
           }
         ],
         "panorama_2023_summary": {
@@ -2132,6 +2266,13 @@
           "ranking_mundial": "7º",
           "consumo_per_capita": "345 kg (incl. forraje)",
           "principales_estados_valor": "Sinaloa (22.0%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 26900,
+          "variacion_anual_pct": -2.4,
+          "ranking_mundial": "7º",
+          "consumo_per_capita": "346 kg (incluye blanco y amarillo)",
+          "principales_estados_valor": "Sinaloa (21.4%), Jalisco (14.8%)"
         }
       },
       "ciclo_fenologico": {
@@ -2481,18 +2622,13 @@
     "Jitomate": {
       "nombre": "Jitomate",
       "categoria": "hortaliza",
-      "rendimiento": 73.5,
+      "rendimiento": 75.2,
       "precio_medio": 10038,
       "roi": 118,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 73.5,
+        "rendimiento_promedio_t_por_ha": 75.2,
         "historial_produccion": [
-          {
-            "year": 2021,
-            "rendimiento_t_ha": 68.5,
-            "produccion_ton": 3320000
-          },
           {
             "year": 2022,
             "rendimiento_t_ha": 70.1,
@@ -2502,6 +2638,11 @@
             "year": 2023,
             "rendimiento_t_ha": 73.5,
             "produccion_ton": 3637000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 75.2,
+            "produccion_ton": 3810000
           }
         ],
         "panorama_2023_summary": {
@@ -2510,6 +2651,13 @@
           "ranking_mundial": "9º",
           "consumo_per_capita": "13.4 kg",
           "principales_estados_valor": "Sinaloa (20.5%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 3810,
+          "variacion_anual_pct": 4.8,
+          "ranking_mundial": "9º",
+          "consumo_per_capita": "13.9 kg",
+          "principales_estados_valor": "Sinaloa (22.3%), San Luis Potosí (15.1%)"
         }
       },
       "ciclo_fenologico": {
@@ -2793,27 +2941,27 @@
     "Chile": {
       "nombre": "Chile",
       "categoria": "hortaliza",
-      "rendimiento": 21.3,
+      "rendimiento": 22.1,
       "precio_medio": 12490,
       "roi": 124,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 21.3,
+        "rendimiento_promedio_t_por_ha": 22.1,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 19.5,
-            "produccion_ton": 3050000
-          },
-          {
             "year": 2022,
-            "rendimiento_t_ha": 20.1,
-            "produccion_ton": 3110000
+            "rendimiento_t_ha": 21.8,
+            "produccion_ton": 3112000
           },
           {
             "year": 2023,
             "rendimiento_t_ha": 21.3,
-            "produccion_ton": 3681000
+            "produccion_ton": 2917000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 22.1,
+            "produccion_ton": 3558000
           }
         ],
         "panorama_2023_summary": {
@@ -2822,6 +2970,13 @@
           "ranking_mundial": "2º (Verde)",
           "consumo_per_capita": "17.2 kg",
           "principales_estados_valor": "Sinaloa (21.7%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 3558,
+          "variacion_anual_pct": 22.0,
+          "ranking_mundial": "2º",
+          "consumo_per_capita": "18.2 kg",
+          "principales_estados_valor": "Sinaloa (23.7%), Chihuahua (20.5%)"
         }
       },
       "ciclo_fenologico": {
@@ -3118,27 +3273,27 @@
     "Cebolla": {
       "nombre": "Cebolla",
       "categoria": "hortaliza",
-      "rendimiento": 32.3,
+      "rendimiento": 27.0,
       "precio_medio": 7410,
       "roi": 94,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 32.3,
+        "rendimiento_promedio_t_por_ha": 27.0,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 30.5,
-            "produccion_ton": 1450000
-          },
-          {
             "year": 2022,
-            "rendimiento_t_ha": 31.2,
-            "produccion_ton": 1520000
+            "rendimiento_t_ha": 27.2,
+            "produccion_ton": 1528000
           },
           {
             "year": 2023,
-            "rendimiento_t_ha": 32.3,
+            "rendimiento_t_ha": 27.8,
             "produccion_ton": 1801000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 27.0,
+            "produccion_ton": 1673000
           }
         ],
         "panorama_2023_summary": {
@@ -3147,6 +3302,13 @@
           "ranking_mundial": "13º",
           "consumo_per_capita": "10.5 kg",
           "principales_estados_valor": "Chihuahua (18.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 1673,
+          "variacion_anual_pct": -7.1,
+          "ranking_mundial": "14º",
+          "consumo_per_capita": "10.1 kg",
+          "principales_estados_valor": "Chihuahua, Guanajuato, Zacatecas"
         }
       },
       "ciclo_fenologico": {
@@ -3421,27 +3583,22 @@
     "Papa": {
       "nombre": "Papa",
       "categoria": "hortaliza",
-      "rendimiento": 32.0,
+      "rendimiento": 24.5,
       "precio_medio": 8774,
       "roi": 140,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 32.0,
+        "rendimiento_promedio_t_por_ha": 24.5,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 29.8,
-            "produccion_ton": 1750000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 30.5,
-            "produccion_ton": 1820000
-          },
-          {
             "year": 2023,
-            "rendimiento_t_ha": 32.0,
-            "produccion_ton": 1986000
+            "rendimiento_t_ha": 24.4,
+            "produccion_ton": 1693000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 24.5,
+            "produccion_ton": 1695000
           }
         ],
         "panorama_2023_summary": {
@@ -3450,6 +3607,13 @@
           "ranking_mundial": "32º",
           "consumo_per_capita": "15.1 kg",
           "principales_estados_valor": "Sonora (29.0%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 1695,
+          "variacion_anual_pct": 0.1,
+          "ranking_mundial": "12º",
+          "consumo_per_capita": "13.5 kg",
+          "principales_estados_valor": "Sonora, Sinaloa, Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -3720,27 +3884,22 @@
     "Calabacita": {
       "nombre": "Calabacita",
       "categoria": "hortaliza",
-      "rendimiento": 21.2,
+      "rendimiento": 19.5,
       "precio_medio": 6371,
       "roi": 78,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 21.2,
+        "rendimiento_promedio_t_por_ha": 19.5,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 19.8,
-            "produccion_ton": 530000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 20.5,
-            "produccion_ton": 545000
-          },
-          {
             "year": 2023,
-            "rendimiento_t_ha": 21.2,
+            "rendimiento_t_ha": 21.1,
             "produccion_ton": 553000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 19.5,
+            "produccion_ton": 510000
           }
         ],
         "panorama_2023_summary": {
@@ -3749,6 +3908,13 @@
           "ranking_mundial": "6º",
           "consumo_per_capita": "4.8 kg",
           "principales_estados_valor": "Sonora (31.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 510,
+          "variacion_anual_pct": -7.9,
+          "ranking_mundial": "7º",
+          "consumo_per_capita": "4.5 kg",
+          "principales_estados_valor": "Sonora, Puebla, Sinaloa"
         }
       },
       "ciclo_fenologico": {
@@ -4032,27 +4198,22 @@
     "Pepino": {
       "nombre": "Pepino",
       "categoria": "hortaliza",
-      "rendimiento": 54.1,
+      "rendimiento": 60.5,
       "precio_medio": 8574,
       "roi": 95,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 54.1,
+        "rendimiento_promedio_t_por_ha": 60.5,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 52.0,
-            "produccion_ton": 980000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 53.5,
-            "produccion_ton": 1010000
-          },
-          {
             "year": 2023,
-            "rendimiento_t_ha": 54.1,
-            "produccion_ton": 1037000
+            "rendimiento_t_ha": 65.4,
+            "produccion_ton": 1036000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 60.5,
+            "produccion_ton": 959000
           }
         ],
         "panorama_2023_summary": {
@@ -4061,6 +4222,13 @@
           "ranking_mundial": "8º",
           "consumo_per_capita": "4.2 kg",
           "principales_estados_valor": "Sinaloa (23.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 959,
+          "variacion_anual_pct": -7.5,
+          "ranking_mundial": "5º",
+          "consumo_per_capita": "5.8 kg",
+          "principales_estados_valor": "Sinaloa, Sonora, Michoacán"
         }
       },
       "ciclo_fenologico": {
@@ -4336,27 +4504,22 @@
     "Lechuga": {
       "nombre": "Lechuga",
       "categoria": "hortaliza",
-      "rendimiento": 24.2,
+      "rendimiento": 24.5,
       "precio_medio": 5395,
       "roi": 64,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 24.2,
+        "rendimiento_promedio_t_por_ha": 24.5,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 23.5,
-            "produccion_ton": 530000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 23.8,
-            "produccion_ton": 540000
-          },
-          {
             "year": 2023,
-            "rendimiento_t_ha": 24.2,
-            "produccion_ton": 553000
+            "rendimiento_t_ha": 25.3,
+            "produccion_ton": 552940
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 24.5,
+            "produccion_ton": 513000
           }
         ],
         "panorama_2023_summary": {
@@ -4365,6 +4528,13 @@
           "ranking_mundial": "9º",
           "consumo_per_capita": "3.5 kg",
           "principales_estados_valor": "Guanajuato (25.6%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 513,
+          "variacion_anual_pct": -7.2,
+          "ranking_mundial": "9º",
+          "consumo_per_capita": "4.2 kg",
+          "principales_estados_valor": "Guanajuato, Zacatecas, Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -4632,23 +4802,35 @@
     "Tomate verde": {
       "nombre": "Tomate verde",
       "categoria": "hortaliza",
-      "rendimiento": 18.9,
+      "rendimiento": 18.5,
       "precio_medio": 6749,
       "roi": 46.4,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 18.9,
+        "rendimiento_promedio_t_por_ha": 18.5,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 18.9,
-            "produccion_ton": 758000
+            "rendimiento_t_ha": 19.1,
+            "produccion_ton": 780000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 18.5,
+            "produccion_ton": 756000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 758,
           "variacion_anual_pct": 0.2,
           "principales_estados_valor": "Sinaloa (21.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 756,
+          "variacion_anual_pct": -3.1,
+          "ranking_mundial": "1º (Domestic)",
+          "consumo_per_capita": "5.1 kg",
+          "principales_estados_valor": "Sinaloa, Zacatecas, Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -4825,23 +5007,35 @@
     "Espárrago": {
       "nombre": "Espárrago",
       "categoria": "hortaliza",
-      "rendimiento": 9.3,
+      "rendimiento": 8.2,
       "precio_medio": 44827,
       "roi": 37,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 9.3,
+        "rendimiento_promedio_t_por_ha": 8.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 9.3,
-            "produccion_ton": 347000
+            "rendimiento_t_ha": 8.1,
+            "produccion_ton": 329000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 8.2,
+            "produccion_ton": 332000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 347,
           "variacion_anual_pct": -2.9,
           "principales_estados_valor": "Sonora (53.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 332,
+          "variacion_anual_pct": 1.0,
+          "ranking_mundial": "3º",
+          "consumo_per_capita": "0.9 kg",
+          "principales_estados_valor": "Sonora (60%), Guanajuato"
         }
       },
       "ciclo_fenologico": {
@@ -4971,23 +5165,35 @@
     "Brócoli": {
       "nombre": "Brócoli",
       "categoria": "hortaliza",
-      "rendimiento": 17.8,
+      "rendimiento": 19.2,
       "precio_medio": 7207,
       "roi": 90,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 17.8,
+        "rendimiento_promedio_t_por_ha": 19.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 17.8,
-            "produccion_ton": 663000
+            "rendimiento_t_ha": 19.7,
+            "produccion_ton": 662900
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 19.2,
+            "produccion_ton": 644000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 663,
           "variacion_anual_pct": 4.9,
           "principales_estados_valor": "Guanajuato (61.6%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 644,
+          "variacion_anual_pct": -2.8,
+          "ranking_mundial": "4º",
+          "consumo_per_capita": "1.6 kg",
+          "principales_estados_valor": "Guanajuato (68.5%), Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -5152,23 +5358,35 @@
     "Coliflor": {
       "nombre": "Coliflor",
       "categoria": "hortaliza",
-      "rendimiento": 23.6,
+      "rendimiento": 15.2,
       "precio_medio": 6156,
       "roi": 39.1,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 23.6,
+        "rendimiento_promedio_t_por_ha": 15.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 23.6,
-            "produccion_ton": 105000
+            "rendimiento_t_ha": 16.6,
+            "produccion_ton": 105400
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 15.2,
+            "produccion_ton": 96000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 105,
           "variacion_anual_pct": -0.3,
           "principales_estados_valor": "Guanajuato (29.4%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 96,
+          "variacion_anual_pct": -8.5,
+          "ranking_mundial": "6º",
+          "consumo_per_capita": "0.8 kg",
+          "principales_estados_valor": "Guanajuato, Puebla, Hidalgo"
         }
       },
       "ciclo_fenologico": {
@@ -5304,23 +5522,35 @@
     "Berenjena": {
       "nombre": "Berenjena",
       "categoria": "hortaliza",
-      "rendimiento": 52.9,
+      "rendimiento": 42.0,
       "precio_medio": 12272,
       "roi": 301,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 52.9,
+        "rendimiento_promedio_t_por_ha": 42.0,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 52.9,
-            "produccion_ton": 90000
+            "rendimiento_t_ha": 65.0,
+            "produccion_ton": 905000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 42.0,
+            "produccion_ton": 580000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 90,
           "variacion_anual_pct": -15.5,
           "principales_estados_valor": "Sinaloa (74.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 58,
+          "variacion_anual_pct": -35.5,
+          "ranking_mundial": "18º",
+          "consumo_per_capita": "0.1 kg",
+          "principales_estados_valor": "Sinaloa (95%)"
         }
       },
       "ciclo_fenologico": {
@@ -5430,23 +5660,35 @@
     "Nopalitos": {
       "nombre": "Nopalitos",
       "categoria": "hortaliza",
-      "rendimiento": 69.5,
+      "rendimiento": 68.5,
       "precio_medio": 3630,
       "roi": 194,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 69.5,
+        "rendimiento_promedio_t_por_ha": 68.5,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 69.5,
-            "produccion_ton": 864000
+            "rendimiento_t_ha": 67.7,
+            "produccion_ton": 845000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 68.5,
+            "produccion_ton": 855000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 864,
           "variacion_anual_pct": -1.0,
           "principales_estados_valor": "Morelos (40.7%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 855,
+          "variacion_anual_pct": 1.2,
+          "ranking_mundial": "1º",
+          "consumo_per_capita": "6.2 kg",
+          "principales_estados_valor": "Morelos, Ciudad de México"
         }
       },
       "ciclo_fenologico": {
@@ -5598,15 +5840,32 @@
         "rendimiento_promedio_t_por_ha": 48.5,
         "historial_produccion": [
           {
+            "year": 2022,
+            "rendimiento_t_ha": 47.1,
+            "produccion_ton": 577000
+          },
+          {
             "year": 2023,
+            "rendimiento_t_ha": 47.5,
+            "produccion_ton": 593000
+          },
+          {
+            "year": 2024,
             "rendimiento_t_ha": 48.5,
-            "produccion_ton": 642000
+            "produccion_ton": 605000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 642,
           "variacion_anual_pct": 11.0,
           "principales_estados_valor": "Michoacán (58.7%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 605,
+          "variacion_anual_pct": 2.0,
+          "ranking_mundial": "4º",
+          "consumo_per_capita": "3.1 kg",
+          "principales_estados_valor": "Michoacán (62%), Guanajuato (14%), Baja California"
         }
       },
       "ciclo_fenologico": {
@@ -5821,23 +6080,35 @@
     "Limon": {
       "nombre": "Limon",
       "categoria": "frutal",
-      "rendimiento": 15.8,
+      "rendimiento": 15.3,
       "precio_medio": 9630,
       "roi": 75.6,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 15.8,
+        "rendimiento_promedio_t_por_ha": 15.3,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 15.8,
+            "rendimiento_t_ha": 14.9,
             "produccion_ton": 3240000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 15.3,
+            "produccion_ton": 3275000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 3240,
           "variacion_anual_pct": 4.5,
           "principales_estados_valor": "Michoacán (37.6%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 3275,
+          "variacion_anual_pct": 1.1,
+          "ranking_mundial": "2º",
+          "consumo_per_capita": "18.5 kg",
+          "principales_estados_valor": "Michoacán (28%), Veracruz (27%), Colima"
         }
       },
       "ciclo_fenologico": {
@@ -6049,23 +6320,35 @@
     "Mango": {
       "nombre": "Mango",
       "categoria": "frutal",
-      "rendimiento": 10.8,
+      "rendimiento": 11.2,
       "precio_medio": 5792,
       "roi": 89,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 10.8,
+        "rendimiento_promedio_t_por_ha": 11.2,
         "historial_produccion": [
           {
             "year": 2023,
             "rendimiento_t_ha": 10.8,
-            "produccion_ton": 2300000
+            "produccion_ton": 2160000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 11.2,
+            "produccion_ton": 2205000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 2300,
           "variacion_anual_pct": 5.7,
           "principales_estados_valor": "Guerrero (25.9%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 2205,
+          "variacion_anual_pct": 2.1,
+          "ranking_mundial": "5º",
+          "consumo_per_capita": "13.0 kg",
+          "principales_estados_valor": "Guerrero (21%), Sinaloa, Nayarit, Chiapas"
         }
       },
       "ciclo_fenologico": {
@@ -6275,23 +6558,35 @@
     "Platano": {
       "nombre": "Platano",
       "categoria": "frutal",
-      "rendimiento": 30.7,
+      "rendimiento": 31.5,
       "precio_medio": 4218,
       "roi": 48.8,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 30.7,
+        "rendimiento_promedio_t_por_ha": 31.5,
         "historial_produccion": [
           {
             "year": 2023,
             "rendimiento_t_ha": 30.7,
-            "produccion_ton": 2642000
+            "produccion_ton": 2550000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 31.5,
+            "produccion_ton": 2620000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 2642,
           "variacion_anual_pct": 1.9,
           "principales_estados_valor": "Tabasco (20.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 2620,
+          "variacion_anual_pct": 2.7,
+          "ranking_mundial": "12º",
+          "consumo_per_capita": "14.5 kg",
+          "principales_estados_valor": "Chiapas, Tabasco, Veracruz"
         }
       },
       "ciclo_fenologico": {
@@ -6499,23 +6794,35 @@
     "Zarzamora": {
       "nombre": "Zarzamora",
       "categoria": "frutal",
-      "rendimiento": 21.9,
+      "rendimiento": 17.2,
       "precio_medio": 23445,
       "roi": 116,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 21.9,
+        "rendimiento_promedio_t_por_ha": 17.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 21.9,
-            "produccion_ton": 238000
+            "rendimiento_t_ha": 16.8,
+            "produccion_ton": 212000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 17.2,
+            "produccion_ton": 255000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 238,
           "variacion_anual_pct": 7.0,
           "principales_estados_valor": "Michoacán (80.0%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 255,
+          "variacion_anual_pct": 20.2,
+          "ranking_mundial": "1º",
+          "consumo_per_capita": "0.4 kg",
+          "principales_estados_valor": "Michoacán (91%), Jalisco"
         }
       },
       "ciclo_fenologico": {
@@ -6719,23 +7026,35 @@
     "Papaya": {
       "nombre": "Papaya",
       "categoria": "frutal",
-      "rendimiento": 56.5,
+      "rendimiento": 58.2,
       "precio_medio": 6622,
       "roi": 317,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 56.5,
+        "rendimiento_promedio_t_por_ha": 58.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 56.5,
-            "produccion_ton": 1149000
+            "rendimiento_t_ha": 57.5,
+            "produccion_ton": 1135000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 58.2,
+            "produccion_ton": 1148000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 1149,
           "variacion_anual_pct": -4.0,
           "principales_estados_valor": "Oaxaca (25.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 1148,
+          "variacion_anual_pct": 1.1,
+          "ranking_mundial": "3º",
+          "consumo_per_capita": "7.5 kg",
+          "principales_estados_valor": "Oaxaca (30%), Colima, Chiapas"
         }
       },
       "ciclo_fenologico": {
@@ -6937,23 +7256,35 @@
     "Manzana": {
       "nombre": "Manzana",
       "categoria": "frutal",
-      "rendimiento": 11.8,
+      "rendimiento": 14.2,
       "precio_medio": 12000,
       "roi": 28,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 11.8,
+        "rendimiento_promedio_t_por_ha": 14.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 11.8,
-            "produccion_ton": 650000
+            "rendimiento_t_ha": 13.9,
+            "produccion_ton": 820000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 14.2,
+            "produccion_ton": 832000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 650,
           "variacion_anual_pct": 0,
           "principales_estados_valor": "Chihuahua (82%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 832,
+          "variacion_anual_pct": 1.5,
+          "ranking_mundial": "18º",
+          "consumo_per_capita": "7.9 kg",
+          "principales_estados_valor": "Chihuahua (82%), Coahuila"
         }
       },
       "ciclo_fenologico": {
@@ -7170,13 +7501,25 @@
           {
             "year": 2023,
             "rendimiento_t_ha": 1.4,
-            "produccion_ton": 168000
+            "produccion_ton": 162000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 165000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 168,
           "variacion_anual_pct": -5.5,
           "principales_estados_valor": "Chihuahua (56.6%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 165,
+          "variacion_anual_pct": 1.8,
+          "ranking_mundial": "6º",
+          "consumo_per_capita": "0.7 kg",
+          "principales_estados_valor": "Chihuahua (63%), Coahuila, Sonora"
         }
       },
       "ciclo_fenologico": {
@@ -7379,23 +7722,35 @@
     "Sandía": {
       "nombre": "Sandía",
       "categoria": "frutal",
-      "rendimiento": 33.5,
+      "rendimiento": 37.2,
       "precio_medio": 5113,
       "roi": 176,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 33.5,
+        "rendimiento_promedio_t_por_ha": 37.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 33.5,
-            "produccion_ton": 1429000
+            "rendimiento_t_ha": 36.5,
+            "produccion_ton": 1330000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 37.2,
+            "produccion_ton": 1355000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 1429,
           "variacion_anual_pct": 21.4,
           "principales_estados_valor": "Sonora (32.8%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 1355,
+          "variacion_anual_pct": 1.9,
+          "ranking_mundial": "11º",
+          "consumo_per_capita": "4.8 kg",
+          "principales_estados_valor": "Sonora (38%), Jalisco, Chihuahua"
         }
       },
       "ciclo_fenologico": {
@@ -7581,14 +7936,26 @@
         "historial_produccion": [
           {
             "year": 2023,
+            "rendimiento_t_ha": 6.0,
+            "produccion_ton": 3511000
+          },
+          {
+            "year": 2024,
             "rendimiento_t_ha": 6.2,
-            "produccion_ton": 3476000
+            "produccion_ton": 3415000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 3476,
           "variacion_anual_pct": -3.7,
           "principales_estados_valor": "Sonora (61.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 3415,
+          "variacion_anual_pct": -2.7,
+          "ranking_mundial": "31º",
+          "consumo_per_capita": "54.8 kg",
+          "principales_estados_valor": "Sonora (48%), Guanajuato"
         }
       },
       "ciclo_fenologico": {
@@ -7812,23 +8179,34 @@
     "Sorgo": {
       "nombre": "Sorgo",
       "categoria": "cereales",
-      "rendimiento": 3.6,
+      "rendimiento": 3.4,
       "precio_medio": 5408,
       "roi": 3.1,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 3.6,
+        "rendimiento_promedio_t_por_ha": 3.4,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 3.6,
-            "produccion_ton": 4816000
+            "rendimiento_t_ha": 3.7,
+            "produccion_ton": 4872000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 3.4,
+            "produccion_ton": 4650000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 4816,
           "variacion_anual_pct": 1.1,
           "principales_estados_valor": "Tamaulipas (37.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 4650,
+          "variacion_anual_pct": -4.5,
+          "ranking_mundial": "6º",
+          "principales_estados_valor": "Tamaulipas (42%), Guanajuato"
         }
       },
       "ciclo_fenologico": {
@@ -8048,23 +8426,34 @@
     "Cebada": {
       "nombre": "Cebada",
       "categoria": "cereales",
-      "rendimiento": 2.8,
+      "rendimiento": 3.3,
       "precio_medio": 6001,
       "roi": 13,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 2.8,
+        "rendimiento_promedio_t_por_ha": 3.3,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 2.8,
-            "produccion_ton": 832000
+            "rendimiento_t_ha": 3.5,
+            "produccion_ton": 915000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 3.3,
+            "produccion_ton": 885000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 832,
           "variacion_anual_pct": -18.7,
           "principales_estados_valor": "Guanajuato (36%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 885,
+          "variacion_anual_pct": -3.3,
+          "ranking_mundial": "32º",
+          "principales_estados_valor": "Guanajuato, Hidalgo, Tlaxcala"
         }
       },
       "ciclo_fenologico": {
@@ -8276,23 +8665,35 @@
     "Arroz": {
       "nombre": "Arroz",
       "categoria": "cereales",
-      "rendimiento": 6.9,
+      "rendimiento": 6.3,
       "precio_medio": 5863,
       "roi": 37.7,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 6.9,
+        "rendimiento_promedio_t_por_ha": 6.3,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 6.9,
-            "produccion_ton": 252000
+            "rendimiento_t_ha": 6.1,
+            "produccion_ton": 242000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 6.3,
+            "produccion_ton": 251000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 252,
           "variacion_anual_pct": 2.3,
           "principales_estados_valor": "Nayarit (31.4%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 251,
+          "variacion_anual_pct": 3.7,
+          "ranking_mundial": "59º",
+          "consumo_per_capita": "8.5 kg",
+          "principales_estados_valor": "Campeche, Nayarit, Veracruz"
         }
       },
       "ciclo_fenologico": {
@@ -8479,23 +8880,34 @@
     "Avena": {
       "nombre": "Avena",
       "categoria": "cereales",
-      "rendimiento": 2.4,
+      "rendimiento": 1.6,
       "precio_medio": 6460,
       "roi": 11.9,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 2.4,
+        "rendimiento_promedio_t_por_ha": 1.6,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 2.4,
-            "produccion_ton": 62000
+            "rendimiento_t_ha": 1.7,
+            "produccion_ton": 98000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 1.6,
+            "produccion_ton": 94000
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 62,
           "variacion_anual_pct": -42.0,
           "principales_estados_valor": "Chihuahua (37.6%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 94,
+          "variacion_anual_pct": -4.1,
+          "ranking_mundial": "35º",
+          "principales_estados_valor": "Chihuahua, Zacatecas, Hidalgo"
         }
       },
       "ciclo_fenologico": {
@@ -8706,16 +9118,33 @@
     "Maiz forrajero": {
       "nombre": "Maiz forrajero",
       "categoria": "cereales",
-      "rendimiento": 45.0,
+      "rendimiento": 32.5,
       "precio_medio": null,
       "roi": 206,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 45.0,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 32.5,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 33.1,
+            "produccion_ton": 18200000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 32.5,
+            "produccion_ton": 17850000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 15000,
           "uso": "Ensilaje para ganado lechero/carne"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 17850,
+          "variacion_anual_pct": -1.9,
+          "ranking_mundial": "N/A",
+          "principales_estados_valor": "Jalisco, Zacatecas, Durango"
         }
       },
       "ciclo_fenologico": {
@@ -8850,14 +9279,30 @@
     "Sorgo forrajero": {
       "nombre": "Sorgo forrajero",
       "categoria": "cereales",
-      "rendimiento": 30.0,
+      "rendimiento": 18.8,
       "precio_medio": null,
       "roi": 37.4,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 30.0,
-        "historial_produccion": [],
-        "panorama_2023_summary": {}
+        "rendimiento_promedio_t_por_ha": 18.8,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 19.5,
+            "produccion_ton": 3150000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 18.8,
+            "produccion_ton": 3020000
+          }
+        ],
+        "panorama_2023_summary": {},
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 3020,
+          "variacion_anual_pct": -4.1,
+          "principales_estados_valor": "Coahuila, Durango (Región Laguna)"
+        }
       },
       "ciclo_fenologico": {
         "variedades_principales": [
@@ -8982,14 +9427,31 @@
     "Avena forrajera": {
       "nombre": "Avena forrajera",
       "categoria": "cereales",
-      "rendimiento": 25.0,
+      "rendimiento": 16.2,
       "precio_medio": null,
       "roi": 82,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 25.0,
-        "historial_produccion": [],
-        "panorama_2023_summary": {}
+        "rendimiento_promedio_t_por_ha": 16.2,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 16.5,
+            "produccion_ton": 10250000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 16.2,
+            "produccion_ton": 9850000
+          }
+        ],
+        "panorama_2023_summary": {},
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 9850,
+          "variacion_anual_pct": -3.9,
+          "nota": "Principal forraje de invierno",
+          "principales_estados_valor": "Chihuahua, Durango, Zacatecas"
+        }
       },
       "ciclo_fenologico": {
         "variedades_principales": [
@@ -9115,23 +9577,34 @@
     "Amaranto": {
       "nombre": "Amaranto",
       "categoria": "cereales",
-      "rendimiento": 1.8,
+      "rendimiento": 1.4,
       "precio_medio": 10046,
       "roi": 17.7,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 1.8,
+        "rendimiento_promedio_t_por_ha": 1.4,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 1.8,
-            "produccion_ton": 6000
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 5650
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 5820
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 6,
           "variacion_anual_pct": 4.8,
           "principales_estados_valor": "Tlaxcala (54.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 5.8,
+          "variacion_anual_pct": 3.0,
+          "nota": "Cultivo resiliente al cambio climático",
+          "principales_estados_valor": "Puebla (55%), Tlaxcala, Ciudad de México"
         }
       },
       "ciclo_fenologico": {
@@ -9331,27 +9804,27 @@
     "Frijol": {
       "nombre": "Frijol",
       "categoria": "leguminosa",
-      "rendimiento": 1.0,
+      "rendimiento": 0.8,
       "precio_medio": 19304,
       "roi": 16.7,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 1.0,
+        "rendimiento_promedio_t_por_ha": 0.8,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 0.9,
-            "produccion_ton": 1280000
-          },
-          {
             "year": 2022,
-            "rendimiento_t_ha": 0.8,
-            "produccion_ton": 960000
+            "rendimiento_t_ha": 0.75,
+            "produccion_ton": 965000
           },
           {
             "year": 2023,
-            "rendimiento_t_ha": 1.0,
+            "rendimiento_t_ha": 0.62,
             "produccion_ton": 724000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 0.8,
+            "produccion_ton": 925000
           }
         ],
         "panorama_2023_summary": {
@@ -9360,6 +9833,13 @@
           "ranking_mundial": "8º",
           "consumo_per_capita": "9.0 kg",
           "principales_estados_valor": "Sinaloa (27.4%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 925,
+          "variacion_anual_pct": 27.8,
+          "ranking_mundial": "7º",
+          "consumo_per_capita": "7.9 kg",
+          "principales_estados_valor": "Zacatecas (32.4%), Sinaloa (18.1%), Nayarit"
         }
       },
       "ciclo_fenologico": {
@@ -9652,27 +10132,22 @@
     "Garbanzo": {
       "nombre": "Garbanzo",
       "categoria": "leguminosa",
-      "rendimiento": 1.9,
+      "rendimiento": 2.1,
       "precio_medio": 19111,
       "roi": 34.4,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 1.9,
+        "rendimiento_promedio_t_por_ha": 2.1,
         "historial_produccion": [
-          {
-            "year": 2021,
-            "rendimiento_t_ha": 1.8,
-            "produccion_ton": 170000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 2.0,
-            "produccion_ton": 189000
-          },
           {
             "year": 2023,
             "rendimiento_t_ha": 1.9,
-            "produccion_ton": 143000
+            "produccion_ton": 182000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 2.1,
+            "produccion_ton": 235000
           }
         ],
         "panorama_2023_summary": {
@@ -9681,6 +10156,13 @@
           "ranking_mundial": "10º (Exportador)",
           "consumo_per_capita": "0.5 kg",
           "principales_estados_valor": "Sinaloa (72.9%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 235,
+          "variacion_anual_pct": 29.1,
+          "ranking_mundial": "8º",
+          "consumo_per_capita": "0.5 kg",
+          "principales_estados_valor": "Sinaloa (52%), Sonora (28%)"
         }
       },
       "ciclo_fenologico": {
@@ -9947,27 +10429,22 @@
     "Soya": {
       "nombre": "Soya",
       "categoria": "leguminosa",
-      "rendimiento": 2.2,
+      "rendimiento": 1.8,
       "precio_medio": 9269,
       "roi": 18.1,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 2.2,
+        "rendimiento_promedio_t_por_ha": 1.8,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 1.9,
-            "produccion_ton": 180000
-          },
-          {
-            "year": 2022,
-            "rendimiento_t_ha": 1.7,
+            "year": 2023,
+            "rendimiento_t_ha": 1.6,
             "produccion_ton": 175000
           },
           {
-            "year": 2023,
-            "rendimiento_t_ha": 2.2,
-            "produccion_ton": 199000
+            "year": 2024,
+            "rendimiento_t_ha": 1.8,
+            "produccion_ton": 192000
           }
         ],
         "panorama_2023_summary": {
@@ -9976,6 +10453,13 @@
           "ranking_mundial": "26º",
           "consumo_per_capita": "Industria Aceitera",
           "principales_estados_valor": "Campeche (60.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 192,
+          "variacion_anual_pct": 9.7,
+          "ranking_mundial": "21º",
+          "nota": "Alta dependencia de importación para aceite y pasta",
+          "principales_estados_valor": "Tamaulipas, Campeche, Veracruz"
         }
       },
       "ciclo_fenologico": {
@@ -10223,18 +10707,13 @@
     "Rosa": {
       "nombre": "Rosa",
       "categoria": "ornamental",
-      "rendimiento": 65.0,
+      "rendimiento": 66.2,
       "precio_medio": 15500,
       "roi": 130,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 65.0,
+        "rendimiento_promedio_t_por_ha": 66.2,
         "historial_produccion": [
-          {
-            "year": 2021,
-            "rendimiento_t_ha": 62.0,
-            "produccion_ton": 124000
-          },
           {
             "year": 2022,
             "rendimiento_t_ha": 64.5,
@@ -10244,6 +10723,11 @@
             "year": 2023,
             "rendimiento_t_ha": 65.0,
             "produccion_ton": 130000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 66.2,
+            "produccion_ton": 141500
           }
         ],
         "panorama_2023_summary": {
@@ -10252,6 +10736,13 @@
           "ranking_mundial": "Exportador clave a EE.UU.",
           "consumo_per_capita": "N/A (Ornamental)",
           "principales_estados_valor": "Edo. Mex. (Villa Guerrero) (78%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 141.5,
+          "variacion_anual_pct": 8.8,
+          "ranking_mundial": "Top 10 (Exportador)",
+          "nota": "Máximo histórico en el Estado de México",
+          "principales_estados_valor": "Estado de México (78.3%), Puebla, Morelos"
         }
       },
       "ciclo_fenologico": {
@@ -10531,17 +11022,22 @@
     "Orquidea": {
       "nombre": "Orquidea",
       "categoria": "ornamental",
-      "rendimiento": 45.0,
+      "rendimiento": 46.8,
       "precio_medio": 180000,
       "roi": 946,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 45.0,
+        "rendimiento_promedio_t_por_ha": 46.8,
         "historial_produccion": [
           {
             "year": 2023,
             "rendimiento_t_ha": 45.0,
             "produccion_ton": 15000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 46.8,
+            "produccion_ton": 15300
           }
         ],
         "panorama_2023_summary": {
@@ -10550,6 +11046,12 @@
           "ranking_mundial": "Mercado de lujo en crecimiento",
           "consumo_per_capita": "Regalo/Decoración",
           "principales_estados_valor": "Jalisco (40%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 15.3,
+          "variacion_anual_pct": 2.0,
+          "ranking_mundial": "Crecimiento sostenido",
+          "principales_estados_valor": "Jalisco (41%), Chiapas"
         }
       },
       "ciclo_fenologico": {
@@ -10828,17 +11330,22 @@
     "Gerbera": {
       "nombre": "Gerbera",
       "categoria": "ornamental",
-      "rendimiento": 120.0,
+      "rendimiento": 122.5,
       "precio_medio": 25000,
       "roi": 350,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 120.0,
+        "rendimiento_promedio_t_por_ha": 122.5,
         "historial_produccion": [
           {
             "year": 2023,
             "rendimiento_t_ha": 120.0,
             "produccion_ton": 120000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 122.5,
+            "produccion_ton": 125600
           }
         ],
         "panorama_2023_summary": {
@@ -10847,6 +11354,13 @@
           "ranking_mundial": "Importante en mercado nacional",
           "consumo_per_capita": "N/A",
           "principales_estados_valor": "Edo. Mex. (90%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 125.6,
+          "variacion_anual_pct": 2.9,
+          "ranking_mundial": "Liderazgo en mercado regional",
+          "nota": "Producción exclusiva y tecnificada en invernaderos",
+          "principales_estados_valor": "Estado de México (90%)"
         }
       },
       "ciclo_fenologico": {
@@ -11051,18 +11565,13 @@
     "Nochebuena": {
       "nombre": "Nochebuena",
       "categoria": "ornamental",
-      "rendimiento": 40.0,
+      "rendimiento": 41.2,
       "precio_medio": 45000,
       "roi": 35,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 40.0,
+        "rendimiento_promedio_t_por_ha": 41.2,
         "historial_produccion": [
-          {
-            "year": 2021,
-            "rendimiento_t_ha": 38.5,
-            "produccion_ton": 19000
-          },
           {
             "year": 2022,
             "rendimiento_t_ha": 39.0,
@@ -11072,6 +11581,11 @@
             "year": 2023,
             "rendimiento_t_ha": 40.0,
             "produccion_ton": 21000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 41.2,
+            "produccion_ton": 21800
           }
         ],
         "panorama_2023_summary": {
@@ -11080,6 +11594,13 @@
           "ranking_mundial": "4º (Origen México)",
           "consumo_per_capita": "Estacional (Navidad)",
           "principales_estados_valor": "Morelos (40.2%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 21.8,
+          "variacion_anual_pct": 3.8,
+          "ranking_mundial": "4º (Origen México)",
+          "consumo_per_capita": "Estacional (22.5 millones de plantas)",
+          "principales_estados_valor": "Morelos (40%), Michoacán, Ciudad de México"
         }
       },
       "ciclo_fenologico": {
@@ -11352,17 +11873,22 @@
     "Crisantemo": {
       "nombre": "Crisantemo",
       "categoria": "ornamental",
-      "rendimiento": 95.0,
+      "rendimiento": 97.5,
       "precio_medio": 9800,
       "roi": 973,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 95.0,
+        "rendimiento_promedio_t_por_ha": 97.5,
         "historial_produccion": [
           {
             "year": 2023,
             "rendimiento_t_ha": 95.0,
             "produccion_ton": 266000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 97.5,
+            "produccion_ton": 275200
           }
         ],
         "panorama_2023_summary": {
@@ -11371,6 +11897,12 @@
           "ranking_mundial": "Top productores",
           "consumo_per_capita": "Alta demanda (Día de Muertos)",
           "principales_estados_valor": "Edo. Mex. (92%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 275.2,
+          "variacion_anual_pct": 3.4,
+          "ranking_mundial": "Referente latinoamericano",
+          "principales_estados_valor": "Estado de México (91%), Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -11634,17 +12166,22 @@
     "Gladiolo": {
       "nombre": "Gladiolo",
       "categoria": "ornamental",
-      "rendimiento": 3500.0,
+      "rendimiento": 3.45,
       "precio_medio": 350,
       "roi": 63,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 3500.0,
+        "rendimiento_promedio_t_por_ha": 3.45,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 3500.0,
+            "rendimiento_t_ha": 3.3,
             "produccion_ton": 15000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 3.45,
+            "produccion_ton": 15800
           }
         ],
         "panorama_2023_summary": {
@@ -11653,6 +12190,12 @@
           "ranking_mundial": "N/A",
           "consumo_per_capita": "Eventos/Religioso",
           "principales_estados_valor": "Puebla (45%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 15.8,
+          "variacion_anual_pct": 5.3,
+          "ranking_mundial": "N/A",
+          "principales_estados_valor": "Puebla (46%), Estado de México, Morelos"
         }
       },
       "ciclo_fenologico": {
@@ -11886,27 +12429,27 @@
     "Agave tequilero": {
       "nombre": "Agave tequilero",
       "categoria": "agroindustriales",
-      "rendimiento": 80.6,
+      "rendimiento": 26.5,
       "precio_medio": 21270,
       "roi": 412,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 80.6,
+        "rendimiento_promedio_t_por_ha": 26.5,
         "historial_produccion": [
           {
-            "year": 2021,
-            "rendimiento_t_ha": 75.0,
-            "produccion_ton": 1800000
-          },
-          {
             "year": 2022,
-            "rendimiento_t_ha": 78.5,
-            "produccion_ton": 2000000
+            "rendimiento_t_ha": 24.8,
+            "produccion_ton": 2210000
           },
           {
             "year": 2023,
-            "rendimiento_t_ha": 80.6,
-            "produccion_ton": 2125000
+            "rendimiento_t_ha": 25.5,
+            "produccion_ton": 2580000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 26.5,
+            "produccion_ton": 2850000
           }
         ],
         "panorama_2023_summary": {
@@ -11915,6 +12458,13 @@
           "ranking_mundial": "1º (Denominación de Origen)",
           "consumo_per_capita": "Industrial (Tequila/Jarabe)",
           "principales_estados_valor": "Jalisco (74.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 2850,
+          "variacion_anual_pct": 10.5,
+          "ranking_mundial": "1º",
+          "nota": "Récord histórico de producción y exportación de tequila",
+          "principales_estados_valor": "Jalisco (74%), Guanajuato, Nayarit"
         }
       },
       "ciclo_fenologico": {
@@ -12175,16 +12725,34 @@
     "Piña": {
       "nombre": "Piña",
       "categoria": "frutal",
-      "rendimiento": 48.0,
+      "rendimiento": 54.0,
       "precio_medio": 6500,
       "roi": 114,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 48.0,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 54.0,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 53.2,
+            "produccion_ton": 1272000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 54.0,
+            "produccion_ton": 1285000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 1200,
           "principales_estados_valor": "Veracruz (65%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 1285,
+          "variacion_anual_pct": 1.0,
+          "ranking_mundial": "9º",
+          "consumo_per_capita": "7.2 kg",
+          "principales_estados_valor": "Veracruz (65%), Oaxaca, Nayarit"
         }
       },
       "ciclo_fenologico": {
@@ -12339,16 +12907,34 @@
     "Copra y coco": {
       "nombre": "Copra y coco",
       "categoria": "frutal",
-      "rendimiento": 1.1,
+      "rendimiento": 1.4,
       "precio_medio": 14000,
       "roi": 7.2,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 1.1,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 1.4,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 232000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 235000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 220,
           "principales_estados_valor": "Guerrero (80%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 235,
+          "variacion_anual_pct": 1.3,
+          "ranking_mundial": "8º",
+          "consumo_per_capita": "3.5 kg",
+          "principales_estados_valor": "Guerrero (81%), Colima"
         }
       },
       "ciclo_fenologico": {
@@ -12502,16 +13088,34 @@
     "Melón": {
       "nombre": "Melón",
       "categoria": "hortaliza",
-      "rendimiento": 28.5,
+      "rendimiento": 34.5,
       "precio_medio": 7200,
       "roi": 151,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 28.5,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 34.5,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 33.2,
+            "produccion_ton": 645000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 34.5,
+            "produccion_ton": 652000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 580,
           "principales_estados_valor": "Coahuila (25%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 652,
+          "variacion_anual_pct": 1.1,
+          "ranking_mundial": "10º",
+          "consumo_per_capita": "4.1 kg",
+          "principales_estados_valor": "Coahuila, Sonora, Michoacán"
         }
       },
       "ciclo_fenologico": {
@@ -12670,16 +13274,34 @@
     "Guayaba": {
       "nombre": "Guayaba",
       "categoria": "frutal",
-      "rendimiento": 16.0,
+      "rendimiento": 14.8,
       "precio_medio": 8500,
       "roi": 195,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 16.0,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 14.8,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 14.5,
+            "produccion_ton": 320000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 14.8,
+            "produccion_ton": 325000
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 310,
           "principales_estados_valor": "Michoacán (65%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 325,
+          "variacion_anual_pct": 1.6,
+          "ranking_mundial": "5º",
+          "consumo_per_capita": "2.2 kg",
+          "principales_estados_valor": "Michoacán (46%), Aguascalientes (35%)"
         }
       },
       "ciclo_fenologico": {
@@ -12796,16 +13418,34 @@
     "Pera": {
       "nombre": "Pera",
       "categoria": "frutal",
-      "rendimiento": 6.5,
+      "rendimiento": 6.8,
       "precio_medio": 9000,
       "roi": 35,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 6.5,
-        "historial_produccion": [],
+        "rendimiento_promedio_t_por_ha": 6.8,
+        "historial_produccion": [
+          {
+            "year": 2023,
+            "rendimiento_t_ha": 6.5,
+            "produccion_ton": 25100
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 6.8,
+            "produccion_ton": 25924
+          }
+        ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 25,
           "principales_estados_valor": "Puebla (45%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 25.9,
+          "variacion_anual_pct": 3.2,
+          "ranking_mundial": "25º",
+          "consumo_per_capita": "0.8 kg",
+          "principales_estados_valor": "Michoacán (21%), Puebla, Morelos"
         }
       },
       "ciclo_fenologico": {
@@ -12953,17 +13593,22 @@
     "Caña de azúcar": {
       "nombre": "Caña de azúcar",
       "categoria": "agroindustriales",
-      "rendimiento": 69.3,
+      "rendimiento": 68.5,
       "precio_medio": 952,
       "roi": 57,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 69.3,
+        "rendimiento_promedio_t_por_ha": 68.5,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 69.3,
-            "produccion_ton": 55590000
+            "rendimiento_t_ha": 70.2,
+            "produccion_ton": 55400000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 68.5,
+            "produccion_ton": 52800000
           }
         ],
         "panorama_2023_summary": {
@@ -12972,6 +13617,13 @@
           "ranking_mundial": "7º",
           "consumo_per_capita": "36 kg (Azúcar)",
           "principales_estados_valor": "Veracruz (38.3%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 52800,
+          "variacion_anual_pct": -4.7,
+          "ranking_mundial": "6º",
+          "nota": "Afectación por sequía en regiones huasteca y pacífico",
+          "principales_estados_valor": "Veracruz (38%), Jalisco, San Luis Potosí"
         }
       },
       "ciclo_fenologico": {
@@ -13226,17 +13878,22 @@
     "Café cereza": {
       "nombre": "Café cereza",
       "categoria": "agroindustriales",
-      "rendimiento": 1.6,
+      "rendimiento": 1.4,
       "precio_medio": 6727,
       "roi": 6.0,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 1.6,
+        "rendimiento_promedio_t_por_ha": 1.4,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 1.6,
-            "produccion_ton": 1059000
+            "rendimiento_t_ha": 1.35,
+            "produccion_ton": 1050000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 1085000
           }
         ],
         "panorama_2023_summary": {
@@ -13245,6 +13902,13 @@
           "ranking_mundial": "11º",
           "consumo_per_capita": "1.7 kg",
           "principales_estados_valor": "Chiapas (38.6%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 1085,
+          "variacion_anual_pct": 3.3,
+          "ranking_mundial": "9º",
+          "consumo_per_capita": "1.6 kg",
+          "principales_estados_valor": "Chiapas (41%), Veracruz (24%), Puebla"
         }
       },
       "ciclo_fenologico": {
@@ -13531,17 +14195,22 @@
     "Algodón hueso": {
       "nombre": "Algodón hueso",
       "categoria": "agroindustriales",
-      "rendimiento": 4.5,
+      "rendimiento": 3.8,
       "precio_medio": 15971,
       "roi": 14.4,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 4.5,
+        "rendimiento_promedio_t_por_ha": 3.8,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 4.5,
-            "produccion_ton": 604000
+            "rendimiento_t_ha": 4.1,
+            "produccion_ton": 685000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 3.8,
+            "produccion_ton": 652000
           }
         ],
         "panorama_2023_summary": {
@@ -13550,6 +14219,13 @@
           "ranking_mundial": "9º",
           "consumo_per_capita": "Industrial Textil",
           "principales_estados_valor": "Chihuahua (78.5%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 652,
+          "variacion_anual_pct": -4.8,
+          "ranking_mundial": "12º",
+          "nota": "Reducción de superficie sembrada en Chihuahua",
+          "principales_estados_valor": "Chihuahua (75%), Baja California"
         }
       },
       "ciclo_fenologico": {
@@ -13818,23 +14494,35 @@
     "Cacao": {
       "nombre": "Cacao",
       "categoria": "agroindustriales",
-      "rendimiento": 0.6,
+      "rendimiento": 0.45,
       "precio_medio": 41138,
       "roi": 8.1,
       "riesgo": "Alto",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 0.6,
+        "rendimiento_promedio_t_por_ha": 0.45,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 0.6,
-            "produccion_ton": 29000
+            "rendimiento_t_ha": 0.48,
+            "produccion_ton": 28500
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 0.45,
+            "produccion_ton": 27200
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 29,
           "variacion_anual_pct": 3.3,
           "principales_estados_valor": "Tabasco (68.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 27.2,
+          "variacion_anual_pct": -4.5,
+          "ranking_mundial": "13º",
+          "consumo_per_capita": "0.5 kg",
+          "principales_estados_valor": "Tabasco (68%), Chiapas (31%)"
         }
       },
       "ciclo_fenologico": {
@@ -14047,23 +14735,34 @@
     "Tabaco": {
       "nombre": "Tabaco",
       "categoria": "agroindustriales",
-      "rendimiento": 2.5,
+      "rendimiento": 2.2,
       "precio_medio": 39858,
       "roi": 24.2,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 2.5,
+        "rendimiento_promedio_t_por_ha": 2.2,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 2.5,
-            "produccion_ton": 18000
+            "rendimiento_t_ha": 2.1,
+            "produccion_ton": 16800
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 2.2,
+            "produccion_ton": 17200
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 18,
           "variacion_anual_pct": 19.6,
           "principales_estados_valor": "Nayarit (85.7%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 17.2,
+          "variacion_anual_pct": 2.4,
+          "ranking_mundial": "35º",
+          "principales_estados_valor": "Nayarit (85%), Veracruz"
         }
       },
       "ciclo_fenologico": {
@@ -14263,23 +14962,34 @@
     "Cártamo": {
       "nombre": "Cártamo",
       "categoria": "agroindustriales",
-      "rendimiento": 1.9,
+      "rendimiento": 1.5,
       "precio_medio": 11248,
       "roi": 16.7,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 1.9,
+        "rendimiento_promedio_t_por_ha": 1.5,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 1.9,
-            "produccion_ton": 66000
+            "rendimiento_t_ha": 1.4,
+            "produccion_ton": 42500
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 1.5,
+            "produccion_ton": 45800
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 66,
           "variacion_anual_pct": -14.7,
           "principales_estados_valor": "Sonora (53.1%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 45.8,
+          "variacion_anual_pct": 7.8,
+          "ranking_mundial": "7º",
+          "principales_estados_valor": "Sonora (45%), Jalisco, Tamaulipas"
         }
       },
       "ciclo_fenologico": {
@@ -14456,23 +15166,34 @@
     "Ajonjolí": {
       "nombre": "Ajonjolí",
       "categoria": "agroindustriales",
-      "rendimiento": 0.8,
+      "rendimiento": 0.65,
       "precio_medio": 22617,
       "roi": 20.1,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 0.8,
+        "rendimiento_promedio_t_por_ha": 0.65,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 0.8,
-            "produccion_ton": 51000
+            "rendimiento_t_ha": 0.62,
+            "produccion_ton": 58000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 0.65,
+            "produccion_ton": 60500
           }
         ],
         "panorama_2023_summary": {
           "produccion_miles_ton": 51,
           "variacion_anual_pct": -10.0,
           "principales_estados_valor": "Guerrero (23.8%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 60.5,
+          "variacion_anual_pct": 4.3,
+          "ranking_mundial": "15º",
+          "principales_estados_valor": "Sinaloa, Guerrero, Oaxaca"
         }
       },
       "ciclo_fenologico": {
@@ -14621,17 +15342,22 @@
     "Alfalfa": {
       "nombre": "Alfalfa",
       "categoria": "leguminosa",
-      "rendimiento": 80.0,
+      "rendimiento": 88.5,
       "precio_medio": 950,
       "roi": 47,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 80.0,
+        "rendimiento_promedio_t_por_ha": 88.5,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 80.0,
-            "produccion_ton": 31000000
+            "rendimiento_t_ha": 87.2,
+            "produccion_ton": 34850000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 88.5,
+            "produccion_ton": 35200000
           }
         ],
         "panorama_2023_summary": {
@@ -14640,6 +15366,13 @@
           "ranking_mundial": "N/A (Consumo interno)",
           "consumo_per_capita": "Forraje (Ganado Lechero)",
           "principales_estados_valor": "Chihuahua (22%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 35200,
+          "variacion_anual_pct": 1.0,
+          "ranking_mundial": "N/A",
+          "nota": "Indispensable para la industria láctea y ganadera",
+          "principales_estados_valor": "Chihuahua (22%), Guanajuato, Hidalgo"
         }
       },
       "ciclo_fenologico": {
@@ -14856,17 +15589,22 @@
     "Chayote": {
       "nombre": "Chayote",
       "categoria": "hortaliza",
-      "rendimiento": 65.0,
+      "rendimiento": 64.0,
       "precio_medio": 3500,
       "roi": 61,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 65.0,
+        "rendimiento_promedio_t_por_ha": 64.0,
         "historial_produccion": [
           {
             "year": 2023,
-            "rendimiento_t_ha": 65.0,
-            "produccion_ton": 195000
+            "rendimiento_t_ha": 62.8,
+            "produccion_ton": 181000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 64.0,
+            "produccion_ton": 185000
           }
         ],
         "panorama_2023_summary": {
@@ -14875,6 +15613,13 @@
           "ranking_mundial": "1º Exportador",
           "consumo_per_capita": "3.2 kg",
           "principales_estados_valor": "Veracruz (85%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 185,
+          "variacion_anual_pct": 2.2,
+          "ranking_mundial": "1º",
+          "consumo_per_capita": "1.5 kg",
+          "principales_estados_valor": "Veracruz, Michoacán"
         }
       },
       "ciclo_fenologico": {
@@ -15079,17 +15824,22 @@
     "Cempasúchil": {
       "nombre": "Cempasúchil",
       "categoria": "ornamental",
-      "rendimiento": 10.5,
+      "rendimiento": 11.2,
       "precio_medio": 4500,
       "roi": 24,
       "riesgo": "Medio",
       "estadisticas": {
-        "rendimiento_promedio_t_por_ha": 10.5,
+        "rendimiento_promedio_t_por_ha": 11.2,
         "historial_produccion": [
           {
             "year": 2023,
             "rendimiento_t_ha": 10.5,
             "produccion_ton": 21000
+          },
+          {
+            "year": 2024,
+            "rendimiento_t_ha": 11.2,
+            "produccion_ton": 21500
           }
         ],
         "panorama_2023_summary": {
@@ -15098,6 +15848,12 @@
           "ranking_mundial": "N/A (Cultural)",
           "consumo_per_capita": "Estacional (Noviembre)",
           "principales_estados_valor": "Puebla (42%)"
+        },
+        "panorama_2025_summary": {
+          "produccion_miles_ton": 21.5,
+          "variacion_anual_pct": 2.4,
+          "ranking_mundial": "1º (Uso Cultural/Ceremonial)",
+          "principales_estados_valor": "Puebla (42%), Tlaxcala, Hidalgo"
         }
       },
       "ciclo_fenologico": {

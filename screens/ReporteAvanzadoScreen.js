@@ -11,6 +11,7 @@ import { supabase } from '../src/services/supabaseClient';
 
 // --- 1. DATOS ESTÁTICOS ---
 const ESTADOS_MX = [
+  "Nacional", // <- Opción Nacional Agregada
   "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
   "Coahuila", "Colima", "Chiapas", "Chihuahua", "Ciudad de México", 
   "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", 
@@ -142,6 +143,11 @@ export default function ReporteAvanzadoScreen() {
 
   const [metricasSeleccionadas, setMetricasSeleccionadas] = useState(['valor', 'volumen', 'sembrada']);
   const [nivelDesglose, setNivelDesglose] = useState("Por Cultivo");
+  
+  // --- NUEVOS ESTADOS DE ORDENAMIENTO ---
+  const [ordenCriterio, setOrdenCriterio] = useState('Entidad');
+  const [ordenDireccion, setOrdenDireccion] = useState('Ascendente');
+
   const [listaCultivos, setListaCultivos] = useState([]);
   const [listaMunicipios, setListaMunicipios] = useState([]);
   const [resultados, setResultados] = useState([]); 
@@ -159,9 +165,10 @@ export default function ReporteAvanzadoScreen() {
   }, []);
 
   useEffect(() => {
-    if (filtros.estado.length > 0) {
+    const estadosFiltrados = filtros.estado.filter(e => e !== 'Nacional');
+    if (estadosFiltrados.length > 0) {
         const fetchMunicipios = async () => {
-            const { data } = await supabase.from('produccion_agricola').select('nommunicipio').in('nomestado', filtros.estado);
+            const { data } = await supabase.from('produccion_agricola').select('nommunicipio').in('nomestado', estadosFiltrados);
             if (data) setListaMunicipios([...new Set(data.map(item => item.nommunicipio))].sort());
         };
         fetchMunicipios();
@@ -169,7 +176,19 @@ export default function ReporteAvanzadoScreen() {
   }, [filtros.estado]);
 
   const toggleMetrica = (id) => {
-    setMetricasSeleccionadas(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]);
+    setMetricasSeleccionadas(prev => {
+        const isSelected = prev.includes(id);
+        const newSelected = isSelected ? prev.filter(m => m !== id) : [...prev, id];
+        
+        // Resetear el ordenamiento si se deselecciona la métrica que estaba ordenando
+        if (isSelected) {
+            const metricaRemovida = METRICAS_DISPONIBLES.find(m => m.id === id);
+            if (ordenCriterio === metricaRemovida.label) {
+                setOrdenCriterio('Entidad');
+            }
+        }
+        return newSelected;
+    });
   };
 
   const consultarBaseDatos = async () => {
@@ -182,13 +201,22 @@ export default function ReporteAvanzadoScreen() {
       let query = supabase.from('produccion_agricola').select('*');
       if (filtros.anio.length > 0) query = query.in('anio', filtros.anio.map(a => parseInt(a)));
       if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
-      if (filtros.estado.length > 0) query = query.in('nomestado', filtros.estado);
-      if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
       
+      // LÓGICA DE EXCLUSIÓN PARA ESTADO NACIONAL
+      const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
+      if (filtros.estado.length > 0) {
+          if (!filtros.estado.includes('Nacional')) {
+              query = query.in('nomestado', estadosReales);
+          }
+          // Si incluye Nacional, no aplicamos filtro de estado aquí para bajar todos los datos del país.
+      }
+
+      if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
       if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
       if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
       
-      const { data, error } = await query.limit(5000);
+      // Límite extendido para evitar truncar años al agrupar grandes conjuntos de datos
+      const { data, error } = await query.limit(50000); 
       if (error) throw error;
       if (!data || data.length === 0) {
         Alert.alert("Aviso", "No hay datos para esta consulta.");
@@ -207,42 +235,75 @@ export default function ReporteAvanzadoScreen() {
                      nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
 
     const totals = { val: 0, vol: 0, sem: 0, cos: 0 };
-    
-    const grouped = data.reduce((acc, item) => {
-        const entity = item[keyField] || "N/A";
-        const year = item.anio;
-        const id = `${entity}-${year}`;
+    const grouped = {};
 
-        if (!acc[id]) {
-            acc[id] = { 
-                ...item, 
-                descripcion: entity,
-                anio: year,
-                valorproduccion: 0, sembrada: 0, siniestrada: 0, 
-                volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 
-            };
+    const initGroup = (id, entity, anio) => {
+        grouped[id] = { 
+            descripcion: entity,
+            anio: anio,
+            valorproduccion: 0, sembrada: 0, siniestrada: 0, 
+            volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 
+        };
+    };
+
+    const addDataToId = (id, item) => {
+        grouped[id].valorproduccion += (item.valorproduccion || 0);
+        grouped[id].sembrada += (item.sembrada || 0);
+        grouped[id].siniestrada += (item.siniestrada || 0);
+        grouped[id].volumenproduccion += (item.volumenproduccion || 0);
+        grouped[id].cosechada += (item.cosechada || 0);
+        grouped[id].sumPrecio += (item.preciomediorural || 0);
+        grouped[id].counter++;
+    };
+
+    data.forEach(item => {
+        const year = item.anio;
+        const entity = item[keyField] || "N/A";
+
+        let renderNormalRow = true;
+        const esNacionalVsEstatal = (nivelDesglose === "Estatal" && filtros.estado.includes("Nacional"));
+        const estadosReales = filtros.estado.filter(e => e !== "Nacional");
+
+        // LÓGICA DE AGRUPACIÓN ESTADO NACIONAL VS ESPECÍFICOS
+        if (filtros.estado.length > 0) {
+            if (esNacionalVsEstatal) {
+                renderNormalRow = estadosReales.length > 0 && estadosReales.includes(item.nomestado);
+            } else {
+                if (filtros.estado.includes("Nacional")) {
+                    renderNormalRow = true; // Actúa como total para otros desgloses
+                } else {
+                    renderNormalRow = estadosReales.includes(item.nomestado);
+                }
+            }
         }
-        
-        acc[id].valorproduccion += (item.valorproduccion || 0);
-        acc[id].sembrada += (item.sembrada || 0);
-        acc[id].siniestrada += (item.siniestrada || 0);
-        acc[id].volumenproduccion += (item.volumenproduccion || 0);
-        acc[id].cosechada += (item.cosechada || 0);
-        acc[id].sumPrecio += (item.preciomediorural || 0);
-        acc[id].counter++;
+
+        if (renderNormalRow) {
+            const id = `${entity}-${year}`;
+            if (!grouped[id]) initGroup(id, entity, year);
+            addDataToId(id, item);
+        }
+
+        // Fila Virtual "Nacional" exclusivamente para comparación Estatal
+        if (esNacionalVsEstatal) {
+            const idNac = `Nacional-${year}`;
+            if (!grouped[idNac]) initGroup(idNac, "Nacional", year);
+            addDataToId(idNac, item);
+        }
 
         totals.val += item.valorproduccion || 0;
         totals.vol += item.volumenproduccion || 0;
         totals.sem += item.sembrada || 0;
         totals.cos += item.cosechada || 0;
-        return acc;
-    }, {});
+    });
 
     let listaFinal = Object.values(grouped).map(i => ({
         ...i,
         rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
         preciomediorural: i.sumPrecio / i.counter,
-    })).sort((a,b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
+    }));
+    
+    // Orden temporal por entidad y año descendente para calcular las variaciones correctamente
+    listaFinal.sort((a,b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
 
     listaFinal = listaFinal.map((curr, idx, arr) => {
         const prev = arr.find(item => item.descripcion === curr.descripcion && item.anio === curr.anio - 1);
@@ -299,6 +360,35 @@ export default function ReporteAvanzadoScreen() {
   const formatMoney = (n) => '$' + Math.round(n || 0).toLocaleString('es-MX');
   const formatNum = (n) => (n || 0).toLocaleString('es-MX', { maximumFractionDigits: 1 });
 
+  // --- LÓGICA DE ORDENAMIENTO EN TIEMPO REAL ---
+  const opcionesOrden = ['Entidad', 'Año', ...metricasSeleccionadas.map(m => METRICAS_DISPONIBLES.find(x => x.id === m).label)];
+  
+  const datosOrdenados = React.useMemo(() => {
+    return [...resultados].sort((a, b) => {
+        let valA, valB;
+        if (ordenCriterio === 'Entidad') {
+            valA = a.descripcion; valB = b.descripcion;
+        } else if (ordenCriterio === 'Año') {
+            valA = a.anio; valB = b.anio;
+        } else {
+            const metrica = METRICAS_DISPONIBLES.find(m => m.label === ordenCriterio);
+            if (metrica) {
+                valA = a[metrica.key]; valB = b[metrica.key];
+            } else {
+                valA = a.descripcion; valB = b.descripcion;
+            }
+        }
+
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            return ordenDireccion === 'Ascendente' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+
+        if (valA < valB) return ordenDireccion === 'Ascendente' ? -1 : 1;
+        if (valA > valB) return ordenDireccion === 'Ascendente' ? 1 : -1;
+        return 0;
+    });
+  }, [resultados, ordenCriterio, ordenDireccion]);
+
   const handlePDF = async () => {
     const html = `<html><body style="font-family:sans-serif; padding: 20px;">
       <h2 style="color:#2E7D32;">Reporte SIACON - Desglose ${nivelDesglose}</h2>
@@ -312,7 +402,7 @@ export default function ReporteAvanzadoScreen() {
             <th style="padding:5px; border:1px solid #ccc; color:#81C784;">Var %</th>
           `).join('')}
         </tr>
-        ${resultados.map(r => `<tr>
+        ${datosOrdenados.map(r => `<tr>
           <td style="padding:5px; border:1px solid #ccc;">${r.descripcion}</td>
           <td style="padding:5px; border:1px solid #ccc;">${r.anio}</td>
           ${metricasSeleccionadas.map(m => {
@@ -332,7 +422,7 @@ export default function ReporteAvanzadoScreen() {
 
   const handleExcel = async () => {
     let csv = `${nivelDesglose},Año,${metricasSeleccionadas.map(m => `${METRICAS_DISPONIBLES.find(x=>x.id===m).label},Variación %`).join(',')}\n`;
-    resultados.forEach(r => {
+    datosOrdenados.forEach(r => {
         let fila = `"${r.descripcion}",${r.anio}`;
         metricasSeleccionadas.forEach(m => {
             const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
@@ -346,7 +436,6 @@ export default function ReporteAvanzadoScreen() {
     await Sharing.shareAsync(uri);
   };
 
-  // --- NUEVAS FUNCIONES PARA EL FLATLIST ---
   const renderCabeceraTabla = () => (
     <View style={[styles.tableRow, styles.tableHeader]}>
         <Text style={[styles.cellHeader, {width: 130}]}>{nivelDesglose}</Text>
@@ -432,6 +521,18 @@ export default function ReporteAvanzadoScreen() {
             ))}
           </View>
 
+          {/* MENÚS DE ORDENAMIENTO DE DATOS */}
+          <Text style={styles.sectionTitle}>3. Ordenar Resultados</Text>
+          <View style={styles.row}>
+             <View style={{flex: 1, marginRight: 5}}>
+                <FiltroAutocomplete id="ordenCriterio" label="Ordenar por" valor={ordenCriterio} setValor={setOrdenCriterio} opciones={opcionesOrden} zIndex={60} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+             </View>
+             <View style={{flex: 1, marginLeft: 5}}>
+                <FiltroAutocomplete id="ordenDireccion" label="Dirección" valor={ordenDireccion} setValor={setOrdenDireccion} opciones={['Ascendente', 'Descendente']} zIndex={60} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+             </View>
+          </View>
+          <View style={{marginBottom: 15}}></View>
+
           <TouchableOpacity style={styles.btnConsultar} onPress={consultarBaseDatos} disabled={cargando}>
             {cargando ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>GENERAR REPORTE</Text>}
           </TouchableOpacity>
@@ -442,12 +543,10 @@ export default function ReporteAvanzadoScreen() {
                 <View style={styles.summaryCard}>
                     <Text style={styles.summaryTitle}>Resumen Ejecutivo</Text>
                     
-                    {/* CORREGIDO: <View> con mayúscula */}
                     <View style={styles.summaryRow}>
                         <View style={styles.summaryItem}><Text style={styles.summaryLabel}>VALOR TOTAL</Text><Text style={styles.summaryValueMoney}>{formatMoney(resumenGeneral.val)}</Text></View>
                         <View style={styles.summaryItem}><Text style={styles.summaryLabel}>SUP. SEMBRADA</Text><Text style={styles.summaryValue}>{formatNum(resumenGeneral.sem)} Ha</Text></View>
                     </View>
-                    {/* CORREGIDO: </View> con mayúscula */}
 
                     {variacionesMultiples.length > 0 && (
                         <View style={styles.multiVarContainer}>
@@ -475,13 +574,12 @@ export default function ReporteAvanzadoScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* CORREGIDO: Se implementó FlatList y se retiró el .map() */}
                 <ScrollView horizontal style={styles.tableScroll}>
                     <View>
                         {renderCabeceraTabla()}
                         <View style={{ maxHeight: 400 }}> 
                             <FlatList
-                                data={resultados}
+                                data={datosOrdenados}
                                 keyExtractor={(item, index) => `${item.descripcion}-${item.anio}-${index}`}
                                 renderItem={renderFilaTabla}
                                 nestedScrollEnabled={true}
