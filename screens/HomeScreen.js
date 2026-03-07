@@ -9,7 +9,8 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-ico
 import { LinearGradient } from 'expo-linear-gradient'; 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import NetInfo from "@react-native-community/netinfo";
-import { Camera } from 'react-native-vision-camera'; // Importación directa para validación técnica
+// Se mantienen las importaciones exactas originales
+import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import * as ImagePicker from 'expo-image-picker';
 
 // Datos y Utilidades originales
@@ -18,10 +19,10 @@ import CultivoDataManager from '../utils/CultivoDataManager';
 import { getDatabase, ref, onValue } from "firebase/database";
 import { app } from '../utils/firebase';  
 
-// Importación de calculadora GDD
+// Importación para calculadora GDD
 import { calcularGDD_Seno, generarAlertas } from '../utils/gdd_calculator';
 
-// Componentes y Hooks originales
+// Componentes originales
 import ClimaWidget from '../components/ClimaWidget'; 
 import { TreatmentCard } from '../components/TreatmentCard';
 import { usePlantClassifier } from '../src/hooks/usePlantClassifier';
@@ -33,7 +34,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 export default function HomeScreen({ navigation }) {
-  // --- ESTADOS ORIGINALES REPERTORIADOS ---
+  // --- ESTADOS ORIGINALES ---
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCropGDD, setSelectedCropGDD] = useState("Agave tequilero");
   const [climaData, setClimaData] = useState({ tmax: 30, tmin: 15 });
@@ -45,7 +46,10 @@ export default function HomeScreen({ navigation }) {
   const [favoritos, setFavoritos] = useState([]);
   const [historialEscaneos, setHistorialEscaneos] = useState([]);
 
-  // Lógica de Clasificación e IA (Extraída de tu hook personalizado)
+  // --- ESTADO LOCAL ESTRICTO PARA BLOQUEAR EL MODAL AL INICIO ---
+  const [isCameraModalVisible, setIsCameraModalVisible] = useState(false);
+
+  // Hook de Clasificación e IA original
   const { 
     device, 
     hasPermission, 
@@ -57,27 +61,22 @@ export default function HomeScreen({ navigation }) {
     classifyImage 
   } = usePlantClassifier();
 
-  // --- EFECTO DE INICIALIZACIÓN Y PERMISOS (CORRECCIÓN) ---
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnected(state.isConnected);
     });
+    
+    // Al montar, nos aseguramos de que el hook no intente tomar foto
+    if(takingPhoto) {
+      setTakingPhoto(false);
+    }
 
-    // Solicitar permisos de cámara al inicio para evitar el crash en HomeScreen
-    const initPermissions = async () => {
-        if (!hasPermission) {
-            await requestPermission();
-        }
-    };
-
-    initPermissions();
     fetchFirebaseData();
     cargarDatosLocales();
-
     return () => unsubscribe();
   }, []);
 
-  // --- TODAS LAS FUNCIONES ORIGINALES PRESERVADAS ---
+  // --- FUNCIONES ORIGINALES ---
 
   const cargarDatosLocales = async () => {
     try {
@@ -114,8 +113,10 @@ export default function HomeScreen({ navigation }) {
 
     Object.keys(riesgos).forEach(nombreRiesgo => {
       const infoRiesgo = riesgos[nombreRiesgo];
+      
       if (infoRiesgo.ciclo_desarrollo && infoRiesgo.ciclo_desarrollo.grados_dia_desarrollo) {
         const gddConfig = infoRiesgo.ciclo_desarrollo.grados_dia_desarrollo;
+        
         if (gddConfig.base_termica === "N/A") return; 
 
         const base = parseFloat(gddConfig.base_termica);
@@ -139,6 +140,30 @@ export default function HomeScreen({ navigation }) {
     setRiesgosActivos(alertasFinales);
   };
 
+  // --- FUNCIÓN DE CONTROL DE CÁMARA ---
+  const handleOpenAI = async () => {
+    if (!hasPermission) {
+      const permissionGranted = await requestPermission();
+      if (permissionGranted) {
+        setTakingPhoto(true);
+        setIsCameraModalVisible(true);
+      } else {
+        Alert.alert(
+          "Permiso Requerido",
+          "Necesitas habilitar la cámara en la configuración de tu dispositivo para identificar plagas."
+        );
+      }
+    } else {
+      setTakingPhoto(true);
+      setIsCameraModalVisible(true);
+    }
+  };
+
+  const handleCloseCamera = () => {
+    setIsCameraModalVisible(false);
+    setTakingPhoto(false);
+  };
+
   const renderRiesgoItem = ({ item }) => (
     <View style={styles.riesgoCard}>
       <View style={[styles.statusBadge, { backgroundColor: item.nivel === 'CRÍTICO' ? '#FFCDD2' : '#FFF9C4' }]}>
@@ -156,6 +181,7 @@ export default function HomeScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
+      {/* Buscador Original */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color="#94A3B8" />
@@ -190,7 +216,7 @@ export default function HomeScreen({ navigation }) {
               }} />
           </TouchableOpacity>
 
-          {/* Favoritos Detallados */}
+          {/* Favoritos Originales */}
           {favoritos.length > 0 && (
             <View style={styles.favoritosMinContainer}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.favoritosScroll}>
@@ -206,6 +232,7 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
+          {/* Sección GDD Original */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Análisis de Riesgo (GDD)</Text>
@@ -229,15 +256,10 @@ export default function HomeScreen({ navigation }) {
             )}
           </View>
 
+          {/* Botón IA */}
           <TouchableOpacity 
             style={styles.mainActionCard}
-            onPress={() => {
-                if(hasPermission) {
-                    setTakingPhoto(true);
-                } else {
-                    requestPermission().then(res => { if(res) setTakingPhoto(true); });
-                }
-            }}
+            onPress={handleOpenAI}
           >
             <LinearGradient colors={['#66BB6A', '#43A047']} style={styles.actionGradient}>
               <MaterialCommunityIcons name="camera-iris" size={42} color="white" />
@@ -249,7 +271,7 @@ export default function HomeScreen({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Historial de Escaneos preservado */}
+          {/* Historial Original */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Escaneos Recientes</Text>
             {historialEscaneos.length === 0 ? (
@@ -274,7 +296,7 @@ export default function HomeScreen({ navigation }) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* MODALES REPERTORIADOS */}
+      {/* Modal Cultivos Original */}
       <Modal visible={showCropModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -300,22 +322,24 @@ export default function HomeScreen({ navigation }) {
         </View>
       </Modal>
 
-      <Modal visible={takingPhoto} animationType="slide">
+      {/* Modal Cámara Controlado Estrictamente */}
+      <Modal visible={isCameraModalVisible} animationType="slide" onRequestClose={handleCloseCamera}>
         <View style={{ flex: 1, backgroundColor: 'black' }}>
-          {/* CORRECCIÓN CRÍTICA: Renderizado condicional del componente Camera */}
-          {device && hasPermission ? (
+          {device != null && hasPermission ? (
             <Camera 
-                style={StyleSheet.absoluteFill} 
-                device={device} 
-                isActive={takingPhoto} 
+              style={StyleSheet.absoluteFill} 
+              device={device} 
+              isActive={isCameraModalVisible} 
             />
           ) : (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color="white" />
-                <Text style={{color: 'white', marginTop: 10}}>Iniciando Cámara...</Text>
+                <Text style={{ color: 'white', marginTop: 15, fontWeight: 'bold' }}>
+                  Cargando lente de la cámara...
+                </Text>
             </View>
           )}
-          <TouchableOpacity style={styles.closeCamera} onPress={() => setTakingPhoto(false)}>
+          <TouchableOpacity style={styles.closeCamera} onPress={handleCloseCamera}>
             <Ionicons name="close-circle" size={50} color="white" />
           </TouchableOpacity>
         </View>
