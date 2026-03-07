@@ -49,6 +49,23 @@ export default function HomeScreen({ navigation }) {
   // Lógica de Clasificación e IA original
   const { device, hasPermission, requestPermission, takingPhoto, setTakingPhoto, model, result, classifyImage } = usePlantClassifier();
 
+  // --- SOLUCIÓN AL ERROR DE PERMISOS ---
+  // Solicitamos el permiso al montar el componente si no se tiene
+  useEffect(() => {
+    const checkPermissions = async () => {
+      if (!hasPermission) {
+        const status = await requestPermission();
+        if (!status) {
+          Alert.alert(
+            "Permiso de Cámara",
+            "RóslinApp necesita acceso a la cámara para identificar plagas. Por favor, actívalo en ajustes."
+          );
+        }
+      }
+    };
+    checkPermissions();
+  }, [hasPermission]);
+
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnected(state.isConnected);
@@ -97,7 +114,6 @@ export default function HomeScreen({ navigation }) {
       if (infoRiesgo.ciclo_desarrollo && infoRiesgo.ciclo_desarrollo.grados_dia_desarrollo) {
         const gddConfig = infoRiesgo.ciclo_desarrollo.grados_dia_desarrollo;
         
-        // CORRECCIÓN CRÍTICA: Filtrar riesgos sin modelo fenológico establecido ("N/A")
         if (gddConfig.base_termica === "N/A") return; 
 
         const base = parseFloat(gddConfig.base_termica);
@@ -107,9 +123,8 @@ export default function HomeScreen({ navigation }) {
         
         const requeridos = parseFloat(gddConfig.gdd_ciclo_completo) || 100;
 
-        // Llamada a la calculadora
         const gddDelDia = calcularGDD_Seno(clima.tmax, clima.tmin, base, superior);
-        const gddAcumuladoSimulado = gddDelDia * 20; // Simulación a 20 días
+        const gddAcumuladoSimulado = gddDelDia * 20; 
 
         predicciones[nombreRiesgo] = {
           gdd_requeridos: requeridos,
@@ -128,11 +143,9 @@ export default function HomeScreen({ navigation }) {
       <View style={[styles.statusBadge, { backgroundColor: item.nivel === 'CRÍTICO' ? '#FFCDD2' : '#FFF9C4' }]}>
         <Text style={[styles.statusText, { color: item.nivel === 'CRÍTICO' ? '#C62828' : '#F9A825' }]}>{item.nivel}</Text>
       </View>
-      {/* CORRECCIÓN: Usar item.riesgo en vez de item.nombre */}
       <Text style={styles.riesgoNombre}>{item.riesgo}</Text>
       <Text style={styles.riesgoMensaje} numberOfLines={2}>{item.mensaje}</Text>
       <View style={styles.progressBarContainer}>
-        {/* CORRECCIÓN: Usar item.progreso y asegurar parseo a número */}
         <View style={[styles.progressBarFill, { width: `${Math.min(parseFloat(item.progreso), 100)}%`, backgroundColor: item.nivel === 'CRÍTICO' ? '#E53935' : '#FB8C00' }]} />
       </View>
     </View>
@@ -142,7 +155,6 @@ export default function HomeScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
-      {/* Barra de Búsqueda Original */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color="#94A3B8" />
@@ -180,7 +192,6 @@ export default function HomeScreen({ navigation }) {
               }} />
           </TouchableOpacity>
 
-          {/* Favoritos Detallados */}
           {favoritos.length > 0 && (
             <View style={styles.favoritosMinContainer}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.favoritosScroll}>
@@ -196,7 +207,6 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
-          {/* Sección de Riesgos Fitosanitarios GDD */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Análisis de Riesgo (GDD)</Text>
@@ -211,7 +221,7 @@ export default function HomeScreen({ navigation }) {
               <FlatList
                 data={riesgosActivos}
                 renderItem={renderRiesgoItem}
-                keyExtractor={item => item.riesgo} // CORRECCIÓN: Clave actualizada
+                keyExtractor={item => item.riesgo}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.listPadding}
@@ -220,10 +230,15 @@ export default function HomeScreen({ navigation }) {
             )}
           </View>
 
-          {/* Botón Principal IA */}
           <TouchableOpacity 
             style={styles.mainActionCard}
-            onPress={() => setTakingPhoto(true)}
+            onPress={() => {
+              if (hasPermission) {
+                setTakingPhoto(true);
+              } else {
+                requestPermission();
+              }
+            }}
           >
             <LinearGradient colors={['#66BB6A', '#43A047']} style={styles.actionGradient}>
               <MaterialCommunityIcons name="camera-iris" size={42} color="white" />
@@ -235,7 +250,6 @@ export default function HomeScreen({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Historial de Escaneos (Original) */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Escaneos Recientes</Text>
             {historialEscaneos.length === 0 ? (
@@ -260,7 +274,6 @@ export default function HomeScreen({ navigation }) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Modales de Configuración */}
       <Modal visible={showCropModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -286,12 +299,20 @@ export default function HomeScreen({ navigation }) {
         </View>
       </Modal>
 
+      {/* MODAL DE CÁMARA CORREGIDO */}
       <Modal visible={takingPhoto} animationType="slide">
         <View style={{ flex: 1, backgroundColor: 'black' }}>
-          {device && hasPermission ? (
-            <Camera style={StyleSheet.absoluteFill} device={device} isActive={true} />
+          {device != null && hasPermission ? (
+            <Camera 
+              style={StyleSheet.absoluteFill} 
+              device={device} 
+              isActive={takingPhoto} 
+            />
           ) : (
-            <Text style={{ color: 'white', textAlign: 'center', marginTop: 100 }}>Permisos de cámara requeridos</Text>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="white" />
+                <Text style={{ color: 'white', marginTop: 10 }}>Cargando cámara...</Text>
+            </View>
           )}
           <TouchableOpacity style={styles.closeCamera} onPress={() => setTakingPhoto(false)}>
             <Ionicons name="close-circle" size={50} color="white" />
