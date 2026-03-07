@@ -9,19 +9,19 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-ico
 import { LinearGradient } from 'expo-linear-gradient'; 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import NetInfo from "@react-native-community/netinfo";
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { Camera } from 'react-native-vision-camera'; // Importación directa para validación técnica
 import * as ImagePicker from 'expo-image-picker';
 
-// Datos y Utilidades
+// Datos y Utilidades originales
 import datosBasicos from "../data/cultivos_basico.json";
 import CultivoDataManager from '../utils/CultivoDataManager';
 import { getDatabase, ref, onValue } from "firebase/database";
 import { app } from '../utils/firebase';  
 
-// --- CORRECCIÓN DE IMPORTACIÓN PARA gdd_calculator020326.js ---
+// Importación de calculadora GDD
 import { calcularGDD_Seno, generarAlertas } from '../utils/gdd_calculator';
 
-// Componentes
+// Componentes y Hooks originales
 import ClimaWidget from '../components/ClimaWidget'; 
 import { TreatmentCard } from '../components/TreatmentCard';
 import { usePlantClassifier } from '../src/hooks/usePlantClassifier';
@@ -33,6 +33,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 export default function HomeScreen({ navigation }) {
+  // --- ESTADOS ORIGINALES REPERTORIADOS ---
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCropGDD, setSelectedCropGDD] = useState("Agave tequilero");
   const [climaData, setClimaData] = useState({ tmax: 30, tmin: 15 });
@@ -41,39 +42,42 @@ export default function HomeScreen({ navigation }) {
   const [dataFirebase, setDataFirebase] = useState(null);
   const [showCropModal, setShowCropModal] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
-  
-  // Estados de Favoritos e Historial (Configuración original)
   const [favoritos, setFavoritos] = useState([]);
   const [historialEscaneos, setHistorialEscaneos] = useState([]);
 
-  // Lógica de Clasificación e IA original
-  const { device, hasPermission, requestPermission, takingPhoto, setTakingPhoto, model, result, classifyImage } = usePlantClassifier();
+  // Lógica de Clasificación e IA (Extraída de tu hook personalizado)
+  const { 
+    device, 
+    hasPermission, 
+    requestPermission, 
+    takingPhoto, 
+    setTakingPhoto, 
+    model, 
+    result, 
+    classifyImage 
+  } = usePlantClassifier();
 
-  // --- SOLUCIÓN AL ERROR DE PERMISOS ---
-  // Solicitamos el permiso al montar el componente si no se tiene
-  useEffect(() => {
-    const checkPermissions = async () => {
-      if (!hasPermission) {
-        const status = await requestPermission();
-        if (!status) {
-          Alert.alert(
-            "Permiso de Cámara",
-            "RóslinApp necesita acceso a la cámara para identificar plagas. Por favor, actívalo en ajustes."
-          );
-        }
-      }
-    };
-    checkPermissions();
-  }, [hasPermission]);
-
+  // --- EFECTO DE INICIALIZACIÓN Y PERMISOS (CORRECCIÓN) ---
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnected(state.isConnected);
     });
+
+    // Solicitar permisos de cámara al inicio para evitar el crash en HomeScreen
+    const initPermissions = async () => {
+        if (!hasPermission) {
+            await requestPermission();
+        }
+    };
+
+    initPermissions();
     fetchFirebaseData();
     cargarDatosLocales();
+
     return () => unsubscribe();
   }, []);
+
+  // --- TODAS LAS FUNCIONES ORIGINALES PRESERVADAS ---
 
   const cargarDatosLocales = async () => {
     try {
@@ -110,10 +114,8 @@ export default function HomeScreen({ navigation }) {
 
     Object.keys(riesgos).forEach(nombreRiesgo => {
       const infoRiesgo = riesgos[nombreRiesgo];
-      
       if (infoRiesgo.ciclo_desarrollo && infoRiesgo.ciclo_desarrollo.grados_dia_desarrollo) {
         const gddConfig = infoRiesgo.ciclo_desarrollo.grados_dia_desarrollo;
-        
         if (gddConfig.base_termica === "N/A") return; 
 
         const base = parseFloat(gddConfig.base_termica);
@@ -122,7 +124,6 @@ export default function HomeScreen({ navigation }) {
                           : null;
         
         const requeridos = parseFloat(gddConfig.gdd_ciclo_completo) || 100;
-
         const gddDelDia = calcularGDD_Seno(clima.tmax, clima.tmin, base, superior);
         const gddAcumuladoSimulado = gddDelDia * 20; 
 
@@ -182,16 +183,14 @@ export default function HomeScreen({ navigation }) {
         </LinearGradient>
 
         <View style={styles.content}>
-          <TouchableOpacity 
-              activeOpacity={0.8} 
-              onPress={() => navigation.navigate('WeatherScreen')}
-          >
+          <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('WeatherScreen')}>
               <ClimaWidget onWeatherData={(data) => {
                    setClimaData(data);
                    if(dataFirebase) procesarCalculosGDD(dataFirebase[selectedCropGDD], data);
               }} />
           </TouchableOpacity>
 
+          {/* Favoritos Detallados */}
           {favoritos.length > 0 && (
             <View style={styles.favoritosMinContainer}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.favoritosScroll}>
@@ -233,11 +232,11 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity 
             style={styles.mainActionCard}
             onPress={() => {
-              if (hasPermission) {
-                setTakingPhoto(true);
-              } else {
-                requestPermission();
-              }
+                if(hasPermission) {
+                    setTakingPhoto(true);
+                } else {
+                    requestPermission().then(res => { if(res) setTakingPhoto(true); });
+                }
             }}
           >
             <LinearGradient colors={['#66BB6A', '#43A047']} style={styles.actionGradient}>
@@ -250,6 +249,7 @@ export default function HomeScreen({ navigation }) {
             </LinearGradient>
           </TouchableOpacity>
 
+          {/* Historial de Escaneos preservado */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Escaneos Recientes</Text>
             {historialEscaneos.length === 0 ? (
@@ -274,6 +274,7 @@ export default function HomeScreen({ navigation }) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
+      {/* MODALES REPERTORIADOS */}
       <Modal visible={showCropModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -299,19 +300,19 @@ export default function HomeScreen({ navigation }) {
         </View>
       </Modal>
 
-      {/* MODAL DE CÁMARA CORREGIDO */}
       <Modal visible={takingPhoto} animationType="slide">
         <View style={{ flex: 1, backgroundColor: 'black' }}>
-          {device != null && hasPermission ? (
+          {/* CORRECCIÓN CRÍTICA: Renderizado condicional del componente Camera */}
+          {device && hasPermission ? (
             <Camera 
-              style={StyleSheet.absoluteFill} 
-              device={device} 
-              isActive={takingPhoto} 
+                style={StyleSheet.absoluteFill} 
+                device={device} 
+                isActive={takingPhoto} 
             />
           ) : (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <ActivityIndicator size="large" color="white" />
-                <Text style={{ color: 'white', marginTop: 10 }}>Cargando cámara...</Text>
+                <Text style={{color: 'white', marginTop: 10}}>Iniciando Cámara...</Text>
             </View>
           )}
           <TouchableOpacity style={styles.closeCamera} onPress={() => setTakingPhoto(false)}>
