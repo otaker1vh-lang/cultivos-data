@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  StyleSheet, 
+  ActivityIndicator, 
+  TouchableOpacity, 
+  Alert,
+  RefreshControl // <-- IMPORTACIÓN NUEVA
+} from "react-native";
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import CultivoDataManager from "../utils/CultivoDataManager";
 
-// --- IMPORTACIONES FIREBASE ---
-import { getDatabase, ref, get, child } from 'firebase/database';
-import { app } from '../utils/firebase';
+// --- SE ELIMINARON LAS IMPORTACIONES DIRECTAS DE FIREBASE ---
 
 export default function LaboresScreen({ route }) {
   const { cultivo } = route.params;
@@ -15,6 +22,7 @@ export default function LaboresScreen({ route }) {
   // --- ESTADOS ---
   const [cultivoData, setCultivoData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
   const [loadingCompleto, setLoadingCompleto] = useState(false);
   const [nivel, setNivel] = useState('basico');
   const [debugInfo, setDebugInfo] = useState([]); 
@@ -22,11 +30,11 @@ export default function LaboresScreen({ route }) {
   // Estados de expansión (Accordions)
   const [etapaExpandida, setEtapaExpandida] = useState(null);
   const [calendarioRiegoExpanded, setCalendarioRiegoExpanded] = useState(false);
-  const [infraRiegoExpanded, setInfraRiegoExpanded] = useState(false); // NUEVO
+  const [infraRiegoExpanded, setInfraRiegoExpanded] = useState(false);
   const [presupuestoExpanded, setPresupuestoExpanded] = useState(false);
   const [catPresupuestoExpanded, setCatPresupuestoExpanded] = useState(null);
   const [deficienciasExpanded, setDeficienciasExpanded] = useState(false);
-  const [fertProgramaExpanded, setFertProgramaExpanded] = useState(false); // NUEVO
+  const [fertProgramaExpanded, setFertProgramaExpanded] = useState(false);
 
   // DEBUG
   const addDebug = (message, data = null) => {
@@ -42,62 +50,52 @@ export default function LaboresScreen({ route }) {
 
   // 1. CARGA INICIAL
   useEffect(() => {
-    cargarDatosBasicos();
+    cargarDatosBasicos(false);
   }, [cultivo]);
 
-  // CARGA BÁSICA
-  const cargarDatosBasicos = async () => {
+  // CARGA BÁSICA (Adaptada para aceptar isRefreshing)
+  const cargarDatosBasicos = async (isRefreshing = false) => {
     try {
-      setLoading(true);
-      const rtdb = getDatabase(app); 
-      const dbRef = ref(rtdb);
+      if (!isRefreshing) setLoading(true);
       
-      const ruta = `cultivos/${cultivo}`;
-      console.log("Buscando en ruta:", ruta);
+      // TODO pasa por el DataManager: Caché -> Nube -> Fallback Local
+      const datos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
 
-      const snapshot = await get(child(dbRef, ruta));
-
-      if (snapshot.exists()) {
-        const datos = snapshot.val();
+      if (datos) {
         setCultivoData(datos);
         
-        if (datos.presupuesto_labores_detallado || datos.calendario_riego_mensual) {
+        if (datos.presupuesto_labores_detallado || datos.calendario_riego_mensual || datos._origen === 'nube') {
           setNivel('completo');
         } else {
           setNivel('basico');
         }
-        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datos));
       } else {
-        const datosGuardados = await AsyncStorage.getItem(CACHE_KEY);
-        if (datosGuardados) {
-            const parsedData = JSON.parse(datosGuardados);
-            setCultivoData(parsedData);
-            setNivel('basico');
-        } else {
-            const datos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
-            if (datos) setCultivoData(datos);
-        }
+        Alert.alert("Error", "No hay conexión ni datos locales disponibles.");
       }
     } catch (error) {
-      console.error("Error cargando:", error);
-      Alert.alert("Error", error.message);
+      console.log("Fallo en la carga de datos:", error);
+      Alert.alert("Error", "No se pudo cargar la información.");
     } finally {
-      setLoading(false);
+      if (!isRefreshing) setLoading(false);
     }
   };
 
-  // --- FUNCIÓN DE FIREBASE ---
+  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await cargarDatosBasicos(true);
+    setRefreshing(false);
+  };
+
+  // --- FUNCIÓN REFACCIONADA PARA USAR EL MANAGER EN LUGAR DE FIREBASE DIRECTO ---
   const obtenerDatosFirebase = async (manual = false) => {
     try {
       setLoadingCompleto(true);
-      const db = getDatabase(app);
-      // Referencia directa al nodo del cultivo en la estructura del JSON 07
-      const cultivoRef = ref(db, `cultivos/${cultivo}`);
-      const snapshot = await get(cultivoRef);
+      
+      // Obtenemos los datos actualizados a través del administrador
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
 
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        
+      if (data) {
         // Mapeo y Normalización para compatibilidad con JSON 07
         const dataNormalizada = {
           ...data,
@@ -105,27 +103,26 @@ export default function LaboresScreen({ route }) {
           calendario_riego: data.calendario_riego_mensual || data.calendario_riego || [],
           
           // 2. Normalizar Labores/Actividades (el JSON 07 las tiene en 'labores_culturales')
-          labores_culturales: data.labores_culturales || [],
+          labores_culturales: data.labores_culturales || data.labores || [],
           
           // 3. Manejo de Infraestructura de Riego (sistemas_recomendados en JSON 07)
-          sistemas_recomendados: data.sistemas_recomendados || [],
+          sistemas_recomendados: data.sistemas_recomendados || data.sistemas_riego || [],
           
           // 4. Costos y Presupuesto (costos_produccion_detallados en JSON 07)
           presupuesto_estimado: data.costos_produccion_detallados || data.presupuesto_estimado || null,
-          
-          _origen: 'firebase_rt',
-          _fecha: new Date().toISOString()
         };
 
         setCultivoData(dataNormalizada);
-        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(dataNormalizada));
         setNivel('completo');
-        if(manual) Alert.alert("Éxito", "Datos actualizados desde la nube.");
+        if(manual) Alert.alert("Éxito", "Datos actualizados correctamente.");
+        return dataNormalizada;
       } else {
-        console.log("No se hallaron datos en el nodo: cultivos/" + cultivo);
+        console.log("No se hallaron datos del cultivo en el manager.");
+        return null;
       }
     } catch (error) {
-      console.error("Error RTDB:", error);
+      console.error("Error obteniendo datos completos:", error);
+      return null;
     } finally {
       setLoadingCompleto(false);
     }
@@ -135,9 +132,9 @@ export default function LaboresScreen({ route }) {
   const descargarDatosCompletos = async () => {
     try {
       setLoadingCompleto(true);
-      addDebug('🔄 Iniciando descarga de datos COMPLETOS...');
+      addDebug('🔄 Iniciando actualización de datos COMPLETOS...');
       
-      const firebaseData = await obtenerDatosFirebase();
+      const firebaseData = await obtenerDatosFirebase(false);
       
       if (firebaseData) {
         const datosCompletos = {
@@ -145,30 +142,29 @@ export default function LaboresScreen({ route }) {
           ...firebaseData 
         };
 
-        const tienePresupuesto = Object.keys(datosCompletos.presupuesto_labores_detallado || {}).length > 0;
+        const tienePresupuesto = Object.keys(datosCompletos.presupuesto_labores_detallado || datosCompletos.presupuesto_estimado || {}).length > 0;
         const tieneRiego = Object.keys(datosCompletos.calendario_riego || {}).length > 0;
 
-        if (tienePresupuesto || tieneRiego) {
+        if (tienePresupuesto || tieneRiego || datosCompletos._origen === 'nube') {
           setCultivoData(datosCompletos);
           setNivel('completo');
-          await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datosCompletos));
           Alert.alert("Actualizado", "Datos descargados correctamente.");
         } else {
           Alert.alert("Aviso", "No se encontró información detallada adicional.");
         }
       } else {
-        Alert.alert("Sin datos", "No se encontró el cultivo en la base de datos.");
+        Alert.alert("Sin datos", "No se encontró el cultivo.");
       }
     } catch (error) {
       addDebug(`🚨 ERROR: ${error.message}`, error);
-      Alert.alert("Error", "Ocurrió un problema al conectar con la base de datos.");
+      Alert.alert("Error", "Ocurrió un problema al actualizar los datos.");
     } finally {
       setLoadingCompleto(false);
     }
   };
 
   // --- RENDERIZADO ---
-  if (loading && !cultivoData) {
+  if (loading && !refreshing && !cultivoData) {
     return <ActivityIndicator size="large" style={styles.loader} color="#2E7D32" />;
   }
 
@@ -177,7 +173,7 @@ export default function LaboresScreen({ route }) {
       <View style={styles.emptyContainer}>
         <MaterialCommunityIcons name="clipboard-alert" size={60} color="#CCC" />
         <Text style={styles.emptyTextMain}>No se encontraron datos para {cultivo}</Text>
-        <TouchableOpacity style={styles.btnRetry} onPress={cargarDatosBasicos}>
+        <TouchableOpacity style={styles.btnRetry} onPress={() => cargarDatosBasicos(false)}>
           <Text style={styles.btnText}>Reintentar</Text>
         </TouchableOpacity>
       </View>
@@ -189,7 +185,7 @@ export default function LaboresScreen({ route }) {
   const laboresRaw = cultivoData?.labores_culturales || cultivoData?.labores || {};
   const fertPrograma = cultivoData?.programa_fertilizacion || [];
   const fertCalculo = cultivoData?.calculo_fertilizacion?.recomendada || {};
-  const sistemasRiego = cultivoData?.sistemas_riego?.sistemas_recomendados || 
+  const sistemasRiego = cultivoData?.sistemas_recomendados || 
                       (Array.isArray(cultivoData?.sistemas_riego) ? cultivoData.sistemas_riego : []);
   const costos = cultivoData?.costos_produccion_detallados || {};
   
@@ -199,7 +195,7 @@ export default function LaboresScreen({ route }) {
   const deficiencias = fisiologia.sintomas_deficiencia || cultivoData?.deficiencias_nutricionales || {};
 
   const planRiego = cultivoData?.calendario_riego || cultivoData?.calendario_riego_mensual || {};
-  const presupuestoDetallado = cultivoData?.presupuesto_labores_detallado || cultivoData?.presupuesto || {};
+  const presupuestoDetallado = cultivoData?.presupuesto_estimado || cultivoData?.presupuesto_labores_detallado || cultivoData?.presupuesto || {};
 
   // ORDENAMIENTO DE ETAPAS (LÓGICA MEJORADA)
   const ordenLogico = [
@@ -239,7 +235,19 @@ export default function LaboresScreen({ route }) {
   });
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 60 }}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={{ paddingBottom: 60 }}
+      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#2E7D32", "#1976D2"]} // Colores para Android
+          tintColor="#2E7D32" // Color para iOS
+        />
+      }
+    >
 
       {/* Header Operativo */}
       <View style={styles.headerContainer}>

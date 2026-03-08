@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  Dimensions, 
+  ActivityIndicator, 
+  TouchableOpacity, 
+  Alert,
+  RefreshControl // <-- IMPORTACIÓN NUEVA
+} from 'react-native';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import CultivoDataManager from '../utils/CultivoDataManager';
@@ -10,6 +20,7 @@ export default function EstadisticasScreen({ route }) {
   const { cultivo } = route.params; 
   
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
   const [infoCultivo, setInfoCultivo] = useState(null);
   
   // Estados para gráficas
@@ -22,7 +33,7 @@ export default function EstadisticasScreen({ route }) {
   const [mercadoData, setMercadoData] = useState(null);
 
   useEffect(() => {
-    cargarDatos();
+    cargarDatos(false);
   }, [cultivo]);
 
     // --- SUSTITUIR ESTAS FUNCIONES EN EstadisticasScreen.js ---
@@ -86,14 +97,16 @@ export default function EstadisticasScreen({ route }) {
     setRentabilidadData(pieData);
   };
 
-  const cargarDatos = async (manual = false) => {
+  // --- FUNCIÓN MODIFICADA PARA ACEPTAR isRefreshing ---
+  const cargarDatos = async (isRefreshing = false) => {
     try {
-      setLoading(true);
+      if (!isRefreshing) setLoading(true);
       // Usamos el Manager que ya maneja la URL de Firebase
       const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
       if (data) {
         setInfoCultivo(data);
+        setStatsExpandidas(data);
         procesarHistoricoPrecios(data);
         procesarCostos(data);
         procesarRentabilidad(data);
@@ -107,8 +120,15 @@ export default function EstadisticasScreen({ route }) {
       console.error("Error cargando estadísticas:", error);
       Alert.alert("Error", "No se pudieron procesar los datos estadísticos.");
     } finally {
-      setLoading(false);
+      if (!isRefreshing) setLoading(false);
     }
+  };
+
+  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await cargarDatos(true);
+    setRefreshing(false);
   };
 
   const obtenerDatosRiesgo = () => {
@@ -328,7 +348,7 @@ export default function EstadisticasScreen({ route }) {
     );
   };
 
-  if (loading) {
+  if (loading && !refreshing) {
       return (
           <View style={styles.center}>
               <ActivityIndicator size="large" color="#2E7D32" />
@@ -338,7 +358,19 @@ export default function EstadisticasScreen({ route }) {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      style={styles.container} 
+      showsVerticalScrollIndicator={false}
+      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#2E7D32", "#1565C0"]} // Colores de tu app para Android
+          tintColor="#2E7D32" // Color para iOS
+        />
+      }
+    >
       
       {/* HEADER CON BOTÓN DE NUBE */}
       <View style={styles.header}>
@@ -354,7 +386,7 @@ export default function EstadisticasScreen({ route }) {
           
           <TouchableOpacity 
             style={styles.cloudButton} 
-            onPress={() => cargarDatos(true)}
+            onPress={() => onRefresh()}
           >
               <MaterialCommunityIcons name="cloud-download" size={24} color="#fff" />
               <Text style={styles.cloudButtonText}>Actualizar</Text>

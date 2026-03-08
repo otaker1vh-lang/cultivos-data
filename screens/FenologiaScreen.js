@@ -6,11 +6,13 @@ import {
   StyleSheet, 
   ActivityIndicator, 
   TouchableOpacity, 
-  Alert 
+  Alert,
+  RefreshControl // <-- IMPORTACIÓN NUEVA
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GanttFenologico from '../components/GanttFenologico';
+import CultivoDataManager from '../utils/CultivoDataManager';
 
 // --- IMPORTACIONES FIREBASE ---
 import { getDatabase, ref, get, child } from 'firebase/database';
@@ -23,6 +25,8 @@ export default function FenologiaScreen({ route }) {
   // --- ESTADOS ---
   const [cultivoData, setCultivoData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
+  const [loadingCompleto, setLoadingCompleto] = useState(false); // NUEVO ESTADO PARA EL BOTÓN
   const [modoDetallado, setModoDetallado] = useState(false); 
   
   // Estados de UI
@@ -31,38 +35,61 @@ export default function FenologiaScreen({ route }) {
   const [etapaExpanded, setEtapaExpanded] = useState(null);
 
   useEffect(() => {
-    cargarDatos();
+    cargarDatos(false);
   }, [cultivo]);
 
-  // --- CARGA DE DATOS ---
-  const cargarDatos = async () => {
-    setLoading(true);
+  // --- CARGA DE DATOS PRINCIPAL (OFFLINE FIRST MEDIANTE DATAMANAGER) ---
+  const cargarDatos = async (isRefreshing = false) => {
+    if (!isRefreshing) setLoading(true);
+    try {
+      // 1. Uso centralizado del DataManager (Caché -> Nube -> Local Básico)
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
+      
+      if (data) {
+        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        procesarYSetearDatos(data);
+      } else {
+         Alert.alert("Aviso", "No se encontró información fenológica.");
+      }
+    } catch (error) {
+      console.log("Error al cargar datos con DataManager:", error);
+      Alert.alert("Error", "No se pudo cargar la información fenológica.");
+    } finally {
+      if (!isRefreshing) setLoading(false);
+    }
+  };
+
+  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await cargarDatos(true);
+    setRefreshing(false);
+  };
+
+  // --- DESCARGA MANUAL DE FIREBASE (BOTÓN ACTUALIZAR) ---
+  const descargarDatosNube = async () => {
+    setLoadingCompleto(true);
     try {
       const rtdb = getDatabase(app);
       const dbRef = ref(rtdb);
       const ruta = `cultivos/${cultivo}`;
       
-      console.log(`🔍 Buscando datos en: ${ruta}`);
+      console.log(`🔍 [BOTÓN] Buscando datos en nube: ${ruta}`);
       const snapshot = await get(child(dbRef, ruta));
       
       if (snapshot.exists()) {
         const datosNuevos = snapshot.val();
         await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datosNuevos));
         procesarYSetearDatos(datosNuevos);
+        Alert.alert("Actualizado", "Datos fenológicos descargados desde la nube.");
       } else {
-        const datosGuardados = await AsyncStorage.getItem(CACHE_KEY);
-        if (datosGuardados) {
-          const parsedData = JSON.parse(datosGuardados);
-          procesarYSetearDatos(parsedData);
-        } else {
-           Alert.alert("Aviso", "No se encontró información fenológica.");
-        }
+        Alert.alert("Aviso", "No se encontró información detallada en la nube para este cultivo.");
       }
     } catch (error) {
-      console.error("Error al cargar fenología:", error);
-      Alert.alert("Error", "No se pudo cargar la información.");
+      console.log("Error de red en Firebase...", error);
+      Alert.alert("Error", "Ocurrió un problema al conectar con la base de datos.");
     } finally {
-      setLoading(false);
+      setLoadingCompleto(false);
     }
   };
 
@@ -192,7 +219,7 @@ export default function FenologiaScreen({ route }) {
     });
   };
 
-  if (loading && !cultivoData) {
+  if (loading && !refreshing && !cultivoData) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#2E7D32" />
@@ -218,7 +245,18 @@ export default function FenologiaScreen({ route }) {
   const duracionTotalCalculada = datosGantt.reduce((acc, e) => acc + (e.duracion_dias || 0), 0);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#1B5E20", "#4CAF50"]}
+          tintColor="#1B5E20"
+        />
+      }
+    >
       
       {/* HEADER */}
       <View style={styles.header}>
@@ -226,8 +264,26 @@ export default function FenologiaScreen({ route }) {
             <Text style={styles.titulo}>Fenología: {cultivo}</Text>
             <Text style={styles.subtitle}>{modoDetallado ? "Datos fenológicos (BBCH)" : "Ciclo y Tiempos"}</Text>
         </View>
-        <View style={[styles.badge, modoDetallado ? styles.badgeCompleto : null]}>
-            <Text style={styles.badgeText}>{modoDetallado ? "✓ Completo" : "Básico"}</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            {modoDetallado && (
+              <View style={[styles.badge, styles.badgeCompleto, {marginRight: 10}]}>
+                  <Text style={styles.badgeText}>✓ Completo</Text>
+              </View>
+            )}
+            <TouchableOpacity 
+              style={styles.btnDescargar}
+              onPress={descargarDatosNube}
+              disabled={loadingCompleto}
+            >
+              {loadingCompleto ? (
+                  <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                  <>
+                      <Ionicons name="cloud-download-outline" size={16} color="#fff" style={{marginRight: 4}} />
+                      <Text style={styles.btnDescargarText}>Actualizar</Text>
+                  </>
+              )}
+            </TouchableOpacity>
         </View>
       </View>
 
@@ -555,6 +611,9 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#E0E0E0' },
   badgeCompleto: { backgroundColor: '#4CAF50' },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
+  
+  btnDescargar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1976D2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  btnDescargarText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
 
   // SECTION SUBTITLE
   sectionSubtitle: { marginHorizontal: 15, marginBottom: 10, color: '#666', fontSize: 12, fontStyle:'italic' },

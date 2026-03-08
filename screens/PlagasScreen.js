@@ -10,7 +10,8 @@ import {
   Modal,
   TextInput,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  RefreshControl
 } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,6 +35,7 @@ export default function PlagasScreen({ route }) {
   // --- ESTADOS ORIGINALES ---
   const [loading, setLoading] = useState(true);
   const [loadingCompleto, setLoadingCompleto] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [nivel, setNivel] = useState('basico');
   
   const [plagasList, setPlagasList] = useState([]);
@@ -50,57 +52,60 @@ export default function PlagasScreen({ route }) {
     cargarDatos();
   }, [cultivo]);
 
-  // 1. LÓGICA DE CARGA HÍBRIDA
+  // 1. LÓGICA DE CARGA HÍBRIDA CENTRALIZADA
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const datosGuardados = await AsyncStorage.getItem(CACHE_KEY);
-
-      if (datosGuardados) {
-        const parsedData = JSON.parse(datosGuardados);
-        procesarYSetearDatos(parsedData);
-        setLoading(false);
-      }
-
-      const datosBasicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
+      // Todo pasa por el Manager: Caché -> Nube -> Local
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
-      if (datosBasicos) {
-        if (!datosGuardados || nivel === 'basico') {
-            procesarYSetearDatos(datosBasicos);
-            if (!datosGuardados) {
-                await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datosBasicos));
-            }
-        }
+      if (data) {
+        procesarYSetearDatos(data);
+        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      } else {
+        Alert.alert("Error", "No hay conexión ni datos locales disponibles.");
       }
     } catch (error) {
-      console.error("Error cargando plagas:", error);
-      Alert.alert("Error", "No se pudo cargar la información inicial.");
+      console.log("Error al cargar datos, intentando fallback...", error);
+      const datosLocales = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
+      
+      if (datosLocales) {
+        procesarYSetearDatos(datosLocales);
+      } else {
+        Alert.alert("Error", "No se pudo cargar la información y no hay datos locales disponibles.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. DESCARGA MANUAL
-  const descargarDatosCompletos = async () => {
+  // 2. DESCARGA MANUAL Y REFRESH
+  const descargarDatosCompletos = async (fromRefresh = false) => {
     try {
-      setLoadingCompleto(true);
+      if (!fromRefresh) setLoadingCompleto(true);
       const datosCompletos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
       if (datosCompletos) {
         if (datosCompletos.plagas_y_enfermedades || datosCompletos.grados_dia_desarrollo || datosCompletos.riesgos_detallados) {
             procesarYSetearDatos(datosCompletos);
             await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(datosCompletos));
-            Alert.alert("Actualizado", "Base de datos técnica descargada correctamente.");
+            if (!fromRefresh) Alert.alert("Actualizado", "Base de datos técnica descargada correctamente.");
         } else {
-            Alert.alert("Aviso", "No hay información adicional disponible.");
+            if (!fromRefresh) Alert.alert("Aviso", "No hay información adicional disponible.");
         }
       }
     } catch (err) {
       console.error("Error descarga:", err);
-      Alert.alert("Error de Conexión", "No se pudo descargar la información completa.");
+      Alert.alert("Error de Conexión", "No se pudo actualizar la información.");
     } finally {
-      setLoadingCompleto(false);
+      if (!fromRefresh) setLoadingCompleto(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await descargarDatosCompletos(true);
+    setRefreshing(false);
   };
 
   // 3. PROCESAMIENTO
@@ -301,7 +306,7 @@ export default function PlagasScreen({ route }) {
         ) : (
              <TouchableOpacity 
                 style={styles.btnDescargar} 
-                onPress={descargarDatosCompletos}
+                onPress={() => descargarDatosCompletos()}
                 disabled={loadingCompleto}
              >
                 {loadingCompleto ? (
@@ -351,8 +356,18 @@ export default function PlagasScreen({ route }) {
         </ScrollView>
       </View>
 
-      {/* LISTA */}
-      <ScrollView style={styles.listContainer}>
+      {/* LISTA CON REFRESH CONTROL */}
+      <ScrollView 
+        style={styles.listContainer}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={["#D32F2F"]}
+            tintColor="#D32F2F"
+          />
+        }
+      >
         {filteredData.length > 0 ? (
           filteredData.map((item, index) => {
             const isExpanded = expandedId === item.nombre;
@@ -452,7 +467,7 @@ export default function PlagasScreen({ route }) {
                           )}
                           
                           {item.manejo_integrado.general && (
-                             <Text style={styles.managementText}>{item.manejo_integrado.general}</Text>
+                              <Text style={styles.managementText}>{item.manejo_integrado.general}</Text>
                           )}
                         </View>
                     ) : null}

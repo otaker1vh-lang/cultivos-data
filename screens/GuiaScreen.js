@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, TouchableOpacity, Linking } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  ActivityIndicator, 
+  Image, 
+  TouchableOpacity, 
+  Linking,
+  RefreshControl // <-- IMPORTACIÓN NUEVA
+} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CultivoDataManager from '../utils/CultivoDataManager';
 
@@ -8,36 +18,46 @@ export default function GuiaScreen({ route }) {
 
   const [infoCultivo, setInfoCultivo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
   const [nivel, setNivel] = useState('basico');
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      if (cultivo) {
-        setLoading(true);
-        try {
-          // Intentar obtener datos completos directos
-          const completos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
-          
-          if (completos && completos._nivel === 'completo') {
-            setInfoCultivo(completos);
-            setNivel('completo');
-          } else {
-            // Fallback a básico
-            const basicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
-            setInfoCultivo(basicos);
-            setNivel('basico');
-          }
-        } catch (err) {
-          console.error('Error cargando datos:', err);
-        } finally {
-          setLoading(false);
+  // --- FUNCIÓN EXTRAÍDA PARA PODER REUTILIZARLA ---
+  const cargarDatos = async (isRefreshing = false) => {
+    if (cultivo) {
+      if (!isRefreshing) setLoading(true);
+      try {
+        // Intentar obtener datos completos directos
+        const completos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
+        
+        if (completos && completos._nivel === 'completo') {
+          setInfoCultivo(completos);
+          setNivel('completo');
+        } else {
+          // Fallback a básico
+          const basicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
+          setInfoCultivo(basicos);
+          setNivel('basico');
         }
+      } catch (err) {
+        console.error('Error cargando datos:', err);
+      } finally {
+        if (!isRefreshing) setLoading(false);
       }
-    };
-    cargarDatos();
+    }
+  };
+
+  useEffect(() => {
+    cargarDatos(false);
   }, [cultivo]);
 
-  if (loading) {
+  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await cargarDatos(true);
+    setRefreshing(false);
+  };
+
+  if (loading && !refreshing) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#2E7D32" />
@@ -96,7 +116,18 @@ export default function GuiaScreen({ route }) {
   const alertas = infoCultivo.alertas_riesgos || [];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView 
+      contentContainerStyle={styles.container}
+      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#1565C0", "#2E7D32"]} // Colores de tu app para Android
+          tintColor="#1565C0" // Color para iOS
+        />
+      }
+    >
       
       {/* IMAGEN DE PORTADA */}
       {imagenUrl && (
@@ -153,7 +184,7 @@ export default function GuiaScreen({ route }) {
         </View>
 
         {/* --- TABLA COMPARATIVA DE RIEGO --- */}
-        {sistemasRiego.length > 0 && (
+        {sistemasRiego && sistemasRiego.length > 0 && (
             <View style={styles.riegoContainer}>
                 <Text style={styles.subSectionTitle}>Comparativa de Sistemas de Riego</Text>
                 
