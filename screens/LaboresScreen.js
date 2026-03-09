@@ -195,6 +195,14 @@ export default function LaboresScreen({ route }) {
   const deficiencias = fisiologia.sintomas_deficiencia || cultivoData?.deficiencias_nutricionales || {};
 
   const planRiego = cultivoData?.calendario_riego || cultivoData?.calendario_riego_mensual || {};
+
+  // EXTRACTOR SEGURO: Absorbe arrays o mapas de objetos del JSON 07
+  let arrayRiegos = [];
+  if (Array.isArray(planRiego)) arrayRiegos = planRiego;
+  else if (Array.isArray(planRiego.calendario_riego)) arrayRiegos = planRiego.calendario_riego;
+  else if (Array.isArray(planRiego.programa_riego)) arrayRiegos = planRiego.programa_riego;
+  else if (typeof planRiego.programa_riego === 'object') arrayRiegos = Object.values(planRiego.programa_riego);
+  else if (typeof planRiego.calendario_riego === 'object') arrayRiegos = Object.values(planRiego.calendario_riego);
   const presupuestoDetallado = cultivoData?.presupuesto_estimado || cultivoData?.presupuesto_labores_detallado || cultivoData?.presupuesto || {};
 
   // ORDENAMIENTO DE ETAPAS (LÓGICA MEJORADA)
@@ -473,13 +481,15 @@ export default function LaboresScreen({ route }) {
                      <Text style={[styles.tableHeadText, {width:70, textAlign:'right'}]}>Lámina</Text>
                   </View>
                   
-                  {(Array.isArray(planRiego) ? planRiego : planRiego.calendario_riego || []).map((item, index) => (
+                  {arrayRiegos.map((item, index) => (
                      <View key={index} style={[styles.tableRow, index % 2 === 0 && styles.tableRowEven]}>
-                        <Text style={[styles.tableCell, {flex:1}]}>{item.etapa || item.mes}</Text>
+                        <Text style={[styles.tableCell, {flex:1}]}>{item.etapa || item.meses || item.mes || 'General'}</Text>
                         <Text style={[styles.tableCell, {width:90, textAlign:'center'}]}>
-                          {item.frecuencia_dias ? `c/${item.frecuencia_dias}d` : item.riegos || '-'}
+                          {item.frecuencia || (item.frecuencia_dias ? `c/${item.frecuencia_dias}d` : (item.riegos || '-'))}
                         </Text>
-                        <Text style={[styles.tableCell, {width:70, textAlign:'right'}]}>{item.lamina_mm} mm</Text>
+                        <Text style={[styles.tableCell, {width:70, textAlign:'right'}]}>
+                          {item.lamina_mm ? `${item.lamina_mm} mm` : (item.litros_arbol_dia ? `${item.litros_arbol_dia} L/d` : '-')}
+                        </Text>
                      </View>
                   ))}
                </View>
@@ -603,8 +613,24 @@ export default function LaboresScreen({ route }) {
                 <View style={styles.accordionContent}>
                     {Object.keys(presupuestoDetallado).map((catKey, idx) => {
                         const categoryData = presupuestoDetallado[catKey];
-                        if (!categoryData.actividades) return null;
+                        if (typeof categoryData === 'number') {
+                            if (catKey.includes('total')) return null; // Omitir el total suelto
+                            
+                            // Limpiamos los guiones bajos para renderizar bonito
+                            const nombreLimpio = catKey.replace(/_/g, ' ');
+                            const nombreCapitalizado = nombreLimpio.charAt(0).toUpperCase() + nombreLimpio.slice(1);
+                            
+                            return (
+                                <View key={idx} style={styles.presupuestoRow}>
+                                   <View style={{flex:1}}>
+                                     <Text style={styles.presupuestoLabor}>{nombreCapitalizado}</Text>
+                                   </View>
+                                   <Text style={styles.presupuestoCosto}>${categoryData.toLocaleString()}</Text>
+                                </View>
+                            );
+                        }
 
+                        if (!categoryData.actividades) return null;
                         const isExpanded = catPresupuestoExpanded === catKey;
                         const totalCat = categoryData.actividades.reduce((sum, item) => sum + (item.costo_ha || 0), 0);
 

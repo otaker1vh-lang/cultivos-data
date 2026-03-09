@@ -39,16 +39,21 @@ export default function EstadisticasScreen({ route }) {
     // --- SUSTITUIR ESTAS FUNCIONES EN EstadisticasScreen.js ---
 
   const procesarHistoricoPrecios = (data) => {
-    // El JSON 07 guarda esto en 'economia_expandida'
     const eco = data.economia_expandida || {};
     const precioMax = eco.precio_max_mxn_ton || 0;
     const precioMin = eco.precio_min_mxn_ton || 0;
     const precioProm = eco.precio_promedio_mxn_ton || 0;
 
-    // Convertimos de Tonelada a Kilo (dividido entre 1000) para la gráfica
+    // PROTECCIÓN: Si no hay precios, no intentamos dibujar la gráfica
+    if (precioMax === 0 && precioMin === 0 && precioProm === 0) {
+      setHistoricoPrecios(null);
+      return;
+    }
+
     const labels = ["Mínimo", "Promedio", "Máximo"];
     const valores = [precioMin / 1000, precioProm / 1000, precioMax / 1000];
 
+    // Formato correcto para LineChart
     setHistoricoPrecios({
       labels,
       datasets: [{ data: valores }]
@@ -56,45 +61,45 @@ export default function EstadisticasScreen({ route }) {
   };
 
   const procesarCostos = (data) => {
-    // El JSON 07 usa 'costos_produccion_detallados'
     const costos = data.costos_produccion_detallados || {};
     
-    // Mapeo de rubros típicos del JSON 07
-    const labels = ["Insumos", "Mano Obra", "Riego", "Otros"];
-    const valores = [
-      (costos.semillas || 0) + (costos.fertilizantes || 0),
-      (costos.mano_obra_poda || 0) + (costos.mano_obra_cosecha || 0),
-      (costos.energia_riego || 0),
-      (costos.mantenimiento_maquinaria || 0)
-    ];
+    const insumos = (costos.semillas || 0) + (costos.fertilizantes || 0);
+    const manoObra = (costos.mano_obra_poda || 0) + (costos.mano_obra_cosecha || 0);
+    const riego = (costos.energia_riego || 0);
+    const otros = (costos.mantenimiento_maquinaria || 0);
 
-    setCostosData({
-      labels,
-      datasets: [{ data: valores }]
-    });
+    // PROTECCIÓN: Si todos los costos están en 0, ocultamos la gráfica
+    if (insumos === 0 && manoObra === 0 && riego === 0 && otros === 0) {
+        setCostosData(null);
+        return;
+    }
+
+    // CORRECCIÓN: PieChart exige un ARREGLO de objetos y la llave "population"
+    setCostosData([
+      { name: "Insumos", population: insumos, color: "#EF5350", legendFontColor: "#7F7F7F", legendFontSize: 12 },
+      { name: "Mano Obra", population: manoObra, color: "#42A5F5", legendFontColor: "#7F7F7F", legendFontSize: 12 },
+      { name: "Riego", population: riego, color: "#66BB6A", legendFontColor: "#7F7F7F", legendFontSize: 12 },
+      { name: "Otros", population: otros, color: "#FFA726", legendFontColor: "#7F7F7F", legendFontSize: 12 }
+    ]);
   };
 
   const procesarRentabilidad = (data) => {
     const rent = data.analisis_rentabilidad || {};
     
-    // Datos para PieChart
-    const pieData = [
-      {
-        name: "Inversión",
-        poblacion: rent.inversion_inicial_ha || 0,
-        color: "#E57373",
-        legendFontColor: "#7F7F7F",
-        legendFontSize: 12
-      },
-      {
-        name: "Ingreso Anual",
-        poblacion: rent.ingreso_anual_esperado_ha || 0,
-        color: "#81C784",
-        legendFontColor: "#7F7F7F",
-        legendFontSize: 12
-      }
-    ];
-    setRentabilidadData(pieData);
+    const inversion = rent.inversion_inicial_ha || 0;
+    const ingreso = rent.ingreso_anual_esperado_ha || 0;
+
+    // PROTECCIÓN: Evitar dibujar gráficas vacías
+    if (inversion === 0 && ingreso === 0) {
+        setRentabilidadData(null);
+        return;
+    }
+
+    // CORRECCIÓN: BarChart exige un OBJETO con "labels" y "datasets"
+    setRentabilidadData({
+      labels: ["Inversión", "Ingreso Anual"],
+      datasets: [{ data: [inversion, ingreso] }]
+    });
   };
 
   // --- FUNCIÓN MODIFICADA PARA ACEPTAR isRefreshing ---

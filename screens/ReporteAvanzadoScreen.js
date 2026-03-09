@@ -198,30 +198,40 @@ export default function ReporteAvanzadoScreen() {
     setOpenMenu(null);
 
     try {
-      let query = supabase.from('produccion_agricola').select('*');
-      if (filtros.anio.length > 0) query = query.in('anio', filtros.anio.map(a => parseInt(a)));
-      if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
-      
-      // LÓGICA DE EXCLUSIÓN PARA ESTADO NACIONAL
       const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
-      if (filtros.estado.length > 0) {
-          if (!filtros.estado.includes('Nacional')) {
+      
+      // Creamos un arreglo de promesas, una por cada año seleccionado.
+      // Así evitamos el límite de 50k filas de Supabase descargando los años en paralelo.
+      const promesasConsulta = filtros.anio.map(async (anioFiltro) => {
+          let query = supabase.from('produccion_agricola').select('*');
+          
+          // Filtramos exactamente por este año en iteración
+          query = query.eq('anio', parseInt(anioFiltro));
+
+          if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
+          
+          // Lógica de Estado Nacional
+          if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
               query = query.in('nomestado', estadosReales);
           }
-          // Si incluye Nacional, no aplicamos filtro de estado aquí para bajar todos los datos del país.
-      }
 
-      if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
-      if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
-      if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
-      
-      // Límite extendido para evitar truncar años al agrupar grandes conjuntos de datos
-      const { data, error } = await query.limit(50000); 
-      if (error) throw error;
-      if (!data || data.length === 0) {
+          if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
+          if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
+          if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
+          
+          const { data, error } = await query.limit(50000); 
+          if (error) throw error;
+          return data || [];
+      });
+
+      // Ejecutamos las descargas simultáneas y combinamos los arreglos devueltos
+      const resultadosPorAnio = await Promise.all(promesasConsulta);
+      const dataFinalCombinada = resultadosPorAnio.flat();
+
+      if (!dataFinalCombinada || dataFinalCombinada.length === 0) {
         Alert.alert("Aviso", "No hay datos para esta consulta.");
       } else {
-        procesarTodo(data);
+        procesarTodo(dataFinalCombinada);
       }
     } catch (error) {
       Alert.alert("Error", error.message);

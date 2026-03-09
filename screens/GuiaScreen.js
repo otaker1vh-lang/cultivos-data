@@ -94,8 +94,9 @@ export default function GuiaScreen({ route }) {
   // 3. MERCADO Y EXPORTACIÓN
   const mercado = infoCultivo.mercado_comercializacion || {};
   const canalesVenta = mercado.canales_venta || [];
-  const destinosPrincipales = mercado.destinos_principales || [];
-  const requisitosExport = mercado.requisitos_exportacion || mercado.certificaciones || [];
+  const destinosPrincipales = mercado.principales_destinos || 
+        (infoCultivo.destinos_principales ? (infoCultivo.destinos_principales.exportacion || infoCultivo.destinos_principales.nacional) : []);
+  const requisitosExport = mercado.certificaciones_requeridas || mercado.requisitos_exportacion || [];
   const hayDatosExport = Array.isArray(requisitosExport) ? requisitosExport.length > 0 : !!requisitosExport;
 
   // 4. ESTRATEGIA Y FUTURO (RECOMENDACIONES CLAVE)

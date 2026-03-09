@@ -243,11 +243,9 @@ export default function RecordatoriosScreen({ route }) {
             data: { esAlarma: true } // Dato extra para identificar
           },
           trigger: { 
-            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-            seconds: diffSec,
-            repeats: false,
+            date: triggerDate, // Usa la fecha exacta directamente
             channelId: 'default', 
-          }, 
+          },
         });
         
         notificationIds.push(id);

@@ -26,7 +26,8 @@
       "edgeToEdgeEnabled": true,
       "package": "com.otaker.miapp",
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "SCHEDULE_EXACT_ALARM"
       ]
     },
     "web": {
