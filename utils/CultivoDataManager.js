@@ -5,109 +5,141 @@ const FIREBASE_URL = "https://cultivos-d97e2-default-rtdb.firebaseio.com";
 
 class CultivoDataManager {
 
-  // --- HELPER: Convierte Objetos de Firebase a Arrays ---
+  /**
+   * HELPER: Convierte Objetos de Firebase a Arrays
+   * Evita crashes cuando Firebase devuelve un objeto en lugar de una lista
+   */
   _normalizarArray(data) {
     if (!data) return [];
     if (Array.isArray(data)) return data;
-    // Si es objeto (comportamiento de Firebase con índices numéricos), extrae valores
+    // Si es un objeto (comportamiento común de Firebase), extrae los valores
     return Object.values(data);
   }
-  // ------------------------------------------------------------
 
-  // AJUSTE: Eliminado 'static' para permitir uso de 'this' y acceso desde la instancia exportada
+  /**
+   * Procesa y limpia la estructura del cultivo antes de enviarlo a las pantallas
+   */
+  _prepararEstructura(data) {
+    if (!data) return null;
+
+    // Normalización de campos críticos que las pantallas recorren con .map()
+    // Ajustado para la estructura MASTER V4
+    const cleanedData = { ...data };
+
+    // 1. Sistemas de Riego (pueden estar en la raíz o en sistemas_recomendados)
+    if (cleanedData.sistemas_riego) {
+      cleanedData.sistemas_riego = this._normalizarArray(cleanedData.sistemas_riego);
+    }
+    if (cleanedData.sistemas_recomendados?.sistemas_riego) {
+      cleanedData.sistemas_recomendados.sistemas_riego = this._normalizarArray(cleanedData.sistemas_recomendados.sistemas_riego);
+    }
+
+    // 2. Historial de Producción y Estadísticas
+    if (cleanedData.historial_produccion) {
+      cleanedData.historial_produccion = this._normalizarArray(cleanedData.historial_produccion);
+    }
+
+    // 3. Programas de apoyo e Instituciones
+    if (cleanedData.recursos_asistencia?.instituciones) {
+      cleanedData.recursos_asistencia.instituciones = this._normalizarArray(cleanedData.recursos_asistencia.instituciones);
+    }
+
+    // 4. Asegurar que riesgos/plagas sean iterables
+    if (cleanedData.riesgos_detallados) {
+      // No normalizamos a Array aquí para mantener las claves (nombres de plagas),
+      // pero las pantallas ya están preparadas para usar Object.entries()
+    }
+
+    return cleanedData;
+  }
+
   async obtenerCultivo(nombreCultivo, nivel = 'completo') {
     const cacheKey = `@cultivo_data_${nombreCultivo}`;
 
-    // 1. INTENTO CACHÉ
+    // 1. INTENTO LEER CACHÉ
     try {
       const jsonCache = await AsyncStorage.getItem(cacheKey);
       if (jsonCache) {
         const dataCache = JSON.parse(jsonCache);
-        if (nivel === 'basico') return dataCache;
-        // Aquí podrías agregar lógica para invalidar caché por tiempo si lo deseas
+        // Si ya tenemos datos completos en caché, los devolvemos directamente
+        if (nivel === 'basico' || dataCache._nivel === 'completo') {
+          return this._prepararEstructura(dataCache);
+        }
       }
-    } catch (e) { console.error("Error lectura caché", e); }
+    } catch (e) { 
+      console.error("Error lectura caché:", e); 
+    }
 
-    // 2. INTENTO ONLINE
+    // 2. INTENTO DESCARGAR DE FIREBASE (NUBE)
     try {
-      console.log(`🌐 [NUBE] Buscando ${nombreCultivo} en Firebase...`);
-      const controller = new AbortController();
-      // Timeout de 5 segundos para evitar pantallas de carga infinitas
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const response = await fetch(`${FIREBASE_URL}/cultivos/${nombreCultivo}.json`, {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
+      console.log(`🌐 [NUBE] Sincronizando: ${nombreCultivo}...`);
+      
+      // Ajuste de ruta para estructura MASTER: /cultivos/Nombre Cultivo.json
+      const response = await fetch(`${FIREBASE_URL}/cultivos/${nombreCultivo}.json`);
+      
       if (response.ok) {
-        let dataCloud = await response.json();
+        const dataCloud = await response.json();
         
         if (dataCloud) {
-          // --- NORMALIZACIÓN DE DATOS ---
-          // Usamos 'this._normalizarArray' para corregir estructuras de Firebase
+          console.log("✅ [ÉXITO] Datos Master obtenidos y normalizados.");
           
-          if (dataCloud.estadisticas) {
-             // Corregir 'detalle_produccion_nacional'
-             //dataCloud.estadisticas.detalle_produccion_nacional = 
-             //   this._normalizarArray(dataCloud.estadisticas.detalle_produccion_nacional);
-             
-             // Si usas historial_produccion como lista en gráficas, normalízalo también:
-             // if (dataCloud.estadisticas.historial_produccion) {
-             //    dataCloud.estadisticas.historial_produccion = 
-             //       this._normalizarArray(dataCloud.estadisticas.historial_produccion);
-             // }
-          }
-
-          if (dataCloud.mercado_comercializacion) {
-             // Corregir canales y destinos
-             dataCloud.mercado_comercializacion.canales_venta = 
-                this._normalizarArray(dataCloud.mercado_comercializacion.canales_venta);
-                
-             dataCloud.mercado_comercializacion.destinos_principales = 
-                this._normalizarArray(dataCloud.mercado_comercializacion.destinos_principales);
-          }
-          // -------------------------------------
-
-          console.log("✅ [ÉXITO] Datos descargados, normalizados y guardados.");
+          // Inyectamos metadatos de control
           dataCloud._origen = 'nube';
-          dataCloud._fecha_actualizacion = new Date().toISOString();
+          dataCloud._fecha_sincronizacion = new Date().toISOString();
           
-          await AsyncStorage.setItem(cacheKey, JSON.stringify(dataCloud));
-          return dataCloud;
+          // Limpiamos y normalizamos antes de guardar
+          const dataFinal = this._prepararEstructura(dataCloud);
+          
+          // Guardar en caché para uso offline futuro
+          await AsyncStorage.setItem(cacheKey, JSON.stringify(dataFinal));
+          return dataFinal;
         }
       }
     } catch (error) {
-      console.log("⚠️ [OFFLINE] Falló conexión o timeout...", error);
+      console.log("⚠️ [OFFLINE] Usando respaldo local por falta de conexión.");
     }
 
-    // 3. FALLBACK FINAL (Si falló la red, reintentamos leer caché aunque sea viejo)
-    try {
-        const jsonCache = await AsyncStorage.getItem(cacheKey);
-        if (jsonCache) return JSON.parse(jsonCache); 
-    } catch (e) {}
-
-    // 4. FALLBACK LOCAL (Datos básicos del JSON local)
-    // Aseguramos formato de nombre (primera mayúscula)
-    const nombreNormalizado = nombreCultivo.charAt(0).toUpperCase() + nombreCultivo.slice(1).toLowerCase();
-    
-    // Verificamos que datosBasicosLocal exista para evitar crash
+    // 3. FALLBACK: DATOS BÁSICOS LOCALES (cultivos_basico.json)
+    // Buscamos en el archivo local que ya viene en el bundle de la App
     if (datosBasicosLocal && datosBasicosLocal.cultivos) {
-        const dataLocal = datosBasicosLocal.cultivos[nombreNormalizado];
-        if (dataLocal) return { ...dataLocal, _origen: 'local_basico' };
+      // Intentamos coincidencia exacta o con primera mayúscula
+      const nombreNorm = nombreCultivo.charAt(0).toUpperCase() + nombreCultivo.slice(1);
+      const dataLocal = datosBasicosLocal.cultivos[nombreCultivo] || datosBasicosLocal.cultivos[nombreNorm];
+      
+      if (dataLocal) {
+        return { 
+          ...this._prepararEstructura(dataLocal), 
+          _origen: 'local_basico',
+          _nivel: 'basico' 
+        };
+      }
     }
 
     return null;
   }
 
+  /**
+   * Devuelve la lista de cultivos disponible en el archivo local
+   * Útil para el buscador inicial sin requerir internet
+   */
   obtenerListaBasica() {
     if (datosBasicosLocal && datosBasicosLocal.cultivos) {
-        return Object.values(datosBasicosLocal.cultivos);
+      return Object.keys(datosBasicosLocal.cultivos);
     }
     return [];
   }
+
+  /**
+   * Limpia el caché de un cultivo específico para forzar actualización
+   */
+  async limpiarCache(nombreCultivo) {
+    try {
+      await AsyncStorage.removeItem(`@cultivo_data_${nombreCultivo}`);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
-// Exportamos la INSTANCIA única
-const cultivoDataManager = new CultivoDataManager();
-export default cultivoDataManager;
+export default new CultivoDataManager();
