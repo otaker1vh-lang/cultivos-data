@@ -17,101 +17,120 @@ class CultivoDataManager {
   }
 
   /**
+   * VALIDADOR: Verifica que el objeto tenga las llaves mínimas para no crashear las pantallas
+   */
+  _validarDatosMinimos(data) {
+    const llavesRequeridas = ['_nivel', 'nombre_cientifico']; 
+    for (const llave of llavesRequeridas) {
+      if (!data[llave]) {
+        throw new Error(`Falta la llave requerida: ${llave}`);
+      }
+    }
+    return true;
+  }
+
+  /**
    * Procesa y limpia la estructura del cultivo antes de enviarlo a las pantallas
    */
   _prepararEstructura(data) {
-    if (!data) return null;
+    try {
+      if (!data) return null;
 
-    // Normalización de campos críticos que las pantallas recorren con .map()
-    // Ajustado para la estructura MASTER V4
-    const cleanedData = { ...data };
+      // 1. Validación de integridad
+      this._validarDatosMinimos(data);
 
-    // 1. Sistemas de Riego (pueden estar en la raíz o en sistemas_recomendados)
-    if (cleanedData.sistemas_riego) {
-      cleanedData.sistemas_riego = this._normalizarArray(cleanedData.sistemas_riego);
+      // Clonamos para evitar mutar el original
+      const cleanedData = { ...data };
+
+      // 2. Normalización de Sistemas de Riego
+      if (cleanedData.sistemas_riego) {
+        cleanedData.sistemas_riego = this._normalizarArray(cleanedData.sistemas_riego);
+      }
+      if (cleanedData.sistemas_recomendados?.sistemas_riego) {
+        cleanedData.sistemas_recomendados.sistemas_riego = this._normalizarArray(cleanedData.sistemas_recomendados.sistemas_riego);
+      }
+
+      // 3. Normalización de Plagas y Enfermedades (Firebase Object to Array)
+      if (cleanedData.plagas_enfermedades) {
+        cleanedData.plagas_enfermedades = this._normalizarArray(cleanedData.plagas_enfermedades);
+      }
+
+      // 4. Normalización de Alertas/Riesgos
+      if (cleanedData.alertas_riesgos) {
+        cleanedData.alertas_riesgos = this._normalizarArray(cleanedData.alertas_riesgos);
+      }
+
+      // 5. Limpieza de URLs de imágenes (Convierte __ en / si es necesario)
+      if (cleanedData.imagen_url && typeof cleanedData.imagen_url === 'string') {
+        cleanedData.imagen_url = cleanedData.imagen_url.replace(/__/g, '/');
+      }
+
+      return cleanedData;
+
+    } catch (error) {
+      console.error("❌ [CultivoDataManager] Error validando estructura de datos:", error.message);
+      // Si los datos están corruptos o incompletos, retornamos null para que la pantalla maneje el error
+      // y no se guarde información basura en AsyncStorage.
+      return null;
     }
-    if (cleanedData.sistemas_recomendados?.sistemas_riego) {
-      cleanedData.sistemas_recomendados.sistemas_riego = this._normalizarArray(cleanedData.sistemas_recomendados.sistemas_riego);
-    }
-
-    // 2. Historial de Producción y Estadísticas
-    if (cleanedData.historial_produccion) {
-      cleanedData.historial_produccion = this._normalizarArray(cleanedData.historial_produccion);
-    }
-
-    // 3. Programas de apoyo e Instituciones
-    if (cleanedData.recursos_asistencia?.instituciones) {
-      cleanedData.recursos_asistencia.instituciones = this._normalizarArray(cleanedData.recursos_asistencia.instituciones);
-    }
-
-    // 4. Asegurar que riesgos/plagas sean iterables
-    if (cleanedData.riesgos_detallados) {
-      // No normalizamos a Array aquí para mantener las claves (nombres de plagas),
-      // pero las pantallas ya están preparadas para usar Object.entries()
-    }
-
-    return cleanedData;
   }
 
-  async obtenerCultivo(nombreCultivo, nivel = 'completo') {
-    const cacheKey = `@cultivo_data_${nombreCultivo}`;
+  /**
+   * Obtiene los datos de un cultivo (Caché -> Firebase -> Local)
+   */
+  async obtenerCultivo(nombreCultivo, nivelRequerido = 'basico', forceRefresh = false) {
+    const CACHE_KEY = `@cultivo_data_${nombreCultivo}`;
 
-    // 1. INTENTO LEER CACHÉ
-    try {
-      const jsonCache = await AsyncStorage.getItem(cacheKey);
-      if (jsonCache) {
-        const dataCache = JSON.parse(jsonCache);
-        // Si ya tenemos datos completos en caché, los devolvemos directamente
-        if (nivel === 'basico' || dataCache._nivel === 'completo') {
-          return this._prepararEstructura(dataCache);
+    // 1. BUSCAR EN CACHÉ (Si no se requiere refresco forzado)
+    if (!forceRefresh) {
+      try {
+        const cached = await AsyncStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (nivelRequerido === 'basico' || parsed._nivel === 'completo') {
+            return parsed;
+          }
         }
+      } catch (e) {
+        console.log("⚠️ Error leyendo caché", e);
       }
-    } catch (e) { 
-      console.error("Error lectura caché:", e); 
     }
 
-    // 2. INTENTO DESCARGAR DE FIREBASE (NUBE)
+    // 2. BUSCAR EN FIREBASE (Datos completos)
     try {
-      console.log(`🌐 [NUBE] Sincronizando: ${nombreCultivo}...`);
-      
-      // Ajuste de ruta para estructura MASTER: /cultivos/Nombre Cultivo.json
       const response = await fetch(`${FIREBASE_URL}/cultivos/${nombreCultivo}.json`);
-      
       if (response.ok) {
-        const dataCloud = await response.json();
-        
-        if (dataCloud) {
-          console.log("✅ [ÉXITO] Datos Master obtenidos y normalizados.");
+        const data = await response.json();
+        if (data) {
+          const processedData = this._prepararEstructura(data);
           
-          // Inyectamos metadatos de control
-          dataCloud._origen = 'nube';
-          dataCloud._fecha_sincronizacion = new Date().toISOString();
-          
-          // Limpiamos y normalizamos antes de guardar
-          const dataFinal = this._prepararEstructura(dataCloud);
-          
-          // Guardar en caché para uso offline futuro
-          await AsyncStorage.setItem(cacheKey, JSON.stringify(dataFinal));
-          return dataFinal;
+          // Solo guardamos en caché si pasó la validación de _prepararEstructura
+          if (processedData) {
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(processedData));
+            return processedData;
+          }
         }
+      } else {
+        console.log(`⚠️ Error HTTP: ${response.status}`);
       }
     } catch (error) {
-      console.log("⚠️ [OFFLINE] Usando respaldo local por falta de conexión.");
+      console.log("⚠️ [OFFLINE] Error de red o fetch fallido. Usando respaldo local.", error.message);
     }
 
     // 3. FALLBACK: DATOS BÁSICOS LOCALES (cultivos_basico.json)
-    // Buscamos en el archivo local que ya viene en el bundle de la App
     if (datosBasicosLocal && datosBasicosLocal.cultivos) {
-      // Intentamos coincidencia exacta o con primera mayúscula
       const nombreNorm = nombreCultivo.charAt(0).toUpperCase() + nombreCultivo.slice(1);
       const dataLocal = datosBasicosLocal.cultivos[nombreCultivo] || datosBasicosLocal.cultivos[nombreNorm];
       
       if (dataLocal) {
-        return { 
-          ...this._prepararEstructura(dataLocal), 
-          _origen: 'local_basico',
-          _nivel: 'basico' 
-        };
+        const processedLocal = this._prepararEstructura(dataLocal);
+        if (processedLocal) {
+          return { 
+            ...processedLocal, 
+            _origen: 'local_basico',
+            _nivel: 'basico' 
+          };
+        }
       }
     }
 
@@ -119,8 +138,7 @@ class CultivoDataManager {
   }
 
   /**
-   * Devuelve la lista de cultivos disponible en el archivo local
-   * Útil para el buscador inicial sin requerir internet
+   * Devuelve la lista de nombres de cultivos disponibles en el archivo local
    */
   obtenerListaBasica() {
     if (datosBasicosLocal && datosBasicosLocal.cultivos) {
@@ -130,7 +148,7 @@ class CultivoDataManager {
   }
 
   /**
-   * Limpia el caché de un cultivo específico para forzar actualización
+   * Limpia la caché de un cultivo específico
    */
   async limpiarCache(nombreCultivo) {
     try {

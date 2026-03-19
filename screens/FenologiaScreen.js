@@ -6,50 +6,49 @@ import {
   StyleSheet, 
   ActivityIndicator, 
   TouchableOpacity, 
-  Alert,
   RefreshControl 
 } from "react-native";
-import { MaterialCommunityIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import GanttFenologico from '../components/GanttFenologico';
 import CultivoDataManager from '../utils/CultivoDataManager';
 
-// --- SE ELIMINARON LAS IMPORTACIONES DIRECTAS DE FIREBASE PARA USAR EL MANAGER ---
-
 export default function FenologiaScreen({ route }) {
   const { cultivo } = route.params;
-  const CACHE_KEY = `@fenologia_data_${cultivo}`;
   
   const [cultivoData, setCultivoData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingCompleto, setLoadingCompleto] = useState(false);
   const [modoDetallado, setModoDetallado] = useState(false); 
   
   const [regionSeleccionada, setRegionSeleccionada] = useState(null);
 
   useEffect(() => {
-    cargarDatos();
+    cargarDatos(false);
   }, [cultivo]);
 
-  // --- FUNCIÓN DE CARGA PRESERVADA Y OPTIMIZADA ---
+  // --- FUNCIÓN DE CARGA OPTIMIZADA Y SEGURA ---
   const cargarDatos = async (forceRefresh = false) => {
     try {
       if (!forceRefresh) setLoading(true);
       
-      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo', forceRefresh);
       
       if (data && data._nivel === 'completo') {
         setCultivoData(data);
         setModoDetallado(true);
-        // Selección automática de la primera región del Master
-        const regiones = data.calendarios_regionales || data.calendarios;
-        if (regiones && Object.keys(regiones).length > 0) {
-          setRegionSeleccionada(Object.keys(regiones)[0]);
+        
+        // Selección automática y segura de la primera región (soporta Array u Objeto)
+        const calendarios = data.calendarios_regionales || data.calendarios;
+        if (calendarios && typeof calendarios === 'object') {
+          if (Array.isArray(calendarios) && calendarios.length > 0) {
+             setRegionSeleccionada(0); // Usa el índice si es Array
+          } else {
+             const keys = Object.keys(calendarios);
+             if (keys.length > 0) setRegionSeleccionada(keys[0]); // Usa la llave si es Objeto
+          }
         }
-      } else {
-        const basico = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
-        setCultivoData(basico);
+      } else if (data) {
+        setCultivoData(data);
         setModoDetallado(false);
       }
     } catch (error) {
@@ -60,39 +59,60 @@ export default function FenologiaScreen({ route }) {
     }
   };
 
-  // --- SECCIONES DE RENDERIZADO CON RUTAS CORREGIDAS PARA MASTER V4 ---
+  // --- HELPER UNIVERSAL PARA TEXTO SEGURO ---
+  const safeText = (val) => {
+    if (val === null || val === undefined) return 'N/A';
+    if (Array.isArray(val)) return val.join(' a ');
+    if (typeof val === 'object') return Object.values(val).map(v => typeof v === 'object' ? 'Ver detalle' : String(v)).join(' a ');
+    return String(val);
+  };
+
+  // --- SECCIONES DE RENDERIZADO BLINDADAS ---
 
   const renderCalendarios = () => {
-    // CORRECCIÓN DE RUTA: calendarios_regionales
-    const calendarios = cultivoData?.calendarios_regionales || cultivoData?.calendarios;
-    if (!calendarios) return null;
+    const calendariosRaw = cultivoData?.calendarios_regionales || cultivoData?.calendarios;
+    if (!calendariosRaw || typeof calendariosRaw !== 'object') return null;
+
+    // Normalizar regiones: Transforma a un formato estándar sin importar si Firebase envió Array u Objeto
+    const esArray = Array.isArray(calendariosRaw);
+    const regiones = esArray 
+      ? calendariosRaw.map((item, index) => ({ id: index, nombre: item?.region || `Región ${index + 1}`, data: item }))
+      : Object.entries(calendariosRaw).map(([key, value]) => ({ id: key, nombre: key, data: value }));
+
+    if (regiones.length === 0) return null;
+
+    const dataRegionActiva = regiones.find(r => r.id === regionSeleccionada)?.data;
 
     return (
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Calendarios de Siembra</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selectorRegiones}>
-          {Object.keys(calendarios).map((reg) => (
+          {regiones.map((reg) => (
             <TouchableOpacity 
-              key={reg}
-              style={[styles.regionChip, regionSeleccionada === reg && styles.regionChipActive]}
-              onPress={() => setRegionSeleccionada(reg)}
+              key={reg.id}
+              style={[styles.regionChip, regionSeleccionada === reg.id && styles.regionChipActive]}
+              onPress={() => setRegionSeleccionada(reg.id)}
             >
-              <Text style={[styles.regionChipText, regionSeleccionada === reg && styles.regionChipTextActive]}>
-                {reg}
+              <Text style={[styles.regionChipText, regionSeleccionada === reg.id && styles.regionChipTextActive]}>
+                {reg.nombre}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        {regionSeleccionada && calendarios[regionSeleccionada] && (
+        {dataRegionActiva && (
           <View style={styles.regionCard}>
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-import" size={20} color="#2E7D32" />
-              <Text style={styles.dateText}>Siembra: {calendarios[regionSeleccionada].siembra}</Text>
+              <Text style={styles.dateText}>
+                Siembra: {safeText(dataRegionActiva.siembra)}
+              </Text>
             </View>
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-check" size={20} color="#1565C0" />
-              <Text style={styles.dateText}>Cosecha: {calendarios[regionSeleccionada].cosecha}</Text>
+              <Text style={styles.dateText}>
+                Cosecha: {safeText(dataRegionActiva.cosecha)}
+              </Text>
             </View>
           </View>
         )}
@@ -101,19 +121,71 @@ export default function FenologiaScreen({ route }) {
   };
 
   const renderBBCH = () => {
-    // NUEVA SECCIÓN: bbch_detallado (Dato científico del Master)
     const bbch = cultivoData?.bbch_detallado;
     if (!bbch) return null;
 
     return (
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Escala Científica BBCH</Text>
-        {Object.entries(bbch).map(([fase, info], index) => (
-          <View key={index} style={styles.bbchItem}>
-            <Text style={styles.bbchCode}>Etapa {info.codigo_bbch || fase}</Text>
-            <Text style={styles.bbchDesc}>{info.descripcion_tecnica || info.descripcion}</Text>
-          </View>
-        ))}
+        
+        {/* Validar si es Objeto, Array, o texto simple */}
+        {typeof bbch === 'object' && !Array.isArray(bbch) ? (
+          Object.entries(bbch).map(([fase, info], index) => {
+            if (!info) return null;
+            const codigo = typeof info === 'object' ? (info.codigo_bbch || fase) : fase;
+            const desc = typeof info === 'object' ? (info.descripcion_tecnica || info.descripcion) : String(info);
+            return (
+              <View key={index} style={styles.bbchItem}>
+                <Text style={styles.bbchCode}>Etapa {codigo}</Text>
+                <Text style={styles.bbchDesc}>{desc}</Text>
+              </View>
+            );
+          })
+        ) : Array.isArray(bbch) ? (
+          bbch.map((info, index) => {
+             if (!info) return null;
+             const codigo = typeof info === 'object' ? (info.codigo_bbch || info.etapa || index) : index;
+             const desc = typeof info === 'object' ? (info.descripcion_tecnica || info.descripcion || '') : String(info);
+             return (
+               <View key={index} style={styles.bbchItem}>
+                 <Text style={styles.bbchCode}>Etapa {codigo}</Text>
+                 <Text style={styles.bbchDesc}>{desc}</Text>
+               </View>
+             );
+          })
+        ) : (
+           <Text style={styles.bbchDesc}>{String(bbch)}</Text>
+        )}
+      </View>
+    );
+  };
+
+  const renderAlertas = () => {
+    const alertasRaw = cultivoData?.alertas_riesgos;
+    if (!alertasRaw) return null;
+
+    // Normalizar a Array siempre
+    const alertasList = Array.isArray(alertasRaw) 
+      ? alertasRaw 
+      : (typeof alertasRaw === 'object' && alertasRaw !== null ? Object.values(alertasRaw) : [alertasRaw]);
+
+    if (alertasList.length === 0) return null;
+
+    return (
+      <View style={[styles.section, styles.alertBox]}>
+        <View style={styles.alertHeader}>
+          <MaterialCommunityIcons name="shield-alert" size={24} color="#E65100" />
+          <Text style={styles.alertTitle}>Riesgos por Etapa</Text>
+        </View>
+        {alertasList.map((valor, i) => {
+          const textoAlerta = typeof valor === 'string' 
+            ? valor 
+            : (valor?.riesgo || valor?.descripcion || 'Riesgo no especificado');
+          
+          return (
+            <Text key={i} style={styles.alertText}>• {textoAlerta}</Text>
+          );
+        })}
       </View>
     );
   };
@@ -137,7 +209,7 @@ export default function FenologiaScreen({ route }) {
         <Text style={styles.subtitle}>{cultivo}</Text>
       </View>
 
-      {/* COMPONENTE GANTT (Corregido para leer ciclo_fenologico) */}
+      {/* COMPONENTE GANTT: Se asume que este componente tiene sus propias validaciones internas */}
       {cultivoData?.ciclo_fenologico && (
         <View style={styles.card}>
           <GanttFenologico datos={cultivoData.ciclo_fenologico} />
@@ -147,19 +219,7 @@ export default function FenologiaScreen({ route }) {
       <View style={styles.content}>
         {renderCalendarios()}
         {renderBBCH()}
-        
-        {/* ALERTAS CORREGIDAS */}
-        {cultivoData?.alertas_riesgos && (
-          <View style={[styles.section, styles.alertBox]}>
-            <View style={styles.alertHeader}>
-              <MaterialCommunityIcons name="shield-alert" size={24} color="#E65100" />
-              <Text style={styles.alertTitle}>Riesgos por Etapa</Text>
-            </View>
-            {Object.entries(cultivoData.alertas_riesgos).map(([key, valor], i) => (
-              <Text key={i} style={styles.alertText}>• {valor.descripcion || valor}</Text>
-            ))}
-          </View>
-        )}
+        {renderAlertas()}
       </View>
     </ScrollView>
   );

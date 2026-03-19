@@ -8,7 +8,8 @@ import {
   Image, 
   TouchableOpacity, 
   Linking,
-  RefreshControl 
+  RefreshControl,
+  Alert 
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CultivoDataManager from '../utils/CultivoDataManager';
@@ -31,7 +32,7 @@ export default function GuiaScreen({ route }) {
     if (cultivo) {
       if (!isRefreshing) setLoading(true);
       try {
-        const completos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
+        const completos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo', isRefreshing);
         if (completos && completos._nivel === 'completo') {
           setInfoCultivo(completos);
           setNivel('completo');
@@ -49,7 +50,30 @@ export default function GuiaScreen({ route }) {
     }
   };
 
-  // --- COMPONENTE DE ERROR (RESTAURADO DEL ORIGINAL) ---
+  // --- FUNCIÓN SEGURA PARA ABRIR ENLACES ---
+  const abrirEnlaceSeguro = async (url) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "El dispositivo no soporta este tipo de enlace.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Ocurrió un problema al intentar abrir el documento.");
+    }
+  };
+
+  // --- HELPER UNIVERSAL PARA TEXTO SEGURO ---
+  // Acepta strings, arrays u objetos y los formatea limpiamente para la UI
+  const safeText = (val) => {
+    if (!val) return 'N/A';
+    if (Array.isArray(val)) return val.join(', ');
+    if (typeof val === 'object' && val !== null) return Object.values(val).join(' / ');
+    return String(val);
+  };
+
+  // --- COMPONENTE DE ERROR ---
   const ErrorCard = ({ title, message, solution }) => (
     <View style={styles.errorFullCard}>
       <View style={styles.errorHeader}>
@@ -69,25 +93,23 @@ export default function GuiaScreen({ route }) {
     </View>
   );
 
-  // --- SECCIONES DE RENDERIZADO CON RUTAS MASTER V4 ---
+  // --- SECCIONES DE RENDERIZADO CON PROTECCIONES DE TIPADO ---
 
   const renderHeader = () => (
     <View style={styles.header}>
-      {infoCultivo?.imagen_url && (
+      {typeof infoCultivo?.imagen_url === 'string' && (
         <Image source={{ uri: infoCultivo.imagen_url }} style={styles.headerImage} />
       )}
       <View style={styles.headerOverlay}>
-        {/* CORRECCIÓN: infoCultivo.cultivo para Master */}
         <Text style={styles.title}>{infoCultivo?.cultivo || infoCultivo?.nombre || cultivo}</Text>
-        <Text style={styles.category}>{infoCultivo?.categoria?.toUpperCase()}</Text>
+        <Text style={styles.category}>{String(infoCultivo?.categoria || '').toUpperCase()}</Text>
       </View>
     </View>
   );
 
   const renderRequerimientos = () => {
-    // CORRECCIÓN: requerimientos_agroclimaticos para Master
     const req = infoCultivo?.requerimientos_agroclimaticos || infoCultivo?.requerimientos;
-    if (!req) return <ErrorCard title="Clima" message="No se encontraron requerimientos climáticos en Firebase." solution="Verifica que la clave 'requerimientos_agroclimaticos' exista." />;
+    if (!req) return <ErrorCard title="Clima" message="No se encontraron requerimientos climáticos." solution="Verifica que la clave 'requerimientos_agroclimaticos' exista." />;
 
     return (
       <View style={styles.section}>
@@ -97,14 +119,14 @@ export default function GuiaScreen({ route }) {
             <MaterialCommunityIcons name="thermometer" size={24} color="#E64A19" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Clima/Temp</Text>
-              <Text style={styles.infoValue}>{req.clima_optimo || req.temperatura || 'N/A'}</Text>
+              <Text style={styles.infoValue}>{safeText(req.clima_optimo || req.temperatura)}</Text>
             </View>
           </View>
           <View style={styles.infoCard}>
             <MaterialCommunityIcons name="elevation-rise" size={24} color="#1976D2" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Altitud</Text>
-              <Text style={styles.infoValue}>{req.altitud || 'N/A'}</Text>
+              <Text style={styles.infoValue}>{safeText(req.altitud)}</Text>
             </View>
           </View>
         </View>
@@ -113,20 +135,27 @@ export default function GuiaScreen({ route }) {
   };
 
   const renderPlagas = () => {
-    // CORRECCIÓN: sanidad.principales_plagas_enfermedades para Master
-    const plagas = infoCultivo?.sanidad?.principales_plagas_enfermedades || infoCultivo?.plagas_y_enfermedades;
+    const plagas = infoCultivo?.riesgos_detallados || infoCultivo?.sanidad?.principales_plagas_enfermedades || infoCultivo?.plagas_y_enfermedades;
     if (!plagas) return null;
+
+    const plagasList = typeof plagas === 'object' && plagas !== null ? Object.values(plagas) : [plagas];
 
     return (
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Sanidad Vegetal</Text>
-        {Object.values(plagas).map((plaga, index) => (
+        {plagasList.map((plaga, index) => (
           <View key={index} style={styles.plagaItem}>
             <View style={styles.plagaHeader}>
               <MaterialCommunityIcons name="bug" size={20} color="#C62828" />
-              <Text style={styles.plagaName}>{plaga.nombre || plaga}</Text>
+              <Text style={styles.plagaName}>
+                {typeof plaga === 'object' && plaga !== null 
+                  ? String(plaga.nombre || plaga.tipo || 'Riesgo biológico') 
+                  : String(plaga)}
+              </Text>
             </View>
-            <Text style={styles.plagaDesc}>{plaga.descripcion || 'Sin descripción detallada.'}</Text>
+            {typeof plaga === 'object' && (plaga?.descripcion || plaga?.sintomas_visuales) ? (
+               <Text style={styles.plagaDesc}>{String(plaga.descripcion || plaga.sintomas_visuales)}</Text>
+            ) : null}
           </View>
         ))}
       </View>
@@ -141,9 +170,38 @@ export default function GuiaScreen({ route }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Suelo Recomendado</Text>
         <View style={styles.sueloCard}>
-          <Text style={styles.practicaText}>• pH: {suelo.ph_optimo}</Text>
-          <Text style={styles.practicaText}>• Textura: {suelo.textura_ideal}</Text>
-          <Text style={styles.practicaText}>• M.O.: {suelo.materia_organica}</Text>
+          <Text style={styles.practicaText}>• pH: {safeText(suelo.ph_optimo)}</Text>
+          <Text style={styles.practicaText}>• Textura: {safeText(suelo.textura_ideal)}</Text>
+          <Text style={styles.practicaText}>• M.O.: {safeText(suelo.materia_organica)}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderConclusiones = () => {
+    const conclusiones = infoCultivo?.conclusiones_recomendaciones;
+    if (!conclusiones) return null;
+    
+    let lista = [];
+    if (Array.isArray(conclusiones)) {
+      lista = conclusiones;
+    } else if (typeof conclusiones === 'object' && conclusiones !== null) {
+      lista = Object.values(conclusiones);
+    } else {
+      lista = [conclusiones];
+    }
+        
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Conclusiones y Recomendaciones</Text>
+        <View style={styles.sueloCard}>
+          {lista.map((item, index) => (
+            <Text key={index} style={styles.practicaText}>
+              • {typeof item === 'object' && item !== null 
+                  ? String(item.descripcion || item.recomendacion || 'Recomendación general') 
+                  : String(item)}
+            </Text>
+          ))}
         </View>
       </View>
     );
@@ -180,11 +238,12 @@ export default function GuiaScreen({ route }) {
         {renderRequerimientos()}
         {renderAnalisisSuelo()}
         {renderPlagas()}
+        {renderConclusiones()}
 
-        {infoCultivo?.panorama_url && (
+        {typeof infoCultivo?.panorama_url === 'string' && (
           <TouchableOpacity 
             style={styles.linkButton} 
-            onPress={() => Linking.openURL(infoCultivo.panorama_url)}
+            onPress={() => abrirEnlaceSeguro(infoCultivo.panorama_url)}
           >
             <MaterialCommunityIcons name="file-pdf-box" size={24} color="#fff" />
             <Text style={styles.linkButtonText}>Panorama Agroalimentario</Text>
@@ -196,7 +255,6 @@ export default function GuiaScreen({ route }) {
   );
 }
 
-// --- ESTILOS ORIGINALES PRESERVADOS (INCLUYENDO ERRORES Y RIESGOS) ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -224,7 +282,6 @@ const styles = StyleSheet.create({
   basicoAlertText: { marginLeft: 10, fontSize: 12, color: '#01579B' },
   linkButton: { backgroundColor: '#D32F2F', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 15, borderRadius: 12, marginTop: 10 },
   linkButtonText: { color: '#fff', fontWeight: 'bold', marginLeft: 10 },
-  // ESTILOS DE ERROR PRESERVADOS
   errorFullCard: { backgroundColor: '#FFEBEE', borderRadius: 12, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#FFCDD2' },
   errorHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   errorTitle: { fontSize: 15, fontWeight: 'bold', color: '#C62828', marginLeft: 8 },

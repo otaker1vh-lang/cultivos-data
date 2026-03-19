@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
-  ScrollView, 
+  FlatList, 
   ActivityIndicator, 
   TouchableOpacity, 
   Alert,
@@ -16,16 +16,33 @@ import {
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import CultivoDataManager from "../utils/CultivoDataManager";
 
-// Componente para chips de filtro (Preservado)
+// Componente para chips de filtro (Preservado intacto)
 const FilterChip = ({ label, selected, onPress, icon }) => (
   <TouchableOpacity 
     style={[styles.filterChip, selected && styles.filterChipSelected]} 
     onPress={onPress}
   >
-    {icon && <MaterialCommunityIcons name={icon} size={16} color={selected ? "#fff" : "#555"} style={{marginRight: 4}} />}\
+    {icon && <MaterialCommunityIcons name={icon} size={16} color={selected ? "#fff" : "#555"} style={{marginRight: 4}} />}
     <Text style={[styles.filterText, selected && styles.filterTextSelected]}>{label}</Text>
   </TouchableOpacity>
 );
+
+// --- HELPER UNIVERSAL PARA TEXTO SEGURO ---
+// Extraído para limpiar el Modal y prevenir el error [object Object]
+const safeText = (val) => {
+  if (val === null || val === undefined) return 'No especificado.';
+  if (typeof val === 'string' || typeof val === 'number') return String(val);
+  
+  if (Array.isArray(val)) {
+    return val.map(v => typeof v === 'object' && v !== null ? 'Detalle estructurado (ver anexo)' : String(v)).join(', ');
+  }
+  
+  if (typeof val === 'object' && val !== null) {
+    return Object.values(val).map(v => typeof v === 'object' && v !== null ? 'Dato complejo' : String(v)).join(' / ');
+  }
+  
+  return String(val);
+};
 
 export default function PlagasScreen({ route }) {
   const { cultivo } = route.params;
@@ -33,138 +50,246 @@ export default function PlagasScreen({ route }) {
   // --- ESTADOS ---
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [plagasFull, setPlagasFull] = useState([]); // Lista normalizada
+  const [plagasFull, setPlagasFull] = useState([]); 
   const [filteredPlagas, setFilteredPlagas] = useState([]);
+  
+  // Estados para Búsqueda y Filtros
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('Todos');
-  const [selectedPlaga, setSelectedPlaga] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('Todos'); 
+  
+  // Estado para el Modal de Detalle
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPlaga, setSelectedPlaga] = useState(null);
 
   useEffect(() => {
-    cargarDatos();
+    cargarPlagas();
   }, [cultivo]);
 
-  // --- LÓGICA DE CARGA CORREGIDA ---
-  const cargarDatos = async (forceRefresh = false) => {
-    try {
-      if (!forceRefresh) setLoading(true);
-      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
-      
-      // CORRECCIÓN DE RUTA: riesgos_detallados
-      const riesgosRaw = data?.riesgos_detallados || data?.plagas_detalladas || {};
-      
-      // NORMALIZACIÓN: Convertir Objeto de Firebase a Array para .filter() y .map()
-      const listaNormalizada = Object.keys(riesgosRaw).map(key => ({
-        id: key,
-        ...riesgosRaw[key]
-      }));
+  useEffect(() => {
+    aplicarFiltros();
+  }, [searchQuery, activeFilter, plagasFull]);
 
-      setPlagasFull(listaNormalizada);
-      setFilteredPlagas(listaNormalizada);
+  // --- FUNCIONES DE CARGA Y MANEJO DE DATOS BLINDADAS ---
+  const cargarPlagas = async (isRefreshing = false) => {
+    try {
+      if (!isRefreshing) setLoading(true);
+      
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo', isRefreshing);
+      
+      // Búsqueda profunda: A veces los JSON varían su estructura. Buscamos en las 3 llaves más comunes.
+      const riesgosBrutos = data?.riesgos_detallados || data?.plagas_enfermedades || data?.sanidad?.principales_plagas_enfermedades;
+
+      if (riesgosBrutos && typeof riesgosBrutos === 'object') {
+        const plagasArray = Array.isArray(riesgosBrutos) 
+          ? riesgosBrutos 
+          : Object.keys(riesgosBrutos).map(key => ({
+              nombre: key,
+              // Si el valor es un objeto, lo esparcimos. Si es un string, lo asignamos a descripción.
+              ...(typeof riesgosBrutos[key] === 'object' && riesgosBrutos[key] !== null ? riesgosBrutos[key] : { descripcion: riesgosBrutos[key] })
+            }));
+        
+        setPlagasFull(plagasArray);
+      } else {
+        setPlagasFull([]);
+      }
     } catch (error) {
-      console.error("Error en PlagasScreen:", error);
-      Alert.alert("Error", "No se pudieron sincronizar los riesgos detallados.");
+      Alert.alert("Error", "No se pudieron cargar los riesgos biológicos.");
     } finally {
       setLoading(false);
-      setRefreshing(false);
+      if (isRefreshing) setRefreshing(false);
     }
   };
 
-  // --- FUNCIONES DE FILTRADO (Preservadas y Optimizadas) ---
-  useEffect(() => {
+  const aplicarFiltros = () => {
     let result = plagasFull;
-    if (filterType !== 'Todos') {
-      result = result.filter(p => p.tipo === filterType);
-    }
-    if (searchQuery) {
-      result = result.filter(p => 
-        p.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.nombre_cientifico?.toLowerCase().includes(searchQuery.toLowerCase())
+
+    // 1. Filtro por Tipo (Plaga vs Enfermedad) asegurando que 'tipo' sea un string
+    if (activeFilter !== 'Todos') {
+      result = result.filter(item => 
+        item.tipo && typeof item.tipo === 'string' && item.tipo.toLowerCase().includes(activeFilter.toLowerCase())
       );
     }
-    setFilteredPlagas(result);
-  }, [searchQuery, filterType, plagasFull]);
 
-  const handleOpenDetail = (plaga) => {
+    // 2. Filtro por Búsqueda de Texto asegurando lectura segura
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(item => {
+        const nom = item.nombre && typeof item.nombre === 'string' ? item.nombre.toLowerCase() : '';
+        const cien = item.nombre_cientifico && typeof item.nombre_cientifico === 'string' ? item.nombre_cientifico.toLowerCase() : '';
+        return nom.includes(query) || cien.includes(query);
+      });
+    }
+
+    setFilteredPlagas(result);
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    cargarPlagas(true);
+  }, []);
+
+  const abrirDetalle = (plaga) => {
     setSelectedPlaga(plaga);
     setModalVisible(true);
   };
 
-  if (loading) return (
-    <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>
-  );
+  // --- RENDERIZADO DEL ITEM PARA EL FLATLIST OPTIMIZADO ---
+  const renderPlagaItem = useCallback(({ item }) => {
+    const isEnfermedad = item.tipo && typeof item.tipo === 'string' && item.tipo.toLowerCase().includes('enfermedad');
+    const badgeColor = isEnfermedad ? '#FFEBEE' : '#FFF3E0';
+    const badgeTextColor = isEnfermedad ? '#C62828' : '#EF6C00';
+
+    return (
+      <TouchableOpacity style={styles.plagaCard} onPress={() => abrirDetalle(item)}>
+        <View style={styles.plagaInfo}>
+          <Text style={styles.plagaNombre}>{safeText(item.nombre || 'Riesgo biológico')}</Text>
+          {item.nombre_cientifico && typeof item.nombre_cientifico === 'string' && (
+            <Text style={styles.plagaCientifico}>{item.nombre_cientifico}</Text>
+          )}
+          <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+            <Text style={{ color: badgeTextColor, fontSize: 12, fontWeight: 'bold' }}>
+              {safeText(item.tipo || 'Riesgo General')}
+            </Text>
+          </View>
+        </View>
+        <MaterialCommunityIcons name="chevron-right" size={24} color="#CCC" />
+      </TouchableOpacity>
+    );
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#2E7D32" />
+        <Text style={{marginTop: 10, color: '#666'}}>Cargando riesgos biológicos...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {/* BUSCADOR Y FILTROS */}
-      <View style={styles.headerContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#666" />
-          <TextInput
-            placeholder="Buscar plaga o enfermedad..."
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
-          <FilterChip label="Todos" selected={filterType === 'Todos'} onPress={() => setFilterType('Todos')} />
-          <FilterChip label="Plagas" icon="bug" selected={filterType === 'Plaga'} onPress={() => setFilterType('Plaga')} />
-          <FilterChip label="Enfermedades" icon="virus" selected={filterType === 'Enfermedad'} onPress={() => setFilterType('Enfermedad')} />
-        </ScrollView>
+      {/* --- BARRA DE BÚSQUEDA --- */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#999" />
+        <TextInput 
+          style={styles.searchInput}
+          placeholder="Buscar plaga o enfermedad..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Ionicons name="close-circle" size={20} color="#999" />
+          </TouchableOpacity>
+        )}
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.listContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => cargarDatos(true)} />}
-      >
-        {filteredPlagas.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.plagaCard} onPress={() => handleOpenDetail(item)}>
-            <View style={styles.plagaInfo}>
-              <Text style={styles.plagaNombre}>{item.nombre}</Text>
-              <Text style={styles.plagaCientifico}>{item.nombre_cientifico}</Text>
-              <View style={[styles.badge, { backgroundColor: item.tipo === 'Plaga' ? '#E8F5E9' : '#FFF3E0' }]}>
-                <Text style={{ color: item.tipo === 'Plaga' ? '#2E7D32' : '#E65100', fontSize: 11 }}>{item.tipo}</Text>
-              </View>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#CCC" />
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* --- CHIPS DE FILTRO --- */}
+      <View style={styles.filterContainer}>
+        <FilterChip 
+          label="Todos" 
+          selected={activeFilter === 'Todos'} 
+          onPress={() => setActiveFilter('Todos')} 
+        />
+        <FilterChip 
+          label="Plagas" 
+          selected={activeFilter === 'Plaga'} 
+          onPress={() => setActiveFilter('Plaga')} 
+          icon="bug"
+        />
+        <FilterChip 
+          label="Enfermedades" 
+          selected={activeFilter === 'Enfermedad'} 
+          onPress={() => setActiveFilter('Enfermedad')} 
+          icon="bacteria"
+        />
+      </View>
 
-      {/* MODAL DE DETALLES - RUTAS ACTUALIZADAS PARA MASTER V4 */}
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
+      {/* --- LISTA DE PLAGAS CON FLATLIST --- */}
+      <FlatList
+        data={filteredPlagas}
+        keyExtractor={(item, index) => String(item.nombre_cientifico || item.nombre || index)}
+        renderItem={renderPlagaItem}
+        contentContainerStyle={styles.listContent}
+        initialNumToRender={10} 
+        windowSize={5} 
+        removeClippedSubviews={true} 
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#2E7D32"]} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <MaterialCommunityIcons name="leaf-off" size={60} color="#CCC" />
+            <Text style={styles.emptyText}>No se encontraron resultados para los filtros actuales.</Text>
+          </View>
+        }
+      />
+
+      {/* --- MODAL DE DETALLE BLINDADO --- */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Detalle del Riesgo</Text>
+              <Text style={styles.modalTitle}>Detalles del Riesgo</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close-circle" size={30} color="#666" />
+                <Ionicons name="close" size={28} color="#333" />
               </TouchableOpacity>
             </View>
             
-            <ScrollView style={{ padding: 20 }}>
-              <Text style={styles.detailNombre}>{selectedPlaga?.nombre}</Text>
-              <Text style={styles.detailCientifico}>{selectedPlaga?.nombre_cientifico}</Text>
-              
-              <Text style={styles.label}>Descripción y Daños:</Text>
-              <Text style={styles.detailText}>{selectedPlaga?.descripcion || selectedPlaga?.sintomas_danos}</Text>
+            {selectedPlaga && (
+              <FlatList
+                data={[{key: 'content'}]}
+                renderItem={() => (
+                  <View style={{ padding: 20 }}>
+                    <Text style={styles.detailNombre}>{safeText(selectedPlaga.nombre)}</Text>
+                    {selectedPlaga.nombre_cientifico && (
+                      <Text style={styles.detailCientifico}>{safeText(selectedPlaga.nombre_cientifico)}</Text>
+                    )}
+                    
+                    {/* Renderizado Seguro usando el Helper */}
+                    <Text style={styles.label}>Síntomas Visuales:</Text>
+                    <Text style={styles.description}>
+                      {safeText(selectedPlaga.sintomas_visuales || selectedPlaga.descripcion || selectedPlaga.daños)}
+                    </Text>
+                    
+                    {selectedPlaga.medidas_control && (
+                      <>
+                        <Text style={styles.label}>Medidas de Control:</Text>
+                        <Text style={styles.description}>
+                          {safeText(selectedPlaga.medidas_control || selectedPlaga.control)}
+                        </Text>
+                      </>
+                    )}
 
-              {/* CONTROLES CORREGIDOS (Ruta plana del Master V4) */}
-              <View style={styles.controlSection}>
-                <Text style={styles.label}>Control Orgánico / Biológico:</Text>
-                <Text style={styles.detailText}>{selectedPlaga?.control_biologico || "No especificado"}</Text>
-                
-                <Text style={styles.label}>Control Químico Sugerido:</Text>
-                <Text style={styles.detailText}>{selectedPlaga?.control_quimico || "Consulte a un especialista"}</Text>
-              </View>
+                    {selectedPlaga.umbral_economico && (
+                      <>
+                        <Text style={styles.label}>Umbral Económico:</Text>
+                        <Text style={styles.description}>
+                          {safeText(selectedPlaga.umbral_economico)}
+                        </Text>
+                      </>
+                    )}
 
-              <View style={styles.impactCard}>
-                <Text style={styles.impactText}>Pérdidas potenciales: {selectedPlaga?.perdidas_potenciales_pct}%</Text>
-              </View>
-            </ScrollView>
+                    {selectedPlaga.perdida_potencial && (
+                      <>
+                        <Text style={styles.label}>Pérdida Potencial:</Text>
+                        <Text style={styles.description}>
+                          {safeText(selectedPlaga.perdida_potencial)}
+                        </Text>
+                      </>
+                    )}
+                  </View>
+                )}
+                keyExtractor={item => item.key}
+              />
+            )}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -172,30 +297,28 @@ export default function PlagasScreen({ route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  headerContainer: { backgroundColor: '#fff', padding: 15, elevation: 2 },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0F0F0', borderRadius: 10, paddingHorizontal: 10, marginBottom: 12 },
-  searchInput: { flex: 1, paddingVertical: 10, marginLeft: 10, fontSize: 15 },
-  filterRow: { flexDirection: 'row' },
-  filterChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, backgroundColor: '#F0F0F0', marginRight: 10 },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', margin: 15, paddingHorizontal: 15, borderRadius: 12, elevation: 2, height: 50 },
+  searchInput: { flex: 1, marginLeft: 10, fontSize: 16 },
+  filterContainer: { flexDirection: 'row', paddingHorizontal: 15, marginBottom: 10 },
+  filterChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E0E0E0', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, marginRight: 10 },
   filterChipSelected: { backgroundColor: '#2E7D32' },
-  filterText: { color: '#555', fontSize: 13 },
-  filterTextSelected: { color: '#fff', fontWeight: 'bold' },
-  listContent: { padding: 15 },
+  filterText: { color: '#555', fontWeight: '600' },
+  filterTextSelected: { color: '#fff' },
+  listContent: { padding: 15, paddingBottom: 30 },
   plagaCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 10, elevation: 1 },
   plagaInfo: { flex: 1 },
   plagaNombre: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   plagaCientifico: { fontSize: 13, fontStyle: 'italic', color: '#666', marginBottom: 5 },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4, marginTop: 4 },
+  emptyContainer: { alignItems: 'center', justifyContent: 'center', padding: 40, marginTop: 50 },
+  emptyText: { color: '#999', fontSize: 16, textAlign: 'center', marginTop: 15 },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 25, borderTopRightRadius: 25, height: '80%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#EEE' },
   modalTitle: { fontSize: 18, fontWeight: 'bold' },
   detailNombre: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32' },
   detailCientifico: { fontSize: 16, fontStyle: 'italic', color: '#666', marginBottom: 15 },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#333', marginTop: 15 },
-  detailText: { fontSize: 14, color: '#555', lineHeight: 20, marginTop: 5 },
-  controlSection: { backgroundColor: '#F9F9F9', padding: 15, borderRadius: 10, marginTop: 15 },
-  impactCard: { marginTop: 20, padding: 15, backgroundColor: '#FFEBEE', borderRadius: 10, alignItems: 'center' },
-  impactText: { color: '#C62828', fontWeight: 'bold' }
+  label: { fontSize: 16, fontWeight: 'bold', color: '#333', marginTop: 15, marginBottom: 5 },
+  description: { fontSize: 15, color: '#555', lineHeight: 22 },
 });
