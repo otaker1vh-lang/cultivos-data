@@ -78,7 +78,12 @@ export default function LaboresScreen({ route }) {
   const renderRiego = () => {
     const planRiegoRaw = cultivoData?.calendario_riego_mensual;
     const planRiego = planRiegoRaw?.calendario_riego || planRiegoRaw;
-    const sistemasRiego = cultivoData?.sistemas_riego;
+    
+    // CORRECCIÓN 1: Buscar sistemas en todas las rutas posibles del JSON
+    const sistemasRiego = cultivoData?.sistemas_riego 
+      || cultivoData?.sistemas_recomendados?.sistemas_riego 
+      || cultivoData?.calendario_riego_mensual?.sistemas_recomendados
+      || cultivoData?.calendario_riego_mensual?.sistemas_riego;
 
     if (!planRiego && (!sistemasRiego || sistemasRiego.length === 0)) return null;
 
@@ -96,7 +101,8 @@ export default function LaboresScreen({ route }) {
               <View key={idx} style={styles.itemDetalle}>
                 <Text style={styles.itemLabel}>{safeText(sistema?.sistema || 'Sistema no especificado')}</Text>
                 <Text style={styles.itemValue}>Eficiencia: {safeText(sistema?.eficiencia_pct || 0)}%</Text>
-                <Text style={styles.itemNote}>Lámina: {safeText(sistema?.lamina_anual_mm || 0)} mm/año</Text>
+                {sistema?.lamina_anual_mm && <Text style={styles.itemNote}>Lámina: {safeText(sistema.lamina_anual_mm)} mm/año</Text>}
+                {sistema?.recomendacion && <Text style={styles.itemNote}>{safeText(sistema.recomendacion)}</Text>}
               </View>
             ))}
           </View>
@@ -112,20 +118,35 @@ export default function LaboresScreen({ route }) {
           </TouchableOpacity>
         )}
 
-        {calendarioRiegoExpanded && planRiego && typeof planRiego === 'object' && (
+        {calendarioRiegoExpanded && planRiego && (
           <View style={styles.expandedContent}>
-            {Object.entries(planRiego).map(([mes, info]) => {
-              if (!info || typeof info !== 'object') return null;
-              return (
-                <View key={mes} style={styles.mesRiegoRow}>
-                  <Text style={styles.mesText}>{mes}</Text>
+            {/* CORRECCIÓN 2: Iterar correctamente ya sea un Array o un Objeto Literal */}
+            {Array.isArray(planRiego) ? (
+              planRiego.map((info, idx) => (
+                <View key={idx} style={styles.mesRiegoRow}>
+                  <Text style={styles.mesText}>{safeText(info?.meses || info?.etapa || info?.duracion || `Fase ${idx + 1}`)}</Text>
                   <View style={styles.mesData}>
-                    <Text style={styles.mesValue}>{safeText(info.riegos_mes || 0)} riegos</Text>
-                    <Text style={styles.mesSubValue}>{safeText(info.lamina_mm_mes || 0)} mm totales</Text>
+                    <Text style={styles.mesValue}>
+                      {info?.frecuencia ? safeText(info.frecuencia) : (info?.frecuencia_dias ? `Cada ${info.frecuencia_dias} días` : (info?.riegos_mes ? `${info.riegos_mes} riegos` : 'N/A'))}
+                    </Text>
+                    <Text style={styles.mesSubValue}>{safeText(info?.lamina_mm || info?.lamina_mm_mes || 0)} mm totales</Text>
                   </View>
                 </View>
-              );
-            })}
+              ))
+            ) : typeof planRiego === 'object' ? (
+              Object.entries(planRiego).map(([mes, info]) => {
+                if (!info || typeof info !== 'object') return null;
+                return (
+                  <View key={mes} style={styles.mesRiegoRow}>
+                    <Text style={styles.mesText}>{mes.replace(/_/g, ' ')}</Text>
+                    <View style={styles.mesData}>
+                      <Text style={styles.mesValue}>{safeText(info.riegos_mes || info.frecuencia || 0)} riegos</Text>
+                      <Text style={styles.mesSubValue}>{safeText(info.lamina_mm_mes || info.lamina_mm || 0)} mm totales</Text>
+                    </View>
+                  </View>
+                );
+              })
+            ) : null}
           </View>
         )}
       </View>
@@ -133,15 +154,22 @@ export default function LaboresScreen({ route }) {
   };
 
   const renderFertilizacion = () => {
-    const fertPrograma = cultivoData?.programa_fertilizacion || cultivoData?.calculo_fertilizacion;
+    let fertPrograma = cultivoData?.programa_fertilizacion || cultivoData?.calculo_fertilizacion;
 
     if (!fertPrograma) return null;
 
-    // Helper interno para analizar inteligentemente cualquier formato de fertilizante
+    // CORRECCIÓN 3: Entrar a sub-llaves de "etapas" o "recomendada" si el JSON las estructuró así
+    if (fertPrograma && typeof fertPrograma === 'object' && !Array.isArray(fertPrograma)) {
+      if (fertPrograma.etapas) {
+        fertPrograma = fertPrograma.etapas;
+      } else if (fertPrograma.recomendada) {
+        fertPrograma = fertPrograma.recomendada;
+      }
+    }
+
     const extraerDatosFertilizante = (datos) => {
       if (!datos || typeof datos !== 'object') return { formula: 'N/A', dosis: String(datos || 'N/A') };
       
-      // Si viene en el formato estándar esperado
       if (datos.formula || datos.dosis_kg_ha || datos.dosis) {
         return {
           formula: safeText(datos.formula || 'Dosis técnica'),
@@ -149,7 +177,6 @@ export default function LaboresScreen({ route }) {
         };
       }
 
-      // Si viene como un desglose de macro/micronutrientes (ej. {N: 120, P: 60})
       const componentes = Object.entries(datos)
         .filter(([key, val]) => typeof val === 'number' || typeof val === 'string')
         .map(([key, val]) => `${key}: ${val}`);
@@ -173,11 +200,14 @@ export default function LaboresScreen({ route }) {
 
         {typeof fertPrograma === 'object' && !Array.isArray(fertPrograma) ? (
           Object.entries(fertPrograma).map(([etapa, datos], idx) => {
-            if (!datos) return null; 
+            if (!datos || typeof datos === 'function') return null; 
+            // Filtrar propiedades meta que puedan estar flotando al mismo nivel
+            if (etapa === 'dosis_npk' || etapa === 'fuentes_sugeridas' || etapa === 'momento_aplicacion' || etapa === 'unidades_totales') return null;
+
             const infoGarantizada = extraerDatosFertilizante(datos);
             return (
               <View key={idx} style={styles.fertilizanteItem}>
-                <Text style={styles.etapaFertText}>{etapa}</Text>
+                <Text style={styles.etapaFertText}>{etapa.replace(/_/g, ' ').toUpperCase()}</Text>
                 <Text style={styles.formulaText}>{infoGarantizada.formula}</Text>
                 <Text style={styles.dosisText}>{infoGarantizada.dosis}</Text>
               </View>
@@ -188,7 +218,7 @@ export default function LaboresScreen({ route }) {
             const infoGarantizada = extraerDatosFertilizante(item);
             return (
               <View key={idx} style={styles.fertilizanteItem}>
-                <Text style={styles.etapaFertText}>{safeText(item?.etapa || `Fase ${idx+1}`)}</Text>
+                <Text style={styles.etapaFertText}>{safeText(item?.etapa || `Fase ${idx+1}`).toUpperCase()}</Text>
                 <Text style={styles.formulaText}>{infoGarantizada.formula}</Text>
                 <Text style={styles.dosisText}>{infoGarantizada.dosis}</Text>
               </View>
@@ -230,7 +260,7 @@ export default function LaboresScreen({ route }) {
               >
                 <View style={styles.etapaHeader}>
                   <View style={styles.etapaHeaderLeft}>
-                    <Text style={styles.etapaTitle}>{tituloEtapa}</Text>
+                    <Text style={styles.etapaTitle}>{tituloEtapa.replace(/_/g, ' ')}</Text>
                     <Text style={styles.etapaCount}>{cantidad} {cantidad === 1 ? 'actividad' : 'actividades'}</Text>
                   </View>
                   <Ionicons 
@@ -257,7 +287,7 @@ export default function LaboresScreen({ route }) {
                   ) : typeof contenido === 'object' && contenido !== null ? (
                     Object.entries(contenido).map(([key, val], i) => (
                       <View key={i} style={styles.actividadItem}>
-                        <Text style={styles.actTitle}>{key}</Text>
+                        <Text style={styles.actTitle}>{key.replace(/_/g, ' ')}</Text>
                         <Text style={styles.actDesc}>
                           {typeof val === 'string' ? val : safeText(val?.descripcion || val)}
                         </Text>
@@ -293,10 +323,12 @@ export default function LaboresScreen({ route }) {
             <Text style={styles.postLabel}>Punto de Cosecha:</Text>
             <Text style={styles.postValue}>{safeText(pc.punto_cosecha || 'Consultar guía')}</Text>
           </View>
-          <View style={styles.postItem}>
-            <Text style={styles.postLabel}>Temperatura:</Text>
-            <Text style={styles.postValue}>{safeText(pc.temperatura_almacen || 'N/A')}</Text>
-          </View>
+          {pc.temperatura_almacen && (
+            <View style={styles.postItem}>
+              <Text style={styles.postLabel}>Temperatura:</Text>
+              <Text style={styles.postValue}>{safeText(pc.temperatura_almacen)}</Text>
+            </View>
+          )}
           <View style={styles.postItem}>
             <Text style={styles.postLabel}>Vida Útil:</Text>
             <Text style={styles.postValue}>
@@ -384,11 +416,11 @@ const styles = StyleSheet.create({
   etapaCardActive: { borderColor: '#2E7D32', borderWidth: 2 },
   etapaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 15 },
   etapaHeaderLeft: { flex: 1 },
-  etapaTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  etapaTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', textTransform: 'capitalize' },
   etapaCount: { fontSize: 11, color: '#666' },
   actividadesContainer: { padding: 15, backgroundColor: '#FAFAFA', borderBottomLeftRadius: 12, borderBottomRightRadius: 12 },
   actividadItem: { marginBottom: 12, borderLeftWidth: 3, borderLeftColor: '#81C784', paddingLeft: 10 },
-  actTitle: { fontSize: 14, fontWeight: 'bold', color: '#2E7D32' },
+  actTitle: { fontSize: 14, fontWeight: 'bold', color: '#2E7D32', textTransform: 'capitalize' },
   actDesc: { fontSize: 13, color: '#555', marginTop: 2 },
 
   fertilizanteItem: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "#F0F0F0" },
