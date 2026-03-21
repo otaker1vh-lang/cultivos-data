@@ -26,7 +26,7 @@ export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [listaCultivos, setListaCultivos] = useState([]);
   
-  // NUEVO ESTADO: Controla si la pestaña de favoritos está abierta o cerrada
+  // NUEVO ESTADO: Controla el despliegue de favoritos
   const [showFavoritos, setShowFavoritos] = useState(false);
 
   useEffect(() => {
@@ -98,20 +98,18 @@ export default function HomeScreen({ navigation }) {
   const nombreSeguroCultivo = cultivoMonitoreado?.cultivo || cultivoMonitoreado?.nombre || cultivoMonitoreado?.nombre_cientifico;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#2E7D32" />
-      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         
-        {/* FONDO VERDE SUPERIOR QUE SCROLLEA CON LA PANTALLA */}
-        <LinearGradient 
-          colors={['#2E7D32', '#1B5E20']} 
-          style={styles.greenHeaderContainer}
-        >
+        {/* FONDO VERDE: Envuelve el Header y el Buscador y scrollea con la pantalla */}
+        <LinearGradient colors={['#2E7D32', '#1B5E20']} style={styles.greenHeaderWrapper}>
           {/* HEADER */}
           <View style={styles.header}>
             <View>
-              <Text style={styles.welcomeText}>Hola, Victor 👋</Text>
-              <Text style={styles.subWelcome}>Agrónomo • San Juan Tepeuxila</Text>
+              {/* Se agregó color blanco al texto para contrastar con el fondo verde */}
+              <Text style={[styles.welcomeText, { color: '#FFF' }]}>Hola, Victor 👋</Text>
+              <Text style={[styles.subWelcome, { color: '#E8F5E9' }]}>Agrónomo • San Juan Tepeuxila</Text>
             </View>
           </View>
 
@@ -122,7 +120,6 @@ export default function HomeScreen({ navigation }) {
               <TextInput 
                 style={styles.searchInput}
                 placeholder="Buscar cultivo..."
-                placeholderTextColor="#999"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 onSubmitEditing={() => {
@@ -136,105 +133,101 @@ export default function HomeScreen({ navigation }) {
           </View>
         </LinearGradient>
 
-        {/* CONTENIDO PRINCIPAL (Fondo gris claro) */}
-        <View style={styles.mainContent}>
-          
-          {/* WIDGET CLIMA -> WeatherScreen */}
+        {/* WIDGET CLIMA -> WeatherScreen */}
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('WeatherScreen')}
+          style={[styles.weatherWrapper, { marginTop: 20 }]} // Ajuste de margen por el fondo verde
+        >
+          <ClimaWidget />
+        </TouchableOpacity>
+
+        {/* NUEVO: SECCIÓN DESPLEGABLE DE FAVORITOS */}
+        <View style={styles.sectionContainer}>
           <TouchableOpacity 
-            onPress={() => navigation.navigate('WeatherScreen')}
-            style={styles.weatherWrapper}
+            style={styles.favoritosHeader}
+            onPress={() => setShowFavoritos(!showFavoritos)}
+            activeOpacity={0.7}
           >
-            <ClimaWidget />
+            <Text style={styles.sectionTitle}>Mis Favoritos</Text>
+            <Ionicons name={showFavoritos ? "chevron-up" : "chevron-down"} size={22} color="#333" />
           </TouchableOpacity>
 
-          {/* PESTAÑA DESPLEGABLE DE FAVORITOS */}
-          <View style={styles.sectionContainer}>
-            <TouchableOpacity 
-              style={styles.favoritosHeader}
-              onPress={() => setShowFavoritos(!showFavoritos)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.sectionTitle}>Mis Favoritos</Text>
-              <Ionicons name={showFavoritos ? "chevron-up" : "chevron-down"} size={22} color="#333" />
-            </TouchableOpacity>
-
-            {showFavoritos && (
-              <View style={styles.favoritosContainer}>
-                {favoritos.length > 0 ? (
-                  favoritos.map((fav, index) => (
-                    <TouchableOpacity 
-                      key={index} 
-                      style={styles.favoritoItem}
-                      onPress={() => navigation.navigate("GuiaScreen", { cultivo: fav.nombre || fav })}
-                    >
-                      <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Ionicons name="leaf" size={18} color="#4CAF50" style={{marginRight: 10}} />
-                        <Text style={styles.favoritoText}>{fav.nombre || fav}</Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={16} color="#CCC" />
-                    </TouchableOpacity>
-                  ))
-                ) : (
-                  <Text style={styles.noFavoritosText}>Aún no has agregado cultivos favoritos.</Text>
-                )}
-              </View>
-            )}
-          </View>
-
-          {/* MODULO DE HERRAMIENTAS */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Herramientas</Text>
-            <View style={styles.toolsGrid}>
-              {herramientas.map(tool => (
-                <TouchableOpacity 
-                  key={tool.id} 
-                  style={styles.toolCard}
-                  onPress={() => {
-                    if (!nombreSeguroCultivo) {
-                      Alert.alert("Atención", "Por favor, selecciona un cultivo para monitorear primero.");
-                      return;
-                    }
-                    navigation.navigate(tool.screen, { cultivo: nombreSeguroCultivo });
-                  }}
-                >
-                  <View style={[styles.toolIconContainer, { backgroundColor: tool.color + '15' }]}>
-                    <MaterialCommunityIcons name={tool.icon} size={28} color={tool.color} />
-                  </View>
-                  <Text style={styles.toolLabel}>{tool.nombre}</Text>
-                </TouchableOpacity>
-              ))}
+          {showFavoritos && (
+            <View style={styles.favoritosContainer}>
+              {favoritos.length > 0 ? (
+                favoritos.map((fav, index) => (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.favoritoItem}
+                    onPress={() => navigation.navigate("GuiaScreen", { cultivo: fav.nombre || fav })}
+                  >
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Ionicons name="leaf" size={18} color="#4CAF50" style={{marginRight: 10}} />
+                      <Text style={styles.favoritoText}>{fav.nombre || fav}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color="#CCC" />
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text style={styles.noFavoritosText}>Aún no has agregado cultivos favoritos.</Text>
+              )}
             </View>
-          </View>
-
-          {/* MONITOREO ACTUAL */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Mi Monitoreo</Text>
-            {cultivoMonitoreado ? (
-              <LinearGradient colors={['#2E7D32', '#1B5E20']} style={styles.monitoreoCard}>
-                <View>
-                  <Text style={styles.monitoreoNombre}>{nombreSeguroCultivo || 'Cultivo Desconocido'}</Text>
-                  <Text style={styles.monitoreoFase}>
-                    Etapa: {typeof cultivoMonitoreado.ciclo_fenologico?.etapa_actual === 'string' 
-                              ? cultivoMonitoreado.ciclo_fenologico.etapa_actual 
-                              : 'Vegetativa'}
-                  </Text>
-                </View>
-                <TouchableOpacity 
-                  style={styles.btnDetalles}
-                  onPress={() => navigation.navigate('FenologiaScreen', { cultivo: nombreSeguroCultivo })}
-                >
-                  <Text style={styles.btnDetallesText}>Detalles</Text>
-                </TouchableOpacity>
-              </LinearGradient>
-            ) : (
-              <TouchableOpacity style={styles.noCultivoCard} onPress={() => setModalVisible(true)}>
-                <Ionicons name="add-circle-outline" size={30} color="#666" />
-                <Text style={styles.noCultivoText}>Seleccionar cultivo para monitorear</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
+          )}
         </View>
+
+        {/* MODULO DE HERRAMIENTAS */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Herramientas</Text>
+          <View style={styles.toolsGrid}>
+            {herramientas.map(tool => (
+              <TouchableOpacity 
+                key={tool.id} 
+                style={styles.toolCard}
+                onPress={() => {
+                  if (!nombreSeguroCultivo) {
+                    Alert.alert("Atención", "Por favor, selecciona un cultivo para monitorear primero.");
+                    return;
+                  }
+                  navigation.navigate(tool.screen, { cultivo: nombreSeguroCultivo });
+                }}
+              >
+                <View style={[styles.toolIconContainer, { backgroundColor: tool.color + '15' }]}>
+                  <MaterialCommunityIcons name={tool.icon} size={28} color={tool.color} />
+                </View>
+                <Text style={styles.toolLabel}>{tool.nombre}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* MONITOREO ACTUAL */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Mi Monitoreo</Text>
+          {cultivoMonitoreado ? (
+            <LinearGradient colors={['#2E7D32', '#1B5E20']} style={styles.monitoreoCard}>
+              <View>
+                <Text style={styles.monitoreoNombre}>{nombreSeguroCultivo || 'Cultivo Desconocido'}</Text>
+                <Text style={styles.monitoreoFase}>
+                  Etapa: {typeof cultivoMonitoreado.ciclo_fenologico?.etapa_actual === 'string' 
+                            ? cultivoMonitoreado.ciclo_fenologico.etapa_actual 
+                            : 'Vegetativa'}
+                </Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.btnDetalles}
+                onPress={() => navigation.navigate('FenologiaScreen', { cultivo: nombreSeguroCultivo })}
+              >
+                <Text style={styles.btnDetallesText}>Detalles</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          ) : (
+            <TouchableOpacity style={styles.noCultivoCard} onPress={() => setModalVisible(true)}>
+              <Ionicons name="add-circle-outline" size={30} color="#666" />
+              <Text style={styles.noCultivoText}>Seleccionar cultivo para monitorear</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         <View style={{ height: 100 }} />
       </ScrollView>
 
@@ -272,57 +265,41 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  // Modificaciones al fondo para integrar el color verde
-  container: { flex: 1, backgroundColor: "#2E7D32" }, 
-  greenHeaderContainer: {
+  container: { flex: 1, backgroundColor: "#F8F9FA" },
+  
+  /* NUEVOS ESTILOS AGREGADOS */
+  greenHeaderWrapper: {
     paddingBottom: 25,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
-  mainContent: {
-    backgroundColor: "#F8F9FA",
-    flex: 1,
-    paddingTop: 20,
-  },
-  
-  header: { paddingHorizontal: 24, paddingVertical: 20 },
-  welcomeText: { fontSize: 24, fontWeight: 'bold', color: '#FFF' }, // Texto blanco para contrastar
-  subWelcome: { fontSize: 14, color: '#E8F5E9' }, // Verde muy claro para el subtítulo
-  
-  searchContainer: { paddingHorizontal: 24 },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 15, paddingHorizontal: 15, height: 50, elevation: 2 },
-  searchInput: { flex: 1, marginLeft: 10, color: '#333' },
-  
-  weatherWrapper: { marginHorizontal: 24, marginBottom: 20 },
-  sectionContainer: { paddingHorizontal: 24, marginBottom: 25 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  
-  // Estilos para la sección de favoritos
   favoritosHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   favoritosContainer: { backgroundColor: '#FFF', borderRadius: 15, padding: 10, elevation: 1 },
   favoritoItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   favoritoText: { fontSize: 16, color: '#444' },
   noFavoritosText: { color: '#888', fontStyle: 'italic', textAlign: 'center', padding: 15 },
+  /* FIN NUEVOS ESTILOS */
 
+  header: { paddingHorizontal: 24, paddingVertical: 20 },
+  welcomeText: { fontSize: 24, fontWeight: 'bold' },
+  subWelcome: { fontSize: 14, color: '#666' },
+  searchContainer: { paddingHorizontal: 24, marginBottom: 15 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 15, paddingHorizontal: 15, height: 50, elevation: 2 },
+  searchInput: { flex: 1, marginLeft: 10 },
+  weatherWrapper: { marginHorizontal: 24, marginBottom: 20 },
+  sectionContainer: { paddingHorizontal: 24, marginBottom: 25 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
   toolsGrid: { flexDirection: 'row', justifyContent: 'space-between' },
   toolCard: { width: (width - 68) / 4, alignItems: 'center' },
   toolIconContainer: { width: 55, height: 55, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   toolLabel: { fontSize: 11, fontWeight: '600', color: '#444' },
-  
   monitoreoCard: { padding: 20, borderRadius: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   monitoreoNombre: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   monitoreoFase: { color: '#E8F5E9', fontSize: 13 },
   btnDetalles: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
   btnDetallesText: { color: '#2E7D32', fontWeight: 'bold' },
-  
   noCultivoCard: { padding: 25, backgroundColor: '#fff', borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, borderColor: '#CCC', alignItems: 'center' },
   noCultivoText: { marginTop: 10, color: '#666' },
-  
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 20, maxHeight: '80%' },
   modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
