@@ -48,33 +48,23 @@ export default function EstadisticasScreen({ route }) {
   };
 
   const procesarDatosGraficas = (data) => {
-    // SUPER HELPER V2: Extrae solo el primer número para evitar que "15 a 20" se vuelva "1520"
+    // SUPER HELPER: Extrae números reales incluso si vienen como "1,200.50" o con texto
     const safeNumber = (val) => {
       if (val === null || val === undefined) return 0;
       if (typeof val === 'number') return val;
-      if (Array.isArray(val)) return safeNumber(val[0]);
-      
-      const textoLimpio = String(val).replace(/,/g, '');
-      const match = textoLimpio.match(/\d+(\.\d+)?/);
-      return match ? parseFloat(match[0]) : 0;
+      const parsed = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
+      return isNaN(parsed) ? 0 : parsed;
     };
 
-    // 1. Procesar Historial (Blindado contra arrays de 1 solo elemento)
+    // 1. Procesar Historial (A prueba de arrays vacíos o datos corruptos)
     const historial = data.historial_produccion || data.estadisticas?.historial_produccion;
     if (historial && Array.isArray(historial) && historial.length > 0) {
       const valoresLimpios = historial.map(h => safeNumber(h.rendimiento_t_ha || h.rendimiento));
-      const labelsLimpios = historial.map(h => String(h.year || h.año || 'N/A').slice(-2));
       
+      // Solo graficamos si al menos un valor es mayor a 0 para evitar crasheos de ChartKit
       if (valoresLimpios.some(v => v > 0)) {
-        
-        // SALVAVIDAS CHARTKIT: Si solo hay 1 dato, lo duplicamos para evitar el crasheo del 'bezier'
-        if (valoresLimpios.length === 1) {
-          valoresLimpios.push(valoresLimpios[0]);
-          labelsLimpios.push(labelsLimpios[0] + '*');
-        }
-
         setHistoricoPrecios({
-          labels: labelsLimpios,
+          labels: historial.map(h => String(h.year || h.año || '').slice(-2)),
           datasets: [{ data: valoresLimpios }]
         });
       } else {
@@ -84,13 +74,13 @@ export default function EstadisticasScreen({ route }) {
       setHistoricoPrecios(null);
     }
 
-    // 2. Procesar Costos
+    // 2. Procesar Costos (A prueba de objetos vacíos o valores nulos)
     const costosRaw = data.costos_produccion_detallados || data.estadisticas?.costos;
     if (costosRaw && typeof costosRaw === 'object' && !Array.isArray(costosRaw)) {
       const pieData = Object.entries(costosRaw).map(([key, val], index) => {
         const valorNumerico = typeof val === 'object' && val !== null ? safeNumber(val.total || val.costo_ha) : safeNumber(val);
         return {
-          name: String(key).split('_').join(' '),
+          name: key.split('_').join(' '),
           population: valorNumerico,
           color: ['#2E7D32', '#689F38', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107'][index % 6],
           legendFontColor: "#7F7F7F",
@@ -99,16 +89,14 @@ export default function EstadisticasScreen({ route }) {
       }).filter(item => item.population > 0); 
 
       setCostosData(pieData.length > 0 ? pieData : null);
-    } else {
-      setCostosData(null);
     }
 
-    // 3. Producción Nacional (Blindado contra arrays de texto simple)
+    // 3. Producción Nacional (Adaptado para la V4 Científica)
     const estadosRaw = data.detalle_produccion_nacional?.principales_estados || data.detalle_produccion_nacional?.principales_estados_productores || data.estadisticas?.principales_estados;
     
     if (estadosRaw && typeof estadosRaw === 'object') {
       const topEstados = Array.isArray(estadosRaw) 
-        ? estadosRaw.slice(0, 5).map(e => [typeof e === 'string' ? e : (e.estado || e.nombre || 'Indefinido'), e])
+        ? estadosRaw.slice(0, 5).map(e => [e.estado || e.nombre, e])
         : Object.entries(estadosRaw).slice(0, 5);
       
       if (topEstados.length > 0) {
@@ -153,6 +141,7 @@ export default function EstadisticasScreen({ route }) {
     <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>
   );
 
+  // Helper para evitar crasheos de renderizado de texto
   const formatTemporada = (temp) => {
     if (!temp) return 'N/A';
     if (Array.isArray(temp)) return temp.join(', ');
@@ -160,6 +149,7 @@ export default function EstadisticasScreen({ route }) {
     return String(temp);
   };
 
+  // Helper para mostrar texto seguro en Rentabilidad
   const renderRentabilidadValue = (val, prefix = '', suffix = '') => {
     if (val === null || val === undefined) return 'N/A';
     if (typeof val === 'object') return 'Ver detalle';
@@ -216,7 +206,7 @@ export default function EstadisticasScreen({ route }) {
             accessor={"population"}
             backgroundColor={"transparent"}
             paddingLeft={"15"}
-            absolute 
+            absolute // Muestra los valores reales, no solo porcentajes si lo deseas
           />
         ) : <Text style={styles.noData}>Detalle de costos no disponible</Text>}
       </View>
@@ -234,7 +224,7 @@ export default function EstadisticasScreen({ route }) {
             chartConfig={renderChartConfig((op) => `rgba(21, 101, 192, ${op})`)}
             verticalLabelRotation={30}
             style={styles.chart}
-            fromZero={true}
+            fromZero={true} // Obliga a la gráfica a empezar en 0
           />
         ) : <Text style={styles.noData}>Datos regionales no disponibles</Text>}
       </View>
