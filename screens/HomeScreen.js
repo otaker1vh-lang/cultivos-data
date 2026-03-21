@@ -25,9 +25,6 @@ export default function HomeScreen({ navigation }) {
   const [favoritos, setFavoritos] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [listaCultivos, setListaCultivos] = useState([]);
-  
-  // NUEVO ESTADO: Controla el despliegue de favoritos
-  const [showFavoritos, setShowFavoritos] = useState(false);
 
   useEffect(() => {
     cargarDatosMonitoreo();
@@ -99,81 +96,43 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2E7D32" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
         
-        {/* FONDO VERDE: Envuelve el Header y el Buscador y scrollea con la pantalla */}
-        <LinearGradient colors={['#2E7D32', '#1B5E20']} style={styles.greenHeaderWrapper}>
-          {/* HEADER */}
-          <View style={styles.header}>
-            <View>
-              {/* Se agregó color blanco al texto para contrastar con el fondo verde */}
-              <Text style={[styles.welcomeText, { color: '#FFF' }]}>Hola, Victor 👋</Text>
-              <Text style={[styles.subWelcome, { color: '#E8F5E9' }]}>Agrónomo • San Juan Tepeuxila</Text>
-            </View>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.welcomeText}>Hola, Victor 👋</Text>
+            <Text style={styles.subWelcome}>Agrónomo • San Juan Tepeuxila</Text>
           </View>
+        </View>
 
-          {/* BUSCADOR */}
-          <View style={styles.searchContainer}>
-            <View style={styles.searchBar}>
-              <Ionicons name="search" size={20} color="#888" />
-              <TextInput 
-                style={styles.searchInput}
-                placeholder="Buscar cultivo..."
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                onSubmitEditing={() => {
-                  if(searchQuery.trim().length > 0) {
-                    navigation.navigate("GuiaScreen", { cultivo: searchQuery.trim() });
-                    setSearchQuery(""); // Limpiar tras buscar
-                  }
-                }}
-              />
-            </View>
+        {/* BUSCADOR */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#888" />
+            <TextInput 
+              style={styles.searchInput}
+              placeholder="Buscar cultivo..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={() => {
+                if(searchQuery.trim().length > 0) {
+                  navigation.navigate("GuiaScreen", { cultivo: searchQuery.trim() });
+                  setSearchQuery(""); // Limpiar tras buscar
+                }
+              }}
+            />
           </View>
-        </LinearGradient>
+        </View>
 
         {/* WIDGET CLIMA -> WeatherScreen */}
         <TouchableOpacity 
           onPress={() => navigation.navigate('WeatherScreen')}
-          style={[styles.weatherWrapper, { marginTop: 20 }]} // Ajuste de margen por el fondo verde
+          style={styles.weatherWrapper}
         >
           <ClimaWidget />
         </TouchableOpacity>
-
-        {/* NUEVO: SECCIÓN DESPLEGABLE DE FAVORITOS */}
-        <View style={styles.sectionContainer}>
-          <TouchableOpacity 
-            style={styles.favoritosHeader}
-            onPress={() => setShowFavoritos(!showFavoritos)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.sectionTitle}>Mis Favoritos</Text>
-            <Ionicons name={showFavoritos ? "chevron-up" : "chevron-down"} size={22} color="#333" />
-          </TouchableOpacity>
-
-          {showFavoritos && (
-            <View style={styles.favoritosContainer}>
-              {favoritos.length > 0 ? (
-                favoritos.map((fav, index) => (
-                  <TouchableOpacity 
-                    key={index} 
-                    style={styles.favoritoItem}
-                    onPress={() => navigation.navigate("GuiaScreen", { cultivo: fav.nombre || fav })}
-                  >
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      <Ionicons name="leaf" size={18} color="#4CAF50" style={{marginRight: 10}} />
-                      <Text style={styles.favoritoText}>{fav.nombre || fav}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={16} color="#CCC" />
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <Text style={styles.noFavoritosText}>Aún no has agregado cultivos favoritos.</Text>
-              )}
-            </View>
-          )}
-        </View>
 
         {/* MODULO DE HERRAMIENTAS */}
         <View style={styles.sectionContainer}>
@@ -264,22 +223,9 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
+// ... Estilos intactos ...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8F9FA" },
-  
-  /* NUEVOS ESTILOS AGREGADOS */
-  greenHeaderWrapper: {
-    paddingBottom: 25,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-  },
-  favoritosHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  favoritosContainer: { backgroundColor: '#FFF', borderRadius: 15, padding: 10, elevation: 1 },
-  favoritoItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  favoritoText: { fontSize: 16, color: '#444' },
-  noFavoritosText: { color: '#888', fontStyle: 'italic', textAlign: 'center', padding: 15 },
-  /* FIN NUEVOS ESTILOS */
-
   header: { paddingHorizontal: 24, paddingVertical: 20 },
   welcomeText: { fontSize: 24, fontWeight: 'bold' },
   subWelcome: { fontSize: 14, color: '#666' },
