@@ -50,6 +50,13 @@ export default function GuiaScreen({ route }) {
     cargarDatos(false);
   }, [cultivo]);
 
+  const safeArray = (data) => {
+    if (!data) return [];
+    if (typeof data === 'string') return [data];
+    const arr = Array.isArray(data) ? data : Object.values(data);
+    return arr.filter(Boolean); // <-- LA MAGIA: Elimina instantáneamente nulls, undefineds o strings vacíos
+  };
+
   // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
   const onRefresh = async () => {
     setRefreshing(true);
@@ -79,43 +86,57 @@ export default function GuiaScreen({ route }) {
   const esDatosCompletos = nivel === 'completo';
 
   // 0. IMAGEN Y PANORAMA
-  const imagenUrl = infoCultivo.imagen_url || null;
-  const panoramaUrl = infoCultivo.panorama_url || null;
+  const imagenUrl = typeof infoCultivo.imagen_url === 'string' ? infoCultivo.imagen_url.replace(/__/g, '//').replace(/_/g, '/') : null;
+  const panoramaUrl = typeof infoCultivo.panorama_url === 'string' ? infoCultivo.panorama_url.replace(/__/g, '//').replace(/_/g, '/') : null;
 
   // 1. VIABILIDAD TÉCNICA
   const agro = infoCultivo.requerimientos_agroclimaticos || {};
   // AJUSTE JSON 07: Soporta la nueva estructura de objeto o el array clásico
-  const sistemasRiego = infoCultivo.sistemas_recomendados?.sistemas_riego || infoCultivo.sistemas_riego;
-
+  const sistemasRiego = safeArray(infoCultivo.sistemas_recomendados?.sistemas_riego || infoCultivo.sistemas_riego);
   // 2. NEGOCIO Y RENTABILIDAD
   const rentabilidad = infoCultivo.analisis_rentabilidad || {};
   const economia = infoCultivo.economia_expandida || {};
+  const precioMin = economia.precio_min_mxn_ton || economia.precio_minimo || economia.precio_min;
+  const precioMax = economia.precio_max_mxn_ton || economia.precio_maximo || economia.precio_max;
   
   // 3. MERCADO Y EXPORTACIÓN
   const mercado = infoCultivo.mercado_comercializacion || {};
-  const canalesVenta = mercado.canales_venta || [];
-  const destinosPrincipales = mercado.principales_destinos || 
-        (infoCultivo.destinos_principales ? (infoCultivo.destinos_principales.exportacion || infoCultivo.destinos_principales.nacional) : []);
-  const requisitosExport = mercado.certificaciones_requeridas || mercado.requisitos_exportacion || [];
-  const hayDatosExport = Array.isArray(requisitosExport) ? requisitosExport.length > 0 : !!requisitosExport;
+  const canalesVenta = safeArray(mercado.canales_venta);
+  let rawDestinos = mercado.destinos_principales || infoCultivo.destinos_principales || [];
+  if (!Array.isArray(rawDestinos) && rawDestinos.exportacion) {
+      rawDestinos = rawDestinos.exportacion;
+  }
+  const destinosArray = safeArray(rawDestinos);
+  const destinosPrincipales = destinosArray.map(d => typeof d === 'string' ? d : (d.destino || d.pais)).filter(Boolean);
+  
+  const requisitosExport = safeArray(mercado.certificaciones_requeridas || mercado.requisitos_exportacion);
+  const hayDatosExport = requisitosExport.length > 0;
 
   // 4. ESTRATEGIA Y FUTURO (RECOMENDACIONES CLAVE)
   // Nota: Priorizamos el array 'recomendaciones_clave' si existe
-  const recomendaciones = infoCultivo.recomendaciones_clave || infoCultivo.recomendaciones || [];
+  const recomendaciones = safeArray(infoCultivo.recomendaciones_clave || infoCultivo.recomendaciones);
   const conclusiones = infoCultivo.conclusiones_recomendaciones || {};
+  
+  // Buscamos si existe el string de perspectivas
   const perspectivas = conclusiones.perspectivas_futuras || conclusiones.tendencia_mercado || null;
+  
+  // CORRECCIÓN: Si no hay perspectivas, asumimos que es una lista de tips (sea Array puro u Objeto corrompido)
+  const recomendacionesExtra = !perspectivas ? safeArray(conclusiones) : [];
+  const recomendacionesFinales = [...recomendaciones, ...recomendacionesExtra];
 
   // 5. MANEJO POSTCOSECHA
   const postcosecha = infoCultivo.postcosecha || null;
 
   // 6. GUÍA DE BUENAS PRÁCTICAS
-  const buenasPracticas = infoCultivo.guia_buenas_practicas || [];
+  const buenasPracticas = safeArray(infoCultivo.guia_buenas_practicas);
+
+  const formatMoney = (val) => val != null && !isNaN(val) ? Number(val).toLocaleString() : 'N/D';
 
   // 7. RIESGOS Y ERRORES COMUNES
   // Nota: Priorizamos 'guia_errores_comunes' que tiene la estructura detallada
-  const erroresComunes = infoCultivo.guia_errores_comunes || infoCultivo.errores_frecuentes || [];
-  const alertas = infoCultivo.alertas_riesgos || [];
-
+  const erroresComunes = safeArray(infoCultivo.guia_errores_comunes || infoCultivo.errores_comunes_evitar || infoCultivo.errores_frecuentes);
+  const alertas = safeArray(infoCultivo.alertas_riesgos);
+  const plagasYEnfermedades = safeArray(infoCultivo.riesgos_detallados);
   return (
     <ScrollView 
       contentContainerStyle={styles.container}
@@ -180,7 +201,7 @@ export default function GuiaScreen({ route }) {
                 <InfoItem icon="thermometer" label="Temperatura" value={agro.temperatura || agro.clima_ideal} />
                 <InfoItem icon="image-filter-hdr" label="Altitud" value={agro.altitud} />
                 <InfoItem icon="water" label="Precipitación" value={agro.precipitacion} />
-                <InfoItem icon="flask" label="Suelo / pH" value={`${agro.suelo || ''} (${agro.ph || agro.ph_optimo})`} />
+                <InfoItem icon="flask" label="Suelo / pH" value={`${agro.suelo || agro.tipo_suelo || 'N/D'} (${agro.ph || agro.ph_optimo || agro.rango_ph || 'N/D'})`} />
             </View>
         </View>
 
@@ -199,23 +220,35 @@ export default function GuiaScreen({ route }) {
                     </View>
 
                     {/* Filas Tabla */}
-                    {sistemasRiego.map((sis, idx) => (
-                        <View key={idx} style={styles.tableRowContainer}>
-                            <View style={styles.tableRow}>
-                                <Text style={[styles.td, {flex: 2, fontWeight:'bold', color: '#333'}]}>{sis.sistema}</Text>
-                                <Text style={[styles.td, {flex: 1, textAlign:'center'}]}>{sis.eficiencia_pct}%</Text>
-                                <Text style={[styles.td, {flex: 1.5, textAlign:'right', fontSize: 11}]}>${(sis.costo_instalacion_ha/1000).toFixed(0)}k</Text>
-                                <Text style={[styles.td, {flex: 1.5, textAlign:'right', fontSize: 11}]}>${(sis.costo_operacion_anual/1000).toFixed(1)}k</Text>
-                            </View>
-                            {/* Recomendación Específica */}
-                            {sis.recomendacion && (
-                                <View style={styles.recContainer}>
-                                    <MaterialCommunityIcons name="information-outline" size={14} color="#0277BD" style={{marginTop: 1}}/>
-                                    <Text style={styles.recText}>{sis.recomendacion}</Text>
+                    {sistemasRiego.map((sis, idx) => {
+                        const esObjeto = typeof sis === 'object';
+                        const nombreSistema = esObjeto ? sis.sistema : sis;
+                        const eficiencia = esObjeto ? sis.eficiencia_pct : null;
+                        const instalacion = esObjeto ? Number(sis.costo_instalacion_ha) : NaN;
+                        const operacion = esObjeto ? Number(sis.costo_operacion_anual) : NaN;
+                        const recomendacion = esObjeto ? sis.recomendacion : null;
+
+                        return (
+                            <View key={idx} style={styles.tableRowContainer}>
+                                <View style={styles.tableRow}>
+                                    <Text style={[styles.td, {flex: 2, fontWeight:'bold', color: '#333'}]}>{nombreSistema}</Text>
+                                    <Text style={[styles.td, {flex: 1, textAlign:'center'}]}>{eficiencia ? `${eficiencia}%` : 'N/D'}</Text>
+                                    <Text style={[styles.td, {flex: 1.5, textAlign:'right', fontSize: 11}]}>
+                                        {!isNaN(instalacion) && instalacion > 0 ? `$${(instalacion/1000).toFixed(0)}k` : 'N/D'}
+                                    </Text>
+                                    <Text style={[styles.td, {flex: 1.5, textAlign:'right', fontSize: 11}]}>
+                                        {!isNaN(operacion) && operacion > 0 ? `$${(operacion/1000).toFixed(1)}k` : 'N/D'}
+                                    </Text>
                                 </View>
-                            )}
-                        </View>
-                    ))}
+                                {recomendacion && (
+                                    <View style={styles.recContainer}>
+                                        <MaterialCommunityIcons name="information-outline" size={14} color="#0277BD" style={{marginTop: 1}}/>
+                                        <Text style={styles.recText}>{recomendacion}</Text>
+                                    </View>
+                                )}
+                            </View>
+                        );
+                    })}
                 </View>
                 <Text style={styles.footnote}>*Inv: Inversión inicial | Op: Costo operación</Text>
             </View>
@@ -233,20 +266,30 @@ export default function GuiaScreen({ route }) {
             <View style={styles.bizCard}>
                 <View style={styles.roiHeader}>
                     <Text style={styles.roiTitle}>ROI Estimado</Text>
-                    <Text style={styles.roiValue}>{rentabilidad.roi_pct}%</Text>
+                    <Text style={styles.roiValue}>{rentabilidad.roi_pct ? `${rentabilidad.roi_pct}%` : 'N/D'}</Text>
                 </View>
                 
                 <View style={styles.bizRow}>
                     <Text style={styles.bizLabel}>Inversión Inicial</Text>
-                    <Text style={styles.bizValue}>${rentabilidad.inversion_inicial_ha?.toLocaleString()}/ha</Text>
+                    <Text style={styles.bizValue}>
+                        {rentabilidad.inversion_inicial_ha ? `$${formatMoney(rentabilidad.inversion_inicial_ha)}/ha` : 'N/D'}
+                    </Text>
                 </View>
                 <View style={styles.bizRow}>
                     <Text style={styles.bizLabel}>Utilidad Neta</Text>
-                    <Text style={[styles.bizValue, {color: '#2E7D32'}]}>${rentabilidad.utilidad_neta_anual_ha?.toLocaleString()}/año</Text>
+                    <Text style={[styles.bizValue, {color: '#2E7D32'}]}>
+                        {rentabilidad.utilidad_neta_anual_ha ? `$${formatMoney(rentabilidad.utilidad_neta_anual_ha)}/año` : 'N/D'}
+                    </Text>
                 </View>
                 <View style={styles.bizRow}>
                     <Text style={styles.bizLabel}>Recuperación</Text>
-                    <Text style={styles.bizValue}>{rentabilidad.años_recuperacion} años</Text>
+                    <Text style={styles.bizValue}>
+                        {rentabilidad.años_recuperacion 
+                            ? (String(rentabilidad.años_recuperacion).toLowerCase().includes('año') 
+                                ? rentabilidad.años_recuperacion 
+                                : `${rentabilidad.años_recuperacion} años`) 
+                            : 'N/D'}
+                    </Text>
                 </View>
             </View>
         ) : (
@@ -254,31 +297,31 @@ export default function GuiaScreen({ route }) {
         )}
 
         {/* Precios de Mercado */}
-        {economia.precio_min_mxn_ton && (
-            <View style={styles.priceCard}>
-                <Text style={styles.priceTitle}>Rango de Precios de Mercado (MXN/ton)</Text>
-                <View style={styles.priceRange}>
-                    <View style={styles.priceBox}>
-                        <Text style={styles.priceLabel}>Mínimo</Text>
-                        <Text style={styles.priceNum}>${economia.precio_min_mxn_ton?.toLocaleString()}</Text>
-                    </View>
-                    <View style={styles.priceDivider}>
-                        <MaterialCommunityIcons name="arrow-right" size={20} color="#999" />
-                    </View>
-                    <View style={styles.priceBox}>
-                        <Text style={styles.priceLabel}>Máximo</Text>
-                        <Text style={styles.priceNum}>${economia.precio_max_mxn_ton?.toLocaleString()}</Text>
-                    </View>
-                </View>
-                <Text style={styles.priceNote}>*Precios referenciales de mercado mayorista.</Text>
-            </View>
-        )}
+        {precioMin != null && (
+              <View style={styles.priceCard}>
+                  <Text style={styles.priceTitle}>Rango de Precios de Mercado (MXN/ton)</Text>
+                  <View style={styles.priceRange}>
+                      <View style={styles.priceBox}>
+                          <Text style={styles.priceLabel}>Mínimo</Text>
+                          <Text style={styles.priceNum}>{precioMin != null ? `$${formatMoney(precioMin)}` : 'N/D'}</Text>
+                      </View>
+                      <View style={styles.priceDivider}>
+                          <MaterialCommunityIcons name="arrow-right" size={20} color="#999" />
+                      </View>
+                      <View style={styles.priceBox}>
+                          <Text style={styles.priceLabel}>Máximo</Text>
+                          <Text style={styles.priceNum}>${formatMoney(precioMax)}</Text>
+                      </View>
+                  </View>
+                  <Text style={styles.priceNote}>*Precios referenciales de mercado mayorista.</Text>
+              </View>
+          )}
       </View>
 
       {/* --------------------------------------------- */}
       {/* SECCIÓN MANEJO POSTCOSECHA                    */}
       {/* --------------------------------------------- */}
-      {postcosecha && (
+      {postcosecha && Object.keys(postcosecha).length > 0 && (
         <View style={styles.section}>
             <SectionHeader icon="package-variant-closed" title="Manejo Postcosecha" color="#E65100" />
             
@@ -333,18 +376,26 @@ export default function GuiaScreen({ route }) {
             {/* Canales Locales */}
             {canalesVenta.length > 0 && (
                 <View style={styles.marketContainer}>
-                    {canalesVenta.map((canal, idx) => (
-                        <View key={idx} style={styles.canalRow}>
-                            <View style={{flex:1}}>
-                                <Text style={styles.canalName}>{canal.canal}</Text>
-                                <Text style={styles.canalDesc}>{canal.condiciones_pago}</Text>
+                    {canalesVenta.map((canal, idx) => {
+                        const esObjeto = typeof canal === 'object';
+                        const canalName = esObjeto ? (canal.canal || canal.nombre || canal.tipo || "Canal de venta") : canal;
+                        const canalDesc = esObjeto ? canal.condiciones_pago : null;
+                        const canalPct = esObjeto ? canal.participacion_pct : null;
+                        const canalPrice = esObjeto ? canal.precio_promedio_kg : null;
+
+                        return (
+                            <View key={idx} style={styles.canalRow}>
+                                <View style={{flex:1}}>
+                                    <Text style={styles.canalName}>{canalName}</Text>
+                                    {canalDesc && <Text style={styles.canalDesc}>{canalDesc}</Text>}
+                                </View>
+                                <View style={{alignItems:'flex-end'}}>
+                                    <Text style={styles.canalPct}>{canalPct ? `${canalPct}% vol.` : 'N/D'}</Text>
+                                    <Text style={styles.canalPrice}>{canalPrice ? `$${formatMoney(canalPrice)}/kg` : 'Varía'}</Text>
+                                </View>
                             </View>
-                            <View style={{alignItems:'flex-end'}}>
-                                <Text style={styles.canalPct}>{canal.participacion_pct}% vol.</Text>
-                                <Text style={styles.canalPrice}>${canal.precio_promedio_kg}/kg</Text>
-                            </View>
-                        </View>
-                    ))}
+                        );
+                    })}
                 </View>
             )}
 
@@ -356,17 +407,17 @@ export default function GuiaScreen({ route }) {
                         <Text style={styles.exportTitle}>Requisitos de Exportación & Certificaciones</Text>
                     </View>
                     <View style={styles.exportContent}>
-                        {Array.isArray(requisitosExport) ? (
-                            requisitosExport.map((req, i) => (
+                        {requisitosExport.map((req, i) => {
+                            // Tolerancia si req viene como string u objeto
+                            const textoReq = typeof req === 'string' ? req : (req.requisito || req.nombre || "Certificación requerida");
+                            return (
                                 <View key={i} style={styles.reqRow}>
                                     <MaterialCommunityIcons name="check-circle-outline" size={16} color="#00695C" />
-                                    <Text style={styles.reqText}>{req}</Text>
+                                    <Text style={styles.reqText}>{textoReq}</Text>
                                 </View>
-                            ))
-                        ) : (
-                            <Text style={styles.reqText}>{requisitosExport}</Text>
-                        )}
-                        
+                            );
+                        })}
+
                         {destinosPrincipales.length > 0 && (
                             <View style={{marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#B2DFDB'}}>
                                 <Text style={styles.destinosLabel}>Destinos Principales:</Text>
@@ -382,7 +433,7 @@ export default function GuiaScreen({ route }) {
       {/* --------------------------------------------- */}
       {/* 4. INTELIGENCIA (TIPS Y PERSPECTIVAS)         */}
       {/* --------------------------------------------- */}
-      {(recomendaciones.length > 0 || perspectivas) && (
+      {(recomendacionesFinales.length > 0 || perspectivas) && (
           <View style={styles.section}>
             <SectionHeader icon="lightbulb-on" title="Estrategia & Futuro" color="#FF6F00" />
             
@@ -397,11 +448,11 @@ export default function GuiaScreen({ route }) {
                 </View>
             )}
             
-            {/* Recomendaciones Clave (Sin límite) */}
-            {recomendaciones.length > 0 && (
+            {/* Recomendaciones Clave (CORREGIDO) */}
+            {recomendacionesFinales.length > 0 && (
                 <View style={styles.tipsContainer}>
                     <Text style={styles.tipsHeaderTitle}>💡 Recomendaciones Clave:</Text>
-                    {recomendaciones.map((rec, i) => (
+                    {recomendacionesFinales.map((rec, i) => (
                         <View key={i} style={styles.tipRow}>
                             <MaterialCommunityIcons name="star" size={18} color="#FF6F00" style={{marginTop:2}} />
                             <Text style={styles.tipText}>{rec}</Text>
@@ -419,28 +470,34 @@ export default function GuiaScreen({ route }) {
           <View style={styles.section}>
               <SectionHeader icon="clipboard-check" title="Buenas Prácticas" color="#009688" />
               
-              {buenasPracticas.map((item, index) => (
-                  <View key={index} style={styles.practicaCard}>
-                      <View style={styles.practicaHeader}>
-                          <MaterialCommunityIcons name="check-circle" size={20} color="#009688" />
-                          <Text style={styles.practicaTitle}>{item.practica}</Text>
+             {buenasPracticas.map((item, index) => {
+                  // CORRECCIÓN: Soporte para formato string y formato objeto
+                  const esObjeto = typeof item === 'object';
+                  const tituloPractica = esObjeto ? (item.practica || item.titulo || item.nombre || "Práctica Recomendada") : item;
+                  
+                  return (
+                      <View key={index} style={styles.practicaCard}>
+                          <View style={styles.practicaHeader}>
+                              <MaterialCommunityIcons name="check-circle" size={20} color="#009688" />
+                              <Text style={styles.practicaTitle}>{tituloPractica}</Text>
+                          </View>
+                          
+                          {esObjeto && item.importancia && (
+                              <View style={styles.practicaRow}>
+                                  <Text style={styles.practicaLabel}>Importancia:</Text>
+                                  <Text style={styles.practicaText}>{item.importancia}</Text>
+                              </View>
+                          )}
+                          
+                          {esObjeto && item.beneficio && (
+                              <View style={[styles.practicaRow, {marginTop: 4}]}>
+                                  <Text style={[styles.practicaLabel, {color: '#2E7D32'}]}>Beneficio:</Text>
+                                  <Text style={[styles.practicaText, {fontWeight: 'bold', color: '#2E7D32'}]}>{item.beneficio}</Text>
+                              </View>
+                          )}
                       </View>
-                      
-                      {item.importancia && (
-                          <View style={styles.practicaRow}>
-                              <Text style={styles.practicaLabel}>Importancia:</Text>
-                              <Text style={styles.practicaText}>{item.importancia}</Text>
-                          </View>
-                      )}
-                      
-                      {item.beneficio && (
-                          <View style={[styles.practicaRow, {marginTop: 4}]}>
-                              <Text style={[styles.practicaLabel, {color: '#2E7D32'}]}>Beneficio:</Text>
-                              <Text style={[styles.practicaText, {fontWeight: 'bold', color: '#2E7D32'}]}>{item.beneficio}</Text>
-                          </View>
-                      )}
-                  </View>
-              ))}
+                  );
+              })}
           </View>
       )}
 
@@ -454,7 +511,7 @@ export default function GuiaScreen({ route }) {
             {erroresComunes.map((item, idx) => {
                 // Verificar si es objeto (formato detallado) o string (formato simple)
                 const esObjeto = typeof item === 'object';
-                const titulo = esObjeto ? (item.error || item.titulo) : item;
+                const titulo = esObjeto ? (item.error || item.titulo || item.problema || "Error común") : item;
                 const consecuencia = esObjeto ? item.consecuencia : null;
                 const solucion = esObjeto ? item.solucion : null;
 
@@ -485,6 +542,46 @@ export default function GuiaScreen({ route }) {
       )}
 
       {/* --------------------------------------------- */}
+      {/* FITOSANIDAD (PLAGAS Y ENFERMEDADES)           */}
+      {/* --------------------------------------------- */}
+      {plagasYEnfermedades.length > 0 && (
+          <View style={styles.section}>
+              <SectionHeader icon="bug" title="Sanidad y Control" color="#7B1FA2" />
+              
+              {plagasYEnfermedades.map((plaga, idx) => {
+                  const esObjeto = typeof plaga === 'object';
+                  const nombrePlaga = esObjeto ? (plaga.nombre_plaga || plaga.nombre_cientifico || 'Problema Fitosanitario') : plaga;
+                  const descripcion = esObjeto ? (plaga.descripcion || plaga.tipo) : null;
+                  const control = esObjeto ? (plaga.control_recomendado || plaga.control_biologico) : null;
+
+                  return (
+                      <View key={`plaga-${idx}`} style={[styles.practicaCard, {borderLeftColor: '#7B1FA2'}]}>
+                          <View style={styles.practicaHeader}>
+                              <MaterialCommunityIcons name="virus-outline" size={20} color="#7B1FA2" />
+                              <Text style={[styles.practicaTitle, {color: '#7B1FA2'}]}>
+                                  {nombrePlaga}
+                              </Text>
+                          </View>
+                          
+                          {descripcion && <Text style={[styles.practicaLabel, {marginBottom: 4}]}>{descripcion}</Text>}
+                          
+                          {control && (
+                              <View style={{marginTop: 6, backgroundColor: '#F3E5F5', padding: 8, borderRadius: 6}}>
+                                  <Text style={{fontSize: 11, fontWeight: 'bold', color: '#4A148C', marginBottom: 2}}>
+                                      Estrategia de Control:
+                                  </Text>
+                                  <Text style={{fontSize: 12, color: '#333'}}>
+                                      {control}
+                                  </Text>
+                              </View>
+                          )}
+                      </View>
+                  );
+              })}
+          </View>
+      )}
+
+      {/* --------------------------------------------- */}
       {/* 7. ALERTAS GENERALES (RIESGOS)                */}
       {/* --------------------------------------------- */}
       {alertas.length > 0 && (
@@ -493,13 +590,17 @@ export default function GuiaScreen({ route }) {
              
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingRight: 20}}>
                 {alertas.map((alerta, idx) => {
-                    const texto = alerta.riesgo || alerta.titulo || 'Riesgo General';
-                    const impacto = alerta.impacto || '';
+                    // CORRECCIÓN: Detectar si la alerta es un string puro
+                    const esObjeto = typeof alerta === 'object';
+                    const texto = esObjeto ? (alerta.riesgo || alerta.titulo || alerta.tipo || 'Riesgo General') : alerta;
+                    const impacto = esObjeto ? alerta.impacto : null;
+                    const tipo = esObjeto ? (alerta.tipo || 'Alerta') : 'Alerta';
+
                     return (
                         <View key={`alert-${idx}`} style={styles.riskCard}>
                              <View style={styles.riskHeader}>
                                 <MaterialCommunityIcons name="alert" size={20} color="#F57C00" />
-                                <Text style={[styles.riskType, {color: '#F57C00'}]}>{alerta.tipo || 'Alerta'}</Text>
+                                <Text style={[styles.riskType, {color: '#F57C00'}]}>{tipo}</Text>
                             </View>
                             <Text style={styles.riskText} numberOfLines={3}>{texto}</Text>
                             {impacto ? <Text style={styles.riskImpact}>{impacto}</Text> : null}

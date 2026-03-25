@@ -100,20 +100,31 @@ export default function FenologiaScreen({ route }) {
           ))}
         </ScrollView>
 
+        // Corrección: Validar solo que haya datos en la región
         {dataRegionActiva && (
           <View style={styles.regionCard}>
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-import" size={20} color="#2E7D32" />
               <Text style={styles.dateText}>
-                Siembra: {safeText(dataRegionActiva.siembra)}
+                Siembra: {safeText(dataRegionActiva.siembra_inicio)} - {safeText(dataRegionActiva.siembra_fin)}
               </Text>
             </View>
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-check" size={20} color="#1565C0" />
               <Text style={styles.dateText}>
-                Cosecha: {safeText(dataRegionActiva.cosecha)}
+                Cosecha: {safeText(dataRegionActiva.cosecha_inicio)} - {safeText(dataRegionActiva.cosecha_fin)}
               </Text>
             </View>
+
+            {/* Validar la altitud individualmente de forma opcional */}
+            {dataRegionActiva.altitud_msnm && (
+                <View style={styles.dateRow}>
+                <MaterialCommunityIcons name="terrain" size={20} color="#795548" />
+                  <Text style={styles.dateText}>
+                    Altitud: {safeText(dataRegionActiva.altitud_msnm)} msnm
+                  </Text>
+                </View>
+            )}
           </View>
         )}
       </View>
@@ -137,7 +148,7 @@ export default function FenologiaScreen({ route }) {
             return (
               <View key={index} style={styles.bbchItem}>
                 <Text style={styles.bbchCode}>Etapa {codigo}</Text>
-                <Text style={styles.bbchDesc}>{desc}</Text>
+                <Text style={styles.bbchDesc}>{safeText(desc)}</Text>
               </View>
             );
           })
@@ -149,7 +160,7 @@ export default function FenologiaScreen({ route }) {
              return (
                <View key={index} style={styles.bbchItem}>
                  <Text style={styles.bbchCode}>Etapa {codigo}</Text>
-                 <Text style={styles.bbchDesc}>{desc}</Text>
+                 <Text style={styles.bbchDesc}>{safeText(desc)}</Text>
                </View>
              );
           })
@@ -161,7 +172,7 @@ export default function FenologiaScreen({ route }) {
   };
 
   const renderAlertas = () => {
-    const alertasRaw = cultivoData?.alertas_riesgos;
+    const alertasRaw = cultivoData?.alertas_riesgos || cultivoData?.riesgos_detallados;
     if (!alertasRaw) return null;
 
     // Normalizar a Array siempre
@@ -180,7 +191,7 @@ export default function FenologiaScreen({ route }) {
         {alertasList.map((valor, i) => {
           const textoAlerta = typeof valor === 'string' 
             ? valor 
-            : (valor?.riesgo || valor?.descripcion || 'Riesgo no especificado');
+            : (valor?.riesgo || valor?.descripcion || valor?.nombre_plaga || 'Alerta agronómica');
           
           return (
             <Text key={i} style={styles.alertText}>• {textoAlerta}</Text>

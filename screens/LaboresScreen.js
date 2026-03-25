@@ -100,7 +100,7 @@ export default function LaboresScreen({ route }) {
         const dataNormalizada = {
           ...data,
           // 1. Asegurar que el calendario de riego se lea de la clave correcta
-          calendario_riego: data.calendario_riego_mensual || data.calendario_riego || [],
+          calendario_riego: data.calendario_riego_mensual?.calendario_riego || data.calendario_riego || [],
           
           // 2. Normalizar Labores/Actividades (el JSON 07 las tiene en 'labores_culturales')
           labores_culturales: data.labores_culturales || data.labores || [],

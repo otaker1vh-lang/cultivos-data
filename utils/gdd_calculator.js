@@ -110,14 +110,23 @@ export function calcularRiesgosMultiples(riesgosConfig, historial) {
     });
 
     // BLINDAJE: Prevenir división por cero si Firebase envía gdd_requeridos como 0
-    const gddReq = config.gdd_requeridos > 0 ? config.gdd_requeridos : 1;
-    let progresoRaw = (gddAcumulado / gddReq) * 100;
-    if (isNaN(progresoRaw)) progresoRaw = 0;
+    let gddReqRaw = String(config.gdd_ciclo_completo || config.gdd_primera_generacion || "0");
+    let gddParseado = parseInt(gddReqRaw.split('-')[0]);
+    let gddReq = 1;
+    let progresoRaw = 0;
+    
+    if (!isNaN(gddParseado) && gddParseado > 0) {
+        gddReq = gddParseado;
+        progresoRaw = (gddAcumulado / gddReq) * 100;
+    }
 
     resultados[nombre] = {
-      gdd_requeridos: config.gdd_requeridos,
+      // Exportamos el texto original (ej. "350-500" o "N_A") para mostrar en UI
+      gdd_meta_texto: gddReqRaw, 
+      // Exportamos el límite inferior para cálculos matemáticos
+      gdd_meta_numero: gddReq,
       gdd_alcanzado: gddAcumulado,
-      progreso: Math.min(100, Math.max(0, progresoRaw)) // Restringir siempre entre 0 y 100%
+      progreso: Math.min(100, Math.max(0, progresoRaw))
     };
   });
 

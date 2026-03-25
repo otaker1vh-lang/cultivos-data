@@ -6,10 +6,12 @@ import {
   ScrollView, 
   Dimensions, 
   ActivityIndicator, 
-  RefreshControl
+  TouchableOpacity, 
+  Alert,
+  RefreshControl // <-- IMPORTACIÓN NUEVA
 } from 'react-native';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import CultivoDataManager from '../utils/CultivoDataManager';
 
 const screenWidth = Dimensions.get("window").width;
@@ -18,290 +20,784 @@ export default function EstadisticasScreen({ route }) {
   const { cultivo } = route.params; 
   
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
   const [infoCultivo, setInfoCultivo] = useState(null);
   
+  // Estados para gráficas
   const [historicoPrecios, setHistoricoPrecios] = useState(null);
   const [costosData, setCostosData] = useState(null);
   const [rentabilidadData, setRentabilidadData] = useState(null);
-  const [estadosData, setEstadosData] = useState(null);
+
+  // Estados para datos expandidos
+  const [statsExpandidas, setStatsExpandidas] = useState(null);
+  const [mercadoData, setMercadoData] = useState(null);
 
   useEffect(() => {
     cargarDatos(false);
   }, [cultivo]);
 
+    // --- SUSTITUIR ESTAS FUNCIONES EN EstadisticasScreen.js ---
+
+  const procesarHistoricoPrecios = (data) => {
+    const eco = data.economia_expandida || {};
+    const precioMax = eco.precio_max_mxn_ton || 0;
+    const precioMin = eco.precio_min_mxn_ton || 0;
+    const precioProm = eco.precio_promedio_mxn_ton || (precioMax > 0 && precioMin > 0 ? (precioMax + precioMin) / 2 : 0);
+
+    // PROTECCIÓN: Si no hay precios, no intentamos dibujar la gráfica
+    if (precioMax === 0 && precioMin === 0 && precioProm === 0) {
+      setHistoricoPrecios(null);
+      return;
+    }
+
+    const labels = ["Mínimo", "Promedio", "Máximo"];
+    const valores = [precioMin / 1000, precioProm / 1000, precioMax / 1000];
+
+    // Formato correcto para LineChart
+    setHistoricoPrecios({
+      labels,
+      datasets: [{ data: valores }]
+    });
+  };
+
+  const procesarCostos = (data) => {
+    const costos = data.costos_produccion_detallados || {};
+    const keys = Object.keys(costos);
+
+    if (keys.length === 0) {
+        setCostosData(null);
+        return;
+    }
+
+    const colors = ["#EF5350", "#42A5F5", "#66BB6A", "#FFA726", "#AB47BC", "#26C6DA", "#8D6E63"];
+    let chartData = [];
+
+    keys.forEach((key, index) => {
+        const valor = costos[key];
+        if (typeof valor === 'number' && valor > 0) {
+            // Convierte "mano_obra_cosecha" a "Mano Obra Cosecha" para la gráfica
+            const nombreFormateado = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            chartData.push({
+                name: nombreFormateado,
+                population: valor,
+                color: colors[index % colors.length],
+                legendFontColor: "#7F7F7F",
+                legendFontSize: 11
+            });
+        }
+    });
+
+    if (chartData.length === 0) {
+        setCostosData(null);
+        return;
+    }
+
+    setCostosData(chartData);
+  };
+
+  const procesarRentabilidad = (data) => {
+    const rent = data.analisis_rentabilidad || {};
+    
+    const inversion = rent.inversion_inicial_ha || 
+                      rent.costo_establecimiento_ha || 
+                      rent.costo_total_produccion_ha || 0;
+    const ingreso = rent.ingreso_anual_esperado_ha || 
+                    rent.ingreso_bruto_esperado_ha || 
+                    rent.utilidad_neta_esperada_ha || 0;
+
+    if (inversion === 0 && ingreso === 0) {
+        setRentabilidadData(null);
+        return;
+    }
+
+    setRentabilidadData({
+      labels: ["Inversión", "Ingreso"],
+      datasets: [{ data: [inversion, ingreso] }]
+    });
+  };
+
+  // --- FUNCIÓN MODIFICADA PARA ACEPTAR isRefreshing ---
   const cargarDatos = async (isRefreshing = false) => {
     try {
       if (!isRefreshing) setLoading(true);
-      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo', isRefreshing);
+      // Usamos el Manager que ya maneja la URL de Firebase
+      const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
       if (data) {
         setInfoCultivo(data);
-        procesarDatosGraficas(data);
+        setStatsExpandidas(data);
+        procesarHistoricoPrecios(data);
+        procesarCostos(data);
+        procesarRentabilidad(data);
+        
+        // Datos adicionales del mercado para la UI
+        if (data.mercado_comercializacion) {
+          setMercadoData(data.mercado_comercializacion);
+        }
       }
     } catch (error) {
-      console.error("Error en Estadisticas:", error);
+      console.error("Error cargando estadísticas:", error);
+      Alert.alert("Error", "No se pudieron procesar los datos estadísticos.");
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (!isRefreshing) setLoading(false);
     }
   };
 
-  const procesarDatosGraficas = (data) => {
-    // SUPER HELPER: Extrae números reales incluso si vienen como "1,200.50" o con texto
-    const safeNumber = (val) => {
-      if (val === null || val === undefined) return 0;
-      if (typeof val === 'number') return val;
-      const parsed = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
-      return isNaN(parsed) ? 0 : parsed;
-    };
+  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await cargarDatos(true);
+    setRefreshing(false);
+  };
 
-    // 1. Procesar Historial (A prueba de arrays vacíos o datos corruptos)
-    const historial = data.historial_produccion || data.estadisticas?.historial_produccion;
-    if (historial && Array.isArray(historial) && historial.length > 0) {
-      const valoresLimpios = historial.map(h => safeNumber(h.rendimiento_t_ha || h.rendimiento));
-      
-      // Solo graficamos si al menos un valor es mayor a 0 para evitar crasheos de ChartKit
-      if (valoresLimpios.some(v => v > 0)) {
-        setHistoricoPrecios({
-          labels: historial.map(h => String(h.year || h.año || '').slice(-2)),
-          datasets: [{ data: valoresLimpios }]
-        });
-      } else {
-        setHistoricoPrecios(null);
-      }
-    } else {
-      setHistoricoPrecios(null);
-    }
+  const obtenerDatosRiesgo = () => {
+    if (!infoCultivo) return null;
+    const analisis = infoCultivo.analisis_rentabilidad || {};
+    const temporadas = infoCultivo.temporadas_precio || {}; // <-- ACCESO CORRECTO
+    // Fallback al riesgo en raiz si no hay analisis detallado
+    const volatilidadRaw = analisis.volatilidad_precios || infoCultivo.riesgo || "Media";
+    const volString = typeof volatilidadRaw === 'string' ? volatilidadRaw : "Media";
+    const volatilidad = volString.charAt(0).toUpperCase() + volString.slice(1);
 
-    // 2. Procesar Costos (A prueba de objetos vacíos o valores nulos)
-    const costosRaw = data.costos_produccion_detallados || data.estadisticas?.costos;
-    if (costosRaw && typeof costosRaw === 'object' && !Array.isArray(costosRaw)) {
-      const pieData = Object.entries(costosRaw).map(([key, val], index) => {
-        const valorNumerico = typeof val === 'object' && val !== null ? safeNumber(val.total || val.costo_ha) : safeNumber(val);
+    const mesesAltosRaw = temporadas.alto || analisis.meses_precio_alto || ["Dic", "Ene"]; 
+    const mesesBajosRaw = temporadas.bajo || analisis.meses_precio_bajo || ["Jun", "Jul"];
+
+    const mesesAltos = Array.isArray(mesesAltosRaw) ? mesesAltosRaw : [mesesAltosRaw];
+    const mesesBajos = Array.isArray(mesesBajosRaw) ? mesesBajosRaw : [mesesBajosRaw];
+
+    let colorVol = "#FFA726"; 
+    if (volatilidad.toLowerCase().includes('alta')) colorVol = "#EF5350"; 
+    if (volatilidad.toLowerCase().includes('baja')) colorVol = "#66BB6A"; 
+
+    return { volatilidad, colorVol, mesesAltos, mesesBajos };
+  };
+
+  const datosRiesgo = obtenerDatosRiesgo();
+
+  // --- RENDERIZADO DE SECCIONES ---
+
+  // 1. Mercado y Comercialización
+  const renderMercadoSection = () => {
+    if (!mercadoData) return (
+        <View style={[styles.card, { alignItems: 'center', paddingVertical: 20 }]}>
+            <MaterialCommunityIcons name="store-off" size={40} color="#CFD8DC" />
+            <Text style={{color: '#90A4AE', marginTop: 10, textAlign:'center'}}>
+                Información de comercialización no disponible.
+            </Text>
+        </View>
+    );
+
+    const { canales_venta, destinos_principales } = mercadoData;
+
+    // Normalizar canales para gráfica (si es array de objetos)
+    const pieDataCanales = Array.isArray(canales_venta) ? canales_venta.map((item, index) => {
+        const colors = ['#26A69A', '#66BB6A', '#9CCC65', '#D4E157'];
+        const isString = typeof item === 'string';
+        
         return {
-          name: key.split('_').join(' '),
-          population: valorNumerico,
-          color: ['#2E7D32', '#689F38', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107'][index % 6],
-          legendFontColor: "#7F7F7F",
-          legendFontSize: 12
+            name: isString ? item : (item.canal || 'Otro'),
+            population: isString ? 0 : (parseFloat(item.porcentaje || item.participacion_pct) || 0),
+            color: colors[index % colors.length],
+            legendFontColor: "#333",
+            legendFontSize: 12,
+            condiciones: isString ? null : item.condiciones_pago
         };
-      }).filter(item => item.population > 0); 
+    }).filter(item => item.population > 0) : []; // <-- El .filter() evita que la gráfica crashee intentando dibujar 0%
 
-      setCostosData(pieData.length > 0 ? pieData : null);
-    }
+    return (
+        <View style={styles.card}>
+            <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="store" size={20} color="#00695C" />
+                <Text style={styles.cardTitle}>Mercado y Comercialización</Text>
+            </View>
 
-    // 3. Producción Nacional (Adaptado para la V4 Científica)
-    const estadosRaw = data.detalle_produccion_nacional?.principales_estados || data.detalle_produccion_nacional?.principales_estados_productores || data.estadisticas?.principales_estados;
+            {pieDataCanales.length > 0 && (
+                <>
+                <Text style={styles.subSectionTitle}>Canales de Venta</Text>
+                <View style={{ alignItems: 'center' }}>
+                    <PieChart
+                        data={pieDataCanales}
+                        width={screenWidth - 60}
+                        height={200}
+                        chartConfig={{ color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})` }}
+                        accessor={"population"}
+                        backgroundColor={"transparent"}
+                        paddingLeft={"15"}
+                        absolute
+                        hasLegend={false} 
+                    />
+                    <View style={styles.legendContainer}>
+                        {pieDataCanales.map((item, index) => (
+                            <View key={index} style={styles.legendItem}>
+                                <View style={[styles.colorDot, { backgroundColor: item.color }]} />
+                                <View style={{ flex: 1 }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <Text style={styles.legendTextBold}>{item.name}</Text>
+                                        <Text style={styles.legendTextBold}>{item.population}%</Text>
+                                    </View>
+                                    {item.condiciones && <Text style={styles.legendSubText}>Pago: {item.condiciones}</Text>}
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+                </>
+            )}
+
+            {destinos_principales && Array.isArray(destinos_principales) && (
+                <>
+                <Text style={[styles.subSectionTitle, { marginTop: 20 }]}>Destinos Principales</Text>
+                <View style={{ paddingHorizontal: 5 }}>
+                    {destinos_principales.map((item, index) => {
+                        const isString = typeof item === 'string';
+                        const nombre = isString ? item.split(' (')[0] : (item.destino || item.ciudad);
+                        const porcentaje = isString 
+                            ? parseFloat(item.match(/\(([^)]+)%\)/)?.[1] || 0) 
+                            : item.porcentaje;
+                        return (
+                            <View key={index} style={styles.destinoItem}>
+                                <View style={styles.destinoHeader}>
+                                    <Text style={styles.destinoName}>{nombre}</Text>
+                                    <Text style={styles.destinoPercent}>{porcentaje}%</Text>
+                                </View>
+                                <View style={styles.progressBarBackground}>
+                                    <View style={[styles.progressBarFill, { width: `${porcentaje}%` }]} />
+                                </View>
+                            </View>
+                        );
+                    })}
+                </View>
+                </>
+            )}
+        </View>
+    );
+  };
+
+  // 2. Historial de Producción
+  const renderHistorialTable = () => {
+    if (!statsExpandidas?.historial_produccion) return null;
+
+    const historial = statsExpandidas.historial_produccion;
+    // CORRECCIÓN CRÍTICA: Detectar si es Array (tu JSON actual) o Objeto (código original)
+    const datosArray = Array.isArray(historial) 
+        ? historial 
+        : Object.entries(historial).map(([key, val]) => ({ year: key, ...val }));
+
+    if (datosArray.length === 0) return null;
+
+    return (
+        <View style={styles.card}>
+             <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="history" size={20} color="#5D4037" />
+                <Text style={styles.cardTitle}>Historial Productivo</Text>
+             </View>
+             
+             <View style={styles.tableHeader}>
+                 <Text style={[styles.th, {flex:1}]}>Año</Text>
+                 <Text style={[styles.th, {flex:1, textAlign:'right'}]}>Prod (ton)</Text>
+                 <Text style={[styles.th, {flex:1, textAlign:'right'}]}>Rend (t/ha)</Text>
+             </View>
+             
+             {datosArray.map((data, idx) => (
+                 <View key={idx} style={[styles.tableRow, idx % 2 !== 0 && styles.tableRowAlt]}>
+                     <Text style={[styles.td, {flex:1, fontWeight:'bold'}]}>{data.year}</Text>
+                     <Text style={[styles.td, {flex:1, textAlign:'right'}]}>
+                         {data.produccion_ton ? data.produccion_ton.toLocaleString() : '-'}
+                     </Text>
+                     <Text style={[styles.td, {flex:1, textAlign:'right'}]}>
+                         {/* Soporta nombres de variable alternativos */}
+                         {data.rendimiento_t_ha || data.rendimiento_ton_ha || '-'}
+                     </Text>
+                 </View>
+             ))}
+         </View>
+    );
+  };
+
+  // 3. Producción Nacional (CORREGIDO PARA ESTRUCTURA DE FIREBASE)
+  const renderProductoresNacionales = () => {
+    const detalleObj = statsExpandidas?.detalle_produccion_nacional;
+    // Verificamos si existe el array dentro del objeto (estructura correcta de Firebase)
+    const listaEstados = detalleObj?.principales_estados || (Array.isArray(detalleObj) ? detalleObj : null);
     
-    if (estadosRaw && typeof estadosRaw === 'object') {
-      const topEstados = Array.isArray(estadosRaw) 
-        ? estadosRaw.slice(0, 5).map(e => [e.estado || e.nombre, e])
-        : Object.entries(estadosRaw).slice(0, 5);
-      
-      if (topEstados.length > 0) {
-        const valoresEstados = topEstados.map(([, val]) => {
-          if (typeof val === 'number') return val;
-          if (typeof val === 'object' && val !== null) {
-             return safeNumber(val.participacion_pct || val.porcentaje_participacion || val.participacion || val.produccion_ton);
-          }
-          return safeNumber(val);
-        });
+    // Fallback: Si no hay detalle, buscar lista simple de texto
+    const listaSimpleFallback = statsExpandidas?.principales_estados; 
 
-        if (valoresEstados.some(v => v > 0)) {
-          setEstadosData({
-            labels: topEstados.map(([name]) => String(name).substring(0, 6)),
-            datasets: [{ data: valoresEstados }]
-          });
-        } else {
-          setEstadosData(null);
-        }
-      } else {
-        setEstadosData(null);
-      }
-    } else {
-      setEstadosData(null);
-    }
+    if (!listaEstados && !listaSimpleFallback) return null;
 
-    setRentabilidadData(data.analisis_rentabilidad || null);
+    return (
+        <View style={styles.card}>
+             <View style={styles.cardHeader}>
+                <FontAwesome5 name="map-marked-alt" size={18} color="#00695C" style={{marginRight: 8}}/>
+                <Text style={styles.cardTitle}>Top Productores Nacionales</Text>
+             </View>
+             
+             {/* Opción A: Datos detallados (Barras) */}
+             {listaEstados && Array.isArray(listaEstados) ? (
+                 <>
+                 <View style={styles.statesContainer}>
+                     {listaEstados.map((estado, idx) => {
+                         // Validar si es string plano o un objeto detallado
+                         const isString = typeof estado === 'string';
+                         const nombreEstado = isString ? estado : (estado.estado || 'Desconocido');
+                         const participacion = isString ? 0 : (estado.participacion_pct || 0);
+                         const superficie = isString ? null : estado.superficie_ha;
+
+                         return (
+                             <View key={idx} style={styles.stateRow}>
+                                 <View style={styles.stateInfo}>
+                                     <Text style={styles.stateRank}>#{idx + 1}</Text>
+                                     <Text style={styles.stateName}>{nombreEstado}</Text>
+                                 </View>
+                                 <View style={styles.stateMetrics}>
+                                     <View style={styles.progressBarBg}>
+                                         <View style={[styles.progressBarFill, {width: `${participacion}%`}]} />
+                                     </View>
+                                     {/* Solo mostrar números si existen */}
+                                     {participacion > 0 && <Text style={styles.statePct}>{participacion}%</Text>}
+                                     {superficie && (
+                                         <Text style={styles.stateSurface}>
+                                             {superficie.toLocaleString()} ha
+                                         </Text>
+                                     )}
+                                 </View>
+                             </View>
+                         );
+                     })}
+                 </View>
+                 {detalleObj?.estacionalidad && (
+                     <Text style={{fontSize:11, color:'#777', marginTop:10, textAlign:'center'}}>
+                        Estacionalidad Principal: {detalleObj.estacionalidad}
+                     </Text>
+                 )}
+                 </>
+             ) : (
+                 // Opción B: Lista simple de texto (Fallback)
+                 <View style={{padding: 10}}>
+                     <Text style={{color: '#555', fontSize: 13, lineHeight: 20}}>
+                         Principales estados productores identificados:
+                     </Text>
+                     <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 8}}>
+                         {Array.isArray(listaSimpleFallback) && listaSimpleFallback.map((est, i) => (
+                             <View key={i} style={{backgroundColor: '#E0F2F1', borderRadius: 4, paddingHorizontal: 8, paddingVertical: 4, marginRight: 6, marginBottom: 6}}>
+                                 <Text style={{color: '#00695C', fontSize: 12, fontWeight: 'bold'}}>{est}</Text>
+                             </View>
+                         ))}
+                     </View>
+                 </View>
+             )}
+          </View>
+    );
   };
 
-  const renderChartConfig = (baseColor) => ({
-    backgroundColor: "#fff",
-    backgroundGradientFrom: "#fff",
-    backgroundGradientTo: "#fff",
-    decimalPlaces: 1,
-    color: (opacity = 1) => baseColor(opacity),
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    style: { borderRadius: 16 },
-    propsForDots: { r: "5", strokeWidth: "2", stroke: "#fff" }
-  });
-
-  if (loading) return (
-    <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>
-  );
-
-  // Helper para evitar crasheos de renderizado de texto
-  const formatTemporada = (temp) => {
-    if (!temp) return 'N/A';
-    if (Array.isArray(temp)) return temp.join(', ');
-    if (typeof temp === 'object') return Object.values(temp).join(', ');
-    return String(temp);
-  };
-
-  // Helper para mostrar texto seguro en Rentabilidad
-  const renderRentabilidadValue = (val, prefix = '', suffix = '') => {
-    if (val === null || val === undefined) return 'N/A';
-    if (typeof val === 'object') return 'Ver detalle';
-    return `${prefix}${val}${suffix}`;
-  };
+  if (loading && !refreshing) {
+      return (
+          <View style={styles.center}>
+              <ActivityIndicator size="large" color="#2E7D32" />
+              <Text style={{marginTop: 10, color: '#666'}}>Consultando datos...</Text>
+          </View>
+      );
+  }
 
   return (
     <ScrollView 
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => cargarDatos(true)} />}
+      style={styles.container} 
+      showsVerticalScrollIndicator={false}
+      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#2E7D32", "#1565C0"]} // Colores de tu app para Android
+          tintColor="#2E7D32" // Color para iOS
+        />
+      }
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Análisis de Mercado</Text>
-        <Text style={styles.subtitle}>{cultivo}</Text>
-      </View>
-
-      {/* Tarjeta de Superficie Sembrada Nacional */}
-      {infoCultivo?.superficie_sembrada_ha && (
-        <View style={styles.highlightCard}>
-          <MaterialCommunityIcons name="tractor" size={32} color="#2E7D32" />
-          <View style={styles.highlightTextContainer}>
-            <Text style={styles.highlightLabel}>Superficie Sembrada Nacional</Text>
-            <Text style={styles.highlightValue}>
-              {renderRentabilidadValue(infoCultivo.superficie_sembrada_ha, '', ' ha')}
-            </Text>
-          </View>
-        </View>
-      )}
-
-      {/* Gráfica de Rendimiento Histórico */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Evolución de Rendimiento (t/ha)</Text>
-        {historicoPrecios && historicoPrecios.datasets?.[0]?.data?.length > 0 ? (
-          <LineChart
-            data={historicoPrecios}
-            width={screenWidth - 40}
-            height={220}
-            chartConfig={renderChartConfig((op) => `rgba(46, 125, 50, ${op})`)}
-            bezier
-            style={styles.chart}
-          />
-        ) : <Text style={styles.noData}>Datos históricos no disponibles o incompletos</Text>}
-      </View>
-
-      {/* Distribución de Costos */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Estructura de Costos de Producción</Text>
-        {costosData && costosData.length > 0 ? (
-          <PieChart
-            data={costosData}
-            width={screenWidth - 40}
-            height={200}
-            chartConfig={renderChartConfig((op) => `rgba(0,0,0,${op})`)}
-            accessor={"population"}
-            backgroundColor={"transparent"}
-            paddingLeft={"15"}
-            absolute // Muestra los valores reales, no solo porcentajes si lo deseas
-          />
-        ) : <Text style={styles.noData}>Detalle de costos no disponible</Text>}
-      </View>
-
-      {/* Ranking Nacional */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Principales Estados (% Prod. Nacional)</Text>
-        {estadosData && estadosData.datasets?.[0]?.data?.length > 0 ? (
-          <BarChart
-            data={estadosData}
-            width={screenWidth - 40}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix="%"
-            chartConfig={renderChartConfig((op) => `rgba(21, 101, 192, ${op})`)}
-            verticalLabelRotation={30}
-            style={styles.chart}
-            fromZero={true} // Obliga a la gráfica a empezar en 0
-          />
-        ) : <Text style={styles.noData}>Datos regionales no disponibles</Text>}
-      </View>
-
-      {/* Temporadas de Precio */}
-      {infoCultivo?.temporadas_precio && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Temporadas de Precio</Text>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View style={{alignItems: 'center', flex: 1}}>
-              <Text style={{color: '#388E3C', fontWeight: 'bold'}}>Alta</Text>
-              <Text style={{fontSize: 12, textAlign: 'center', marginTop: 5}}>{formatTemporada(infoCultivo.temporadas_precio.alto)}</Text>
-            </View>
-            <View style={{alignItems: 'center', flex: 1}}>
-              <Text style={{color: '#F57C00', fontWeight: 'bold'}}>Media</Text>
-              <Text style={{fontSize: 12, textAlign: 'center', marginTop: 5}}>{formatTemporada(infoCultivo.temporadas_precio.medio)}</Text>
-            </View>
-            <View style={{alignItems: 'center', flex: 1}}>
-              <Text style={{color: '#D32F2F', fontWeight: 'bold'}}>Baja</Text>
-              <Text style={{fontSize: 12, textAlign: 'center', marginTop: 5}}>{formatTemporada(infoCultivo.temporadas_precio.bajo)}</Text>
-            </View>
-          </View>
-        </View>
-      )}
-
-      {/* Indicadores de Rentabilidad Master V4 */}
-      {rentabilidadData && (
-        <View style={styles.rentCard}>
-          <Text style={styles.rentTitle}>Indicadores Financieros (Master)</Text>
-          <View style={styles.rentGrid}>
-            <View style={styles.rentItem}>
-              <Text style={styles.rentLabel}>ROI</Text>
-              <Text style={styles.rentValue}>
-                {renderRentabilidadValue(rentabilidadData.roi_estimado_pct || rentabilidadData.roi, '', '%')}
-              </Text>
-            </View>
-            <View style={styles.rentItem}>
-              <Text style={styles.rentLabel}>Pto. Equilibrio</Text>
-              <Text style={styles.rentValue}>
-                {renderRentabilidadValue(rentabilidadData.punto_equilibrio_ton, '', ' t')}
-              </Text>
-            </View>
-            <View style={styles.rentItem}>
-              <Text style={styles.rentLabel}>VAN (Miles)</Text>
-              <Text style={styles.rentValue}>
-                {renderRentabilidadValue(rentabilidadData.van_miles_mxn, '$', '')}
-              </Text>
-            </View>
-          </View>
-        </View>
-      )}
       
-      <View style={{ height: 40 }} />
+      {/* HEADER CON BOTÓN DE NUBE */}
+      <View style={styles.header}>
+          <View style={{flex: 1}}>
+            <Text style={styles.title}>Estadísticas: {cultivo}</Text>
+            {/* CORRECCIÓN: Acceso seguro a Ranking Mundial */}
+            {statsExpandidas?.panorama_2025_summary?.ranking_mundial && (
+                <Text style={styles.subtitleHeader}>
+                    Ranking Mundial: #{statsExpandidas.panorama_2025_summary.ranking_mundial}
+                </Text>
+            )}
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.cloudButton} 
+            onPress={() => onRefresh()}
+          >
+              <MaterialCommunityIcons name="cloud-download" size={24} color="#fff" />
+              <Text style={styles.cloudButtonText}>Actualizar</Text>
+          </TouchableOpacity>
+      </View>
+
+      {/* AVISO SI NO HAY DATOS EXPANDIDOS */}
+      {!statsExpandidas && !loading && (
+          <View style={[styles.card, {backgroundColor: '#FFF3E0', borderLeftWidth: 4, borderLeftColor: '#FF9800'}]}>
+              <View style={styles.cardHeader}>
+                  <MaterialCommunityIcons name="alert-circle-outline" size={24} color="#F57C00" />
+                  <Text style={[styles.cardTitle, {color: '#E65100'}]}>Datos Limitados</Text>
+              </View>
+              <Text style={{color: '#555', marginBottom: 10}}>
+                  Se están mostrando datos básicos locales. Pulsa "Actualizar" para buscar datos detallados en la nube.
+              </Text>
+          </View>
+      )}
+
+      {/* SECCIÓN: PRODUCCIÓN TOTAL (Datos Raíz) */}
+      {statsExpandidas && (statsExpandidas.produccion_toneladas || statsExpandidas.superficie_sembrada_ha) && (
+          <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                  <MaterialCommunityIcons name="tractor" size={20} color="#5D4037" />
+                  <Text style={styles.cardTitle}>Producción General (Nacional)</Text>
+              </View>
+              
+              <View style={styles.comercioGrid}>
+                  <View style={styles.statBox}>
+                      <MaterialCommunityIcons name="weight" size={24} color="#8D6E63" />
+                      <Text style={styles.statLabel}>Total</Text>
+                      <Text style={styles.statValue}>
+                          {statsExpandidas.produccion_toneladas ? statsExpandidas.produccion_toneladas.toLocaleString() : '-'} t
+                      </Text>
+                  </View>
+                  <View style={styles.statBox}>
+                      <MaterialCommunityIcons name="texture-box" size={24} color="#4CAF50" />
+                      <Text style={styles.statLabel}>Superficie</Text>
+                      <Text style={styles.statValue}>
+                          {statsExpandidas.superficie_sembrada_ha ? statsExpandidas.superficie_sembrada_ha.toLocaleString() : '-'} ha
+                      </Text>
+                  </View>
+                  <View style={styles.statBox}>
+                      <MaterialCommunityIcons name="sprout" size={24} color="#8BC34A" />
+                      <Text style={styles.statLabel}>Rendimiento</Text>
+                      <Text style={styles.statValue}>
+                          {statsExpandidas.rendimiento_ton_ha ? statsExpandidas.rendimiento_ton_ha : '-'} t/ha
+                      </Text>
+                  </View>
+              </View>
+          </View>
+      )}
+
+      {/* SECCIÓN: PANORAMA (CORREGIDO NOMBRES DE VARIABLES) */}
+      {(statsExpandidas?.panorama_2025_summary || statsExpandidas?.comercio_exterior_economia) && (
+        <View style={styles.card}>
+            <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="earth" size={20} color="#0D47A1" />
+                <Text style={styles.cardTitle}>Panorama de Mercado</Text>
+            </View>
+            
+            <View style={styles.panoramaContainer}>
+                    {/* 1. Uso seguro de ?. para evitar el crash */}
+                    {statsExpandidas.panorama_2025_summary?.variacion_anual_pct !== undefined && (
+                        <Text style={styles.panoramaText}>
+                            <Text style={{fontWeight:'bold'}}>Variación Anual: </Text> 
+                            {statsExpandidas.panorama_2025_summary.variacion_anual_pct}%
+                        </Text>
+                    )}
+                 <Text style={styles.panoramaText}>
+                    {/* 2. Uso seguro de ?. en el resumen */}
+                    {statsExpandidas.panorama_2025_summary?.resumen || 
+                     `Consumo per cápita: ${statsExpandidas.comercio_exterior_economia?.consumo_nacional_kg_percapita || 'N/A'} kg`}
+                </Text>
+            </View>
+
+            {statsExpandidas.comercio_exterior_economia && (
+                <View style={styles.comercioGrid}>
+                    <View style={styles.statBox}>
+                        <MaterialCommunityIcons name="airplane-takeoff" size={24} color="#1565C0" />
+                        <Text style={styles.statLabel}>Exportación</Text>
+                        <Text style={styles.statValue}>
+                            {statsExpandidas.comercio_exterior_economia.exportaciones_t 
+                                ? statsExpandidas.comercio_exterior_economia.exportaciones_t.toLocaleString() 
+                                : (statsExpandidas.comercio_exterior_economia.exportacion_ton 
+                                    ? statsExpandidas.comercio_exterior_economia.exportacion_ton.toLocaleString() 
+                                    : '-')} ton
+                        </Text>
+                    </View>
+                    
+                    {/* --- CORRECCIÓN DE VALOR (Soporte MDD y MXN) --- */}
+                    <View style={styles.statBox}>
+                        <MaterialCommunityIcons name="currency-usd" size={24} color="#2E7D32" />
+                        <Text style={styles.statLabel}>Valor</Text>
+                        <Text style={styles.statValue}>
+                            {/* 1. Intenta MDD */}
+                            {(statsExpandidas.comercio_exterior_economia.valor_exportaciones_millones_usd || 
+                              statsExpandidas.comercio_exterior_economia.valor_exportacion_mdd || 
+                              statsExpandidas.comercio_exterior_economia.exportaciones_millones_usd) 
+                                ? `$${(statsExpandidas.comercio_exterior_economia.valor_exportaciones_millones_usd || 
+                                       statsExpandidas.comercio_exterior_economia.valor_exportacion_mdd || 
+                                       statsExpandidas.comercio_exterior_economia.exportaciones_millones_usd).toLocaleString()} MDD`
+                                : 
+                                // 2. Intenta MXN en comercio exterior
+                                (statsExpandidas.comercio_exterior_economia.valor_produccion_millones_mxn 
+                                    ? `$${statsExpandidas.comercio_exterior_economia.valor_produccion_millones_mxn.toLocaleString()} MXN`
+                                    : 
+                                    // 3. NUEVO: Fallback a la raíz del JSON (transformando miles a millones)
+                                    (statsExpandidas.valor_produccion_miles_mxn
+                                        ? `$${(statsExpandidas.valor_produccion_miles_mxn / 1000).toLocaleString(undefined, {maximumFractionDigits: 1})} MXN`
+                                        : '-'))
+                            }
+                        </Text>
+                    </View>
+                    {/* ----------------------------------------------- */}
+
+                    <View style={styles.statBox}>
+                        <MaterialCommunityIcons name="account-group" size={24} color="#F9A825" />
+                        <Text style={styles.statLabel}>Empleos</Text>
+                        <Text style={styles.statValue}>
+                            {/* CORRECCIÓN: Soporte para 'empleos_generados' o suma de directos */}
+                            {statsExpandidas.comercio_exterior_economia.empleos_generados
+                                ? statsExpandidas.comercio_exterior_economia.empleos_generados.toLocaleString()
+                                : (statsExpandidas.comercio_exterior_economia.empleos_directos 
+                                    ? statsExpandidas.comercio_exterior_economia.empleos_directos.toLocaleString() 
+                                    : '-')}
+                        </Text>
+                    </View>
+                </View>
+            )}
+        </View>
+      )}
+
+      {/* SECCIÓN: MERCADO Y COMERCIALIZACIÓN */}
+      {renderMercadoSection()}
+
+      {/* GRÁFICA DE PRECIOS */}
+      <View style={styles.card}>
+          <View style={styles.cardHeader}>
+              <MaterialCommunityIcons name="chart-line" size={20} color="#1565C0" />
+              <Text style={styles.cardTitle}>Tendencia de Precios (Estimada)</Text>
+          </View>
+          
+          {historicoPrecios ? (
+            <LineChart
+                data={historicoPrecios}
+                width={screenWidth - 40}
+                height={220}
+                yAxisLabel="$"
+                yAxisSuffix="k"
+                chartConfig={{
+                backgroundColor: "#fff",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
+                decimalPlaces: 1,
+                color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                style: { borderRadius: 16 },
+                propsForDots: { r: "4", strokeWidth: "2", stroke: "#1565C0" }
+                }}
+                bezier
+                style={{ marginVertical: 8, borderRadius: 16 }}
+            />
+          ) : (
+              <Text style={styles.noData}>No hay histórico de precios disponible.</Text>
+          )}
+      </View>
+
+      {/* SECCIÓN: HISTÓRICO DE PRODUCCIÓN */}
+      {renderHistorialTable()}
+
+      {/* SECCIÓN: PRODUCCIÓN NACIONAL (CORREGIDA) */}
+      {renderProductoresNacionales()}
+
+      {/* ANÁLISIS DE RIESGO */}
+      {datosRiesgo && (
+        <View style={styles.card}>
+            <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="chart-timeline-variant" size={20} color="#E65100" />
+                <Text style={styles.cardTitle}>Riesgo y Estacionalidad</Text>
+            </View>
+
+            <View style={styles.riskRow}>
+                <View style={styles.volatilityContainer}>
+                    <Text style={styles.riskLabel}>Volatilidad</Text>
+                    <View style={[styles.volatilityBadge, { backgroundColor: datosRiesgo.colorVol }]}>
+                        <MaterialCommunityIcons name="pulse" size={16} color="#fff" style={{marginRight:4}} />
+                        <Text style={styles.volatilityText}>{datosRiesgo.volatilidad}</Text>
+                    </View>
+                </View>
+                
+                <View style={{flex: 1, paddingLeft: 10}}>
+                     <Text style={styles.riskDesc}>
+                        {datosRiesgo.volatilidad.includes('Alta') 
+                            ? "Mercado inestable. Se recomienda asegurar precio."
+                            : "Precios relativamente estables durante el ciclo."}
+                     </Text>
+                </View>
+            </View>
+
+            <View style={styles.seasonalityContainer}>
+                <View style={styles.seasonBox}>
+                    <View style={{flexDirection:'row', alignItems:'center', marginBottom: 5}}>
+                        <MaterialCommunityIcons name="arrow-up-bold-circle" size={16} color="#2E7D32" />
+                        <Text style={[styles.seasonTitle, {color: '#2E7D32'}]}> Precio Alto</Text>
+                    </View>
+                    <View style={styles.chipsContainer}>
+                        {datosRiesgo.mesesAltos.map((mes, i) => (
+                            <View key={i} style={[styles.monthChip, {backgroundColor: '#E8F5E9', borderColor: '#C8E6C9'}]}>
+                                <Text style={[styles.monthText, {color: '#2E7D32'}]}>{mes}</Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+
+                <View style={styles.seasonBox}>
+                    <View style={{flexDirection:'row', alignItems:'center', marginBottom: 5}}>
+                        <MaterialCommunityIcons name="arrow-down-bold-circle" size={16} color="#C62828" />
+                        <Text style={[styles.seasonTitle, {color: '#C62828'}]}> Precio Bajo</Text>
+                    </View>
+                     <View style={styles.chipsContainer}>
+                        {datosRiesgo.mesesBajos.map((mes, i) => (
+                            <View key={i} style={[styles.monthChip, {backgroundColor: '#FFEBEE', borderColor: '#FFCDD2'}]}>
+                                <Text style={[styles.monthText, {color: '#C62828'}]}>{mes}</Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            </View>
+        </View>
+      )}
+
+      {/* DESGLOSE DE COSTOS */}
+      {costosData && (
+        <View style={styles.card}>
+            <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="pie-chart" size={20} color="#7B1FA2" />
+                <Text style={styles.cardTitle}>Estructura de Costos Estimada</Text>
+            </View>
+            
+            <PieChart
+                data={costosData}
+                width={screenWidth - 40}
+                height={200}
+                chartConfig={{ color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})` }}
+                accessor={"population"}
+                backgroundColor={"transparent"}
+                paddingLeft={"15"}
+                absolute
+            />
+        </View>
+      )}
+
+      {/* RENTABILIDAD */}
+      <View style={[styles.card, {marginBottom: 30}]}>
+           <View style={styles.cardHeader}>
+              <MaterialCommunityIcons name="finance" size={20} color="#2E7D32" />
+              <Text style={styles.cardTitle}>Rentabilidad vs Inversión</Text>
+          </View>
+
+          {rentabilidadData ? (
+              <BarChart
+                data={rentabilidadData}
+                width={screenWidth - 40}
+                height={220}
+                yAxisLabel="$"
+                chartConfig={{
+                    backgroundColor: "#fff",
+                    backgroundGradientFrom: "#fff",
+                    backgroundGradientTo: "#fff",
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                }}
+                style={{ borderRadius: 16 }}
+              />
+          ) : (
+              <Text style={styles.noData}>Datos financieros insuficientes.</Text>
+          )}
+      </View>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  container: { flex: 1, backgroundColor: '#F5F7FA' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#EEE' },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#1B5E20' },
-  subtitle: { fontSize: 16, color: '#666' },
   
-  highlightCard: { flexDirection: 'row', backgroundColor: '#E8F5E9', marginHorizontal: 15, marginTop: 15, padding: 15, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#C8E6C9' },
-  highlightTextContainer: { marginLeft: 15, flex: 1 },
-  highlightLabel: { fontSize: 11, color: '#2E7D32', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 2 },
-  highlightValue: { fontSize: 18, fontWeight: 'bold', color: '#1B5E20' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: '#fff', elevation: 2 },
+  title: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  subtitleHeader: { fontSize: 12, color: '#666', marginTop: 2 },
+  
+  cloudButton: {
+      flexDirection: 'row',
+      backgroundColor: '#2E7D32',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      alignItems: 'center',
+      elevation: 3
+  },
+  cloudButtonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      marginLeft: 6,
+      fontSize: 12
+  },
 
-  card: { backgroundColor: '#fff', margin: 15, padding: 15, borderRadius: 15, elevation: 3 },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15 },
-  chart: { marginVertical: 8, borderRadius: 16 },
-  noData: { textAlign: 'center', color: '#999', padding: 20, fontStyle: 'italic' },
-  rentCard: { backgroundColor: '#1B5E20', margin: 15, padding: 20, borderRadius: 15 },
-  rentTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 15 },
-  rentGrid: { flexDirection: 'row', justifyContent: 'space-between' },
-  rentItem: { alignItems: 'center', flex: 1, paddingHorizontal: 5 },
-  rentLabel: { color: '#A5D6A7', fontSize: 11, marginBottom: 5, textAlign: 'center' },
-  rentValue: { color: '#fff', fontSize: 15, fontWeight: 'bold', textAlign: 'center' }
+  card: { backgroundColor: '#fff', borderRadius: 12, margin: 15, padding: 15, elevation: 3, marginBottom: 10 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#444', marginLeft: 8 },
+  noData: { textAlign: 'center', color: '#999', marginVertical: 20, fontStyle: 'italic' },
+  subSectionTitle: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 10, marginLeft: 5 },
+
+  riskRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', paddingBottom: 15 },
+  volatilityContainer: { alignItems: 'center', paddingRight: 15, borderRightWidth: 1, borderRightColor: '#eee' },
+  riskLabel: { fontSize: 11, color: '#666', marginBottom: 5 },
+  volatilityBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  volatilityText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  riskDesc: { fontSize: 12, color: '#555', fontStyle: 'italic', lineHeight: 16 },
+
+  seasonalityContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+  seasonBox: { width: '48%', backgroundColor: '#FAFAFA', padding: 10, borderRadius: 8 },
+  seasonTitle: { fontSize: 12, fontWeight: 'bold' },
+  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
+  monthChip: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
+  monthText: { fontSize: 11, fontWeight: 'bold' },
+
+  panoramaContainer: { marginBottom: 15, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#EEE' },
+  panoramaText: { fontSize: 13, color: '#555', marginBottom: 5, lineHeight: 18 },
+  comercioGrid: { flexDirection: 'row', justifyContent: 'space-between' },
+  statBox: { alignItems: 'center', flex: 1 },
+  statLabel: { fontSize: 11, color: '#777', marginTop: 5 },
+  statValue: { fontSize: 12, fontWeight: 'bold', color: '#333', textAlign:'center', marginTop:2 },
+
+  tableHeader: { flexDirection: 'row', backgroundColor: '#EFEBE9', padding: 8, borderRadius: 6, marginBottom: 5 },
+  th: { fontSize: 12, fontWeight: 'bold', color: '#5D4037' },
+  tableRow: { flexDirection: 'row', padding: 10, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
+  tableRowAlt: { backgroundColor: '#FAFAFA' },
+  td: { fontSize: 13, color: '#444' },
+
+  statesContainer: { marginTop: 5 },
+  stateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  stateInfo: { flexDirection: 'row', alignItems: 'center', width: '35%' },
+  stateRank: { fontWeight: 'bold', color: '#00695C', marginRight: 8, fontSize: 14 },
+  stateName: { fontSize: 13, color: '#333' },
+  stateMetrics: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10 },
+  progressBarBg: { width: 60, height: 6, backgroundColor: '#E0F2F1', borderRadius: 3, overflow: 'hidden' },
+  progressBarFill: { height: '100%', backgroundColor: '#26A69A' },
+  statePct: { fontSize: 12, fontWeight: 'bold', color: '#00695C', width: 35, textAlign: 'right' },
+  stateSurface: { fontSize: 11, color: '#777', width: 60, textAlign: 'right' },
+
+  legendContainer: { width: '100%', paddingHorizontal: 10, marginTop: 10 },
+  legendItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 },
+  colorDot: { width: 12, height: 12, borderRadius: 6, marginRight: 8, marginTop: 4 },
+  legendTextBold: { fontSize: 13, fontWeight: 'bold', color: '#444' },
+  legendSubText: { fontSize: 12, color: '#777', fontStyle: 'italic' },
+
+  destinoItem: { marginBottom: 12 },
+  destinoHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  destinoName: { fontSize: 14, color: '#333' },
+  destinoPercent: { fontSize: 14, fontWeight: 'bold', color: '#2E7D32' },
+  progressBarBackground: {
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    flex: 1
+  }
 });
