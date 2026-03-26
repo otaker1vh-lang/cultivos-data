@@ -39,7 +39,8 @@ export default function FenologiaScreen({ route }) {
         const calendarios = data.calendarios_regionales || data.calendarios;
         if (calendarios && typeof calendarios === 'object') {
           if (Array.isArray(calendarios) && calendarios.length > 0) {
-             setRegionSeleccionada(calendarios[0].id || 0); 
+             const primerCalendarioValido = calendarios.find(c => c !== null && c !== undefined);
+             setRegionSeleccionada(primerCalendarioValido?.id || 0); 
           } else {
              const keys = Object.keys(calendarios);
              if (keys.length > 0) setRegionSeleccionada(keys[0]); 

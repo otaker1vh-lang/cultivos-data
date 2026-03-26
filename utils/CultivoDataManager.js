@@ -83,6 +83,10 @@ class CultivoDataManager {
 
       estructurado.nombre_cientifico = String(estructurado.nombre_cientifico || estructurado.nombre_botanico || "No disponible");
 
+      if (estructurado.calendarios_regionales) {
+        estructurado.calendarios_regionales = this._normalizarLista(estructurado.calendarios_regionales);
+    }
+
       if (estructurado.principales_estados) {
           estructurado.principales_estados = this._normalizarLista(estructurado.principales_estados).map(e => 
               typeof e === 'object' ? String(e.estado || e.nombre || e.region || "Desconocido") : String(e)
