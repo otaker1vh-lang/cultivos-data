@@ -40,20 +40,25 @@ export default function EstadisticasScreen({ route }) {
 
   const procesarHistoricoPrecios = (data) => {
     const eco = data.economia_expandida || {};
-    const precioMax = eco.precio_max_mxn_ton || 0;
-    const precioMin = eco.precio_min_mxn_ton || 0;
-    const precioProm = eco.precio_promedio_mxn_ton || (precioMax > 0 && precioMin > 0 ? (precioMax + precioMin) / 2 : 0);
+    let precioMax = eco.precio_max_mxn_ton || 0;
+    let precioMin = eco.precio_min_mxn_ton || 0;
+    let precioProm = eco.precio_promedio_mxn_ton || (precioMax > 0 && precioMin > 0 ? (precioMax + precioMin) / 2 : 0);
 
-    // PROTECCIÓN: Si no hay precios, no intentamos dibujar la gráfica
     if (precioMax === 0 && precioMin === 0 && precioProm === 0) {
       setHistoricoPrecios(null);
       return;
     }
 
+    // 🛡️ PROTECCIÓN ANTI-CRASH CHARTKIT: Evita valores idénticos en el Eje Y
+    if (precioMin === precioMax && precioMax > 0) {
+        precioMin = precioMin * 0.98;
+        precioMax = precioMax * 1.02;
+    }
+    if (precioProm === precioMin) precioProm = precioMin * 1.01;
+
     const labels = ["Mínimo", "Promedio", "Máximo"];
     const valores = [precioMin / 1000, precioProm / 1000, precioMax / 1000];
 
-    // Formato correcto para LineChart
     setHistoricoPrecios({
       labels,
       datasets: [{ data: valores }]
@@ -61,7 +66,7 @@ export default function EstadisticasScreen({ route }) {
   };
 
   const procesarCostos = (data) => {
-    const costos = data.costos_produccion_detallados || {};
+    const costos = data.costos_produccion_detallados || data.presupuesto_labores_detallado || {};
     const keys = Object.keys(costos);
 
     if (keys.length === 0) {
@@ -99,16 +104,21 @@ export default function EstadisticasScreen({ route }) {
   const procesarRentabilidad = (data) => {
     const rent = data.analisis_rentabilidad || {};
     
-    const inversion = rent.inversion_inicial_ha || 
+    let inversion = rent.inversion_inicial_ha || 
                       rent.costo_establecimiento_ha || 
                       rent.costo_total_produccion_ha || 0;
-    const ingreso = rent.ingreso_anual_esperado_ha || 
+    let ingreso = rent.ingreso_anual_esperado_ha || 
                     rent.ingreso_bruto_esperado_ha || 
                     rent.utilidad_neta_esperada_ha || 0;
 
     if (inversion === 0 && ingreso === 0) {
         setRentabilidadData(null);
         return;
+    }
+
+    // 🛡️ PROTECCIÓN ANTI-CRASH CHARTKIT: Evita Barras Idénticas
+    if (inversion === ingreso && inversion > 0) {
+        ingreso = ingreso * 1.01; // Añade un 1% para que la gráfica pueda calcular la altura
     }
 
     setRentabilidadData({
@@ -154,17 +164,31 @@ export default function EstadisticasScreen({ route }) {
   const obtenerDatosRiesgo = () => {
     if (!infoCultivo) return null;
     const analisis = infoCultivo.analisis_rentabilidad || {};
-    const temporadas = infoCultivo.temporadas_precio || {}; // <-- ACCESO CORRECTO
-    // Fallback al riesgo en raiz si no hay analisis detallado
+    const temporadas = infoCultivo.temporadas_precio || {}; 
+    
     const volatilidadRaw = analisis.volatilidad_precios || infoCultivo.riesgo || "Media";
     const volString = typeof volatilidadRaw === 'string' ? volatilidadRaw : "Media";
     const volatilidad = volString.charAt(0).toUpperCase() + volString.slice(1);
 
-    const mesesAltosRaw = temporadas.alto || analisis.meses_precio_alto || ["Dic", "Ene"]; 
-    const mesesBajosRaw = temporadas.bajo || analisis.meses_precio_bajo || ["Jun", "Jul"];
+    let mesesAltosRaw = temporadas.alto || analisis.meses_precio_alto; 
+    let mesesBajosRaw = temporadas.bajo || analisis.meses_precio_bajo;
 
-    const mesesAltos = Array.isArray(mesesAltosRaw) ? mesesAltosRaw : [mesesAltosRaw];
-    const mesesBajos = Array.isArray(mesesBajosRaw) ? mesesBajosRaw : [mesesBajosRaw];
+    // 💡 NUEVO LÓGICA: Buscar en mercado_comercializacion si no existe en la raíz
+    if (!mesesAltosRaw || !mesesBajosRaw) {
+        const tempMercado = infoCultivo.mercado_comercializacion?.temporadas_precio;
+        const tempArray = Array.isArray(tempMercado) ? tempMercado : (tempMercado && typeof tempMercado === 'object' ? Object.values(tempMercado) : []);
+        
+        if (tempArray.length > 0) {
+            // Ordenar por precio (de mayor a menor)
+            const sorted = [...tempArray].sort((a, b) => (b.precio_mxn_kg || 0) - (a.precio_mxn_kg || 0));
+            if (!mesesAltosRaw) mesesAltosRaw = [sorted[0].meses];
+            if (!mesesBajosRaw && sorted.length > 1) mesesBajosRaw = [sorted[sorted.length - 1].meses];
+        }
+    }
+
+    // Fallbacks finales y formateo a Arrays
+    const mesesAltos = Array.isArray(mesesAltosRaw) ? mesesAltosRaw : (mesesAltosRaw ? [mesesAltosRaw] : ["Dic", "Ene"]);
+    const mesesBajos = Array.isArray(mesesBajosRaw) ? mesesBajosRaw : (mesesBajosRaw ? [mesesBajosRaw] : ["Jun", "Jul"]);
 
     let colorVol = "#FFA726"; 
     if (volatilidad.toLowerCase().includes('alta')) colorVol = "#EF5350"; 
@@ -190,11 +214,13 @@ export default function EstadisticasScreen({ route }) {
 
     const { canales_venta, destinos_principales } = mercadoData;
 
-    // Normalizar canales para gráfica (si es array de objetos)
-    const pieDataCanales = Array.isArray(canales_venta) ? canales_venta.map((item, index) => {
+    // 🛡️ PROTECCIÓN: Normalizar arrays anidados mutados por Firebase
+    const canalesArray = Array.isArray(canales_venta) ? canales_venta : (canales_venta && typeof canales_venta === 'object' ? Object.values(canales_venta) : []);
+    const destinosArray = Array.isArray(destinos_principales) ? destinos_principales : (destinos_principales && typeof destinos_principales === 'object' ? Object.values(destinos_principales) : []);
+
+    const pieDataCanales = canalesArray.map((item, index) => {
         const colors = ['#26A69A', '#66BB6A', '#9CCC65', '#D4E157'];
         const isString = typeof item === 'string';
-        
         return {
             name: isString ? item : (item.canal || 'Otro'),
             population: isString ? 0 : (parseFloat(item.porcentaje || item.participacion_pct) || 0),
@@ -203,7 +229,7 @@ export default function EstadisticasScreen({ route }) {
             legendFontSize: 12,
             condiciones: isString ? null : item.condiciones_pago
         };
-    }).filter(item => item.population > 0) : []; // <-- El .filter() evita que la gráfica crashee intentando dibujar 0%
+    }).filter(item => item.population > 0);
 
     return (
         <View style={styles.card}>
@@ -245,16 +271,14 @@ export default function EstadisticasScreen({ route }) {
                 </>
             )}
 
-            {destinos_principales && Array.isArray(destinos_principales) && (
+            {destinosArray.length > 0 && (
                 <>
                 <Text style={[styles.subSectionTitle, { marginTop: 20 }]}>Destinos Principales</Text>
                 <View style={{ paddingHorizontal: 5 }}>
-                    {destinos_principales.map((item, index) => {
+                    {destinosArray.map((item, index) => {
                         const isString = typeof item === 'string';
                         const nombre = isString ? item.split(' (')[0] : (item.destino || item.ciudad);
-                        const porcentaje = isString 
-                            ? parseFloat(item.match(/\(([^)]+)%\)/)?.[1] || 0) 
-                            : item.porcentaje;
+                        const porcentaje = isString ? parseFloat(item.match(/\(([^)]+)%\)/)?.[1] || 0) : item.porcentaje;
                         return (
                             <View key={index} style={styles.destinoItem}>
                                 <View style={styles.destinoHeader}>
@@ -318,10 +342,9 @@ export default function EstadisticasScreen({ route }) {
   // 3. Producción Nacional (CORREGIDO PARA ESTRUCTURA DE FIREBASE)
   const renderProductoresNacionales = () => {
     const detalleObj = statsExpandidas?.detalle_produccion_nacional;
-    // Verificamos si existe el array dentro del objeto (estructura correcta de Firebase)
-    const listaEstados = detalleObj?.principales_estados || (Array.isArray(detalleObj) ? detalleObj : null);
+    const listaEstadosRaw = detalleObj?.principales_estados;
+    const listaEstados = Array.isArray(listaEstadosRaw) ? listaEstadosRaw : (listaEstadosRaw && typeof listaEstadosRaw === 'object' ? Object.values(listaEstadosRaw) : null);
     
-    // Fallback: Si no hay detalle, buscar lista simple de texto
     const listaSimpleFallback = statsExpandidas?.principales_estados; 
 
     if (!listaEstados && !listaSimpleFallback) return null;

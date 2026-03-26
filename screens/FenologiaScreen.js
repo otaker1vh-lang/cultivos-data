@@ -26,7 +26,6 @@ export default function FenologiaScreen({ route }) {
     cargarDatos(false);
   }, [cultivo]);
 
-  // --- FUNCIÓN DE CARGA OPTIMIZADA Y SEGURA ---
   const cargarDatos = async (forceRefresh = false) => {
     try {
       if (!forceRefresh) setLoading(true);
@@ -37,14 +36,13 @@ export default function FenologiaScreen({ route }) {
         setCultivoData(data);
         setModoDetallado(true);
         
-        // Selección automática y segura de la primera región (soporta Array u Objeto)
         const calendarios = data.calendarios_regionales || data.calendarios;
         if (calendarios && typeof calendarios === 'object') {
           if (Array.isArray(calendarios) && calendarios.length > 0) {
-             setRegionSeleccionada(0); // Usa el índice si es Array
+             setRegionSeleccionada(0); 
           } else {
              const keys = Object.keys(calendarios);
-             if (keys.length > 0) setRegionSeleccionada(keys[0]); // Usa la llave si es Objeto
+             if (keys.length > 0) setRegionSeleccionada(keys[0]); 
           }
         }
       } else if (data) {
@@ -59,7 +57,6 @@ export default function FenologiaScreen({ route }) {
     }
   };
 
-  // --- HELPER UNIVERSAL PARA TEXTO SEGURO ---
   const safeText = (val) => {
     if (val === null || val === undefined) return 'N/A';
     if (Array.isArray(val)) return val.join(' a ');
@@ -67,13 +64,10 @@ export default function FenologiaScreen({ route }) {
     return String(val);
   };
 
-  // --- SECCIONES DE RENDERIZADO BLINDADAS ---
-
   const renderCalendarios = () => {
     const calendariosRaw = cultivoData?.calendarios_regionales || cultivoData?.calendarios;
     if (!calendariosRaw || typeof calendariosRaw !== 'object') return null;
 
-    // Normalizar regiones: Transforma a un formato estándar sin importar si Firebase envió Array u Objeto
     const esArray = Array.isArray(calendariosRaw);
     const regiones = esArray 
       ? calendariosRaw.map((item, index) => ({ id: index, nombre: item?.region || `Región ${index + 1}`, data: item }))
@@ -100,7 +94,7 @@ export default function FenologiaScreen({ route }) {
           ))}
         </ScrollView>
 
-        // Corrección: Validar solo que haya datos en la región
+        {/* Bloque seguro: El comentario errante ha sido eliminado */}
         {dataRegionActiva && (
           <View style={styles.regionCard}>
             <View style={styles.dateRow}>
@@ -116,7 +110,6 @@ export default function FenologiaScreen({ route }) {
               </Text>
             </View>
 
-            {/* Validar la altitud individualmente de forma opcional */}
             {dataRegionActiva.altitud_msnm && (
                 <View style={styles.dateRow}>
                 <MaterialCommunityIcons name="terrain" size={20} color="#795548" />
@@ -139,7 +132,6 @@ export default function FenologiaScreen({ route }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Escala Científica BBCH</Text>
         
-        {/* Validar si es Objeto, Array, o texto simple */}
         {typeof bbch === 'object' && !Array.isArray(bbch) ? (
           Object.entries(bbch).map(([fase, info], index) => {
             if (!info) return null;
@@ -175,7 +167,6 @@ export default function FenologiaScreen({ route }) {
     const alertasRaw = cultivoData?.alertas_riesgos || cultivoData?.riesgos_detallados;
     if (!alertasRaw) return null;
 
-    // Normalizar a Array siempre
     const alertasList = Array.isArray(alertasRaw) 
       ? alertasRaw 
       : (typeof alertasRaw === 'object' && alertasRaw !== null ? Object.values(alertasRaw) : [alertasRaw]);
@@ -220,7 +211,6 @@ export default function FenologiaScreen({ route }) {
         <Text style={styles.subtitle}>{cultivo}</Text>
       </View>
 
-      {/* COMPONENTE GANTT: Se asume que este componente tiene sus propias validaciones internas */}
       {cultivoData?.ciclo_fenologico && (
         <View style={styles.card}>
           <GanttFenologico datos={cultivoData.ciclo_fenologico} />
