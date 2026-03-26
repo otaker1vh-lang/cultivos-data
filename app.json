@@ -55,8 +55,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "32f0ddd3-4ec4-4de4-9a8c-25e50d5e7f61"
+        "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
       }
-    }
+    },
+    "owner": "otaker"
   }
 }
