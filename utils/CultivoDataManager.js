@@ -44,7 +44,8 @@ class CultivoDataManager {
 
   _safeFloat(val, fallback = 0) {
       if (val === null || val === undefined || val === '') return fallback;
-      const parsed = parseFloat(val);
+      if (typeof val === 'number') return isNaN(val) ? fallback : val;
+      const parsed = parseFloat(String(val).replace(/,/g, ''));
       return isNaN(parsed) ? fallback : parsed;
   }
 
@@ -75,9 +76,6 @@ class CultivoDataManager {
       if (!data) return null;
       let estructurado = { ...data };
 
-      // ==========================================
-      // 0. LIMPIEZA Y BLINDAJE ESTRUCTURAL (ELIMINADOR DE TYPE ERRORS)
-      // ==========================================
       const arrayFields = ['buenas_practicas_destacadas', 'conclusiones_recomendaciones', 'errores_comunes_evitar', 'guia_buenas_practicas', 'guia_errores_comunes', 'recomendaciones_clave'];
       arrayFields.forEach(field => {
           estructurado[field] = this._safeStringArray(estructurado[field]);
@@ -91,7 +89,6 @@ class CultivoDataManager {
           );
       }
 
-      // ESCUDO MAESTRO: Si Firebase corrompe cualquier nodo raíz, se inicializa como un diccionario vacío y seguro.
       const dictFields = [
           'labores', 'labores_culturales', 'deficiencias_nutricionales', 
           'costos_produccion_detallados', 'presupuesto_labores_detallado', 
@@ -121,23 +118,17 @@ class CultivoDataManager {
       estructurado.superficie_sembrada_ha = this._safeFloat(estructurado.superficie_sembrada_ha || estructurado.superficie_nacional_ha);
       estructurado.rendimiento_ton_ha = this._safeFloat(estructurado.rendimiento_ton_ha || estructurado.rendimiento_promedio_t_ha);
 
-      // ==========================================
-      // 1. FENOLOGÍA Y CALENDARIOS
-      // ==========================================
       if (Object.keys(estructurado.ciclo_fenologico).length === 0) {
           estructurado.ciclo_fenologico = { etapas: [], fechas_por_estado: [], variedades_principales: [] };
       } else {
           let diasAcumulados = 0;
           estructurado.ciclo_fenologico.etapas = this._normalizarLista(estructurado.ciclo_fenologico.etapas).map(e => {
               if (typeof e !== 'object') return { nombre: String(e), inicio_dias: diasAcumulados, duracion_dias: 10 };
-              
               const duracion = this._safeFloat(e.duracion_dias || e.duracion, 10) || 1; 
               const inicio = (e.inicio_dias !== undefined && e.inicio_dias !== null) ? this._safeFloat(e.inicio_dias, 0) : diasAcumulados;
               diasAcumulados = inicio + duracion;
-              
               return { ...e, inicio_dias: inicio, duracion_dias: duracion, nombre: String(e.nombre || e.fase || e.bbch_fase || "Fase") };
           });
-          
           estructurado.ciclo_fenologico.fechas_por_estado = this._normalizarLista(estructurado.ciclo_fenologico.fechas_por_estado);
           estructurado.ciclo_fenologico.variedades_principales = this._safeStringArray(estructurado.ciclo_fenologico.variedades_principales);
       }
@@ -164,14 +155,14 @@ class CultivoDataManager {
           else if (typeof cal === 'object') {
               arr = Object.entries(cal).map(([region, datos]) => ({ region, ...(typeof datos === 'object' ? datos : { descripcion: String(datos) }) }));
           }
-          return arr.map((item, idx) => ({ ...item, id: String(item.id || item.region || `region_${idx}`) })); 
+          return arr.map((item, idx) => {
+              if (typeof item !== 'object' || item === null) return { id: `region_${idx}`, region: String(item || `Región ${idx+1}`) };
+              return { ...item, id: String(item.id || item.region || `region_${idx}`) };
+          }); 
       };
 
       estructurado.calendarios_regionales = normalizarCalendario(estructurado.calendarios_regionales);
 
-      // ==========================================
-      // 2. ESTADÍSTICAS Y MERCADO
-      // ==========================================
       if (!estructurado.costos_produccion || Object.keys(estructurado.costos_produccion).length === 0) {
           estructurado.costos_produccion = { costo_total_ha: 0, desglose: [] };
       } else {
@@ -307,9 +298,6 @@ class CultivoDataManager {
           estructurado.temporadas_precio = estructurado.mercado_comercializacion.temporadas_precio;
       }
       
-      // ==========================================
-      // 3. PLAGAS Y ENFERMEDADES 
-      // ==========================================
       if (!estructurado.riesgos_detallados) {
           const plagasArray = this._normalizarDiccionarioRiesgosAArray(estructurado.plagas_detalladas, 'Plaga');
           const enfArray = this._normalizarDiccionarioRiesgosAArray(estructurado.enfermedades_detalladas, 'Enfermedad');
@@ -318,9 +306,6 @@ class CultivoDataManager {
           estructurado.riesgos_detallados = this._normalizarDiccionarioRiesgosAArray(estructurado.riesgos_detallados, 'Riesgo');
       }
 
-      // ==========================================
-      // 4. MISCELÁNEOS
-      // ==========================================
       if (estructurado.sistemas_recomendados && estructurado.sistemas_recomendados.sistemas_riego) {
         estructurado.sistemas_riego = this._normalizarLista(estructurado.sistemas_recomendados.sistemas_riego);
       } else if (estructurado.sistemas_riego) {

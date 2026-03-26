@@ -39,7 +39,7 @@ export default function FenologiaScreen({ route }) {
         const calendarios = data.calendarios_regionales || data.calendarios;
         if (calendarios && typeof calendarios === 'object') {
           if (Array.isArray(calendarios) && calendarios.length > 0) {
-             setRegionSeleccionada(0); 
+             setRegionSeleccionada(calendarios[0].id || 0); 
           } else {
              const keys = Object.keys(calendarios);
              if (keys.length > 0) setRegionSeleccionada(keys[0]); 
@@ -58,9 +58,9 @@ export default function FenologiaScreen({ route }) {
   };
 
   const safeText = (val) => {
-    if (val === null || val === undefined) return 'N/A';
-    if (Array.isArray(val)) return val.join(' a ');
-    if (typeof val === 'object') return Object.values(val).map(v => typeof v === 'object' ? 'Ver detalle' : String(v)).join(' a ');
+    if (val === null || val === undefined || val === '') return 'N/A';
+    if (Array.isArray(val)) return val.filter(Boolean).map(v => typeof v === 'object' ? 'Ver detalle' : String(v)).join(' a ');
+    if (typeof val === 'object') return Object.values(val).filter(Boolean).map(v => typeof v === 'object' ? 'Ver detalle' : String(v)).join(' a ');
     return String(val);
   };
 
@@ -70,7 +70,7 @@ export default function FenologiaScreen({ route }) {
 
     const esArray = Array.isArray(calendariosRaw);
     const regiones = esArray 
-      ? calendariosRaw.map((item, index) => ({ id: index, nombre: item?.region || `Región ${index + 1}`, data: item }))
+      ? calendariosRaw.map((item, index) => ({ id: item?.id || index, nombre: item?.region || `Región ${index + 1}`, data: item }))
       : Object.entries(calendariosRaw).map(([key, value]) => ({ id: key, nombre: key, data: value }));
 
     if (regiones.length === 0) return null;
@@ -94,8 +94,7 @@ export default function FenologiaScreen({ route }) {
           ))}
         </ScrollView>
 
-        {/* Bloque seguro: El comentario errante ha sido eliminado */}
-        {dataRegionActiva && (
+        {!!dataRegionActiva && (
           <View style={styles.regionCard}>
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-import" size={20} color="#2E7D32" />
@@ -110,7 +109,7 @@ export default function FenologiaScreen({ route }) {
               </Text>
             </View>
 
-            {dataRegionActiva.altitud_msnm && (
+            {!!dataRegionActiva.altitud_msnm && (
                 <View style={styles.dateRow}>
                 <MaterialCommunityIcons name="terrain" size={20} color="#795548" />
                   <Text style={styles.dateText}>
@@ -138,9 +137,9 @@ export default function FenologiaScreen({ route }) {
             const codigo = typeof info === 'object' ? (info.codigo_bbch || fase) : fase;
             const desc = typeof info === 'object' ? (info.descripcion_tecnica || info.descripcion) : String(info);
             return (
-              <View key={index} style={styles.bbchItem}>
+              <View key={`bbch-obj-${index}`} style={styles.bbchItem}>
                 <Text style={styles.bbchCode}>Etapa {codigo}</Text>
-                <Text style={styles.bbchDesc}>{safeText(desc)}</Text>
+                {!!desc && <Text style={styles.bbchDesc}>{safeText(desc)}</Text>}
               </View>
             );
           })
@@ -150,9 +149,9 @@ export default function FenologiaScreen({ route }) {
              const codigo = typeof info === 'object' ? (info.codigo_bbch || info.etapa || index) : index;
              const desc = typeof info === 'object' ? (info.descripcion_tecnica || info.descripcion || '') : String(info);
              return (
-               <View key={index} style={styles.bbchItem}>
+               <View key={`bbch-arr-${index}`} style={styles.bbchItem}>
                  <Text style={styles.bbchCode}>Etapa {codigo}</Text>
-                 <Text style={styles.bbchDesc}>{safeText(desc)}</Text>
+                 {!!desc && <Text style={styles.bbchDesc}>{safeText(desc)}</Text>}
                </View>
              );
           })
@@ -184,8 +183,10 @@ export default function FenologiaScreen({ route }) {
             ? valor 
             : (valor?.riesgo || valor?.descripcion || valor?.nombre_plaga || 'Alerta agronómica');
           
+          const textoSeguro = Array.isArray(textoAlerta) ? textoAlerta.join(', ') : String(textoAlerta);
+
           return (
-            <Text key={i} style={styles.alertText}>• {textoAlerta}</Text>
+            <Text key={`alerta-${i}`} style={styles.alertText}>• {textoSeguro}</Text>
           );
         })}
       </View>
@@ -211,7 +212,7 @@ export default function FenologiaScreen({ route }) {
         <Text style={styles.subtitle}>{cultivo}</Text>
       </View>
 
-      {cultivoData?.ciclo_fenologico && (
+      {!!(cultivoData?.ciclo_fenologico && Object.keys(cultivoData.ciclo_fenologico).length > 0) && (
         <View style={styles.card}>
           <GanttFenologico datos={cultivoData.ciclo_fenologico} />
         </View>

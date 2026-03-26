@@ -7,27 +7,23 @@ import {
   ActivityIndicator, 
   TouchableOpacity, 
   Alert,
-  RefreshControl // <-- IMPORTACIÓN NUEVA
+  RefreshControl
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import CultivoDataManager from "../utils/CultivoDataManager";
 
-// --- SE ELIMINARON LAS IMPORTACIONES DIRECTAS DE FIREBASE ---
-
 export default function LaboresScreen({ route }) {
   const { cultivo } = route.params;
   const CACHE_KEY = `@labores_data_${cultivo}`; 
   
-  // --- ESTADOS ---
   const [cultivoData, setCultivoData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
+  const [refreshing, setRefreshing] = useState(false);
   const [loadingCompleto, setLoadingCompleto] = useState(false);
   const [nivel, setNivel] = useState('basico');
   const [debugInfo, setDebugInfo] = useState([]); 
   
-  // Estados de expansión (Accordions)
   const [etapaExpandida, setEtapaExpandida] = useState(null);
   const [calendarioRiegoExpanded, setCalendarioRiegoExpanded] = useState(false);
   const [infraRiegoExpanded, setInfraRiegoExpanded] = useState(false);
@@ -36,7 +32,6 @@ export default function LaboresScreen({ route }) {
   const [deficienciasExpanded, setDeficienciasExpanded] = useState(false);
   const [fertProgramaExpanded, setFertProgramaExpanded] = useState(false);
 
-  // DEBUG
   const addDebug = (message, data = null) => {
     const timestamp = new Date().toLocaleTimeString();
     const debugEntry = {
@@ -48,17 +43,14 @@ export default function LaboresScreen({ route }) {
     setDebugInfo(prev => [...prev, debugEntry]);
   };
 
-  // 1. CARGA INICIAL
   useEffect(() => {
     cargarDatosBasicos(false);
   }, [cultivo]);
 
-  // CARGA BÁSICA (Adaptada para aceptar isRefreshing)
   const cargarDatosBasicos = async (isRefreshing = false) => {
     try {
       if (!isRefreshing) setLoading(true);
       
-      // TODO pasa por el DataManager: Caché -> Nube -> Fallback Local
       const datos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
 
       if (datos) {
@@ -80,35 +72,23 @@ export default function LaboresScreen({ route }) {
     }
   };
 
-  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
   const onRefresh = async () => {
     setRefreshing(true);
     await cargarDatosBasicos(true);
     setRefreshing(false);
   };
 
-  // --- FUNCIÓN REFACCIONADA PARA USAR EL MANAGER EN LUGAR DE FIREBASE DIRECTO ---
   const obtenerDatosFirebase = async (manual = false) => {
     try {
       setLoadingCompleto(true);
-      
-      // Obtenemos los datos actualizados a través del administrador
       const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
 
       if (data) {
-        // Mapeo y Normalización para compatibilidad con JSON 07
         const dataNormalizada = {
           ...data,
-          // 1. Asegurar que el calendario de riego se lea de la clave correcta
           calendario_riego: data.calendario_riego_mensual?.calendario_riego || data.calendario_riego || [],
-          
-          // 2. Normalizar Labores/Actividades (el JSON 07 las tiene en 'labores_culturales')
           labores_culturales: data.labores_culturales || data.labores || [],
-          
-          // 3. Manejo de Infraestructura de Riego (sistemas_recomendados en JSON 07)
           sistemas_recomendados: data.sistemas_recomendados || data.sistemas_riego || [],
-          
-          // 4. Costos y Presupuesto (costos_produccion_detallados en JSON 07)
           presupuesto_estimado: data.costos_produccion_detallados || data.presupuesto_estimado || null,
         };
 
@@ -128,7 +108,6 @@ export default function LaboresScreen({ route }) {
     }
   };
 
-  // DESCARGA DATOS COMPLETOS
   const descargarDatosCompletos = async () => {
     try {
       setLoadingCompleto(true);
@@ -163,7 +142,6 @@ export default function LaboresScreen({ route }) {
     }
   };
 
-  // --- RENDERIZADO ---
   if (loading && !refreshing && !cultivoData) {
     return <ActivityIndicator size="large" style={styles.loader} color="#2E7D32" />;
   }
@@ -180,7 +158,6 @@ export default function LaboresScreen({ route }) {
     );
   }
 
-  // Variables para la vista
   const esDatosCompletos = nivel === 'completo';
   const laboresRaw = cultivoData?.labores_culturales || cultivoData?.labores || {};
   const fertPrograma = cultivoData?.programa_fertilizacion || [];
@@ -189,23 +166,21 @@ export default function LaboresScreen({ route }) {
                       (Array.isArray(cultivoData?.sistemas_riego) ? cultivoData.sistemas_riego : []);
   const costos = cultivoData?.costos_produccion_detallados || {};
   
-  // VARIABLES (POSTCOSECHA Y DEFICIENCIAS)
   const postcosecha = cultivoData?.postcosecha || cultivoData?.manejo_postcosecha || {};
   const fisiologia = cultivoData?.fisiologia_nutricion || {};
   const deficiencias = fisiologia.sintomas_deficiencia || cultivoData?.deficiencias_nutricionales || {};
 
   const planRiego = cultivoData?.calendario_riego || cultivoData?.calendario_riego_mensual || {};
 
-  // EXTRACTOR SEGURO: Absorbe arrays o mapas de objetos del JSON 07
   let arrayRiegos = [];
   if (Array.isArray(planRiego)) arrayRiegos = planRiego;
   else if (Array.isArray(planRiego.calendario_riego)) arrayRiegos = planRiego.calendario_riego;
   else if (Array.isArray(planRiego.programa_riego)) arrayRiegos = planRiego.programa_riego;
   else if (typeof planRiego.programa_riego === 'object') arrayRiegos = Object.values(planRiego.programa_riego);
   else if (typeof planRiego.calendario_riego === 'object') arrayRiegos = Object.values(planRiego.calendario_riego);
+  
   const presupuestoDetallado = cultivoData?.presupuesto_estimado || cultivoData?.presupuesto_labores_detallado || cultivoData?.presupuesto || {};
 
-  // ORDENAMIENTO DE ETAPAS (LÓGICA MEJORADA)
   const ordenLogico = [
     'establecimiento', 
     'siembra', 
@@ -228,17 +203,11 @@ export default function LaboresScreen({ route }) {
     typeof laboresRaw[key] === 'object' && 
     !['resumen_costos_anuales', 'meta_ia'].includes(key)
   ).sort((a, b) => {
-      // Función para encontrar el índice en el array de prioridad
       const indexA = ordenLogico.findIndex(p => a.toLowerCase().includes(p));
       const indexB = ordenLogico.findIndex(p => b.toLowerCase().includes(p));
-      
-      // Si ambos existen en la lista, ordenar por índice
       if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-      // Si solo A existe, A va primero
       if (indexA !== -1) return -1;
-      // Si solo B existe, B va primero
       if (indexB !== -1) return 1;
-      // Si ninguno existe, mantener orden alfabético o original
       return 0;
   });
 
@@ -246,18 +215,16 @@ export default function LaboresScreen({ route }) {
     <ScrollView 
       style={styles.container} 
       contentContainerStyle={{ paddingBottom: 60 }}
-      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={["#2E7D32", "#1976D2"]} // Colores para Android
-          tintColor="#2E7D32" // Color para iOS
+          colors={["#2E7D32", "#1976D2"]} 
+          tintColor="#2E7D32" 
         />
       }
     >
 
-      {/* Header Operativo */}
       <View style={styles.headerContainer}>
         <View style={{flex: 1}}>
             <Text style={styles.mainTitle}>Guía Operativa: {cultivo}</Text>
@@ -286,9 +253,7 @@ export default function LaboresScreen({ route }) {
         )}
       </View>
 
-      {/* ==================================================== */}
-      {/* 1. PLAN DE TRABAJO (ETAPAS ORDENADAS)                */}
-      {/* ==================================================== */}
+      {/* 1. PLAN DE TRABAJO */}
       <View style={styles.sectionHeader}>
         <MaterialCommunityIcons name="tractor" size={24} color="#333" />
         <Text style={styles.sectionHeaderTitle}>Plan de Trabajo</Text>
@@ -323,7 +288,7 @@ export default function LaboresScreen({ route }) {
                 {actividades.length > 0 ? actividades.map((act, i) => (
                   <View key={i} style={styles.actividadItem}>
                     <Text style={styles.actTitle}>✅ {act.labor || act.practica || "Actividad"}</Text>
-                    {(act.objetivo || act.descripcion) && (
+                    {!!(act.objetivo || act.descripcion) && (
                       <Text style={styles.actDesc}>{act.objetivo || act.descripcion}</Text>
                     )}
                   </View>
@@ -340,9 +305,7 @@ export default function LaboresScreen({ route }) {
         </View>
       )}
 
-      {/* ==================================================== */}
-      {/* 2. PLAN NUTRICIONAL (MOVIDO ARRIBA)                  */}
-      {/* ==================================================== */}
+      {/* 2. PLAN NUTRICIONAL */}
       {(fertPrograma.length > 0 || Object.keys(fertCalculo).length > 0 || Object.keys(deficiencias).length > 0) && (
         <View style={{marginTop: 25}}>
             <View style={styles.sectionHeader}>
@@ -351,7 +314,6 @@ export default function LaboresScreen({ route }) {
             </View>
             
             <View style={[styles.card, { borderLeftColor: '#8E24AA' }]}>
-                {/* FICHA DOSIS DE FERTILIZACIÓN */}
                 {Object.keys(fertCalculo).length > 0 && (
                     <View style={styles.dosisCard}>
                         <View style={styles.dosisHeader}>
@@ -359,14 +321,12 @@ export default function LaboresScreen({ route }) {
                             <Text style={styles.dosisTitle}>Dosis de Fertilización (Unidades/ha)</Text>
                         </View>
                         
-                        {/* Macronutrientes */}
                         <View style={styles.npkContainer}>
                             <NPKBadge element="N" name="Nitrógeno" value={fertCalculo.N} color="#E3F2FD" textColor="#1565C0" />
                             <NPKBadge element="P" name="Fósforo" value={fertCalculo.P} color="#FCE4EC" textColor="#AD1457" />
                             <NPKBadge element="K" name="Potasio" value={fertCalculo.K} color="#FFF3E0" textColor="#EF6C00" />
                         </View>
 
-                        {/* Micros */}
                         <View style={styles.microsContainer}>
                             {['Ca', 'Mg', 'S'].map(el => fertCalculo[el] ? (
                                 <View key={el} style={styles.microTag}>
@@ -377,7 +337,6 @@ export default function LaboresScreen({ route }) {
                     </View>
                 )}
 
-                {/* GUÍA DE DEFICIENCIAS */}
                 {Object.keys(deficiencias).length > 0 && (
                     <TouchableOpacity 
                         style={styles.deficienciasBtn} 
@@ -404,7 +363,6 @@ export default function LaboresScreen({ route }) {
                     </View>
                 )}
                 
-                {/* PROGRAMA DE APLICACIÓN POR ETAPAS (AHORA DESPLEGABLE) */}
                 {fertPrograma.length > 0 && (
                     <View style={{marginTop: 10, borderTopWidth: 1, borderTopColor: '#EEE'}}>
                         <TouchableOpacity 
@@ -424,12 +382,12 @@ export default function LaboresScreen({ route }) {
                                     <View key={idx} style={styles.fertEtapaCard}>
                                         <View style={styles.fertEtapaHeader}>
                                             <Text style={styles.fertEtapaNombre}>{etapa.etapa}</Text>
-                                            {etapa.costo_ha && <Text style={styles.fertCosto}>${etapa.costo_ha.toLocaleString()}/ha</Text>}
+                                            {!!etapa.costo_ha && <Text style={styles.fertCosto}>${etapa.costo_ha.toLocaleString()}/ha</Text>}
                                         </View>
-                                        <Text style={styles.fertFormula}>🧪 {etapa.formula}</Text>
+                                        {!!etapa.formula && <Text style={styles.fertFormula}>🧪 {etapa.formula}</Text>}
                                         <View style={styles.fertDetails}>
-                                            <Text style={styles.fertDetail}>📦 {etapa.dosis_kg_ha} kg/ha</Text>
-                                            <Text style={styles.fertDetail}>💧 {etapa.metodo_aplicacion}</Text>
+                                            {!!etapa.dosis_kg_ha && <Text style={styles.fertDetail}>📦 {etapa.dosis_kg_ha} kg/ha</Text>}
+                                            {!!etapa.metodo_aplicacion && <Text style={styles.fertDetail}>💧 {etapa.metodo_aplicacion}</Text>}
                                         </View>
                                     </View>
                                 ))}
@@ -441,9 +399,7 @@ export default function LaboresScreen({ route }) {
         </View>
       )}
 
-      {/* ==================================================== */}
-      {/* 3. CALENDARIO DE RIEGOS                              */}
-      {/* ==================================================== */}
+      {/* 3. CALENDARIO DE RIEGOS */}
       <View style={[styles.sectionHeader, {marginTop: 25}]}>
          <MaterialCommunityIcons name="water" size={24} color="#039BE5" />
          <Text style={styles.sectionHeaderTitle}>Riegos</Text>
@@ -464,7 +420,7 @@ export default function LaboresScreen({ route }) {
             
             {calendarioRiegoExpanded && (
                <View style={styles.accordionContent}>
-                  {planRiego.requerimientos_hidricos && (
+                  {!!planRiego.requerimientos_hidricos && (
                       <View style={styles.infoRowContainer}>
                           <Text style={styles.hidricoInfo}>
                             💧 Lámina total: <Text style={{fontWeight:'bold'}}>{planRiego.requerimientos_hidricos.lamina_total_mm || '-'} mm</Text>
@@ -497,9 +453,7 @@ export default function LaboresScreen({ route }) {
          </TouchableOpacity>
       )}
 
-      {/* ==================================================== */}
-      {/* 4. INFRAESTRUCTURA DE RIEGO (DESPLEGABLE)            */}
-      {/* ==================================================== */}
+      {/* 4. INFRAESTRUCTURA DE RIEGO */}
       {sistemasRiego.length > 0 && (
         <TouchableOpacity 
            style={[styles.card, { borderLeftColor: '#0288D1' }]}
@@ -520,12 +474,12 @@ export default function LaboresScreen({ route }) {
                     <View style={styles.riegoHeader}>
                         <MaterialCommunityIcons name="water" size={20} color="#0288D1" />
                         <Text style={styles.riegoNombre}>{sistema.sistema}</Text>
-                        <Text style={styles.riegoEficiencia}>{sistema.eficiencia_pct}% eficiente</Text>
+                        {!!sistema.eficiencia_pct && <Text style={styles.riegoEficiencia}>{sistema.eficiencia_pct}% eficiente</Text>}
                     </View>
                     <View style={styles.riegoDetails}>
-                        <Text style={styles.riegoDetail}>💰 Inst: ${sistema.costo_instalacion_ha?.toLocaleString()}/ha</Text>
-                        <Text style={styles.riegoDetail}>🔧 Op: ${sistema.costo_operacion_anual?.toLocaleString()}/año</Text>
-                        <Text style={styles.riegoDetail}>💧 Lámina: {sistema.lamina_anual_mm} mm/año</Text>
+                        {!!sistema.costo_instalacion_ha && <Text style={styles.riegoDetail}>💰 Inst: ${sistema.costo_instalacion_ha.toLocaleString()}/ha</Text>}
+                        {!!sistema.costo_operacion_anual && <Text style={styles.riegoDetail}>🔧 Op: ${sistema.costo_operacion_anual.toLocaleString()}/año</Text>}
+                        {!!sistema.lamina_anual_mm && <Text style={styles.riegoDetail}>💧 Lámina: {sistema.lamina_anual_mm} mm/año</Text>}
                     </View>
                     </View>
                 ))}
@@ -534,9 +488,7 @@ export default function LaboresScreen({ route }) {
         </TouchableOpacity>
       )}
 
-      {/* ==================================================== */}
-      {/* 5. COSECHA Y POSTCOSECHA                             */}
-      {/* ==================================================== */}
+      {/* 5. COSECHA Y POSTCOSECHA */}
       {Object.keys(postcosecha).length > 0 && (
           <View style={[styles.sectionHeader, {marginTop: 25}]}>
             <MaterialCommunityIcons name="package-variant-closed" size={24} color="#EF6C00" />
@@ -546,23 +498,22 @@ export default function LaboresScreen({ route }) {
 
       {Object.keys(postcosecha).length > 0 && (
         <SectionCard title="Conservación y Calidad" icon="thermometer-alert" color="#EF6C00">
-            {/* Grid de Datos Clave */}
             <View style={styles.postcosechaGrid}>
-                {postcosecha.temperatura_almacenamiento && (
+                {!!postcosecha.temperatura_almacenamiento && (
                     <View style={styles.postBox}>
                         <MaterialCommunityIcons name="snowflake" size={24} color="#0288D1" />
                         <Text style={styles.postLabel}>Temperatura</Text>
                         <Text style={styles.postValue}>{postcosecha.temperatura_almacenamiento}</Text>
                     </View>
                 )}
-                {postcosecha.humedad_relativa && (
+                {!!postcosecha.humedad_relativa && (
                     <View style={styles.postBox}>
                         <MaterialCommunityIcons name="water-percent" size={24} color="#0097A7" />
                         <Text style={styles.postLabel}>Humedad</Text>
                         <Text style={styles.postValue}>{postcosecha.humedad_relativa}</Text>
                     </View>
                 )}
-                {postcosecha.vida_anaquel && (
+                {!!postcosecha.vida_anaquel && (
                     <View style={styles.postBox}>
                         <MaterialCommunityIcons name="timer-sand" size={24} color="#F57C00" />
                         <Text style={styles.postLabel}>Vida Útil</Text>
@@ -571,14 +522,13 @@ export default function LaboresScreen({ route }) {
                 )}
             </View>
 
-            {/* Detalles Texto */}
-            {postcosecha.indice_madurez && (
+            {!!postcosecha.indice_madurez && (
                 <View style={styles.postDetailBox}>
                     <Text style={styles.postDetailTitle}>🍎 Índice de Madurez:</Text>
                     <Text style={styles.postDetailText}>{postcosecha.indice_madurez}</Text>
                 </View>
             )}
-             {postcosecha.manejo_frio && (
+             {!!postcosecha.manejo_frio && (
                 <View style={styles.postDetailBox}>
                     <Text style={styles.postDetailTitle}>❄️ Manejo de Frío:</Text>
                     <Text style={styles.postDetailText}>{postcosecha.manejo_frio}</Text>
@@ -587,15 +537,12 @@ export default function LaboresScreen({ route }) {
         </SectionCard>
       )}
 
-      {/* ==================================================== */}
-      {/* 6. CONTROL DE COSTOS (PRESUPUESTO)                   */}
-      {/* ==================================================== */}
+      {/* 6. CONTROL DE COSTOS (PRESUPUESTO) */}
       <View style={[styles.sectionHeader, {marginTop: 25}]}>
          <MaterialCommunityIcons name="finance" size={24} color="#7B1FA2" />
          <Text style={styles.sectionHeaderTitle}>Control de Costos</Text>
       </View>
 
-      {/* PRESUPUESTO DETALLADO */}
       {Object.keys(presupuestoDetallado).length > 0 ? (
           <TouchableOpacity 
              style={[styles.card, { borderLeftColor: '#7B1FA2' }]} 
@@ -614,9 +561,7 @@ export default function LaboresScreen({ route }) {
                     {Object.keys(presupuestoDetallado).map((catKey, idx) => {
                         const categoryData = presupuestoDetallado[catKey];
                         if (typeof categoryData === 'number') {
-                            if (catKey.includes('total')) return null; // Omitir el total suelto
-                            
-                            // Limpiamos los guiones bajos para renderizar bonito
+                            if (catKey.includes('total')) return null; 
                             const nombreLimpio = catKey.replace(/_/g, ' ');
                             const nombreCapitalizado = nombreLimpio.charAt(0).toUpperCase() + nombreLimpio.slice(1);
                             
@@ -651,7 +596,7 @@ export default function LaboresScreen({ route }) {
                                 <View key={i} style={styles.presupuestoRow}>
                                    <View style={{flex:1}}>
                                      <Text style={styles.presupuestoLabor}>{act.labor}</Text>
-                                     {act.epoca && <Text style={styles.presupuestoEpoca}>📅 {act.epoca}</Text>}
+                                     {!!act.epoca && <Text style={styles.presupuestoEpoca}>📅 {act.epoca}</Text>}
                                    </View>
                                    <Text style={styles.presupuestoCosto}>${(act.costo_ha || act.costo_kg || 0).toLocaleString()}</Text>
                                 </View>
@@ -668,8 +613,7 @@ export default function LaboresScreen({ route }) {
         </View>
       )}
 
-      {/* COSTO UNITARIO DE PRODUCCIÓN */}
-      {costos.costo_por_kg_produccion && (
+      {!!costos.costo_por_kg_produccion && (
         <View style={[styles.card, {backgroundColor: '#E8F5E9', borderLeftColor: '#2E7D32'}]}>
              <View style={styles.row}>
                 <Text style={styles.labelBold}>Costo Unitario de Producción:</Text>
@@ -684,8 +628,6 @@ export default function LaboresScreen({ route }) {
     </ScrollView>
   );
 }
-
-// --- SUB-COMPONENTES ---
 
 const SectionCard = ({ title, icon, color, children }) => (
   <View style={[styles.card, { borderLeftColor: color }]}>
@@ -708,53 +650,40 @@ const NPKBadge = ({ element, name, value, color, textColor }) => (
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F5F7FA", padding: 15 },
   loader: { flex: 1, marginTop: 50 },
-  
   headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   mainTitle: { fontSize: 24, fontWeight: "bold", color: "#1B5E20" },
   subHeader: { fontSize: 12, color: '#666', marginTop: 2 },
-  
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   badgeCompleto: { backgroundColor: '#4CAF50' },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
-
   btnDescargar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1976D2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, marginLeft: 10 },
   btnDescargarText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  
   card: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 2, borderLeftWidth: 5 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 10 },
   cardTitle: { fontSize: 16, fontWeight: 'bold' },
   accordionContent: { marginTop: 10, borderTopWidth: 1, borderTopColor: '#EEE', paddingTop: 10 },
-  
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
   labelBold: { fontWeight: 'bold', color: '#444', fontSize: 13 },
   valueText: { color: '#333', flex: 1, textAlign: 'right', fontSize: 13 },
-  
-  // Nutrición
   dosisCard: { backgroundColor: '#FAFAFA', borderRadius: 8, padding: 10, marginBottom: 5 },
   dosisHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 6 },
   dosisTitle: { fontSize: 13, fontWeight: 'bold', color: '#8E24AA' },
-  
   npkContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   npkBadge: { width: '31%', padding: 10, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   npkElement: { fontSize: 18, fontWeight: '900' },
   npkValue: { fontSize: 12, fontWeight: 'bold', marginVertical: 2 },
   npkName: { fontSize: 10, color: '#666' },
-
   microsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 5 },
   microTag: { backgroundColor: '#F3E5F5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: '#E1BEE7' },
   microText: { fontSize: 11, color: '#7B1FA2', fontWeight: '600' },
-
-  // Deficiencias
   deficienciasBtn: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFEBEE', padding: 10, borderRadius: 8, marginTop: 15, marginBottom: 5, borderWidth: 1, borderColor: '#FFCDD2' },
   deficienciasTitle: { fontSize: 13, fontWeight: 'bold', color: '#C62828', marginLeft: 8 },
   deficienciasContainer: { marginBottom: 15, backgroundColor: '#FFF5F5', padding: 10, borderRadius: 8 },
   deficienciaItem: { flexDirection: 'row', marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#FFEBEE', paddingBottom: 4 },
   defElemento: { fontWeight: 'bold', color: '#B71C1C', width: 80 },
   defSintoma: { fontSize: 13, color: '#555', flex: 1, fontStyle: 'italic' },
-  
   subTitle: { fontSize: 14, fontWeight: 'bold', color: '#333', marginTop: 15, marginBottom: 10 },
   subTitleNoMargin: { fontSize: 14, fontWeight: 'bold', color: '#333' },
-  
   programaContainer: { marginTop: 10 },
   fertEtapaCard: { backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: '#8E24AA' },
   fertEtapaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
@@ -763,15 +692,12 @@ const styles = StyleSheet.create({
   fertFormula: { fontSize: 13, color: '#8E24AA', marginBottom: 6 },
   fertDetails: { flexDirection: 'row', gap: 15 },
   fertDetail: { fontSize: 12, color: '#666' },
-  
   riegoCard: { backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8, marginBottom: 10 },
   riegoHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   riegoNombre: { fontSize: 14, fontWeight: 'bold', color: '#333', flex: 1 },
   riegoEficiencia: { fontSize: 11, backgroundColor: '#E3F2FD', color: '#1565C0', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, fontWeight: '600' },
   riegoDetails: { marginBottom: 8 },
   riegoDetail: { fontSize: 12, color: '#666', marginBottom: 3 },
-
-  // Postcosecha
   postcosechaGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   postBox: { flex: 1, alignItems: 'center', backgroundColor: '#FFF3E0', marginHorizontal: 4, padding: 10, borderRadius: 8 },
   postLabel: { fontSize: 11, color: '#E65100', marginTop: 4, fontWeight: 'bold' },
@@ -779,8 +705,6 @@ const styles = StyleSheet.create({
   postDetailBox: { marginBottom: 10, backgroundColor: '#FBE9E7', padding: 10, borderRadius: 8 },
   postDetailTitle: { fontSize: 13, fontWeight: 'bold', color: '#D84315', marginBottom: 4 },
   postDetailText: { fontSize: 13, color: '#333', lineHeight: 19 },
-  
-  // Tabla
   infoRowContainer: { flexDirection:'row', justifyContent:'space-between', marginBottom: 12, paddingHorizontal: 4 },
   hidricoInfo: { fontSize: 12, color: '#444' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#E1F5FE', padding: 8, borderRadius: 6, marginBottom: 4 },
@@ -788,42 +712,32 @@ const styles = StyleSheet.create({
   tableRow: { flexDirection: 'row', padding: 8, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   tableRowEven: { backgroundColor: '#FAFAFA' },
   tableCell: { fontSize: 12, color: '#333' },
-
-  // Presupuesto
   presupuestoCatContainer: { marginBottom: 10, backgroundColor: '#F3E5F5', borderRadius: 8, overflow:'hidden' },
   presupuestoCatHeader: { flexDirection: 'row', alignItems: 'center', padding: 12, justifyContent:'space-between' },
   presupuestoCatTitle: { fontWeight: 'bold', color: '#6A1B9A', fontSize: 14 },
   presupuestoCatTotal: { fontSize: 12, color: '#8E24AA' },
-  
   presupuestoRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 10, paddingLeft: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#F3E5F5' },
   presupuestoLabor: { fontSize: 13, color: '#333', fontWeight: '500' },
   presupuestoEpoca: { fontSize: 11, color: '#888', marginTop: 2 },
   presupuestoCosto: { fontSize: 13, color: '#2E7D32', fontWeight: 'bold' },
-
-  // Sección Header
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 15 },
   sectionHeaderTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginLeft: 10 },
   sectionHeaderSubtitle: { fontSize: 12, color: '#666', backgroundColor: '#E0E0E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  
   etapaCard: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 10, elevation: 1, overflow: 'hidden', borderWidth: 1, borderColor: '#E0E0E0' },
   etapaCardActive: { borderColor: '#2E7D32', borderWidth: 2 },
   etapaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 15, backgroundColor: '#fff' },
   etapaHeaderLeft: { flex: 1 },
   etapaTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 4 },
   etapaCount: { fontSize: 11, color: '#666' },
-  
   actividadesContainer: { padding: 15, paddingTop: 5, backgroundColor: '#FAFAFA', borderTopWidth: 1, borderTopColor: '#E0E0E0' },
   actividadItem: { marginBottom: 12, borderLeftWidth: 3, borderLeftColor: '#81C784', paddingLeft: 10 },
   actTitle: { fontSize: 14, fontWeight: 'bold', color: '#2E7D32' },
   actDesc: { fontSize: 13, color: '#555', marginTop: 2, lineHeight: 18 },
-  
   emptyText: { fontStyle: 'italic', color: '#999', padding: 10, fontSize: 13 },
   emptyContainer: { padding: 30, alignItems: 'center' },
   emptyTextMain: { color: '#999', fontSize: 16, textAlign: 'center', marginTop: 10 },
-  
   btnRetry: { backgroundColor: '#2E7D32', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 20 },
   btnText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
-  
   warningCard: { backgroundColor: '#FFEBEE', padding: 15, borderRadius: 10, marginBottom: 15, borderLeftWidth: 4, borderLeftColor: '#F44336' },
   warningCardText: { color: '#C62828', fontSize: 13, fontWeight: '600' },
 });

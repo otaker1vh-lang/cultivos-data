@@ -17,7 +17,6 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CultivoDataManager from "../utils/CultivoDataManager";
 
-// Componente para chips de filtro
 const FilterChip = ({ label, selected, onPress, icon }) => (
   <TouchableOpacity 
     style={[styles.filterChip, selected && styles.filterChipSelected]} 
@@ -32,7 +31,6 @@ export default function PlagasScreen({ route }) {
   const { cultivo } = route.params;
   const CACHE_KEY = `@plagas_data_${cultivo}`;
 
-  // --- ESTADOS ORIGINALES ---
   const [loading, setLoading] = useState(true);
   const [loadingCompleto, setLoadingCompleto] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -43,7 +41,6 @@ export default function PlagasScreen({ route }) {
   const [filter, setFilter] = useState('todos');
   const [expandedId, setExpandedId] = useState(null);
 
-  // --- NUEVOS ESTADOS PARA EDICIÓN ---
   const [modalVisible, setModalVisible] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [editIndex, setEditIndex] = useState(-1);
@@ -52,21 +49,17 @@ export default function PlagasScreen({ route }) {
     cargarDatos();
   }, [cultivo]);
 
-  // 1. LÓGICA DE CARGA HÍBRIDA CENTRALIZADA
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      // 1. PRIMERO: Buscar si el usuario ya hizo ediciones locales o descargas en esta pantalla
       const localEdits = await AsyncStorage.getItem(CACHE_KEY);
       if (localEdits) {
         const parsedEdits = JSON.parse(localEdits);
-        // ¡Magia! Pasamos la caché local por el mismo procesador universal
         procesarYSetearDatos(parsedEdits);
         setLoading(false);
         return; 
       }
 
-      // 2. SI NO HAY EDICIONES: Cargar del Manager
       const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       if (data) {
         procesarYSetearDatos(data);
@@ -80,7 +73,6 @@ export default function PlagasScreen({ route }) {
     }
   };
 
-  // 2. DESCARGA MANUAL Y REFRESH
   const descargarDatosCompletos = async (fromRefresh = false) => {
     try {
       if (!fromRefresh) setLoadingCompleto(true);
@@ -109,27 +101,23 @@ export default function PlagasScreen({ route }) {
     setRefreshing(false);
   };
 
-  // 3. PROCESAMIENTO
   const procesarYSetearDatos = (data) => {
-    // A. Detectar GDD
     if (data.grados_dia_desarrollo) {
       setGddInfo(data.grados_dia_desarrollo);
     }
 
-    // B. Detectar Lista de Plagas
     let rawList = [];
     if (data.riesgos_detallados) {
-        // Verifica si CultivoDataManager ya lo hizo Array
         if (Array.isArray(data.riesgos_detallados)) {
             rawList = data.riesgos_detallados
-                    .filter(item => item.nombre !== "principales") // <-- FILTRO POR SI VIENE COMO ARRAY
+                    .filter(item => item.nombre !== "principales")
                     .map(item => ({
                         ...item,
                         nombre: item.nombre || item.nombre_plaga 
                     }));
         } else {
             rawList = Object.entries(data.riesgos_detallados)
-                  .filter(([key, value]) => key !== "principales") // <-- ELIMINA EL FANTASMA DEL CHAMPIÑÓN AQUÍ
+                  .filter(([key, value]) => key !== "principales")
                   .map(([key, value]) => ({ 
                       nombre: value.nombre || key, 
                       ...value 
@@ -143,12 +131,9 @@ export default function PlagasScreen({ route }) {
         rawList = data.plagas;
     }
 
-    // C. Normalización
     const listaNormalizada = rawList.map(item => {
-        // 1. Síntomas (Corregido para evitar duplicar "descripción" como "síntomas")
         const sintomas = item.sintomas || item.sintomas_visuales || "";
 
-        // 2. Condiciones
         let condiciones = item.condiciones_favorables || item.condiciones_desarrollo || "";
         if (typeof condiciones === 'object' && condiciones !== null) {
             const partes = [];
@@ -163,7 +148,6 @@ export default function PlagasScreen({ route }) {
             condiciones = partes.join(', ');
         }
 
-        // 3. Manejo Integrado
         let manejo = item.manejo_integrado || {}; 
         
         if (typeof manejo !== 'object' || manejo === null) {
@@ -191,7 +175,6 @@ export default function PlagasScreen({ route }) {
             }
         }
         
-        // Procesar control general / recomendado (Corregido el parseo seguro de objetos desde la DB)
         let controlGeneral = item.control_recomendado;
         if (!controlGeneral && item.control) {
             if (typeof item.control === 'object') {
@@ -221,7 +204,6 @@ export default function PlagasScreen({ route }) {
 
     setPlagasList(listaNormalizada);
 
-    // D. Nivel
     if (data.riesgos_detallados || data.plagas_detalladas || data.grados_dia_desarrollo) {
         setNivel('completo');
     } else {
@@ -229,7 +211,6 @@ export default function PlagasScreen({ route }) {
     }
   };
 
-  // --- FUNCIONES DE EDICIÓN ---
   const abrirEditor = (item, index) => {
     setEditIndex(index);
     let quimicoCombinado = typeof item.manejo_integrado === 'object' ? (item.manejo_integrado.quimico || '') : '';
@@ -283,7 +264,6 @@ export default function PlagasScreen({ route }) {
     setModalVisible(false);
   };
 
-  // Corregido el mapeo de filtros para adaptarse a cómo Firebase cataloga los tipos.
   const getFilteredList = () => {
     if (filter === 'todos') return plagasList;
     return plagasList.filter(item => {
@@ -312,7 +292,6 @@ export default function PlagasScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <View style={{flex: 1}}>
             <Text style={styles.title}>Plagas y Enfermedades</Text>
@@ -341,8 +320,8 @@ export default function PlagasScreen({ route }) {
         )}
       </View>
 
-      {/* TARJETA GDD */}
-      {gddInfo && (
+      {/* BLINDAJE DE SEGURIDAD GDD */}
+      {!!gddInfo && (
         <View style={styles.gddCard}>
           <View style={styles.gddHeader}>
             <MaterialCommunityIcons name="thermometer-lines" size={24} color="#E65100" />
@@ -359,13 +338,12 @@ export default function PlagasScreen({ route }) {
               <Text style={styles.gddValue}>{gddInfo.gdd_ciclo_completo}</Text>
             </View>
           </View>
-          {gddInfo.nota && (
+          {!!gddInfo.nota && (
              <Text style={styles.gddNote}>{gddInfo.nota}</Text>
           )}
         </View>
       )}
 
-      {/* FILTROS */}
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingHorizontal: 15}}>
           <FilterChip label="Todos" selected={filter === 'todos'} onPress={() => setFilter('todos')} icon="view-grid" />
@@ -376,20 +354,12 @@ export default function PlagasScreen({ route }) {
         </ScrollView>
       </View>
 
-      {/* LISTA CON REFRESH CONTROL */}
       <ScrollView 
         style={styles.listContainer}
-        refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh}
-            colors={["#D32F2F"]}
-            tintColor="#D32F2F"
-          />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#D32F2F"]} tintColor="#D32F2F" />}
       >
         {filteredData.length > 0 ? (
-          filteredData.map((item) => {
+          filteredData.map((item, index) => {
             const isExpanded = expandedId === item.nombre;
             
             let typeColor = '#757575';
@@ -403,52 +373,43 @@ export default function PlagasScreen({ route }) {
 
             return (
               <View key={`plaga-${item.nombre}`} style={[styles.card, { borderLeftColor: typeColor }]}>
-                {/* CABECERA */}
-                <TouchableOpacity 
-                  style={styles.cardHeader} 
-                  onPress={() => toggleExpand(item.nombre)}
-                  activeOpacity={0.7}
-                >
+                <TouchableOpacity style={styles.cardHeader} onPress={() => toggleExpand(item.nombre)} activeOpacity={0.7}>
                   <View style={styles.headerIconContainer}>
                     <MaterialCommunityIcons name={typeIcon} size={28} color={typeColor} />
                   </View>
                   <View style={{flex: 1, paddingRight: 10}}>
                     <Text style={styles.plagaName}>{item.nombre}</Text>
-                    {item.nombre_cientifico && (
+                    {/* BLINDAJE ESTRICTO CON !! */}
+                    {!!item.nombre_cientifico && (
                       <Text style={styles.scientificName}>{item.nombre_cientifico}</Text>
                     )}
                     <Text style={[styles.plagaType, {color: typeColor}]}>{item.tipo || 'General'}</Text>
                   </View>
                   
-                  {/* BOTÓN DE EDICIÓN */}
                   <TouchableOpacity style={styles.btnEditar} onPress={() => abrirEditor(item, index)}>
                     <MaterialCommunityIcons name="pencil-outline" size={22} color="#1976D2" />
                   </TouchableOpacity>
 
-                  <MaterialCommunityIcons 
-                    name={isExpanded ? "chevron-up" : "chevron-down"} 
-                    size={24} 
-                    color="#999" 
-                  />
+                  <MaterialCommunityIcons name={isExpanded ? "chevron-up" : "chevron-down"} size={24} color="#999" />
                 </TouchableOpacity>
 
-                {/* CONTENIDO EXPANDIBLE */}
                 {isExpanded && (
                   <View style={styles.cardBody}>
-                    {item.descripcion && (
+                    {/* BLINDAJE ESTRICTO CON !! PARA EVITAR CRASHEO DE STRINGS VACÍOS */}
+                    {!!item.descripcion && (
                       <Text style={styles.description}>{item.descripcion}</Text>
                     )}
+                    
                     <View style={styles.divider} />
 
-                    {/* Umbral Económico y Pérdida (Añadir debajo de la descripción) */}
-                    {(item.umbral_economico || item.perdida_potencial) && (
+                    {!!(item.umbral_economico || item.perdida_potencial) && (
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-                        {item.umbral_economico && (
+                        {!!item.umbral_economico && (
                           <Text style={{ fontSize: 12, color: '#D32F2F', flex: 1 }}>
                              <MaterialCommunityIcons name="target" size={14} /> Umbral: {item.umbral_economico}
                           </Text>
                         )}
-                        {item.perdida_potencial && (
+                        {!!item.perdida_potencial && (
                           <Text style={{ fontSize: 12, color: '#E65100', flex: 1, textAlign: 'right' }}>
                              <MaterialCommunityIcons name="trending-down" size={14} /> Pérdida: {item.perdida_potencial}
                           </Text>
@@ -456,8 +417,7 @@ export default function PlagasScreen({ route }) {
                       </View>
                     )}
 
-                    {/* Síntomas */}
-                    {item.sintomas !== "" && (
+                    {!!item.sintomas && (
                       <View style={styles.sectionBlock}>
                         <Text style={styles.sectionTitle}>
                           <MaterialCommunityIcons name="magnify" size={16} color="#555" /> Síntomas
@@ -466,8 +426,7 @@ export default function PlagasScreen({ route }) {
                       </View>
                     )}
 
-                    {/* Condiciones */}
-                    {item.condiciones_favorables && item.condiciones_favorables !== "" && (
+                    {!!item.condiciones_favorables && (
                       <View style={styles.sectionBlock}>
                         <Text style={styles.sectionTitle}>
                           <MaterialCommunityIcons name="weather-cloudy" size={16} color="#555" /> Condiciones
@@ -476,44 +435,42 @@ export default function PlagasScreen({ route }) {
                       </View>
                     )}
 
-                    {/* Manejo y DOSIS */}
                     {item.manejo_integrado ? (
                         <View style={styles.managementContainer}>
                           <Text style={styles.managementHeader}>🛡️ Control y Dosis</Text>
                           
-                          {item.manejo_integrado.cultural && (
+                          {!!item.manejo_integrado.cultural && (
                             <View style={styles.managementRow}>
                               <Text style={styles.managementLabel}>🌱 Cultural:</Text>
                               <Text style={styles.managementText}>{item.manejo_integrado.cultural}</Text>
                             </View>
                           )}
                           
-                          {item.manejo_integrado.biologico && (
+                          {!!item.manejo_integrado.biologico && (
                             <View style={styles.managementRow}>
                               <Text style={styles.managementLabel}>🐞 Biológico:</Text>
                               <Text style={styles.managementText}>{item.manejo_integrado.biologico}</Text>
                             </View>
                           )}
                           
-                          {item.manejo_integrado.quimico && (
+                          {!!item.manejo_integrado.quimico && (
                             <View style={styles.managementRow}>
                               <Text style={[styles.managementLabel, {color: '#D32F2F'}]}>🧪 Químico / Dosis:</Text>
                               <Text style={styles.managementText}>{item.manejo_integrado.quimico}</Text>
                             </View>
                           )}
                           
-                          {item.manejo_integrado.general && (
+                          {!!item.manejo_integrado.general && (
                               <Text style={styles.managementText}>{item.manejo_integrado.general}</Text>
                           )}
-                          {item.control && item.control.mecanismo && (
+                          {!!(item.control && item.control.mecanismo) && (
                             <View style={styles.managementRow}>
                               <Text style={styles.managementLabel}>⚙️ Mecanismo de Acción:</Text>
                               <Text style={styles.managementText}>{item.control.mecanismo}</Text>
                             </View>
                           )}
                           
-                          {/* 🧪 Ingrediente Químico (NUEVA RUTA DOBLE PARA JSON V4) */}
-                          {((item.control_quimico && item.control_quimico.length > 0 && item.control_quimico[0].ingrediente_activo) || 
+                          {!!((item.control_quimico && item.control_quimico.length > 0 && item.control_quimico[0].ingrediente_activo) || 
                             (item.control?.productos_activos_mexico && item.control.productos_activos_mexico.length > 0 && item.control.productos_activos_mexico[0].ingrediente)) && (
                             <View style={styles.managementRow}>
                               <Text style={[styles.managementLabel, {color: '#D32F2F'}]}>🧪 Ingrediente Químico Principal:</Text>
@@ -539,13 +496,7 @@ export default function PlagasScreen({ route }) {
         <View style={{height: 60}} />
       </ScrollView>
 
-      {/* --- MODAL DE EDICIÓN --- */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
@@ -595,7 +546,6 @@ const styles = StyleSheet.create({
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { marginTop: 10, color: '#666' },
 
-  // Header y Badges
   header: { padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E0E0E0', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 20, fontWeight: 'bold', color: '#D32F2F' },
   subtitle: { fontSize: 13, color: '#666', marginTop: 2 },
@@ -605,7 +555,6 @@ const styles = StyleSheet.create({
   btnDescargar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1976D2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginLeft: 10 },
   btnDescargarText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
 
-  // GDD Styles
   gddCard: { marginHorizontal: 15, marginTop: 15, marginBottom: 5, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 15, borderWidth: 1, borderColor: '#FFE0B2' },
   gddHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   gddTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginLeft: 8 },
@@ -616,14 +565,12 @@ const styles = StyleSheet.create({
   separatorVertical: { width: 1, height: 30, backgroundColor: '#FFCC80' },
   gddNote: { fontSize: 11, color: '#8D6E63', fontStyle: 'italic', textAlign: 'center', marginTop: 4 },
 
-  // Filters
   filtersContainer: { marginTop: 10, marginBottom: 5, height: 40 },
   filterChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#E0E0E0' },
   filterChipSelected: { backgroundColor: '#D32F2F', borderColor: '#D32F2F' },
   filterText: { fontSize: 13, color: '#555' },
   filterTextSelected: { color: '#fff', fontWeight: 'bold' },
 
-  // List Cards
   listContainer: { paddingHorizontal: 15, paddingTop: 10 },
   card: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 12, borderLeftWidth: 5, elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', padding: 15 },
@@ -637,12 +584,10 @@ const styles = StyleSheet.create({
   description: { fontSize: 14, color: '#444', lineHeight: 20, marginBottom: 10 },
   divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 8 },
   
-  // Detalle Styles
   sectionBlock: { marginBottom: 12 },
   sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#555', marginBottom: 6 },
   bodyText: { fontSize: 13, color: '#666', lineHeight: 19 },
   
-  // Manejo Styles
   managementContainer: { backgroundColor: '#FAFAFA', padding: 12, borderRadius: 8, marginTop: 5 },
   managementHeader: { fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 8 },
   managementRow: { marginBottom: 8 },
@@ -652,7 +597,6 @@ const styles = StyleSheet.create({
   emptyContainer: { alignItems: 'center', marginTop: 50 },
   emptyText: { marginTop: 10, color: '#999', fontSize: 14 },
 
-  // Modal Styles
   modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, height: '85%', paddingBottom: 20 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderColor: '#eee' },

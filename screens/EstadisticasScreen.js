@@ -8,7 +8,7 @@ import {
   ActivityIndicator, 
   TouchableOpacity, 
   Alert,
-  RefreshControl // <-- IMPORTACIÓN NUEVA
+  RefreshControl
 } from 'react-native';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
@@ -20,23 +20,19 @@ export default function EstadisticasScreen({ route }) {
   const { cultivo } = route.params; 
   
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
+  const [refreshing, setRefreshing] = useState(false); 
   const [infoCultivo, setInfoCultivo] = useState(null);
   
-  // Estados para gráficas
   const [historicoPrecios, setHistoricoPrecios] = useState(null);
   const [costosData, setCostosData] = useState(null);
   const [rentabilidadData, setRentabilidadData] = useState(null);
 
-  // Estados para datos expandidos
   const [statsExpandidas, setStatsExpandidas] = useState(null);
   const [mercadoData, setMercadoData] = useState(null);
 
   useEffect(() => {
     cargarDatos(false);
   }, [cultivo]);
-
-    // --- SUSTITUIR ESTAS FUNCIONES EN EstadisticasScreen.js ---
 
   const procesarHistoricoPrecios = (data) => {
     const eco = data.economia_expandida || {};
@@ -49,7 +45,6 @@ export default function EstadisticasScreen({ route }) {
       return;
     }
 
-    // 🛡️ PROTECCIÓN ANTI-CRASH CHARTKIT: Evita valores idénticos en el Eje Y
     if (precioMin === precioMax && precioMax > 0) {
         precioMin = precioMin * 0.98;
         precioMax = precioMax * 1.02;
@@ -80,9 +75,7 @@ export default function EstadisticasScreen({ route }) {
     keys.forEach((key, index) => {
         const valor = costos[key];
         if (typeof valor === 'number' && valor > 0) {
-            // Convierte "mano_obra_cosecha" a "Mano Obra Cosecha" para la gráfica
             const nombreFormateado = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            
             chartData.push({
                 name: nombreFormateado,
                 population: valor,
@@ -97,7 +90,6 @@ export default function EstadisticasScreen({ route }) {
         setCostosData(null);
         return;
     }
-
     setCostosData(chartData);
   };
 
@@ -116,9 +108,8 @@ export default function EstadisticasScreen({ route }) {
         return;
     }
 
-    // 🛡️ PROTECCIÓN ANTI-CRASH CHARTKIT: Evita Barras Idénticas
     if (inversion === ingreso && inversion > 0) {
-        ingreso = ingreso * 1.01; // Añade un 1% para que la gráfica pueda calcular la altura
+        ingreso = ingreso * 1.01;
     }
 
     setRentabilidadData({
@@ -127,11 +118,9 @@ export default function EstadisticasScreen({ route }) {
     });
   };
 
-  // --- FUNCIÓN MODIFICADA PARA ACEPTAR isRefreshing ---
   const cargarDatos = async (isRefreshing = false) => {
     try {
       if (!isRefreshing) setLoading(true);
-      // Usamos el Manager que ya maneja la URL de Firebase
       const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
       
       if (data) {
@@ -141,7 +130,6 @@ export default function EstadisticasScreen({ route }) {
         procesarCostos(data);
         procesarRentabilidad(data);
         
-        // Datos adicionales del mercado para la UI
         if (data.mercado_comercializacion) {
           setMercadoData(data.mercado_comercializacion);
         }
@@ -154,7 +142,6 @@ export default function EstadisticasScreen({ route }) {
     }
   };
 
-  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
   const onRefresh = async () => {
     setRefreshing(true);
     await cargarDatos(true);
@@ -173,22 +160,8 @@ export default function EstadisticasScreen({ route }) {
     let mesesAltosRaw = temporadas.alto || analisis.meses_precio_alto; 
     let mesesBajosRaw = temporadas.bajo || analisis.meses_precio_bajo;
 
-    // 💡 NUEVO LÓGICA: Buscar en mercado_comercializacion si no existe en la raíz
-    if (!mesesAltosRaw || !mesesBajosRaw) {
-        const tempMercado = infoCultivo.mercado_comercializacion?.temporadas_precio;
-        const tempArray = Array.isArray(tempMercado) ? tempMercado : (tempMercado && typeof tempMercado === 'object' ? Object.values(tempMercado) : []);
-        
-        if (tempArray.length > 0) {
-            // Ordenar por precio (de mayor a menor)
-            const sorted = [...tempArray].sort((a, b) => (b.precio_mxn_kg || 0) - (a.precio_mxn_kg || 0));
-            if (!mesesAltosRaw) mesesAltosRaw = [sorted[0].meses];
-            if (!mesesBajosRaw && sorted.length > 1) mesesBajosRaw = [sorted[sorted.length - 1].meses];
-        }
-    }
-
-    // Fallbacks finales y formateo a Arrays
-    const mesesAltos = Array.isArray(mesesAltosRaw) ? mesesAltosRaw : (mesesAltosRaw ? [mesesAltosRaw] : ["Dic", "Ene"]);
-    const mesesBajos = Array.isArray(mesesBajosRaw) ? mesesBajosRaw : (mesesBajosRaw ? [mesesBajosRaw] : ["Jun", "Jul"]);
+    const mesesAltos = (Array.isArray(mesesAltosRaw) && mesesAltosRaw.length > 0) ? mesesAltosRaw : (mesesAltosRaw ? [mesesAltosRaw] : ["Dic", "Ene"]);
+    const mesesBajos = (Array.isArray(mesesBajosRaw) && mesesBajosRaw.length > 0) ? mesesBajosRaw : (mesesBajosRaw ? [mesesBajosRaw] : ["Jun", "Jul"]);
 
     let colorVol = "#FFA726"; 
     if (volatilidad.toLowerCase().includes('alta')) colorVol = "#EF5350"; 
@@ -199,9 +172,6 @@ export default function EstadisticasScreen({ route }) {
 
   const datosRiesgo = obtenerDatosRiesgo();
 
-  // --- RENDERIZADO DE SECCIONES ---
-
-  // 1. Mercado y Comercialización
   const renderMercadoSection = () => {
     if (!mercadoData) return (
         <View style={[styles.card, { alignItems: 'center', paddingVertical: 20 }]}>
@@ -214,7 +184,6 @@ export default function EstadisticasScreen({ route }) {
 
     const { canales_venta, destinos_principales } = mercadoData;
 
-    // 🛡️ PROTECCIÓN: Normalizar arrays anidados mutados por Firebase
     const canalesArray = Array.isArray(canales_venta) ? canales_venta : (canales_venta && typeof canales_venta === 'object' ? Object.values(canales_venta) : []);
     const destinosArray = Array.isArray(destinos_principales) ? destinos_principales : (destinos_principales && typeof destinos_principales === 'object' ? Object.values(destinos_principales) : []);
 
@@ -262,7 +231,7 @@ export default function EstadisticasScreen({ route }) {
                                         <Text style={styles.legendTextBold}>{item.name}</Text>
                                         <Text style={styles.legendTextBold}>{item.population}%</Text>
                                     </View>
-                                    {item.condiciones && <Text style={styles.legendSubText}>Pago: {item.condiciones}</Text>}
+                                    {!!item.condiciones && <Text style={styles.legendSubText}>Pago: {item.condiciones}</Text>}
                                 </View>
                             </View>
                         ))}
@@ -278,7 +247,9 @@ export default function EstadisticasScreen({ route }) {
                     {destinosArray.map((item, index) => {
                         const isString = typeof item === 'string';
                         const nombre = isString ? item.split(' (')[0] : (item.destino || item.ciudad);
-                        const porcentaje = isString ? parseFloat(item.match(/\(([^)]+)%\)/)?.[1] || 0) : item.porcentaje;
+                        let porcentaje = isString ? parseFloat(item.match(/\(([^)]+)%\)/)?.[1] || 0) : (parseFloat(item.porcentaje || item.participacion_pct) || 0);
+                        if (isNaN(porcentaje)) porcentaje = 0;
+
                         return (
                             <View key={index} style={styles.destinoItem}>
                                 <View style={styles.destinoHeader}>
@@ -298,12 +269,10 @@ export default function EstadisticasScreen({ route }) {
     );
   };
 
-  // 2. Historial de Producción
   const renderHistorialTable = () => {
     if (!statsExpandidas?.historial_produccion) return null;
 
     const historial = statsExpandidas.historial_produccion;
-    // CORRECCIÓN CRÍTICA: Detectar si es Array (tu JSON actual) o Objeto (código original)
     const datosArray = Array.isArray(historial) 
         ? historial 
         : Object.entries(historial).map(([key, val]) => ({ year: key, ...val }));
@@ -330,7 +299,6 @@ export default function EstadisticasScreen({ route }) {
                          {data.produccion_ton ? data.produccion_ton.toLocaleString() : '-'}
                      </Text>
                      <Text style={[styles.td, {flex:1, textAlign:'right'}]}>
-                         {/* Soporta nombres de variable alternativos */}
                          {data.rendimiento_t_ha || data.rendimiento_ton_ha || '-'}
                      </Text>
                  </View>
@@ -339,7 +307,6 @@ export default function EstadisticasScreen({ route }) {
     );
   };
 
-  // 3. Producción Nacional (CORREGIDO PARA ESTRUCTURA DE FIREBASE)
   const renderProductoresNacionales = () => {
     const detalleObj = statsExpandidas?.detalle_produccion_nacional;
     const listaEstadosRaw = detalleObj?.principales_estados;
@@ -356,12 +323,10 @@ export default function EstadisticasScreen({ route }) {
                 <Text style={styles.cardTitle}>Top Productores Nacionales</Text>
              </View>
              
-             {/* Opción A: Datos detallados (Barras) */}
              {listaEstados && Array.isArray(listaEstados) ? (
                  <>
                  <View style={styles.statesContainer}>
                      {listaEstados.map((estado, idx) => {
-                         // Validar si es string plano o un objeto detallado
                          const isString = typeof estado === 'string';
                          const nombreEstado = isString ? estado : (estado.estado || 'Desconocido');
                          const participacion = isString ? 0 : (estado.participacion_pct || 0);
@@ -377,9 +342,8 @@ export default function EstadisticasScreen({ route }) {
                                      <View style={styles.progressBarBg}>
                                          <View style={[styles.progressBarFill, {width: `${participacion}%`}]} />
                                      </View>
-                                     {/* Solo mostrar números si existen */}
                                      {participacion > 0 && <Text style={styles.statePct}>{participacion}%</Text>}
-                                     {superficie && (
+                                     {!!superficie && (
                                          <Text style={styles.stateSurface}>
                                              {superficie.toLocaleString()} ha
                                          </Text>
@@ -389,14 +353,13 @@ export default function EstadisticasScreen({ route }) {
                          );
                      })}
                  </View>
-                 {detalleObj?.estacionalidad && (
+                 {!!detalleObj?.estacionalidad && (
                      <Text style={{fontSize:11, color:'#777', marginTop:10, textAlign:'center'}}>
                         Estacionalidad Principal: {detalleObj.estacionalidad}
                      </Text>
                  )}
                  </>
              ) : (
-                 // Opción B: Lista simple de texto (Fallback)
                  <View style={{padding: 10}}>
                      <Text style={{color: '#555', fontSize: 13, lineHeight: 20}}>
                          Principales estados productores identificados:
@@ -427,23 +390,20 @@ export default function EstadisticasScreen({ route }) {
     <ScrollView 
       style={styles.container} 
       showsVerticalScrollIndicator={false}
-      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={["#2E7D32", "#1565C0"]} // Colores de tu app para Android
-          tintColor="#2E7D32" // Color para iOS
+          colors={["#2E7D32", "#1565C0"]} 
+          tintColor="#2E7D32" 
         />
       }
     >
       
-      {/* HEADER CON BOTÓN DE NUBE */}
       <View style={styles.header}>
           <View style={{flex: 1}}>
             <Text style={styles.title}>Estadísticas: {cultivo}</Text>
-            {/* CORRECCIÓN: Acceso seguro a Ranking Mundial */}
-            {statsExpandidas?.panorama_2025_summary?.ranking_mundial && (
+            {!!statsExpandidas?.panorama_2025_summary?.ranking_mundial && (
                 <Text style={styles.subtitleHeader}>
                     Ranking Mundial: #{statsExpandidas.panorama_2025_summary.ranking_mundial}
                 </Text>
@@ -459,8 +419,7 @@ export default function EstadisticasScreen({ route }) {
           </TouchableOpacity>
       </View>
 
-      {/* AVISO SI NO HAY DATOS EXPANDIDOS */}
-      {!statsExpandidas && !loading && (
+      {!!(!statsExpandidas && !loading) && (
           <View style={[styles.card, {backgroundColor: '#FFF3E0', borderLeftWidth: 4, borderLeftColor: '#FF9800'}]}>
               <View style={styles.cardHeader}>
                   <MaterialCommunityIcons name="alert-circle-outline" size={24} color="#F57C00" />
@@ -472,8 +431,7 @@ export default function EstadisticasScreen({ route }) {
           </View>
       )}
 
-      {/* SECCIÓN: PRODUCCIÓN TOTAL (Datos Raíz) */}
-      {statsExpandidas && (statsExpandidas.produccion_toneladas || statsExpandidas.superficie_sembrada_ha) && (
+      {!!(statsExpandidas && ((statsExpandidas.produccion_toneladas || 0) > 0 || (statsExpandidas.superficie_sembrada_ha || 0) > 0)) && (
           <View style={styles.card}>
               <View style={styles.cardHeader}>
                   <MaterialCommunityIcons name="tractor" size={20} color="#5D4037" />
@@ -506,8 +464,7 @@ export default function EstadisticasScreen({ route }) {
           </View>
       )}
 
-      {/* SECCIÓN: PANORAMA (CORREGIDO NOMBRES DE VARIABLES) */}
-      {(statsExpandidas?.panorama_2025_summary || statsExpandidas?.comercio_exterior_economia) && (
+      {!!(statsExpandidas?.panorama_2025_summary || statsExpandidas?.comercio_exterior_economia) && (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <MaterialCommunityIcons name="earth" size={20} color="#0D47A1" />
@@ -515,21 +472,21 @@ export default function EstadisticasScreen({ route }) {
             </View>
             
             <View style={styles.panoramaContainer}>
-                    {/* 1. Uso seguro de ?. para evitar el crash */}
-                    {statsExpandidas.panorama_2025_summary?.variacion_anual_pct !== undefined && (
+                    {!!(statsExpandidas.panorama_2025_summary?.variacion_anual_pct !== undefined && statsExpandidas.panorama_2025_summary?.variacion_anual_pct !== null) && (
                         <Text style={styles.panoramaText}>
                             <Text style={{fontWeight:'bold'}}>Variación Anual: </Text> 
                             {statsExpandidas.panorama_2025_summary.variacion_anual_pct}%
                         </Text>
                     )}
-                 <Text style={styles.panoramaText}>
-                    {/* 2. Uso seguro de ?. en el resumen */}
-                    {statsExpandidas.panorama_2025_summary?.resumen || 
-                     `Consumo per cápita: ${statsExpandidas.comercio_exterior_economia?.consumo_nacional_kg_percapita || 'N/A'} kg`}
-                </Text>
+                 {!!(statsExpandidas.panorama_2025_summary?.resumen || statsExpandidas.comercio_exterior_economia?.consumo_nacional_kg_percapita) && (
+                     <Text style={styles.panoramaText}>
+                        {statsExpandidas.panorama_2025_summary?.resumen || 
+                         `Consumo per cápita: ${statsExpandidas.comercio_exterior_economia?.consumo_nacional_kg_percapita || 'N/A'} kg`}
+                    </Text>
+                 )}
             </View>
 
-            {statsExpandidas.comercio_exterior_economia && (
+            {!!statsExpandidas.comercio_exterior_economia && (
                 <View style={styles.comercioGrid}>
                     <View style={styles.statBox}>
                         <MaterialCommunityIcons name="airplane-takeoff" size={24} color="#1565C0" />
@@ -543,12 +500,10 @@ export default function EstadisticasScreen({ route }) {
                         </Text>
                     </View>
                     
-                    {/* --- CORRECCIÓN DE VALOR (Soporte MDD y MXN) --- */}
                     <View style={styles.statBox}>
                         <MaterialCommunityIcons name="currency-usd" size={24} color="#2E7D32" />
                         <Text style={styles.statLabel}>Valor</Text>
                         <Text style={styles.statValue}>
-                            {/* 1. Intenta MDD */}
                             {(statsExpandidas.comercio_exterior_economia.valor_exportaciones_millones_usd || 
                               statsExpandidas.comercio_exterior_economia.valor_exportacion_mdd || 
                               statsExpandidas.comercio_exterior_economia.exportaciones_millones_usd) 
@@ -556,24 +511,20 @@ export default function EstadisticasScreen({ route }) {
                                        statsExpandidas.comercio_exterior_economia.valor_exportacion_mdd || 
                                        statsExpandidas.comercio_exterior_economia.exportaciones_millones_usd).toLocaleString()} MDD`
                                 : 
-                                // 2. Intenta MXN en comercio exterior
                                 (statsExpandidas.comercio_exterior_economia.valor_produccion_millones_mxn 
                                     ? `$${statsExpandidas.comercio_exterior_economia.valor_produccion_millones_mxn.toLocaleString()} MXN`
                                     : 
-                                    // 3. NUEVO: Fallback a la raíz del JSON (transformando miles a millones)
                                     (statsExpandidas.valor_produccion_miles_mxn
                                         ? `$${(statsExpandidas.valor_produccion_miles_mxn / 1000).toLocaleString(undefined, {maximumFractionDigits: 1})} MXN`
                                         : '-'))
                             }
                         </Text>
                     </View>
-                    {/* ----------------------------------------------- */}
 
                     <View style={styles.statBox}>
                         <MaterialCommunityIcons name="account-group" size={24} color="#F9A825" />
                         <Text style={styles.statLabel}>Empleos</Text>
                         <Text style={styles.statValue}>
-                            {/* CORRECCIÓN: Soporte para 'empleos_generados' o suma de directos */}
                             {statsExpandidas.comercio_exterior_economia.empleos_generados
                                 ? statsExpandidas.comercio_exterior_economia.empleos_generados.toLocaleString()
                                 : (statsExpandidas.comercio_exterior_economia.empleos_directos 
@@ -586,10 +537,8 @@ export default function EstadisticasScreen({ route }) {
         </View>
       )}
 
-      {/* SECCIÓN: MERCADO Y COMERCIALIZACIÓN */}
       {renderMercadoSection()}
 
-      {/* GRÁFICA DE PRECIOS */}
       <View style={styles.card}>
           <View style={styles.cardHeader}>
               <MaterialCommunityIcons name="chart-line" size={20} color="#1565C0" />
@@ -621,14 +570,10 @@ export default function EstadisticasScreen({ route }) {
           )}
       </View>
 
-      {/* SECCIÓN: HISTÓRICO DE PRODUCCIÓN */}
       {renderHistorialTable()}
-
-      {/* SECCIÓN: PRODUCCIÓN NACIONAL (CORREGIDA) */}
       {renderProductoresNacionales()}
 
-      {/* ANÁLISIS DE RIESGO */}
-      {datosRiesgo && (
+      {!!datosRiesgo && (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <MaterialCommunityIcons name="chart-timeline-variant" size={20} color="#E65100" />
@@ -661,7 +606,7 @@ export default function EstadisticasScreen({ route }) {
                     </View>
                     <View style={styles.chipsContainer}>
                         {datosRiesgo.mesesAltos.map((mes, i) => (
-                            <View key={i} style={[styles.monthChip, {backgroundColor: '#E8F5E9', borderColor: '#C8E6C9'}]}>
+                            <View key={`alto-${i}`} style={[styles.monthChip, {backgroundColor: '#E8F5E9', borderColor: '#C8E6C9'}]}>
                                 <Text style={[styles.monthText, {color: '#2E7D32'}]}>{mes}</Text>
                             </View>
                         ))}
@@ -675,7 +620,7 @@ export default function EstadisticasScreen({ route }) {
                     </View>
                      <View style={styles.chipsContainer}>
                         {datosRiesgo.mesesBajos.map((mes, i) => (
-                            <View key={i} style={[styles.monthChip, {backgroundColor: '#FFEBEE', borderColor: '#FFCDD2'}]}>
+                            <View key={`bajo-${i}`} style={[styles.monthChip, {backgroundColor: '#FFEBEE', borderColor: '#FFCDD2'}]}>
                                 <Text style={[styles.monthText, {color: '#C62828'}]}>{mes}</Text>
                             </View>
                         ))}
@@ -685,8 +630,7 @@ export default function EstadisticasScreen({ route }) {
         </View>
       )}
 
-      {/* DESGLOSE DE COSTOS */}
-      {costosData && (
+      {!!costosData && (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <MaterialCommunityIcons name="pie-chart" size={20} color="#7B1FA2" />
@@ -706,33 +650,30 @@ export default function EstadisticasScreen({ route }) {
         </View>
       )}
 
-      {/* RENTABILIDAD */}
-      <View style={[styles.card, {marginBottom: 30}]}>
+      {!!rentabilidadData && (
+        <View style={[styles.card, {marginBottom: 30}]}>
            <View style={styles.cardHeader}>
               <MaterialCommunityIcons name="finance" size={20} color="#2E7D32" />
               <Text style={styles.cardTitle}>Rentabilidad vs Inversión</Text>
           </View>
 
-          {rentabilidadData ? (
-              <BarChart
-                data={rentabilidadData}
-                width={screenWidth - 40}
-                height={220}
-                yAxisLabel="$"
-                chartConfig={{
-                    backgroundColor: "#fff",
-                    backgroundGradientFrom: "#fff",
-                    backgroundGradientTo: "#fff",
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                }}
-                style={{ borderRadius: 16 }}
-              />
-          ) : (
-              <Text style={styles.noData}>Datos financieros insuficientes.</Text>
-          )}
-      </View>
+          <BarChart
+            data={rentabilidadData}
+            width={screenWidth - 40}
+            height={220}
+            yAxisLabel="$"
+            chartConfig={{
+                backgroundColor: "#fff",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+            style={{ borderRadius: 16 }}
+          />
+        </View>
+      )}
 
     </ScrollView>
   );
