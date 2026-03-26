@@ -83,10 +83,6 @@ class CultivoDataManager {
 
       estructurado.nombre_cientifico = String(estructurado.nombre_cientifico || estructurado.nombre_botanico || "No disponible");
 
-      if (estructurado.calendarios_regionales) {
-        estructurado.calendarios_regionales = this._normalizarLista(estructurado.calendarios_regionales);
-    }
-
       if (estructurado.principales_estados) {
           estructurado.principales_estados = this._normalizarLista(estructurado.principales_estados).map(e => 
               typeof e === 'object' ? String(e.estado || e.nombre || e.region || "Desconocido") : String(e)
@@ -122,19 +118,29 @@ class CultivoDataManager {
       estructurado.superficie_sembrada_ha = this._safeFloat(estructurado.superficie_sembrada_ha || estructurado.superficie_nacional_ha);
       estructurado.rendimiento_ton_ha = this._safeFloat(estructurado.rendimiento_ton_ha || estructurado.rendimiento_promedio_t_ha);
 
-      if (Object.keys(estructurado.ciclo_fenologico).length === 0) {
-          estructurado.ciclo_fenologico = { etapas: [], fechas_por_estado: [], variedades_principales: [] };
+      // --- CORRECCIÓN CRÍTICA: Ciclo Fenológico ---
+      if (!estructurado.ciclo_fenologico || Object.keys(estructurado.ciclo_fenologico).length === 0) {
+          estructurado.ciclo_fenologico = { etapas: [], fechas_por_estado: [], variedades_principales: [], duracion_total_dias: 0 };
       } else {
           let diasAcumulados = 0;
           estructurado.ciclo_fenologico.etapas = this._normalizarLista(estructurado.ciclo_fenologico.etapas).map(e => {
-              if (typeof e !== 'object') return { nombre: String(e), inicio_dias: diasAcumulados, duracion_dias: 10 };
+              if (typeof e !== 'object') return { nombre: String(e), inicio_dias: diasAcumulados, duracion_dias: 10, bbch_fase: "N/A" };
               const duracion = this._safeFloat(e.duracion_dias || e.duracion, 10) || 1; 
               const inicio = (e.inicio_dias !== undefined && e.inicio_dias !== null) ? this._safeFloat(e.inicio_dias, 0) : diasAcumulados;
               diasAcumulados = inicio + duracion;
-              return { ...e, inicio_dias: inicio, duracion_dias: duracion, nombre: String(e.nombre || e.fase || e.bbch_fase || "Fase") };
+              
+              return { 
+                  ...e, 
+                  inicio_dias: inicio, 
+                  duracion_dias: duracion, 
+                  nombre: String(e.nombre || e.fase || e.bbch_fase || "Fase"),
+                  bbch_fase: e.bbch_fase !== undefined ? String(e.bbch_fase) : "N/A" // Evita crasheos de variables undefined
+              };
           });
           estructurado.ciclo_fenologico.fechas_por_estado = this._normalizarLista(estructurado.ciclo_fenologico.fechas_por_estado);
           estructurado.ciclo_fenologico.variedades_principales = this._safeStringArray(estructurado.ciclo_fenologico.variedades_principales);
+          // Asegurar que exista duracion_total_dias
+          estructurado.ciclo_fenologico.duracion_total_dias = this._safeFloat(estructurado.ciclo_fenologico.duracion_total_dias) || diasAcumulados;
       }
 
       if (estructurado.bbch_detallado) {
@@ -151,21 +157,27 @@ class CultivoDataManager {
           estructurado.bbch_detallado = [];
       }
       
-      const normalizarCalendario = (cal) => {
-          let arr = [];
-          if (!cal) return [];
-          if (Array.isArray(cal)) arr = cal.filter(Boolean);
-          else if (this._isFirebaseMutatedArray(cal)) arr = Object.values(cal).filter(Boolean);
-          else if (typeof cal === 'object') {
-              arr = Object.entries(cal).map(([region, datos]) => ({ region, ...(typeof datos === 'object' ? datos : { descripcion: String(datos) }) }));
+      // --- CORRECCIÓN CRÍTICA: Calendarios Regionales como Objeto ---
+      const normalizarCalendarioDict = (cal) => {
+          if (!cal) return {};
+          if (Array.isArray(cal) || this._isFirebaseMutatedArray(cal)) {
+              let dict = {};
+              const arr = Array.isArray(cal) ? cal.filter(Boolean) : Object.values(cal).filter(Boolean);
+              arr.forEach((item, idx) => {
+                  if (typeof item !== 'object' || item === null) {
+                      dict[`Región ${idx+1}`] = { descripcion: String(item) };
+                  } else {
+                      const nombreRegion = item.region || item.nombre || `Región ${idx+1}`;
+                      dict[nombreRegion] = item;
+                  }
+              });
+              return dict;
           }
-          return arr.map((item, idx) => {
-              if (typeof item !== 'object' || item === null) return { id: `region_${idx}`, region: String(item || `Región ${idx+1}`) };
-              return { ...item, id: String(item.id || item.region || `region_${idx}`) };
-          }); 
+          if (typeof cal === 'object') return cal;
+          return {};
       };
 
-      estructurado.calendarios_regionales = normalizarCalendario(estructurado.calendarios_regionales);
+      estructurado.calendarios_regionales = normalizarCalendarioDict(estructurado.calendarios_regionales);
 
       if (!estructurado.costos_produccion || Object.keys(estructurado.costos_produccion).length === 0) {
           estructurado.costos_produccion = { costo_total_ha: 0, desglose: [] };

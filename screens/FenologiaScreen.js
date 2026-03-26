@@ -32,9 +32,18 @@ export default function FenologiaScreen({ route }) {
       
       const data = await CultivoDataManager.obtenerCultivo(cultivo, 'completo', forceRefresh);
       
+      // CORRECCIÓN: Manejo explícito para limpiar datos si Firebase devuelve null
       if (data && data._nivel === 'completo') {
         setCultivoData(data);
         setModoDetallado(true);
+
+        const regionesDisponibles = data.calendarios_regionales 
+          ? Object.keys(data.calendarios_regionales) 
+          : [];
+
+        if (regionesDisponibles.length > 0) {
+          setRegionSeleccionada(regionesDisponibles[0]);
+        }
         
         const calendarios = data.calendarios_regionales || data.calendarios;
         if (calendarios && typeof calendarios === 'object') {
@@ -49,9 +58,13 @@ export default function FenologiaScreen({ route }) {
       } else if (data) {
         setCultivoData(data);
         setModoDetallado(false);
+      } else {
+        // Si no hay data (falló Firebase y no hay datos locales)
+        setCultivoData(null);
       }
     } catch (error) {
       console.error("Error cargando fenología:", error);
+      setCultivoData(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -76,7 +89,7 @@ export default function FenologiaScreen({ route }) {
 
     if (regiones.length === 0) return null;
 
-    const dataRegionActiva = regiones.find(r => r.id === regionSeleccionada)?.data;
+    const dataRegionActiva = regiones.find(r => String(r.id) === String(regionSeleccionada))?.data;
 
     return (
       <View style={styles.section}>
@@ -85,10 +98,10 @@ export default function FenologiaScreen({ route }) {
           {regiones.map((reg) => (
             <TouchableOpacity 
               key={reg.id}
-              style={[styles.regionChip, regionSeleccionada === reg.id && styles.regionChipActive]}
+              style={[styles.regionChip, String(regionSeleccionada) === String(reg.id) && styles.regionChipActive]}
               onPress={() => setRegionSeleccionada(reg.id)}
             >
-              <Text style={[styles.regionChipText, regionSeleccionada === reg.id && styles.regionChipTextActive]}>
+              <Text style={[styles.regionChipText, String(regionSeleccionada) === String(reg.id) && styles.regionChipTextActive]}>
                 {reg.nombre}
               </Text>
             </TouchableOpacity>
@@ -100,17 +113,17 @@ export default function FenologiaScreen({ route }) {
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-import" size={20} color="#2E7D32" />
               <Text style={styles.dateText}>
-                Siembra: {safeText(dataRegionActiva.siembra_inicio)} - {safeText(dataRegionActiva.siembra_fin)}
+                Siembra: {safeText(dataRegionActiva?.siembra_inicio)} - {safeText(dataRegionActiva?.siembra_fin)}
               </Text>
             </View>
             <View style={styles.dateRow}>
               <MaterialCommunityIcons name="calendar-check" size={20} color="#1565C0" />
               <Text style={styles.dateText}>
-                Cosecha: {safeText(dataRegionActiva.cosecha_inicio)} - {safeText(dataRegionActiva.cosecha_fin)}
+                Cosecha: {safeText(dataRegionActiva?.cosecha_inicio)} - {safeText(dataRegionActiva?.cosecha_fin)}
               </Text>
             </View>
 
-            {!!dataRegionActiva.altitud_msnm && (
+            {!!dataRegionActiva?.altitud_msnm && (
                 <View style={styles.dateRow}>
                 <MaterialCommunityIcons name="terrain" size={20} color="#795548" />
                   <Text style={styles.dateText}>
@@ -203,6 +216,21 @@ export default function FenologiaScreen({ route }) {
     );
   }
 
+  // CORRECCIÓN: Evitar renderizar pantallas a medias si no hay datos.
+  if (!cultivoData) {
+    return (
+      <ScrollView 
+        contentContainerStyle={styles.center}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => cargarDatos(true)} />}
+      >
+        <MaterialCommunityIcons name="leaf-off" size={48} color="#9E9E9E" />
+        <Text style={{ marginTop: 10, color: '#666', textAlign: 'center' }}>
+          No se encontró información fenológica para este cultivo.
+        </Text>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView 
       style={styles.container}
@@ -213,11 +241,19 @@ export default function FenologiaScreen({ route }) {
         <Text style={styles.subtitle}>{cultivo}</Text>
       </View>
 
-      {!!(cultivoData?.ciclo_fenologico && Object.keys(cultivoData.ciclo_fenologico).length > 0) && (
+      {/* CORRECCIÓN: Verificación estricta (.length > 0) para no renderizar Gantt con arreglos vacíos [] */}
+      {cultivoData?.ciclo_fenologico?.etapas?.length > 0 ? (
+        <GanttFenologico 
+          etapas={cultivoData.ciclo_fenologico.etapas} 
+          duracionTotal={cultivoData.ciclo_fenologico.duracion_total_dias || 0}
+        />
+      ) : (
         <View style={styles.card}>
-          <GanttFenologico datos={cultivoData.ciclo_fenologico} />
+          <Text style={{ color: '#666', textAlign: 'center' }}>Información del ciclo no disponible para este cultivo.</Text>
         </View>
       )}
+
+      {/* ELIMINADO: Se quitó una segunda llamada a <GanttFenologico /> que pasaba parámetros erróneos ("datos=") y podía causar un crash */}
 
       <View style={styles.content}>
         {renderCalendarios()}
