@@ -53,21 +53,30 @@ export function cargarRiesgosDesdeJSON(cultivoData) {
   riesgosArray.forEach(info => {
     if (!info) return;
     
-    // Busca la configuración en diferentes profundidades
-    const configGDD = info.ciclo_desarrollo?.grados_dia_desarrollo || info.grados_dia_desarrollo || info.gdd;
+    // 1. Extraer la configuración de GDD según la estructura real de tu Firebase JSON
+    const configGDD = info.ciclo_desarrollo?.grados_dia_desarrollo || info.grados_dia_desarrollo;
     
-    // Solo agregamos si hay una configuración válida con base térmica y requerimientos
-    if (configGDD && configGDD.base_termica !== undefined && configGDD.gdd_requeridos) {
-      riesgos.push({
-        nombre: info.nombre || 'Riesgo Desconocido',
-        tipo: String(info.tipo || 'Plaga').toLowerCase(),
-        config: {
-          base_termica: parseFloat(configGDD.base_termica) || 10,
-          umbral_superior: configGDD.umbral_superior ? parseFloat(configGDD.umbral_superior) : null,
-          gdd_requeridos: parseFloat(configGDD.gdd_ciclo_completo) || parseFloat(configGDD.gdd_primera_generacion) || parseFloat(configGDD.gdd_requeridos) || 100,
-          humedad_minima: parseFloat(configGDD.humedad_minima) || 0
-        }
-      });
+    // 2. Extraer la humedad desde las condiciones de desarrollo del JSON
+    const condiciones = info.condiciones_desarrollo;
+    const humedadMin = condiciones?.humedad_relativa?.minima || condiciones?.humedad_min || 0;
+
+    if (configGDD && configGDD.base_termica !== undefined) {
+      const reqGDD = configGDD.gdd_ciclo_completo || configGDD.gdd_primera_generacion || configGDD.gdd_requeridos;
+
+      if (reqGDD) {
+        riesgos.push({
+          nombre: info.nombre || 'Riesgo Desconocido',
+          tipo: String(info.tipo || 'Plaga').toLowerCase(),
+          config: {
+            base_termica: parseFloat(configGDD.base_termica) || 10,
+            umbral_superior: configGDD.umbral_superior ? parseFloat(configGDD.umbral_superior) : null,
+            // parseFloat de "350-500" devolverá 350 (el límite inferior), lo cual es ideal para el progreso
+            gdd_requeridos_numero: parseFloat(reqGDD) || 100, 
+            gdd_requeridos_texto: String(reqGDD), 
+            humedad_minima: parseFloat(humedadMin)
+          }
+        });
+      }
     }
   });
 
@@ -109,14 +118,11 @@ export function calcularRiesgosMultiples(riesgosConfig, historial) {
       gddAcumulado += gddDia;
     });
 
-    // BLINDAJE: Prevenir división por cero si Firebase envía gdd_requeridos como 0
-    let gddReqRaw = String(config.gdd_ciclo_completo || config.gdd_primera_generacion || "0");
-    let gddParseado = parseInt(gddReqRaw.split('-')[0]);
-    let gddReq = 1;
+    let gddReqRaw = config.gdd_requeridos_texto || "0";
+    let gddReq = config.gdd_requeridos_numero || 1;
     let progresoRaw = 0;
     
-    if (!isNaN(gddParseado) && gddParseado > 0) {
-        gddReq = gddParseado;
+    if (gddReq > 0) {
         progresoRaw = (gddAcumulado / gddReq) * 100;
     }
 

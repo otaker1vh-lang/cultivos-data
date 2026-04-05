@@ -76,6 +76,10 @@ export default function HomeScreen({ navigation }) {
 
   const { prediction, setPrediction, loadingIA, classifyImage } = usePlantClassifier(isOnline, climaActual, alertasGDD);
 
+  const handleClimaUpdate = (datos) => {
+    setClimaActual(datos);
+  };
+  
   // Efectos Iniciales
   useEffect(() => {
     const unsubscribeNet = NetInfo.addEventListener(state => setIsOnline(!!state.isConnected));
@@ -182,19 +186,25 @@ export default function HomeScreen({ navigation }) {
         
         // Uso directo de las funciones de gdd_calculator
         const riesgosConfig = cargarRiesgosDesdeJSON(cultivo); 
-        const predicciones = calcularRiesgosMultiples(historial, riesgosConfig);
+        const predicciones = calcularRiesgosMultiples(riesgosConfig, historial);
         const alertas = generarAlertas(predicciones);
 
-        setAlertasGDD(alertas.map(alerta => ({
-            id: alerta.riesgo,
-            nombre: alerta.riesgo,
-            gdd: alerta.gdd_actual,
-            gddRequeridos: predicciones[alerta.riesgo].gdd_requeridos,
-            nivel: (alerta.nivel === 'CRÍTICO' || alerta.nivel === 'ALTO') ? 'ALTO' : 'MEDIO',
-            mensaje: alerta.mensaje,
-            detalle: cultivo.riesgos_detallados?.[alerta.riesgo] || cultivo.riesgos_fitosanitarios?.[alerta.riesgo],
-            progreso: parseFloat(alerta.progreso).toFixed(0)
-        })));
+        setAlertasGDD(alertas.map(alerta => {
+            // Usamos alerta.nombre porque generarAlertas no devuelve 'riesgo'
+            const nombreRiesgo = alerta.nombre; 
+            const datosPrediccion = predicciones[nombreRiesgo];
+
+            return {
+                id: nombreRiesgo,
+                nombre: nombreRiesgo,
+                gdd: datosPrediccion.gdd_alcanzado, // Nombre correcto de la variable exportada
+                gddRequeridos: datosPrediccion.gdd_meta_texto, // Nombre correcto de la variable exportada
+                nivel: (alerta.nivel === 'CRÍTICO' || alerta.nivel === 'ALTO') ? 'ALTO' : 'MEDIO',
+                mensaje: `Acumulados: ${datosPrediccion.gdd_alcanzado.toFixed(1)} / ${datosPrediccion.gdd_meta_texto} GDD`, // Generamos un mensaje localmente
+                detalle: cultivo.riesgos_detallados?.[nombreRiesgo] || cultivo.riesgos_fitosanitarios?.[nombreRiesgo],
+                progreso: Math.round(parseFloat(alerta.progreso))
+            };
+        }));
     } catch (error) { console.error("GDD Error:", error); } finally { setLoadingGDD(false); }
   };
 
@@ -276,10 +286,11 @@ export default function HomeScreen({ navigation }) {
               </View>
               
               {/* Click hacia WeatherScreen */}
-              <TouchableOpacity onPress={() => navigation.navigate('WeatherScreen')} activeOpacity={0.9}>
-                <View style={styles.weatherContainer}>
-                  <ClimaWidget onClimaUpdate={setClimaActual} />
-                </View>
+              <TouchableOpacity 
+                activeOpacity={0.8} 
+                onPress={() => navigation.navigate('WeatherScreen')} // Asegúrate que 'Weather' sea el nombre en tu Stack
+              >
+                <ClimaWidget onClimaUpdate={handleClimaUpdate} />
               </TouchableOpacity>
             </View>
           </View>
