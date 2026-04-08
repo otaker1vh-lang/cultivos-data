@@ -8,7 +8,7 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 const API_KEY = '8dd59ff1da764345cdd89f05c6326380'; 
 
-export default function ClimaWidget({ onClimaUpdate }) {
+export default function ClimaWidget({ onClimaUpdate, onPressWeather }) {
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]); 
   const [loading, setLoading] = useState(true);
@@ -184,6 +184,27 @@ export default function ClimaWidget({ onClimaUpdate }) {
              <Ionicons name={modoBusqueda ? "close" : "search"} size={20} color="#fff" />
          </TouchableOpacity>
       </View>
+
+      <TouchableOpacity 
+        activeOpacity={0.7} 
+        onPress={onPressWeather} // <--- Aquí activamos la navegación
+        style={styles.dataRow}
+      >
+        <View style={styles.mainInfo}>
+            <Image 
+              source={{ uri: `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png` }} 
+              style={{ width: 40, height: 40 }} 
+            />
+            <View>
+                <Text style={styles.tempBig}>{Math.round(weather.main.temp)}°</Text>
+                <Text style={styles.descTiny}>{weather.weather[0].description}</Text>
+            </View>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.detailsGrid}>
+            {/* ... detalles ... */}
+        </View>
+      </TouchableOpacity>
 
       {/* 2. BARRA DE BÚSQUEDA */}
       {modoBusqueda && (

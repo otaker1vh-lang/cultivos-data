@@ -165,8 +165,8 @@ export default function AgroControlScreen() {
       if (!d) return;
 
       if (deviceId === 'esp32_esquejes') {
-        setBombaEstado(!!d.nebulizacion);
-        setVentEstado(!!d.ventilacion);
+        setBombaEstado(!!d.r1);
+        setVentEstado(!!d.r2);
         setModoManual(!!d.modo_manual);
         setCicloHabilitado(!!d.ciclo_activo);
       } else if (deviceId === 'esp32_germinacion') {
@@ -272,38 +272,40 @@ export default function AgroControlScreen() {
   };
 
   const toggleBomba = () => {
-    const comando = deviceId === 'esp32_esquejes' ? 'nebulizacion' : 
-                    deviceId === 'esp32_hidroponico' ? 'bomba' : 'r1';
+    const comando = (deviceId === 'esp32_hidroponico') ? 'bomba' : 'r1';
     enviarComando({ [comando]: !bombaEstado }, setLoadingBomba);
   };
 
   const toggleVent = () => {
-    enviarComando({ ventilacion: !ventEstado }, setLoadingVent);
+  const comando = deviceId === 'esp32_esquejes' ? 'r2' : 'aux'; // Cambiado a r2
+    enviarComando({ [comando]: !ventEstado }, setLoadingVent);
   };
 
   const timerBomba = () => {
-    const val = parseInt(inputTimerBomba);
-    if (isNaN(val) || val <= 0) {
-      Alert.alert("Error", "Ingresa un valor válido");
-      return;
-    }
-    const secs = unitBomba === 'min' ? val * 60 : val;
-    pendingTimerBomba.current = secs;
-    
-    const comando = deviceId === 'esp32_esquejes' ? 'nebulizacion' : 
-                    deviceId === 'esp32_hidroponico' ? 'bomba' : 'r1';
-    enviarComando({ [comando]: true }, setLoadingBomba);
+   const val = parseInt(inputTimerBomba);
+   if (isNaN(val) || val <= 0) {
+     Alert.alert("Error", "Ingresa un valor válido");
+     return;
+   }
+   const secs = unitBomba === 'min' ? val * 60 : val;
+   pendingTimerBomba.current = secs;
+
+   const comando = (deviceId === 'esp32_hidroponico') ? 'bomba' : 'r1';
+   enviarComando({ [comando]: true }, setLoadingBomba);
   };
 
   const cancelarTimerBomba = () => {
     setCountdownBomba(0);
-    const comando = deviceId === 'esp32_esquejes' ? 'nebulizacion' : 
-                    deviceId === 'esp32_hidroponico' ? 'bomba' : 'r1';
+    const comando = (deviceId === 'esp32_hidroponico') ? 'bomba' : 'r1';
     enviarComando({ [comando]: false }, setLoadingBomba);
   };
 
   const toggleModoAuto = () => {
-    enviarComando({ set_auto: !modoManual });
+    if (deviceId === 'esp32_esquejes') {
+      enviarComando({ modo_manual: !modoManual });
+    } else {
+      enviarComando({ auto_mode: modoManual }); 
+    }
   };
 
   /* ---------------- CONFIGURACIÓN ---------------- */

@@ -285,13 +285,10 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
               
-              {/* Click hacia WeatherScreen */}
-              <TouchableOpacity 
-                activeOpacity={0.8} 
-                onPress={() => navigation.navigate('WeatherScreen')} // Asegúrate que 'Weather' sea el nombre en tu Stack
-              >
-                <ClimaWidget onClimaUpdate={handleClimaUpdate} />
-              </TouchableOpacity>
+              <ClimaWidget 
+                onClimaUpdate={handleClimaUpdate} 
+                onPressWeather={() => navigation.navigate('WeatherScreen')} 
+              />
             </View>
           </View>
 
