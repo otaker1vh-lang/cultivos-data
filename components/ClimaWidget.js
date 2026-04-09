@@ -114,7 +114,7 @@ export default function ClimaWidget({ onClimaUpdate, onPressWeather }) {
               temp: data.main.temp,
               temp_max: data.main.temp_max,
               temp_min: data.main.temp_min,
-              humedad: data.main.humidity
+              humedad_relativa: data.main.humidity
           });
       }
 
@@ -162,11 +162,10 @@ export default function ClimaWidget({ onClimaUpdate, onPressWeather }) {
   return (
     <View style={styles.compactContainer}>
       
-      {/* 1. CABECERA */}
+      {/* 1. CABECERA: Ciudad, Botón Apto y Buscador */}
       <View style={styles.headerRow}>
          <View style={styles.locationWrap}>
              <Ionicons name="location-sharp" size={14} color="#E0F2F1" />
-             {/* Mostramos el nombre que devuelve OpenWeather (suele ser el pueblo o municipio más cercano) */}
              <Text style={styles.cityText} numberOfLines={1}>{weather?.name}</Text>
          </View>
          
@@ -185,33 +184,12 @@ export default function ClimaWidget({ onClimaUpdate, onPressWeather }) {
          </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        activeOpacity={0.7} 
-        onPress={onPressWeather} // <--- Aquí activamos la navegación
-        style={styles.dataRow}
-      >
-        <View style={styles.mainInfo}>
-            <Image 
-              source={{ uri: `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png` }} 
-              style={{ width: 40, height: 40 }} 
-            />
-            <View>
-                <Text style={styles.tempBig}>{Math.round(weather.main.temp)}°</Text>
-                <Text style={styles.descTiny}>{weather.weather[0].description}</Text>
-            </View>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.detailsGrid}>
-            {/* ... detalles ... */}
-        </View>
-      </TouchableOpacity>
-
-      {/* 2. BARRA DE BÚSQUEDA */}
+      {/* 2. BARRA DE BÚSQUEDA (Solo aparece si modoBusqueda es true) */}
       {modoBusqueda && (
         <View style={styles.searchRow}>
           <TextInput 
             style={styles.input} 
-            placeholder="Ej: Ejido La Machuca, MX" // Placeholder actualizado
+            placeholder="Ej: Ejido La Machuca, MX" 
             placeholderTextColor="#ddd"
             value={ciudadBusqueda}
             onChangeText={setCiudadBusqueda}
@@ -230,38 +208,46 @@ export default function ClimaWidget({ onClimaUpdate, onPressWeather }) {
         </View>
       )}
 
-      {/* 3. DATOS VISUALES */}
-      <View style={styles.dataRow}>
-        <View style={styles.mainInfo}>
-            <Image 
-              source={{ uri: `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png` }} 
-              style={{ width: 40, height: 40 }} 
-            />
-            <View>
-                <Text style={styles.tempBig}>{Math.round(weather.main.temp)}°</Text>
-                <Text style={styles.descTiny}>{weather.weather[0].description}</Text>
-            </View>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.detailsGrid}>
-            <View style={styles.detailItem}>
-                <MaterialCommunityIcons name="weather-windy" size={14} color="#B2DFDB" />
-                <Text style={styles.detailVal}>{(weather.wind.speed * 3.6).toFixed(0)} km/h</Text>
-            </View>
-            <View style={styles.detailItem}>
-                <MaterialCommunityIcons name="water-percent" size={14} color="#B2DFDB" />
-                <Text style={styles.detailVal}>{weather.main.humidity}%</Text>
-            </View>
-            <View style={styles.detailItem}>
-                <MaterialCommunityIcons name={esApto ? "thermometer" : "alert-circle-outline"} size={14} color={esApto ? "#B2DFDB" : "#FFCCBC"} />
-                <Text style={[styles.detailVal, !esApto && {color:'#FFCCBC'}]}>
-                    {esApto ? `ST ${Math.round(weather.main.feels_like)}°` : recomendacion}
-                </Text>
-            </View>
-        </View>
-      </View>
+      {/* 3. DATOS DEL CLIMA: Área táctil para abrir WeatherScreen */}
+      {weather && (
+        <TouchableOpacity 
+          activeOpacity={0.8}
+          onPress={onPressWeather} 
+          style={styles.dataRow}
+        >
+          <View style={styles.mainInfo}>
+              <Image 
+                source={{ uri: `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png` }} 
+                style={{ width: 40, height: 40 }} 
+              />
+              <View>
+                  <Text style={styles.tempBig}>{Math.round(weather.main.temp)}°</Text>
+                  <Text style={styles.descTiny}>{weather.weather[0].description}</Text>
+              </View>
+          </View>
+          
+          <View style={styles.divider} />
+          
+          <View style={styles.detailsGrid}>
+              <View style={styles.detailItem}>
+                  <MaterialCommunityIcons name="weather-windy" size={14} color="#B2DFDB" />
+                  <Text style={styles.detailVal}>{(weather.wind.speed * 3.6).toFixed(0)} km/h</Text>
+              </View>
+              <View style={styles.detailItem}>
+                  <MaterialCommunityIcons name="water-percent" size={14} color="#B2DFDB" />
+                  <Text style={styles.detailVal}>{weather.main.humidity}%</Text>
+              </View>
+              <View style={styles.detailItem}>
+                  <MaterialCommunityIcons name={esApto ? "thermometer" : "alert-circle-outline"} size={14} color={esApto ? "#B2DFDB" : "#FFCCBC"} />
+                  <Text style={[styles.detailVal, !esApto && {color:'#FFCCBC'}]}>
+                      {esApto ? `ST ${Math.round(weather.main.feels_like)}°` : "No Apto"}
+                  </Text>
+              </View>
+          </View>
+        </TouchableOpacity>
+      )}
 
-      {/* 4. MODAL */}
+      {/* 4. MODAL DE PRONÓSTICO */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -276,20 +262,13 @@ export default function ClimaWidget({ onClimaUpdate, onPressWeather }) {
                         <Ionicons name="close-circle" size={28} color="#546E7A" />
                     </TouchableOpacity>
                 </View>
-                
-                <Text style={styles.modalSubtitle}>Próximas 24 horas (Hora Local)</Text>
-
+                <Text style={styles.modalSubtitle}>Próximas 24 horas</Text>
                 <FlatList
                     data={forecast}
                     keyExtractor={(item) => item.dt.toString()}
                     renderItem={renderForecastItem}
                     style={{maxHeight: 350}}
                     showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <Text style={{textAlign:'center', padding:20, color:'#888'}}>
-                             Cargando pronóstico...
-                        </Text>
-                    }
                 />
             </View>
         </View>
