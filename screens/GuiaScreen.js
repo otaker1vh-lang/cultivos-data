@@ -8,7 +8,7 @@ import {
   Image, 
   TouchableOpacity, 
   Linking,
-  RefreshControl // <-- IMPORTACIÓN NUEVA
+  RefreshControl
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CultivoDataManager from '../utils/CultivoDataManager';
@@ -18,23 +18,20 @@ export default function GuiaScreen({ route }) {
 
   const [infoCultivo, setInfoCultivo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
+  const [refreshing, setRefreshing] = useState(false); 
   const [nivel, setNivel] = useState('basico');
-  const [plagasExpandidas, setPlagasExpandidas] = useState(false); // <-- NUEVO ESTADO PARA DESPLEGABLE
+  const [plagasExpandidas, setPlagasExpandidas] = useState(false); 
 
-  // --- FUNCIÓN EXTRAÍDA PARA PODER REUTILIZARLA ---
   const cargarDatos = async (isRefreshing = false) => {
     if (cultivo) {
       if (!isRefreshing) setLoading(true);
       try {
-        // Intentar obtener datos completos directos
         const completos = await CultivoDataManager.obtenerCultivo(cultivo, 'completo');
         
         if (completos && completos._nivel === 'completo') {
           setInfoCultivo(completos);
           setNivel('completo');
         } else {
-          // Fallback a básico
           const basicos = await CultivoDataManager.obtenerCultivo(cultivo, 'basico');
           setInfoCultivo(basicos);
           setNivel('basico');
@@ -55,10 +52,9 @@ export default function GuiaScreen({ route }) {
     if (!data) return [];
     if (typeof data === 'string') return [data];
     const arr = Array.isArray(data) ? data : Object.values(data);
-    return arr.filter(Boolean); // <-- LA MAGIA: Elimina instantáneamente nulls, undefineds o strings vacíos
+    return arr.filter(Boolean); 
   };
 
-  // --- NUEVA FUNCIÓN PARA EL REFRESH CONTROL ---
   const onRefresh = async () => {
     setRefreshing(true);
     await cargarDatos(true);
@@ -83,25 +79,21 @@ export default function GuiaScreen({ route }) {
     );
   }
 
-  // --- EXTRACCIÓN DE DATOS ---
   const esDatosCompletos = nivel === 'completo';
 
-  // 0. IMAGEN Y PANORAMA
   const imagenUrl = typeof infoCultivo.imagen_url === 'string' ? infoCultivo.imagen_url.replace(/__/g, '//').replace(/_/g, '/') : null;
   const panoramaUrl = typeof infoCultivo.panorama_url === 'string' ? infoCultivo.panorama_url.replace(/__/g, '//').replace(/_/g, '/') : null;
 
-  // 1. VIABILIDAD TÉCNICA
   const agro = infoCultivo.requerimientos_agroclimaticos || {};
-  // AJUSTE JSON 07: Soporta la nueva estructura de objeto o el array clásico
   const sistemasRiego = safeArray(infoCultivo.sistemas_recomendados?.sistemas_riego || infoCultivo.sistemas_riego);
-  // 2. NEGOCIO Y RENTABILIDAD
+  
   const rentabilidad = infoCultivo.analisis_rentabilidad || {};
   const economia = infoCultivo.economia_expandida || {};
   const precioMin = economia.precio_min_mxn_ton || economia.precio_minimo || economia.precio_min;
   const precioMax = economia.precio_max_mxn_ton || economia.precio_maximo || economia.precio_max;
   
-  // 3. MERCADO Y EXPORTACIÓN
-  const mercado = infoCultivo.mercado_comercializacion || {};
+  // 3. MERCADO Y VENTA (Compatibilidad de claves restaurada)
+  const mercado = infoCultivo.mercado_comercializacion || infoCultivo.mercado_y_comercializacion || {};
   const canalesVenta = safeArray(mercado.canales_venta);
   let rawDestinos = mercado.destinos_principales || infoCultivo.destinos_principales || [];
   if (!Array.isArray(rawDestinos) && rawDestinos.exportacion) {
@@ -113,41 +105,30 @@ export default function GuiaScreen({ route }) {
   const requisitosExport = safeArray(mercado.certificaciones_requeridas || mercado.requisitos_exportacion);
   const hayDatosExport = requisitosExport.length > 0;
 
-  // 4. ESTRATEGIA Y FUTURO (RECOMENDACIONES CLAVE)
-  // Nota: Priorizamos el array 'recomendaciones_clave' si existe
   const recomendaciones = safeArray(infoCultivo.recomendaciones_clave || infoCultivo.recomendaciones);
   const conclusiones = infoCultivo.conclusiones_recomendaciones || {};
-  
-  // Buscamos si existe el string de perspectivas
   const perspectivas = conclusiones.perspectivas_futuras || conclusiones.tendencia_mercado || null;
-  
-  // CORRECCIÓN: Si no hay perspectivas, asumimos que es una lista de tips (sea Array puro u Objeto corrompido)
   const recomendacionesExtra = !perspectivas ? safeArray(conclusiones) : [];
   const recomendacionesFinales = [...recomendaciones, ...recomendacionesExtra];
 
-  // 5. MANEJO POSTCOSECHA
   const postcosecha = infoCultivo.postcosecha || null;
-
-  // 6. GUÍA DE BUENAS PRÁCTICAS
   const buenasPracticas = safeArray(infoCultivo.guia_buenas_practicas);
 
   const formatMoney = (val) => val != null && !isNaN(val) ? Number(val).toLocaleString() : 'N/D';
 
-  // 7. RIESGOS Y ERRORES COMUNES
-  // Nota: Priorizamos 'guia_errores_comunes' que tiene la estructura detallada
   const erroresComunes = safeArray(infoCultivo.guia_errores_comunes || infoCultivo.errores_comunes_evitar || infoCultivo.errores_frecuentes);
   const alertas = safeArray(infoCultivo.alertas_riesgos);
   const plagasYEnfermedades = safeArray(infoCultivo.riesgos_detallados);
+
   return (
     <ScrollView 
       contentContainerStyle={styles.container}
-      // --- INTEGRACIÓN DEL REFRESH CONTROL ---
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={["#1565C0", "#2E7D32"]} // Colores de tu app para Android
-          tintColor="#1565C0" // Color para iOS
+          colors={["#1565C0", "#2E7D32"]} 
+          tintColor="#1565C0" 
         />
       }
     >
@@ -176,7 +157,6 @@ export default function GuiaScreen({ route }) {
                 <Text style={styles.badgeText}>{esDatosCompletos ? 'Informe Completo' : 'Informe Básico'}</Text>
             </View>
             
-            {/* Botón Panorama */}
             {panoramaUrl && (
                 <TouchableOpacity 
                     style={styles.panoramaBtn}
@@ -212,7 +192,6 @@ export default function GuiaScreen({ route }) {
                 <Text style={styles.subSectionTitle}>Comparativa de Sistemas de Riego</Text>
                 
                 <View style={styles.tableCard}>
-                    {/* Header Tabla */}
                     <View style={styles.tableHeader}>
                         <Text style={[styles.th, {flex: 2}]}>Sistema</Text>
                         <Text style={[styles.th, {flex: 1, textAlign:'center'}]}>Efic.</Text>
@@ -220,7 +199,6 @@ export default function GuiaScreen({ route }) {
                         <Text style={[styles.th, {flex: 1.5, textAlign:'right'}]}>Op./año</Text>
                     </View>
 
-                    {/* Filas Tabla */}
                     {sistemasRiego.map((sis, idx) => {
                         const esObjeto = typeof sis === 'object';
                         const nombreSistema = esObjeto ? sis.sistema : sis;
@@ -262,7 +240,6 @@ export default function GuiaScreen({ route }) {
       <View style={styles.section}>
         <SectionHeader icon="finance" title="Análisis de Negocio" color="#1565C0" />
         
-        {/* Rentabilidad */}
         {Object.keys(rentabilidad).length > 0 ? (
             <View style={styles.bizCard}>
                 <View style={styles.roiHeader}>
@@ -297,7 +274,6 @@ export default function GuiaScreen({ route }) {
             <Text style={styles.noDataText}>Datos financieros detallados no disponibles.</Text>
         )}
 
-        {/* Precios de Mercado */}
         {precioMin != null && (
               <View style={styles.priceCard}>
                   <Text style={styles.priceTitle}>Rango de Precios de Mercado (MXN/ton)</Text>
@@ -327,7 +303,6 @@ export default function GuiaScreen({ route }) {
             <SectionHeader icon="package-variant-closed" title="Manejo Postcosecha" color="#E65100" />
             
             <View style={[styles.fichaTecnicaCard, styles.postcosechaCard]}>
-                {/* Grid de 3 condiciones */}
                 <View style={styles.postcosechaRow}>
                     <View style={styles.postcosechaItem}>
                         <MaterialCommunityIcons name="thermometer" size={20} color="#555" />
@@ -348,7 +323,6 @@ export default function GuiaScreen({ route }) {
                     </View>
                 </View>
 
-                {/* Punto de Cosecha */}
                 {postcosecha.punto_cosecha && (
                     <View style={styles.infoBox}>
                         <Text style={styles.infoBoxTitle}>🎯 Punto Óptimo de Cosecha</Text>
@@ -356,7 +330,6 @@ export default function GuiaScreen({ route }) {
                     </View>
                 )}
 
-                {/* Empaque */}
                 {postcosecha.empaque_recomendado && (
                     <View style={[styles.infoBox, { marginTop: 8, backgroundColor: '#FFF3E0' }]}>
                         <Text style={[styles.infoBoxTitle, { color: '#E65100' }]}>📦 Empaque Recomendado</Text>
@@ -374,7 +347,6 @@ export default function GuiaScreen({ route }) {
         <View style={styles.section}>
             <SectionHeader icon="store" title="Mercado Global" color="#F9A825" />
             
-            {/* Canales Locales */}
             {canalesVenta.length > 0 && (
                 <View style={styles.marketContainer}>
                     {canalesVenta.map((canal, idx) => {
@@ -400,7 +372,6 @@ export default function GuiaScreen({ route }) {
                 </View>
             )}
 
-            {/* Tarjeta de Exportación */}
             {hayDatosExport && (
                 <View style={styles.exportCard}>
                     <View style={styles.exportHeader}>
@@ -409,7 +380,6 @@ export default function GuiaScreen({ route }) {
                     </View>
                     <View style={styles.exportContent}>
                         {requisitosExport.map((req, i) => {
-                            // Tolerancia si req viene como string u objeto
                             const textoReq = typeof req === 'string' ? req : (req.requisito || req.nombre || "Certificación requerida");
                             return (
                                 <View key={i} style={styles.reqRow}>
@@ -438,7 +408,6 @@ export default function GuiaScreen({ route }) {
           <View style={styles.section}>
             <SectionHeader icon="lightbulb-on" title="Estrategia & Futuro" color="#FF6F00" />
             
-            {/* Tarjeta de Tendencias */}
             {perspectivas && (
                 <View style={styles.trendCard}>
                     <View style={styles.trendHeader}>
@@ -449,7 +418,6 @@ export default function GuiaScreen({ route }) {
                 </View>
             )}
             
-            {/* Recomendaciones Clave (CORREGIDO) */}
             {recomendacionesFinales.length > 0 && (
                 <View style={styles.tipsContainer}>
                     <Text style={styles.tipsHeaderTitle}>💡 Recomendaciones Clave:</Text>
@@ -472,28 +440,32 @@ export default function GuiaScreen({ route }) {
               <SectionHeader icon="clipboard-check" title="Buenas Prácticas" color="#009688" />
               
              {buenasPracticas.map((item, index) => {
-                  // CORRECCIÓN: Soporte para formato string y formato objeto
                   const esObjeto = typeof item === 'object';
                   const tituloPractica = esObjeto ? (item.practica || item.titulo || item.nombre || "Práctica Recomendada") : item;
                   
                   return (
                       <View key={index} style={styles.practicaCard}>
+                          {/* 1. Práctica */}
                           <View style={styles.practicaHeader}>
                               <MaterialCommunityIcons name="check-circle" size={20} color="#009688" />
                               <Text style={styles.practicaTitle}>{tituloPractica}</Text>
                           </View>
                           
+                          {/* 2. Importancia */}
                           {esObjeto && item.importancia && (
-                              <View style={styles.practicaRow}>
+                              <View style={styles.practicaBadgeRow}>
                                   <Text style={styles.practicaLabel}>Importancia:</Text>
-                                  <Text style={styles.practicaText}>{item.importancia}</Text>
+                                  <View style={styles.badgeImportancia}>
+                                      <Text style={styles.badgeImportanciaText}>{item.importancia}</Text>
+                                  </View>
                               </View>
                           )}
                           
+                          {/* 3. Beneficio */}
                           {esObjeto && item.beneficio && (
-                              <View style={[styles.practicaRow, {marginTop: 4}]}>
-                                  <Text style={[styles.practicaLabel, {color: '#2E7D32'}]}>Beneficio:</Text>
-                                  <Text style={[styles.practicaText, {fontWeight: 'bold', color: '#2E7D32'}]}>{item.beneficio}</Text>
+                              <View style={styles.beneficioBox}>
+                                  <MaterialCommunityIcons name="star-shooting" size={18} color="#2E7D32" style={{marginTop: 1}}/>
+                                  <Text style={styles.beneficioText}>{item.beneficio}</Text>
                               </View>
                           )}
                       </View>
@@ -510,7 +482,6 @@ export default function GuiaScreen({ route }) {
             <SectionHeader icon="alert-octagon" title="Errores Comunes" color="#D32F2F" />
             
             {erroresComunes.map((item, idx) => {
-                // Verificar si es objeto (formato detallado) o string (formato simple)
                 const esObjeto = typeof item === 'object';
                 const titulo = esObjeto ? (item.error || item.titulo || item.problema || "Error común") : item;
                 const consecuencia = esObjeto ? item.consecuencia : null;
@@ -518,21 +489,30 @@ export default function GuiaScreen({ route }) {
 
                 return (
                     <View key={idx} style={styles.errorFullCard}>
+                         {/* 1. Error */}
                          <View style={styles.errorHeader}>
-                            <MaterialCommunityIcons name="close-circle-outline" size={22} color="#D32F2F" />
+                            <MaterialCommunityIcons name="alert-octagon-outline" size={22} color="#D32F2F" />
                             <Text style={styles.errorTitle}>{titulo}</Text>
                          </View>
 
+                         {/* 2. Consecuencia */}
                          {consecuencia && (
                              <View style={styles.errorSection}>
-                                 <Text style={styles.errorLabel}>Consecuencia:</Text>
+                                 <View style={styles.rowLabel}>
+                                     <MaterialCommunityIcons name="lightning-bolt" size={16} color="#E65100" />
+                                     <Text style={[styles.errorLabel, {color: '#E65100'}]}>Consecuencia:</Text>
+                                 </View>
                                  <Text style={styles.errorText}>{consecuencia}</Text>
                              </View>
                          )}
 
+                         {/* 3. Solución */}
                          {solucion && (
                              <View style={[styles.errorSection, styles.solutionSection]}>
-                                 <Text style={[styles.errorLabel, {color: '#2E7D32'}]}>Solución:</Text>
+                                 <View style={styles.rowLabel}>
+                                     <MaterialCommunityIcons name="shield-check" size={16} color="#2E7D32" />
+                                     <Text style={[styles.errorLabel, {color: '#2E7D32'}]}>Solución:</Text>
+                                 </View>
                                  <Text style={[styles.errorText, {color: '#1B5E20'}]}>{solucion}</Text>
                              </View>
                          )}
@@ -572,7 +552,7 @@ export default function GuiaScreen({ route }) {
                           const control = esObjeto ? (plaga.control_recomendado || plaga.control_biologico) : null;
 
                           return (
-                              <View key={`plaga-${idx}`} style={[styles.practicaCard, {borderLeftColor: '#7B1FA2'}]}>
+                              <View key={`plaga-${idx}`} style={[styles.sanidadCard, {borderLeftColor: '#7B1FA2'}]}>
                                   <View style={styles.practicaHeader}>
                                       <MaterialCommunityIcons name="virus-outline" size={20} color="#7B1FA2" />
                                       <Text style={[styles.practicaTitle, {color: '#7B1FA2'}]}>
@@ -609,7 +589,6 @@ export default function GuiaScreen({ route }) {
              
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingRight: 20}}>
                 {alertas.map((alerta, idx) => {
-                    // CORRECCIÓN: Detectar si la alerta es un string puro
                     const esObjeto = typeof alerta === 'object';
                     const texto = esObjeto ? (alerta.riesgo || alerta.titulo || alerta.tipo || 'Riesgo General') : alerta;
                     const impacto = esObjeto ? alerta.impacto : null;
@@ -761,24 +740,29 @@ const styles = StyleSheet.create({
   tipRow: { flexDirection: 'row', marginBottom: 10, gap: 10 },
   tipText: { fontSize: 13, color: '#444', lineHeight: 20, flex: 1 },
 
-  // BUENAS PRÁCTICAS
-  practicaCard: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: '#009688', elevation: 1 },
-  practicaHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
-  practicaTitle: { fontSize: 14, fontWeight: 'bold', color: '#00796B' },
-  practicaRow: { marginBottom: 3 },
-  practicaLabel: { fontSize: 12, color: '#666', fontStyle: 'italic' },
-  practicaText: { fontSize: 13, color: '#333' },
+  // BUENAS PRÁCTICAS (NUEVO ORDEN Y DISEÑO)
+  practicaCard: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: '#009688', elevation: 2 },
+  practicaHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 },
+  practicaTitle: { fontSize: 15, fontWeight: 'bold', color: '#00796B', flex: 1, marginTop: -1 },
+  practicaBadgeRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 5 },
+  practicaLabel: { fontSize: 12, color: '#666', fontWeight: '600' },
+  badgeImportancia: { backgroundColor: '#E0F2F1', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 },
+  badgeImportanciaText: { fontSize: 11, fontWeight: 'bold', color: '#00695C', textTransform: 'uppercase' },
+  beneficioBox: { flexDirection: 'row', backgroundColor: '#E8F5E9', padding: 8, borderRadius: 8, alignItems: 'flex-start', gap: 6 },
+  beneficioText: { fontSize: 13, color: '#1B5E20', flex: 1, fontWeight: '500' },
 
-  // NUEVOS ESTILOS PARA ERRORES (Vertical y Detallado)
-  errorFullCard: { backgroundColor: '#FFEBEE', borderRadius: 12, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#FFCDD2' },
-  errorHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
-  errorTitle: { fontSize: 15, fontWeight: 'bold', color: '#C62828', flex: 1 },
-  errorSection: { marginTop: 6 },
-  solutionSection: { marginTop: 8, backgroundColor: '#E8F5E9', padding: 8, borderRadius: 6, borderWidth: 1, borderColor: '#C8E6C9' },
-  errorLabel: { fontSize: 12, fontWeight: 'bold', color: '#D32F2F', marginBottom: 2 },
-  errorText: { fontSize: 13, color: '#444', lineHeight: 19 },
+  // ERRORES COMUNES (NUEVO ORDEN Y DISEÑO)
+  errorFullCard: { backgroundColor: '#fff', borderRadius: 10, padding: 15, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#D32F2F', elevation: 2 },
+  errorHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10, gap: 8 },
+  errorTitle: { fontSize: 15, fontWeight: 'bold', color: '#C62828', flex: 1, marginTop: -2 },
+  errorSection: { marginBottom: 10 },
+  rowLabel: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 4 },
+  errorLabel: { fontSize: 13, fontWeight: 'bold' },
+  errorText: { fontSize: 13, color: '#444', lineHeight: 18, paddingLeft: 20 },
+  solutionSection: { backgroundColor: '#F1F8E9', padding: 10, borderRadius: 8, marginBottom: 0, borderWidth: 1, borderColor: '#C8E6C9' },
 
-  // FITOSANIDAD DESPLEGABLE (NUEVOS ESTILOS)
+  // FITOSANIDAD
+  sanidadCard: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10, borderLeftWidth: 3, elevation: 1 },
   collapsibleHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F3E5F5', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 10, marginBottom: 10 },
   collapsibleHeaderInner: { flexDirection: 'row', alignItems: 'center' },
   collapsibleContent: { marginTop: 5 },
