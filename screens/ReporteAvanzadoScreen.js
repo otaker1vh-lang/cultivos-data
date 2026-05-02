@@ -134,9 +134,9 @@ export default function ReporteAvanzadoScreen() {
   const [openMenu, setOpenMenu] = useState(null);
   const [filtros, setFiltros] = useState({
     anio: ['2023'], 
-    cultivo: '',
+    cultivo: [],
     estado: [], 
-    municipio: '',
+    municipio: [],
     ciclo: [], 
     modalidad: [], 
   });
@@ -208,14 +208,16 @@ export default function ReporteAvanzadoScreen() {
           // Filtramos exactamente por este año en iteración
           query = query.eq('anio', parseInt(anioFiltro));
 
-          if (filtros.cultivo) query = query.ilike('nomcultivo', `%${filtros.cultivo}%`);
+          if (filtros.cultivo.length > 0) query = query.in('nomcultivo', filtros.cultivo);
           
           // Lógica de Estado Nacional
           if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
               query = query.in('nomestado', estadosReales);
           }
 
-          if (filtros.municipio) query = query.ilike('nommunicipio', `%${filtros.municipio}%`);
+          if (filtros.municipio.length > 0) {
+              query = query.in('nommunicipio', filtros.municipio);
+          }
           if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
           if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
           
@@ -252,7 +254,8 @@ export default function ReporteAvanzadoScreen() {
             descripcion: entity,
             anio: anio,
             valorproduccion: 0, sembrada: 0, siniestrada: 0, 
-            volumenproduccion: 0, cosechada: 0, sumPrecio: 0, counter: 0 
+            volumenproduccion: 0, cosechada: 0, sumPrecio: 0, 
+            sumPrecioPonderado: 0, counter: 0 // <- Añadido para cálculo matemático real
         };
     };
 
@@ -263,24 +266,30 @@ export default function ReporteAvanzadoScreen() {
         grouped[id].volumenproduccion += (item.volumenproduccion || 0);
         grouped[id].cosechada += (item.cosechada || 0);
         grouped[id].sumPrecio += (item.preciomediorural || 0);
+        // <- Calculamos el peso del precio según el volumen aportado
+        grouped[id].sumPrecioPonderado += ((item.preciomediorural || 0) * (item.volumenproduccion || 0));
         grouped[id].counter++;
     };
 
     data.forEach(item => {
         const year = item.anio;
-        const entity = item[keyField] || "N/A";
+        
+        // <- Prevenir colisión de nombres de municipios entre diferentes estados
+        let entity = item[keyField] || "N/A";
+        if (nivelDesglose === "Municipal" && item.nommunicipio && item.nomestado) {
+            entity = `${item.nommunicipio}, ${item.nomestado}`;
+        }
 
         let renderNormalRow = true;
         const esNacionalVsEstatal = (nivelDesglose === "Estatal" && filtros.estado.includes("Nacional"));
         const estadosReales = filtros.estado.filter(e => e !== "Nacional");
 
-        // LÓGICA DE AGRUPACIÓN ESTADO NACIONAL VS ESPECÍFICOS
         if (filtros.estado.length > 0) {
             if (esNacionalVsEstatal) {
                 renderNormalRow = estadosReales.length > 0 && estadosReales.includes(item.nomestado);
             } else {
                 if (filtros.estado.includes("Nacional")) {
-                    renderNormalRow = true; // Actúa como total para otros desgloses
+                    renderNormalRow = true; 
                 } else {
                     renderNormalRow = estadosReales.includes(item.nomestado);
                 }
@@ -293,7 +302,6 @@ export default function ReporteAvanzadoScreen() {
             addDataToId(id, item);
         }
 
-        // Fila Virtual "Nacional" exclusivamente para comparación Estatal
         if (esNacionalVsEstatal) {
             const idNac = `Nacional-${year}`;
             if (!grouped[idNac]) initGroup(idNac, "Nacional", year);
@@ -309,19 +317,25 @@ export default function ReporteAvanzadoScreen() {
     let listaFinal = Object.values(grouped).map(i => ({
         ...i,
         rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
-        preciomediorural: i.sumPrecio / i.counter,
+        // <- Ahora la tabla mostrará el precio rural ponderado correctamente para múltiples cultivos/estados
+        preciomediorural: i.volumenproduccion > 0 ? (i.sumPrecioPonderado / i.volumenproduccion) : (i.sumPrecio / i.counter),
     }));
     
     // Orden temporal por entidad y año descendente para calcular las variaciones correctamente
     listaFinal.sort((a,b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
 
     listaFinal = listaFinal.map((curr, idx, arr) => {
-        const prev = arr.find(item => item.descripcion === curr.descripcion && item.anio === curr.anio - 1);
+        // En lugar de buscar "curr.anio - 1", buscamos el registro cronológicamente anterior 
+        // disponible en la selección actual (item.anio < curr.anio).
+        const prev = arr.find(item => item.descripcion === curr.descripcion && item.anio < curr.anio);
+        
         const variaciones = {};
         
         metricasSeleccionadas.forEach(mId => {
             const mRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
             const key = mRef.key;
+            
+            // Validamos que exista un dato previo y sea mayor a 0 para evitar divisiones por cero
             if (prev && prev[key] > 0) {
                 variaciones[`var_${mId}`] = ((curr[key] - prev[key]) / prev[key]) * 100;
             } else {
@@ -338,23 +352,36 @@ export default function ReporteAvanzadoScreen() {
         
         const nuevasVariaciones = metricasSeleccionadas.map(mId => {
             const metricaRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
-            const getT = (anio) => {
-                const f = data.filter(d => d.anio == anio);
+            const getT = (anioBusqueda) => {
+                const f = listaFinal.filter(d => 
+                    d.anio === anioBusqueda && 
+                    !(nivelDesglose === "Estatal" && d.descripcion === "Nacional")
+                );
+                
                 return {
                     v: f.reduce((s, c) => s + (c[metricaRef.key] || 0), 0),
                     vol: f.reduce((s, c) => s + (c.volumenproduccion || 0), 0),
-                    cos: f.reduce((s, c) => s + (c.cosechada || 0), 0)
+                    cos: f.reduce((s, c) => s + (c.cosechada || 0), 0),
+                    // <- Necesitamos el precio total ponderado del año para comparar
+                    sumPrecioPonderadoTotal: f.reduce((s, c) => s + ((c.preciomediorural || 0) * (c.volumenproduccion || 0)), 0)
                 };
             };
             const t1 = getT(anioIni);
             const t2 = getT(anioFin);
             let v1, v2;
+            
             if (mId === 'rendimiento') {
                 v1 = t1.cos > 0 ? (t1.vol / t1.cos) : 0;
                 v2 = t2.cos > 0 ? (t2.vol / t2.cos) : 0;
+            } else if (mId === 'precio') {
+                // <- Nueva lógica aislada para que la variación del Precio Rural global sea real
+                v1 = t1.vol > 0 ? (t1.sumPrecioPonderadoTotal / t1.vol) : 0;
+                v2 = t2.vol > 0 ? (t2.sumPrecioPonderadoTotal / t2.vol) : 0;
             } else {
-                v1 = t1.v; v2 = t2.v;
+                v1 = t1.v; 
+                v2 = t2.v;
             }
+            
             return { label: metricaRef.label, p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0, i: anioIni, f: anioFin };
         });
         setVariacionesMultiples(nuevasVariaciones);
@@ -506,12 +533,12 @@ export default function ReporteAvanzadoScreen() {
                 <FiltroAutocomplete id="anio" label="Años" valor={filtros.anio} setValor={(v) => setFiltros({...filtros, anio: v})} opciones={ANIOS} isMulti={true} zIndex={100} openMenu={openMenu} setOpenMenu={setOpenMenu} />
              </View>
              <View style={{flex: 1.2, marginLeft: 5}}>
-                <FiltroAutocomplete id="cultivo" label="Cultivo" valor={filtros.cultivo} setValor={(t) => setFiltros({...filtros, cultivo: t})} opciones={listaCultivos} zIndex={100} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+                <FiltroAutocomplete id="cultivo" label="Cultivo" valor={filtros.cultivo} setValor={(v) => setFiltros({...filtros, cultivo: v})} opciones={listaCultivos} isMulti={true} zIndex={100} openMenu={openMenu} setOpenMenu={setOpenMenu} />
              </View>
           </View>
 
           <FiltroAutocomplete id="estado" label="Estado(s)" valor={filtros.estado} setValor={(v) => setFiltros({...filtros, estado: v})} opciones={ESTADOS_MX} isMulti={true} zIndex={90} openMenu={openMenu} setOpenMenu={setOpenMenu} />
-          <FiltroAutocomplete id="municipio" label="Municipio" valor={filtros.municipio} setValor={(t) => setFiltros({...filtros, municipio: t})} opciones={listaMunicipios} zIndex={80} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+          <FiltroAutocomplete id="municipio" label="Municipio(s)" valor={filtros.municipio} setValor={(t) => setFiltros({...filtros, municipio: t})} opciones={listaMunicipios} isMulti={true} zIndex={80} openMenu={openMenu} setOpenMenu={setOpenMenu} />
           
           <View style={styles.row}>
              <View style={{flex: 1, marginRight: 5}}>

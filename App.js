@@ -70,7 +70,7 @@ export default function App() {
         <Stack.Screen name="Costos" component={CostosScreen} options={{ title: 'Calculadora Financiera' }} />
 
         {/* PANTALLA DE CLIMA DETALLADO (NUEVA) */}
-        <Stack.Screen name="Weather" component={WeatherScreen} options={{ title: 'Pronóstico Detallado' }} />
+        <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ title: 'Pronóstico Detallado' }} />
 
         {/* Sub-pantallas de cada cultivo */}
         <Stack.Screen name="Estadisticas" component={EstadisticasScreen} />

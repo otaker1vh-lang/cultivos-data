@@ -160,32 +160,31 @@ export default function AgroControlScreen() {
     });
 
     // 2. Estado
-    const u2 = onValue(ref(db, base + '/estado'), snap => {
+    const u2 = onValue(ref(db, base + '/reles'), snap => {
       const d = snap.val();
       if (!d) return;
 
       if (deviceId === 'esp32_esquejes') {
         setBombaEstado(!!d.r1);
         setVentEstado(!!d.r2);
-        setModoManual(!!d.modo_manual);
-        setCicloHabilitado(!!d.ciclo_activo);
+        //setModoManual(!!d.modo_manual);
+        //setCicloHabilitado(!!d.ciclo_activo);
       } else if (deviceId === 'esp32_germinacion') {
         setBombaEstado(!!d.r1);
-        setModoManual(!d.auto_mode);
+        //setModoManual(!d.auto_mode);
       } else if (deviceId === 'esp32_hidroponico') {
         setBombaEstado(!!d.bomba);
-        setModoManual(!d.auto_mode);
+        //setModoManual(!d.auto_mode);
       }
 
-      if (lastCmdTsRef.current && d.ts >= lastCmdTsRef.current) {
-        setLoadingBomba(false);
-        setLoadingVent(false);
-        lastCmdTsRef.current = null;
+      //if (lastCmdTsRef.current && d.ts >= lastCmdTsRef.current) {
+      setLoadingBomba(false);
+      setLoadingVent(false);
+      lastCmdTsRef.current = null;
 
-        if (pendingTimerBomba.current > 0) {
-          setCountdownBomba(pendingTimerBomba.current);
-          pendingTimerBomba.current = 0;
-        }
+      if (pendingTimerBomba.current > 0) {
+        setCountdownBomba(pendingTimerBomba.current);
+        pendingTimerBomba.current = 0;
       }
     });
 

@@ -7,9 +7,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { XMLParser } from 'fast-xml-parser';
-import * as WebBrowser from 'expo-web-browser'; // Mejora: Navegador interno
+import * as WebBrowser from 'expo-web-browser'; 
 
-// Habilitar animaciones en Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -29,7 +28,7 @@ const FUENTES = [
   { nombre: "2000Agro",           color: "#154360", url: "https://2000agro.com/feed/", cat: CATEGORIAS.MEXICO },
   { nombre: "Portal Frutícola",   color: "#E67E22", url: "https://www.portalfruticola.com/feed/", cat: CATEGORIAS.LATAM },
   { nombre: "Redagrícola",        color: "#E74C3C", url: "https://www.redagricola.com/cl/feed/", cat: CATEGORIAS.LATAM },
-  { nombre: "Nature Plants",      color: "#000000", url: "http://www.nature.com/subjects/plant-sciences/rss", cat: CATEGORIAS.TECH },
+  { nombre: "Nature Plants",      color: "#000000", url: "https://www.nature.com/subjects/plant-sciences/rss", cat: CATEGORIAS.TECH },
   { nombre: "Science Daily",      color: "#2980B9", url: "https://www.sciencedaily.com/rss/plants_animals/agriculture_and_food.xml", cat: CATEGORIAS.TECH }
 ];
 
@@ -99,22 +98,27 @@ export default function NoticiasScreen() {
     fetchNoticias(false); 
   }, []);
 
-  // --- MEJORA: FILTRADO CON USEMEMO ---
   const noticiasFiltradas = useMemo(() => {
     if (filtroActual === CATEGORIAS.TODO) return noticias;
     return noticias.filter(n => n.categoria === filtroActual);
   }, [filtroActual, noticias]);
 
-  // --- MEJORA: LIMPIEZA DE TEXTO ---
   const limpiarTexto = (texto) => {
     if (!texto) return "";
-    return texto.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+    const textoString = typeof texto === 'string' ? texto : (texto['#text'] || String(texto));
+    return textoString.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
   };
 
   const extraerImagen = (item) => {
-    if (item.enclosure && item.enclosure['@_url']) return item.enclosure['@_url'];
-    if (item['media:content'] && item['media:content']['@_url']) return item['media:content']['@_url'];
-    if (item['media:thumbnail'] && item['media:thumbnail']['@_url']) return item['media:thumbnail']['@_url'];
+    // Extracción segura por si el feed manda múltiples imágenes como un arreglo
+    const enc = Array.isArray(item.enclosure) ? item.enclosure[0] : item.enclosure;
+    if (enc && enc['@_url']) return enc['@_url'];
+
+    const mediaContent = Array.isArray(item['media:content']) ? item['media:content'][0] : item['media:content'];
+    if (mediaContent && mediaContent['@_url']) return mediaContent['@_url'];
+
+    const mediaThumb = Array.isArray(item['media:thumbnail']) ? item['media:thumbnail'][0] : item['media:thumbnail'];
+    if (mediaThumb && mediaThumb['@_url']) return mediaThumb['@_url'];
 
     const descripcion = item.description || item['content:encoded'] || "";
     const imgRegex = /<img[^>]+src="([^">]+)"/g;
@@ -167,18 +171,32 @@ export default function NoticiasScreen() {
           const xmlText = await response.text();
           const result = parser.parse(xmlText);
           
-          let channel = result.rss ? result.rss.channel : result.feed;
-          let items = channel.item || channel.entry || [];
-          
-          if (!Array.isArray(items)) items = [items];
-
+          let channel = result.rss?.channel || result.feed || result['rdf:RDF'] || result;
+          let items = channel?.item || channel?.entry;
+                  
+          if (!items) {
+            items = [];
+          } else if (!Array.isArray(items)) {
+            items = [items];
+          }
+                  
           return items.map(item => {
             const imagen = extraerImagen(item);
-            const fecha = item.pubDate || item.published || item.updated;
+            const fecha = item.pubDate || item.published || item.updated || item['dc:date'] || new Date().toISOString();
+            const tituloRaw = typeof item.title === 'string' ? item.title : (item.title?.['#text'] || "");
+          
+            // Extracción segura del link para feeds Atom que devuelven arreglos
+            let linkUrl = item.link;
+            if (Array.isArray(item.link)) {
+              const altLink = item.link.find(l => l['@_rel'] === 'alternate') || item.link[0];
+              linkUrl = altLink?.['@_href'] || "";
+            } else if (typeof item.link === 'object') {
+              linkUrl = item.link['@_href'] || "";
+            }
 
             return {
-              title: limpiarTexto(item.title),
-              link: item.link?.['@_href'] || item.link, // Manejo de links en formato Atom
+              title: limpiarTexto(tituloRaw),
+              link: linkUrl, 
               pubDate: fecha,
               thumbnail: imagen, 
               fuenteNombre: fuente.nombre, 
@@ -214,7 +232,6 @@ export default function NoticiasScreen() {
     }
   };
 
-  // --- MEJORA: ABRIR EN NAVEGADOR INTERNO ---
   const handleOpenNews = async (url) => {
     try {
       await WebBrowser.openBrowserAsync(url, {
@@ -304,7 +321,6 @@ export default function NoticiasScreen() {
               formatFecha={formatearFecha}
             />
           )}
-          // MEJORA: Optimización de scroll
           removeClippedSubviews={Platform.OS === 'android'}
           initialNumToRender={10}
           maxToRenderPerBatch={10}

@@ -150,10 +150,19 @@ export default function FenologiaScreen({ route }) {
             if (!info) return null;
             const codigo = typeof info === 'object' ? (info.codigo_bbch || fase) : fase;
             const desc = typeof info === 'object' ? (info.descripcion_tecnica || info.descripcion) : String(info);
+            const duracion = typeof info === 'object' ? (info.dias_desde_siembra || info.duracion_dias) : null;
             return (
               <View key={`bbch-obj-${index}`} style={styles.bbchItem}>
                 <Text style={styles.bbchCode}>Etapa {codigo}</Text>
                 {!!desc && <Text style={styles.bbchDesc}>{safeText(desc)}</Text>}
+                {!!duracion && (
+                  <View style={styles.duracionContainer}>
+                    <MaterialCommunityIcons name="clock-outline" size={14} color="#666" />
+                    <Text style={styles.duracionText}>
+                      Días desde siembra: {safeText(duracion)}
+                    </Text>
+                  </View>
+                )}
               </View>
             );
           })
@@ -162,10 +171,19 @@ export default function FenologiaScreen({ route }) {
              if (!info) return null;
              const codigo = typeof info === 'object' ? (info.codigo_bbch || info.etapa || index) : index;
              const desc = typeof info === 'object' ? (info.descripcion_tecnica || info.descripcion || '') : String(info);
+             const duracion = typeof info === 'object' ? (info.dias_desde_siembra || info.duracion_dias) : null;
              return (
                <View key={`bbch-arr-${index}`} style={styles.bbchItem}>
                  <Text style={styles.bbchCode}>Etapa {codigo}</Text>
                  {!!desc && <Text style={styles.bbchDesc}>{safeText(desc)}</Text>}
+                 {!!duracion && (
+                  <View style={styles.duracionContainer}>
+                    <MaterialCommunityIcons name="clock-outline" size={14} color="#666" />
+                    <Text style={styles.duracionText}>
+                      Días desde siembra: {safeText(duracion)}
+                    </Text>
+                  </View>
+                 )}
                </View>
              );
           })
@@ -285,6 +303,8 @@ const styles = StyleSheet.create({
   bbchItem: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#EEE' },
   bbchCode: { fontWeight: 'bold', color: '#2E7D32', fontSize: 14 },
   bbchDesc: { fontSize: 13, color: '#666', marginTop: 2 },
+  duracionContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
+  duracionText: { fontSize: 12, color: '#666', marginLeft: 4 },
   alertBox: { backgroundColor: '#FFF3E0', padding: 15, borderRadius: 12, borderLeftWidth: 5, borderLeftColor: '#EF6C00' },
   alertHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   alertTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginLeft: 10 },

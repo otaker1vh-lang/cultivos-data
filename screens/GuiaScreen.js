@@ -20,6 +20,7 @@ export default function GuiaScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // <-- NUEVO ESTADO PARA REFRESH
   const [nivel, setNivel] = useState('basico');
+  const [plagasExpandidas, setPlagasExpandidas] = useState(false); // <-- NUEVO ESTADO PARA DESPLEGABLE
 
   // --- FUNCIÓN EXTRAÍDA PARA PODER REUTILIZARLA ---
   const cargarDatos = async (isRefreshing = false) => {
@@ -546,38 +547,56 @@ export default function GuiaScreen({ route }) {
       {/* --------------------------------------------- */}
       {plagasYEnfermedades.length > 0 && (
           <View style={styles.section}>
-              <SectionHeader icon="bug" title="Sanidad y Control" color="#7B1FA2" />
+              <TouchableOpacity 
+                  style={styles.collapsibleHeader} 
+                  activeOpacity={0.7} 
+                  onPress={() => setPlagasExpandidas(!plagasExpandidas)}
+              >
+                  <View style={styles.collapsibleHeaderInner}>
+                      <MaterialCommunityIcons name="bug" size={22} color="#7B1FA2" />
+                      <Text style={[styles.sectionTitle, { color: '#7B1FA2', marginLeft: 8 }]}>Sanidad y Control</Text>
+                  </View>
+                  <MaterialCommunityIcons 
+                      name={plagasExpandidas ? "chevron-up" : "chevron-down"} 
+                      size={24} 
+                      color="#7B1FA2" 
+                  />
+              </TouchableOpacity>
               
-              {plagasYEnfermedades.map((plaga, idx) => {
-                  const esObjeto = typeof plaga === 'object';
-                  const nombrePlaga = esObjeto ? (plaga.nombre_plaga || plaga.nombre_cientifico || 'Problema Fitosanitario') : plaga;
-                  const descripcion = esObjeto ? (plaga.descripcion || plaga.tipo) : null;
-                  const control = esObjeto ? (plaga.control_recomendado || plaga.control_biologico) : null;
+              {plagasExpandidas && (
+                  <View style={styles.collapsibleContent}>
+                      {plagasYEnfermedades.map((plaga, idx) => {
+                          const esObjeto = typeof plaga === 'object';
+                          const nombrePlaga = esObjeto ? (plaga.nombre_plaga || plaga.nombre_cientifico || 'Problema Fitosanitario') : plaga;
+                          const descripcion = esObjeto ? (plaga.descripcion || plaga.tipo) : null;
+                          const control = esObjeto ? (plaga.control_recomendado || plaga.control_biologico) : null;
 
-                  return (
-                      <View key={`plaga-${idx}`} style={[styles.practicaCard, {borderLeftColor: '#7B1FA2'}]}>
-                          <View style={styles.practicaHeader}>
-                              <MaterialCommunityIcons name="virus-outline" size={20} color="#7B1FA2" />
-                              <Text style={[styles.practicaTitle, {color: '#7B1FA2'}]}>
-                                  {nombrePlaga}
-                              </Text>
-                          </View>
-                          
-                          {descripcion && <Text style={[styles.practicaLabel, {marginBottom: 4}]}>{descripcion}</Text>}
-                          
-                          {control && (
-                              <View style={{marginTop: 6, backgroundColor: '#F3E5F5', padding: 8, borderRadius: 6}}>
-                                  <Text style={{fontSize: 11, fontWeight: 'bold', color: '#4A148C', marginBottom: 2}}>
-                                      Estrategia de Control:
-                                  </Text>
-                                  <Text style={{fontSize: 12, color: '#333'}}>
-                                      {control}
-                                  </Text>
+                          return (
+                              <View key={`plaga-${idx}`} style={[styles.practicaCard, {borderLeftColor: '#7B1FA2'}]}>
+                                  <View style={styles.practicaHeader}>
+                                      <MaterialCommunityIcons name="virus-outline" size={20} color="#7B1FA2" />
+                                      <Text style={[styles.practicaTitle, {color: '#7B1FA2'}]}>
+                                          {nombrePlaga}
+                                      </Text>
+                                  </View>
+                                  
+                                  {descripcion && <Text style={[styles.practicaLabel, {marginBottom: 4}]}>{descripcion}</Text>}
+                                  
+                                  {control && (
+                                      <View style={{marginTop: 6, backgroundColor: '#F3E5F5', padding: 8, borderRadius: 6}}>
+                                          <Text style={{fontSize: 11, fontWeight: 'bold', color: '#4A148C', marginBottom: 2}}>
+                                              Estrategia de Control:
+                                          </Text>
+                                          <Text style={{fontSize: 12, color: '#333'}}>
+                                              {control}
+                                          </Text>
+                                      </View>
+                                  )}
                               </View>
-                          )}
-                      </View>
-                  );
-              })}
+                          );
+                      })}
+                  </View>
+              )}
           </View>
       )}
 
@@ -758,6 +777,11 @@ const styles = StyleSheet.create({
   solutionSection: { marginTop: 8, backgroundColor: '#E8F5E9', padding: 8, borderRadius: 6, borderWidth: 1, borderColor: '#C8E6C9' },
   errorLabel: { fontSize: 12, fontWeight: 'bold', color: '#D32F2F', marginBottom: 2 },
   errorText: { fontSize: 13, color: '#444', lineHeight: 19 },
+
+  // FITOSANIDAD DESPLEGABLE (NUEVOS ESTILOS)
+  collapsibleHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F3E5F5', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 10, marginBottom: 10 },
+  collapsibleHeaderInner: { flexDirection: 'row', alignItems: 'center' },
+  collapsibleContent: { marginTop: 5 },
 
   // RIESGOS (Scroll Horizontal)
   riskCard: { width: 200, backgroundColor: '#fff', padding: 12, borderRadius: 10, marginRight: 10, borderLeftWidth: 4, borderLeftColor: '#F57C00', elevation: 2, height: 130 },
