@@ -439,33 +439,33 @@ export default function GuiaScreen({ route }) {
           <View style={styles.section}>
               <SectionHeader icon="clipboard-check" title="Buenas Prácticas" color="#009688" />
               
-             {buenasPracticas.map((item, index) => {
+              {buenasPracticas.map((item, index) => {
                   const esObjeto = typeof item === 'object';
                   const tituloPractica = esObjeto ? (item.practica || item.titulo || item.nombre || "Práctica Recomendada") : item;
                   
                   return (
                       <View key={index} style={styles.practicaCard}>
-                          {/* 1. Práctica */}
+                          {/* Renderizado de la Práctica */}
                           <View style={styles.practicaHeader}>
                               <MaterialCommunityIcons name="check-circle" size={20} color="#009688" />
-                              <Text style={styles.practicaTitle}>{tituloPractica}</Text>
+                              <Text style={styles.practicaTitle}>Practica: "{tituloPractica}"</Text>
                           </View>
                           
-                          {/* 2. Importancia */}
+                          {/* Renderizado de la Importancia */}
                           {esObjeto && item.importancia && (
                               <View style={styles.practicaBadgeRow}>
-                                  <Text style={styles.practicaLabel}>Importancia:</Text>
+                                  <Text style={styles.practicaLabel}>Importancia: </Text>
                                   <View style={styles.badgeImportancia}>
                                       <Text style={styles.badgeImportanciaText}>{item.importancia}</Text>
                                   </View>
                               </View>
                           )}
                           
-                          {/* 3. Beneficio */}
+                          {/* Renderizado del Beneficio */}
                           {esObjeto && item.beneficio && (
                               <View style={styles.beneficioBox}>
                                   <MaterialCommunityIcons name="star-shooting" size={18} color="#2E7D32" style={{marginTop: 1}}/>
-                                  <Text style={styles.beneficioText}>{item.beneficio}</Text>
+                                  <Text style={styles.beneficioText}>Beneficio: "{item.beneficio}"</Text>
                               </View>
                           )}
                       </View>
@@ -478,48 +478,48 @@ export default function GuiaScreen({ route }) {
       {/* 6. ERRORES COMUNES (DETALLADO)                */}
       {/* --------------------------------------------- */}
       {erroresComunes.length > 0 && (
-        <View style={styles.section}>
-            <SectionHeader icon="alert-octagon" title="Errores Comunes" color="#D32F2F" />
-            
-            {erroresComunes.map((item, idx) => {
-                const esObjeto = typeof item === 'object';
-                const titulo = esObjeto ? (item.error || item.titulo || item.problema || "Error común") : item;
-                const consecuencia = esObjeto ? item.consecuencia : null;
-                const solucion = esObjeto ? item.solucion : null;
-
-                return (
-                    <View key={idx} style={styles.errorFullCard}>
-                         {/* 1. Error */}
-                         <View style={styles.errorHeader}>
-                            <MaterialCommunityIcons name="alert-octagon-outline" size={22} color="#D32F2F" />
-                            <Text style={styles.errorTitle}>{titulo}</Text>
-                         </View>
-
-                         {/* 2. Consecuencia */}
-                         {consecuencia && (
-                             <View style={styles.errorSection}>
-                                 <View style={styles.rowLabel}>
-                                     <MaterialCommunityIcons name="lightning-bolt" size={16} color="#E65100" />
-                                     <Text style={[styles.errorLabel, {color: '#E65100'}]}>Consecuencia:</Text>
-                                 </View>
-                                 <Text style={styles.errorText}>{consecuencia}</Text>
-                             </View>
-                         )}
-
-                         {/* 3. Solución */}
-                         {solucion && (
-                             <View style={[styles.errorSection, styles.solutionSection]}>
-                                 <View style={styles.rowLabel}>
-                                     <MaterialCommunityIcons name="shield-check" size={16} color="#2E7D32" />
-                                     <Text style={[styles.errorLabel, {color: '#2E7D32'}]}>Solución:</Text>
-                                 </View>
-                                 <Text style={[styles.errorText, {color: '#1B5E20'}]}>{solucion}</Text>
-                             </View>
-                         )}
-                    </View>
-                );
-            })}
-        </View>
+          <View style={styles.section}>
+              <SectionHeader icon="alert-octagon" title="Errores Comunes" color="#D32F2F" />
+              
+              {erroresComunes.map((item, idx) => {
+                  const esObjeto = typeof item === 'object';
+                  const titulo = esObjeto ? (item.error || item.titulo || item.problema || "Error común") : item;
+                  const consecuencia = esObjeto ? item.consecuencia : null;
+                  const solucion = esObjeto ? item.solucion : null;
+              
+                  return (
+                      <View key={idx} style={styles.errorFullCard}>
+                          {/* Renderizado del Error */}
+                          <View style={styles.errorHeader}>
+                              <MaterialCommunityIcons name="alert-octagon-outline" size={22} color="#D32F2F" />
+                              <Text style={styles.errorTitle}>Error: "{titulo}"</Text>
+                          </View>
+                  
+                          {/* Renderizado de la Solución (Prioridad Visual) */}
+                          {solucion && (
+                              <View style={[styles.errorSection, styles.solutionSection]}>
+                                  <View style={styles.rowLabel}>
+                                      <MaterialCommunityIcons name="shield-check" size={16} color="#2E7D32" />
+                                      <Text style={[styles.errorLabel, {color: '#2E7D32'}]}>Solucion:</Text>
+                                  </View>
+                                  <Text style={[styles.errorText, {color: '#1B5E20'}]}>"{solucion}"</Text>
+                              </View>
+                          )}
+      
+                          {/* Renderizado de la Consecuencia */}
+                          {consecuencia && (
+                              <View style={styles.errorSection}>
+                                  <View style={styles.rowLabel}>
+                                      <MaterialCommunityIcons name="lightning-bolt" size={16} color="#E65100" />
+                                      <Text style={[styles.errorLabel, {color: '#E65100'}]}>Consecuencia:</Text>
+                                  </View>
+                                  <Text style={styles.errorText}>"{consecuencia}"</Text>
+                              </View>
+                          )}
+                      </View>
+                  );
+              })}
+          </View>
       )}
 
       {/* --------------------------------------------- */}
