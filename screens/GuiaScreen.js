@@ -441,31 +441,31 @@ export default function GuiaScreen({ route }) {
               
               {buenasPracticas.map((item, index) => {
                   const esObjeto = typeof item === 'object';
-                  const tituloPractica = esObjeto ? (item.practica || item.titulo || item.nombre || "Práctica Recomendada") : item;
+                  const practica = esObjeto ? (item.practica || item.titulo || item.nombre || "Práctica Recomendada") : item;
+                  const beneficio = esObjeto ? item.beneficio : null;
+                  const importancia = esObjeto ? item.importancia : null;
                   
                   return (
                       <View key={index} style={styles.practicaCard}>
                           {/* Renderizado de la Práctica */}
                           <View style={styles.practicaHeader}>
                               <MaterialCommunityIcons name="check-circle" size={20} color="#009688" />
-                              <Text style={styles.practicaTitle}>Practica: "{tituloPractica}"</Text>
+                              <Text style={styles.practicaTitle}>Practica: {practica}</Text>
                           </View>
                           
-                          {/* Renderizado de la Importancia */}
-                          {esObjeto && item.importancia && (
-                              <View style={styles.practicaBadgeRow}>
-                                  <Text style={styles.practicaLabel}>Importancia: </Text>
-                                  <View style={styles.badgeImportancia}>
-                                      <Text style={styles.badgeImportanciaText}>{item.importancia}</Text>
-                                  </View>
+                          {/* Renderizado del Beneficio */}
+                          {beneficio && (
+                              <View style={styles.rowLabel}>
+                                  <MaterialCommunityIcons name="star-shooting" size={18} color="#2E7D32" style={{marginTop: 1}}/>
+                                  <Text style={styles.beneficioText}>Beneficio: {beneficio}</Text>
                               </View>
                           )}
-                          
-                          {/* Renderizado del Beneficio */}
-                          {esObjeto && item.beneficio && (
-                              <View style={styles.beneficioBox}>
-                                  <MaterialCommunityIcons name="star-shooting" size={18} color="#2E7D32" style={{marginTop: 1}}/>
-                                  <Text style={styles.beneficioText}>Beneficio: "{item.beneficio}"</Text>
+
+                          {/* Renderizado de la Importancia */}
+                          {importancia && (
+                              <View style={[styles.rowLabel, {marginTop: 6}]}>
+                                  <MaterialCommunityIcons name="alert-decagram" size={18} color="#00695C" style={{marginTop: 1}}/>
+                                  <Text style={[styles.practicaLabel, {color: '#00695C'}]}>Importancia: {importancia}</Text>
                               </View>
                           )}
                       </View>
@@ -483,7 +483,7 @@ export default function GuiaScreen({ route }) {
               
               {erroresComunes.map((item, idx) => {
                   const esObjeto = typeof item === 'object';
-                  const titulo = esObjeto ? (item.error || item.titulo || item.problema || "Error común") : item;
+                  const error = esObjeto ? (item.error || item.titulo || item.problema || "Error común") : item;
                   const consecuencia = esObjeto ? item.consecuencia : null;
                   const solucion = esObjeto ? item.solucion : null;
               
@@ -492,28 +492,22 @@ export default function GuiaScreen({ route }) {
                           {/* Renderizado del Error */}
                           <View style={styles.errorHeader}>
                               <MaterialCommunityIcons name="alert-octagon-outline" size={22} color="#D32F2F" />
-                              <Text style={styles.errorTitle}>Error: "{titulo}"</Text>
+                              <Text style={styles.errorTitle}>Error: {error}</Text>
                           </View>
-                  
-                          {/* Renderizado de la Solución (Prioridad Visual) */}
-                          {solucion && (
-                              <View style={[styles.errorSection, styles.solutionSection]}>
-                                  <View style={styles.rowLabel}>
-                                      <MaterialCommunityIcons name="shield-check" size={16} color="#2E7D32" />
-                                      <Text style={[styles.errorLabel, {color: '#2E7D32'}]}>Solucion:</Text>
-                                  </View>
-                                  <Text style={[styles.errorText, {color: '#1B5E20'}]}>"{solucion}"</Text>
-                              </View>
-                          )}
       
                           {/* Renderizado de la Consecuencia */}
                           {consecuencia && (
-                              <View style={styles.errorSection}>
-                                  <View style={styles.rowLabel}>
-                                      <MaterialCommunityIcons name="lightning-bolt" size={16} color="#E65100" />
-                                      <Text style={[styles.errorLabel, {color: '#E65100'}]}>Consecuencia:</Text>
-                                  </View>
-                                  <Text style={styles.errorText}>"{consecuencia}"</Text>
+                              <View style={styles.rowLabel}>
+                                  <MaterialCommunityIcons name="lightning-bolt" size={18} color="#E65100" />
+                                  <Text style={styles.errorText}>Consecuencia: {consecuencia}</Text>
+                              </View>
+                          )}
+
+                          {/* Renderizado de la Solución */}
+                          {solucion && (
+                              <View style={[styles.rowLabel, {marginTop: 6}]}>
+                                  <MaterialCommunityIcons name="shield-check" size={18} color="#2E7D32" />
+                                  <Text style={[styles.errorText, {color: '#1B5E20', fontWeight: 'bold'}]}>Solución: <Text style={{fontWeight: 'normal'}}>{solucion}</Text></Text>
                               </View>
                           )}
                       </View>

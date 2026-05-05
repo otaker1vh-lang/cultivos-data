@@ -68,6 +68,10 @@ const DISPOSITIVOS = [
   }
 ];
 
+const [humedadSuelo, setHumedadSuelo] = useState(0);
+const [ph, setPh] = useState(7.0); // NUEVO ESTADO PARA PH
+const [nivelAgua, setNivelAgua] = useState(true);
+
 export default function AgroControlScreen() {
   // ============= SELECTOR DE DISPOSITIVO =============
   const [deviceId, setDeviceId] = useState('esp32_esquejes');
@@ -138,11 +142,15 @@ export default function AgroControlScreen() {
         }
         
         if (deviceId === 'esp32_hidroponico') {
-          setTempAgua(Math.round(d.temp_agua ?? 0));
-          setNivelAgua(d.nivel_agua ?? true);
+          // El ESP32 envía 'ph' y 'humedad_suelo' (que usaremos como nivel de agua)
+          setPh(d.ph ?? 7.0);
+          setNivelAgua((d.humedad_suelo ?? 0) > 20); // Asumimos que menos de 20% es nivel bajo
           
-          if (!d.nivel_agua) {
+          if ((d.humedad_suelo ?? 0) < 20) {
             enviarAlerta('⚠️ Nivel Bajo', 'Verificar depósito de agua');
+          }
+          if (d.ph < 5.5 || d.ph > 6.5) {
+            enviarAlerta('🧪 Alerta de pH', `El pH está fuera de rango: ${d.ph}`);
           }
         }
         
@@ -160,7 +168,7 @@ export default function AgroControlScreen() {
     });
 
     // 2. Estado
-    const u2 = onValue(ref(db, base + '/reles'), snap => {
+    const u2 = onValue(ref(db, base + '/estado'), snap => {
       const d = snap.val();
       if (!d) return;
 
@@ -253,7 +261,24 @@ export default function AgroControlScreen() {
     lastCmdTsRef.current = cmdTs;
     if (setLoading) setLoading(true);
 
-    update(ref(db, `/${deviceId}/comandos`), { ...payload, cmdTs })
+    // Extraer la llave del comando (ej. 'r1', 'bomba')
+    let cmdKey = Object.keys(payload)[0]; 
+    let cmdValue = payload[cmdKey];
+    
+    // FORZAR EL ENVÍO SIEMPRE AL GATEWAY (MAESTRO)
+    let targetPath = `/esp32_esquejes/comandos`; 
+    let finalPayload = { cmdTs: cmdTs };
+
+    // Asignar llaves específicas para que el Gateway sepa a quién reenviar
+    if (deviceId === 'esp32_esquejes') {
+      finalPayload[cmdKey] = cmdValue; 
+    } else if (deviceId === 'esp32_germinacion') {
+      if (cmdKey === 'r1') finalPayload['germ_r1'] = cmdValue;
+    } else if (deviceId === 'esp32_hidroponico') {
+      if (cmdKey === 'bomba') finalPayload['hidro_bomba'] = cmdValue;
+    }
+
+    update(ref(db, targetPath), finalPayload)
       .catch(e => {
         if (setLoading) setLoading(false);
         Alert.alert("Error Firebase", e.message);
@@ -489,12 +514,12 @@ export default function AgroControlScreen() {
                 <View style={styles.separator} />
                 <View style={styles.metric}>
                   <MaterialCommunityIcons 
-                    name="coolant-temperature" 
+                    name="flask" // Ícono de matraz para pH
                     size={30} 
-                    color={tempAgua > 24 ? "#D32F2F" : "#1976D2"} 
+                    color={(ph < 5.5 || ph > 6.5) ? "#D32F2F" : "#9C27B0"} 
                   />
-                  <Text style={styles.val}>{tempAgua}°C</Text>
-                  <Text style={styles.lbl}>Agua</Text>
+                  <Text style={styles.val}>{ph.toFixed(1)}</Text>
+                  <Text style={styles.lbl}>Nivel pH</Text>
                 </View>
                 <View style={styles.separator} />
                 <View style={styles.metric}>
