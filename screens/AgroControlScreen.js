@@ -68,10 +68,6 @@ const DISPOSITIVOS = [
   }
 ];
 
-const [humedadSuelo, setHumedadSuelo] = useState(0);
-const [ph, setPh] = useState(7.0); // NUEVO ESTADO PARA PH
-const [nivelAgua, setNivelAgua] = useState(true);
-
 export default function AgroControlScreen() {
   // ============= SELECTOR DE DISPOSITIVO =============
   const [deviceId, setDeviceId] = useState('esp32_esquejes');
@@ -83,6 +79,7 @@ export default function AgroControlScreen() {
   const [humedadSuelo, setHumedadSuelo] = useState(0);
   const [tempAgua, setTempAgua] = useState(0);
   const [nivelAgua, setNivelAgua] = useState(true);
+  const [ph, setPh] = useState(7.0);
   
   const watchdogRef = useRef(null);
 
