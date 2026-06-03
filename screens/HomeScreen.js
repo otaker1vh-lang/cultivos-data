@@ -23,6 +23,7 @@ import { cargarRiesgosDesdeJSON, calcularRiesgosMultiples, generarAlertas } from
 import ClimaWidget from '../components/ClimaWidget'; 
 import { TreatmentCard } from '../components/TreatmentCard';
 import { usePlantClassifier } from '../src/hooks/usePlantClassifier';
+import AsistenteVoz from '../components/AsistenteVoz';
 
 const { width } = Dimensions.get('window');
 
@@ -487,6 +488,7 @@ export default function HomeScreen({ navigation }) {
              </View>
          </View>
       </Modal>
+      <AsistenteVoz cultivoActual={selectedCropGDD?.id || ""} />
     </View>
   );
 }
