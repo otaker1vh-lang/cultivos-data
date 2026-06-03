@@ -173,4 +173,14 @@ const styles = StyleSheet.create({
   fab: { position: 'absolute', bottom: 20, right: 20, width: 70, height: 70, borderRadius: 35, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 } },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#F5F7FA', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 25, minHeight: '70%' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom:
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  
+  // --- ESTILOS QUE FALTABAN ---
+  titulo: { fontSize: 24, fontWeight: 'bold', color: '#2E7D32' },
+  instruccion: { fontSize: 16, color: '#546E7A', marginBottom: 20 },
+  inputGigante: { backgroundColor: '#FFF', borderRadius: 15, padding: 15, height: 100, textAlignVertical: 'top', fontSize: 16, marginBottom: 20, elevation: 2 },
+  botonAccion: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 15, alignItems: 'center' },
+  textoBoton: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
+  cajaRespuesta: { marginTop: 20, backgroundColor: '#E8F5E9', padding: 15, borderRadius: 15 },
+  textoRespuesta: { fontSize: 16, color: '#1B5E20' }
+}); // <-- EL CIERRE QUE FALTABA

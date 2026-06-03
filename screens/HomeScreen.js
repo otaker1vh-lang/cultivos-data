@@ -187,8 +187,28 @@ export default function HomeScreen({ navigation }) {
         
         // Uso directo de las funciones de gdd_calculator
         const riesgosConfig = cargarRiesgosDesdeJSON(cultivo); 
-        const predicciones = calcularRiesgosMultiples(riesgosConfig, historial);
-        const alertas = generarAlertas(predicciones);
+        const resetKey = `@gdd_resets_${cultivo.id}`;
+        const resetDatesStr = await AsyncStorage.getItem(resetKey);
+        const resetDates = resetDatesStr ? JSON.parse(resetDatesStr) : {};
+
+        let prediccionesTotales = {};
+
+        // Calcular el riesgo de cada plaga filtrando su propio historial de días
+        for (const riesgo of riesgosConfig) {
+            let historialFiltrado = historial;
+            
+            if (resetDates[riesgo.nombre]) {
+                const fechaReinicio = resetDates[riesgo.nombre];
+                // Solo tomamos los días de clima desde la fecha de reinicio en adelante
+                historialFiltrado = historial.filter(dia => dia.fecha >= fechaReinicio);
+            }
+            
+            // Calculamos solo esta plaga
+            const prediccionIndividual = calcularRiesgosMultiples([riesgo], historialFiltrado);
+            Object.assign(prediccionesTotales, prediccionIndividual);
+        }
+
+        const alertas = generarAlertas(prediccionesTotales);
 
         setAlertasGDD(alertas.map(alerta => {
             // Usamos alerta.nombre porque generarAlertas no devuelve 'riesgo'
@@ -215,6 +235,32 @@ export default function HomeScreen({ navigation }) {
         { text: "Reiniciar", style: "destructive", onPress: async () => {
             await AsyncStorage.removeItem(`@gdd_historial_${selectedCropGDD.id}`);
             setAlertasGDD([]);
+        }}
+    ]);
+  };
+
+  const reiniciarPlagaIndividual = (nombrePlaga) => {
+    Alert.alert("Reiniciar Plaga", `¿Reiniciar el monitoreo de ${nombrePlaga}?`, [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Reiniciar", style: "destructive", onPress: async () => {
+            try {
+                const storageKey = `@gdd_resets_${selectedCropGDD.id}`;
+                const resetDatesStr = await AsyncStorage.getItem(storageKey);
+                const resetDates = resetDatesStr ? JSON.parse(resetDatesStr) : {};
+                
+                // Establecer la fecha de hoy como nuevo punto de inicio para esta plaga
+                const hoy = new Date().toISOString().split('T')[0];
+                resetDates[nombrePlaga] = hoy;
+                
+                await AsyncStorage.setItem(storageKey, JSON.stringify(resetDates));
+                
+                // Recalcular los datos visuales inmediatamente
+                if (climaActual) {
+                    calcularRiesgoGDD(selectedCropGDD, climaActual);
+                }
+            } catch (error) { 
+                console.error("Error al reiniciar plaga", error); 
+            }
         }}
     ]);
   };
@@ -418,7 +464,16 @@ export default function HomeScreen({ navigation }) {
                                 </View>
                             </View>
                             {expandedGddId === alerta.id && (
-                                <Text style={styles.gddMsg}>{alerta.mensaje}</Text>
+                                <View>
+                                    <Text style={styles.gddMsg}>{alerta.mensaje}</Text>
+                                    <TouchableOpacity 
+                                        style={styles.btnReiniciarIndividual} 
+                                        onPress={() => reiniciarPlagaIndividual(alerta.nombre)}
+                                    >
+                                        <MaterialCommunityIcons name="restart" size={16} color="#D32F2F" />
+                                        <Text style={styles.btnReiniciarTextInd}>Reiniciar ciclo de {alerta.nombre}</Text>
+                                    </TouchableOpacity>
+                                </View>
                             )}
                         </TouchableOpacity>
                     ))}
@@ -572,6 +627,21 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 5,
     backgroundColor: 'transparent',
+  },
+  btnReiniciarIndividual: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#FFEBEE', 
+    padding: 8, 
+    borderRadius: 8, 
+    marginTop: 10, 
+    alignSelf: 'flex-start' 
+  },
+  btnReiniciarTextInd: { 
+    color: '#D32F2F', 
+    fontSize: 11, 
+    fontWeight: '700', 
+    marginLeft: 6 
   },
   favoritosScroll: {
     paddingLeft: 24,
