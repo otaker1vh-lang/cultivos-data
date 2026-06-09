@@ -1,4 +1,5 @@
-const { withAndroidManifest } = require('@expo/config-plugins');
+// Usamos el import recomendado para versiones modernas de Expo
+const { withAndroidManifest } = require('expo/config-plugins');
 
 module.exports = function withAndroidManifestPatch(config) {
   return withAndroidManifest(config, async (config) => {
@@ -10,7 +11,7 @@ module.exports = function withAndroidManifestPatch(config) {
       androidManifest.manifest.$['xmlns:tools'] = 'http://schemas.android.com/tools';
     }
 
-    // Añadir la regla de reemplazo para el appComponentFactory
+    // Añadir la regla de reemplazo
     if (app.$['tools:replace']) {
       if (!app.$['tools:replace'].includes('android:appComponentFactory')) {
         app.$['tools:replace'] += ',android:appComponentFactory';
@@ -18,6 +19,9 @@ module.exports = function withAndroidManifestPatch(config) {
     } else {
       app.$['tools:replace'] = 'android:appComponentFactory';
     }
+
+    // NUEVO: Proporcionar el valor exacto del atributo que va a reemplazar al antiguo
+    app.$['android:appComponentFactory'] = 'androidx.core.app.CoreComponentFactory';
 
     return config;
   });
