@@ -1,19 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Modal, Keyboard } from 'react-native';
 import * as Speech from 'expo-speech';
+import Voice from '@react-native-voice/voice'; // Importamos la librería de voz
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-// IMPORTANTE: Ajusta esta ruta hacia donde tengas tu cliente de Supabase
 import { supabase } from '../src/services/supabaseClient'; 
 
-// Configura tu llave de Google AI Studio aquí
+// RECOMENDACIÓN: Mueve esto a variables de entorno (.env) lo antes posible
 const GEMINI_API_KEY = 'AIzaSyBaXxNR0Zf105wyBaEDe4EQ8YWKC4PoHjU';
 
 export default function AsistenteVoz({ cultivoActual }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [pregunta, setPregunta] = useState('');
-  const [estado, setEstado] = useState('inactivo'); 
+  const [estado, setEstado] = useState('inactivo'); // inactivo, escuchando, pensando, hablando
   const [respuesta, setRespuesta] = useState('');
+
+  useEffect(() => {
+    // Configurar los listeners del reconocimiento de voz
+    Voice.onSpeechStart = onSpeechStart;
+    Voice.onSpeechEnd = onSpeechEnd;
+    Voice.onSpeechResults = onSpeechResults;
+    Voice.onSpeechError = onSpeechError;
+
+    return () => {
+      // Limpiar listeners al desmontar el componente
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
+  // Handlers del Reconocimiento de Voz
+  const onSpeechStart = () => {
+    setEstado('escuchando');
+  };
+
+  const onSpeechEnd = () => {
+    setEstado('inactivo');
+  };
+
+  const onSpeechResults = (e) => {
+    if (e.value && e.value.length > 0) {
+      setPregunta(e.value[0]); // Toma la frase con mayor nivel de confianza
+    }
+  };
+
+  const onSpeechError = (e) => {
+    console.log("Error de reconocimiento de voz: ", e);
+    setEstado('inactivo');
+  };
+
+  const iniciarEscucha = async () => {
+    try {
+      setPregunta('');
+      setRespuesta('');
+      Speech.stop(); // Detiene cualquier audio previo que esté hablando la app
+      await Voice.start('es-MX'); // Forzar reconocimiento en Español de México
+    } catch (e) {
+      console.error("Error al iniciar Voice: ", e);
+    }
+  };
+
+  const detenerEscucha = async () => {
+    try {
+      await Voice.stop();
+      setEstado('inactivo');
+    } catch (e) {
+      console.error("Error al detener Voice: ", e);
+    }
+  };
 
   // 1. Convertir la pregunta a Vector Matemático
   const obtenerVectorPregunta = async (texto) => {
@@ -61,7 +114,7 @@ export default function AsistenteVoz({ cultivoActual }) {
     return datos.candidates[0].content.parts[0].text;
   };
 
-  // 3. Flujo principal del botón
+  // 3. Flujo principal del proceso RAG
   const procesarPregunta = async () => {
     if (!pregunta.trim()) return;
     Keyboard.dismiss();
@@ -69,22 +122,18 @@ export default function AsistenteVoz({ cultivoActual }) {
     setRespuesta('');
 
     try {
-      const vector = await obtenerVectorPregunta(pregunta);
-
-      // Busca en Supabase usando la función que creamos en SQL
-      const { data: documentos, error } = await supabase.rpc('buscar_conocimiento_agricola', {
-        query_embedding: vector,
-        match_threshold: 0.35, 
-        match_count: 3
+      // Invocación directa a la Edge Function segura usando tu cliente configurado de Supabase
+      const { data, error } = await supabase.functions.invoke('consultar-asistente', {
+        body: { 
+          pregunta: pregunta, 
+          cultivoActual: cultivoActual || "sus cultivos" 
+        }
       });
 
       if (error) throw error;
 
-      const contextoExtraido = documentos && documentos.length > 0 
-        ? documentos.map(doc => doc.texto_busqueda).join(" ") 
-        : "Sin datos específicos de este tema en la base de datos.";
-
-      const respuestaFinal = await consultarIA(contextoExtraido, pregunta);
+      // La respuesta viene pre-procesada directamente por el Backend intermediario
+      const respuestaFinal = data.respuesta;
       
       setRespuesta(respuestaFinal);
       setEstado('hablando');
@@ -98,7 +147,7 @@ export default function AsistenteVoz({ cultivoActual }) {
       });
 
     } catch (error) {
-      console.error("Error en Asistente:", error);
+      console.error("Error en Asistente a través de Edge Function:", error);
       const errorMsg = "Hubo un problema con la señal del campo. Intente más tarde, patrón.";
       setRespuesta(errorMsg);
       Speech.speak(errorMsg, { language: 'es-MX' });
@@ -108,6 +157,7 @@ export default function AsistenteVoz({ cultivoActual }) {
 
   const cerrarModal = () => {
     Speech.stop();
+    Voice.destroy().then(Voice.removeAllListeners);
     setModalVisible(false);
     setEstado('inactivo');
     setPregunta('');
@@ -134,6 +184,21 @@ export default function AsistenteVoz({ cultivoActual }) {
             <Text style={styles.instruccion}>
               Pregúnteme sobre clima, precios, nutrición o plagas para {cultivoActual || "sus cultivos"}:
             </Text>
+
+            {/* CONTROLES DE ENTRADA POR VOZ */}
+            <View style={styles.voiceControlRow}>
+              {estado === 'escuchando' ? (
+                <TouchableOpacity style={[styles.micButton, styles.micListening]} onPress={detenerEscucha}>
+                  <MaterialCommunityIcons name="microphone-off" size={24} color="#FFF" />
+                  <Text style={styles.micButtonText}>Detener Escucha</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={styles.micButton} onPress={iniciarEscucha}>
+                  <MaterialCommunityIcons name="microphone" size={24} color="#FFF" />
+                  <Text style={styles.micButtonText}>Dictar con Voz</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <TextInput
               style={styles.inputGigante}
@@ -173,4 +238,18 @@ const styles = StyleSheet.create({
   fab: { position: 'absolute', bottom: 20, right: 20, width: 70, height: 70, borderRadius: 35, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 } },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#F5F7FA', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 25, minHeight: '70%' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom:
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  titulo: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32' },
+  instruccion: { fontSize: 14, color: '#546E7A', marginBottom: 15 },
+  inputGigante: { backgroundColor: '#FFF', borderRadius: 15, padding: 15, minHeight: 100, textAlignVertical: 'top', borderWidth: 1, borderColor: '#CFD8DC', fontSize: 16, marginBottom: 15 },
+  botonAccion: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 15, alignItems: 'center', justifyContent: 'center', elevation: 2 },
+  textoBoton: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  cajaRespuesta: { backgroundColor: '#E8F5E9', borderRadius: 15, padding: 15, marginTop: 15, borderWidth: 1, borderColor: '#C8E6C9' },
+  textoRespuesta: { fontSize: 15, color: '#1B5E20', lineHeight: 22, fontWeight: '500' },
+  
+  // Nuevos estilos para los botones de voz
+  voiceControlRow: { flexDirection: 'row', justifyContent: 'center', marginBottom: 15 },
+  micButton: { flexDirection: 'row', backgroundColor: '#0288D1', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 25, alignItems: 'center', elevation: 2 },
+  micListening: { backgroundColor: '#D32F2F' },
+  micButtonText: { color: '#FFF', fontWeight: 'bold', marginLeft: 8, fontSize: 14 }
+});

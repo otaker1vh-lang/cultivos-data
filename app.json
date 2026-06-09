@@ -15,7 +15,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
+        "NSMicrophoneUsageDescription": "Permita que RóslinApp escuche sus consultas sobre los cultivos directamente en el campo."
       }
     },
     "android": {
@@ -27,6 +28,7 @@
       "package": "com.otaker.miapp",
       "permissions": [
         "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
         "SCHEDULE_EXACT_ALARM"
       ]
     },
@@ -47,6 +49,12 @@
           }
         }
       ],
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "Permita que RóslinApp escuche sus consultas sobre los cultivos directamente en el campo."
+        }
+      ],
       "react-native-fast-tflite",
       "react-native-vision-camera",
       "expo-font",
@@ -54,8 +62,10 @@
       "expo-web-browser"
     ],
     "extra": {
-      "eas": {
-        "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
+      "extra": {
+        "eas": {
+          "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
+        }
       }
     },
     "owner": "otaker"
