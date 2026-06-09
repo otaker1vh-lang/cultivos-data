@@ -37,6 +37,7 @@
     },
     "plugins": [
       "./withAndroidManifestPatch.js",
+      "./withJetifier.js",
       [
         "expo-build-properties",
         {
