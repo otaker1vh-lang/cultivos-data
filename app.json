@@ -36,6 +36,7 @@
       "favicon": "./assets/roslin_icon.png"
     },
     "plugins": [
+      "./withAndroidManifestPatch.js",
       [
         "expo-build-properties",
         {
@@ -66,6 +67,9 @@
         "eas": {
           "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
         }
+      },
+      "eas": {
+        "projectId": "de02aef3-a149-4a93-a007-55c764c0ec38"
       }
     },
     "owner": "otaker"
