@@ -93,7 +93,14 @@ serve(async (req) => {
     })
     
     const chatData = await chatRes.json()
-    const respuestaFinal = chatData.candidates[0].content.parts[0].text
+
+// Validación contra respuestas vacías o bloqueadas por seguridad
+if (!chatData.candidates?.[0]?.content?.parts?.[0]?.text) {
+  console.error("Error de Gemini o respuesta bloqueada:", JSON.stringify(chatData))
+  throw new Error("El modelo de IA no pudo generar una respuesta válida para esta consulta.")
+}
+
+const respuestaFinal = chatData.candidates[0].content.parts[0].text
 
     // 7. Retornar el resultado limpio a la aplicación móvil
     return new Response(JSON.stringify({ respuesta: respuestaFinal }), {

@@ -59,7 +59,6 @@ export default function AsistenteVoz({ cultivoActual }) {
     }
   };
 
-  // Lógica de consulta directa a la Edge Function
   const procesarPregunta = async () => {
     if (!pregunta.trim()) return;
     Keyboard.dismiss();
@@ -67,7 +66,10 @@ export default function AsistenteVoz({ cultivoActual }) {
     setRespuesta('');
 
     try {
-      // Invocamos directamente el backend intermediario que desplegaste en Supabase
+      console.log("[Asistente] Enviando pregunta:", pregunta);
+      console.log("[Asistente] Cultivo actual:", cultivoActual);
+
+      // Invocamos la Edge Function
       const { data, error } = await supabase.functions.invoke('consultar-asistente', {
         body: { 
           pregunta: pregunta, 
@@ -75,27 +77,41 @@ export default function AsistenteVoz({ cultivoActual }) {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("[Asistente Error] Error devuelto por la Edge Function:", error);
+        throw error;
+      }
 
-      // El backend procesó los vectores y Gemini devolvió la respuesta limpia
+      console.log("[Asistente] Datos crudos recibidos del servidor:", data);
+
+      // CONTROL DE DAÑOS: Validamos que 'data' exista y contenga la propiedad 'respuesta'
+      if (!data || typeof data.respuesta === 'undefined') {
+        throw new Error("El servidor respondió pero no incluyó la propiedad 'respuesta' en el JSON.");
+      }
+
       const respuestaFinal = data.respuesta;
-      
+
       setRespuesta(respuestaFinal);
       setEstado('hablando');
 
       // La app lee la respuesta para el productor en el campo
       Speech.speak(respuestaFinal, {
         language: 'es-MX',
-        rate: 0.9, // Velocidad ligeramente pausada para su fácil comprensión
+        rate: 0.9, 
         pitch: 1.0,
         onDone: () => setEstado('inactivo'),
         onStopped: () => setEstado('inactivo')
       });
 
     } catch (error) {
-      console.error("Error de comunicación con la Edge Function:", error);
+      // ESTE LOG TE DIRÁ EN LA CONSOLA EL MOTIVO REAL DEL FALLO:
+      console.error("[Asistente Error] Detalle completo de la falla:", error);
+
       const errorMsg = "Hubo un problema con la señal del campo. Intente más tarde, patrón.";
-      setRespuesta(errorMsg);
+
+      // Opcional: Muestra una pista del error real en pantalla sólo durante desarrollo
+      setRespuesta(`${errorMsg}\n\n(Nota técnica: ${error.message || JSON.stringify(error)})`);
+
       Speech.speak(errorMsg, { language: 'es-MX' });
       setEstado('inactivo');
     }
