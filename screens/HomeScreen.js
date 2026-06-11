@@ -10,7 +10,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import NetInfo from "@react-native-community/netinfo";
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
-import * as ImagePicker from 'expo-image-picker';
 
 // Datos y Utilidades
 import datosBasicos from "../data/cultivos_basico.json";
@@ -63,7 +62,7 @@ export default function HomeScreen({ navigation }) {
   const [loadingGDD, setLoadingGDD] = useState(false);
   const [selectedCropGDD, setSelectedCropGDD] = useState(null);
   const [showCropSelector, setShowCropSelector] = useState(false);
-  const [gddSectionExpanded, setGddSectionExpanded] = useState(false); 
+  const [gddSectionExpanded, setGddSectionExpanded] = useState(true); 
   const [expandedGddId, setExpandedGddId] = useState(null); 
 
   // Estados de Cámara e IA
@@ -86,12 +85,10 @@ export default function HomeScreen({ navigation }) {
     const unsubscribeNet = NetInfo.addEventListener(state => setIsOnline(!!state.isConnected));
     cargarFavoritos();
     
-    // Cargar datos iniciales de JSON
     if (datosBasicos?.cultivos) {
         setListaCultivos(Object.keys(datosBasicos.cultivos).map(nombre => ({ nombre, ...datosBasicos.cultivos[nombre] })));
     }
 
-    // Sincronizar con Supabase
     const sincronizar = async () => {
       try {
         const datosSupabase = await CultivoDataManager.obtenerListaCultivos();
@@ -160,7 +157,7 @@ export default function HomeScreen({ navigation }) {
     } catch (e) { console.log("Error guardando"); }
   };
 
-  // Lógica GDD Compatible con gdd_calculator.js
+  // Lógica GDD Fitosanitaria Corregida
   const calcularRiesgoGDD = async (cultivo, clima) => {
     if (!clima?.temp_max || !clima?.temp_min) return;
     setLoadingGDD(true);
@@ -170,7 +167,6 @@ export default function HomeScreen({ navigation }) {
         let historial = historialStr ? JSON.parse(historialStr) : [];
         const hoy = new Date().toISOString().split('T')[0];
         
-        // Extraer humedad para el cálculo de enfermedades (valor por defecto 50 si no está disponible)
         const humedad = clima.humedad_relativa || clima.humedad || clima.humidity || 50;
 
         const nuevoDato = { 
@@ -185,7 +181,6 @@ export default function HomeScreen({ navigation }) {
         
         await AsyncStorage.setItem(storageKey, JSON.stringify(historial.slice(-180)));
         
-        // Uso directo de las funciones de gdd_calculator
         const riesgosConfig = cargarRiesgosDesdeJSON(cultivo); 
         const resetKey = `@gdd_resets_${cultivo.id}`;
         const resetDatesStr = await AsyncStorage.getItem(resetKey);
@@ -193,17 +188,12 @@ export default function HomeScreen({ navigation }) {
 
         let prediccionesTotales = {};
 
-        // Calcular el riesgo de cada plaga filtrando su propio historial de días
         for (const riesgo of riesgosConfig) {
             let historialFiltrado = historial;
-            
             if (resetDates[riesgo.nombre]) {
                 const fechaReinicio = resetDates[riesgo.nombre];
-                // Solo tomamos los días de clima desde la fecha de reinicio en adelante
                 historialFiltrado = historial.filter(dia => dia.fecha >= fechaReinicio);
             }
-            
-            // Calculamos solo esta plaga
             const prediccionIndividual = calcularRiesgosMultiples([riesgo], historialFiltrado);
             Object.assign(prediccionesTotales, prediccionIndividual);
         }
@@ -211,61 +201,59 @@ export default function HomeScreen({ navigation }) {
         const alertas = generarAlertas(prediccionesTotales);
 
         setAlertasGDD(alertas.map(alerta => {
-            // Usamos alerta.nombre porque generarAlertas no devuelve 'riesgo'
             const nombreRiesgo = alerta.nombre; 
-            const datosPrediccion = predicciones[nombreRiesgo];
+            const datosPrediccion = prediccionesTotales[nombreRiesgo]; // Mantiene la referencia correcta fijada
 
             return {
                 id: nombreRiesgo,
                 nombre: nombreRiesgo,
-                gdd: datosPrediccion.gdd_alcanzado, // Nombre correcto de la variable exportada
-                gddRequeridos: datosPrediccion.gdd_meta_texto, // Nombre correcto de la variable exportada
+                gdd: datosPrediccion?.gdd_alcanzado || 0, 
+                gddRequeridos: datosPrediccion?.gdd_meta_texto || "N/A", 
                 nivel: (alerta.nivel === 'CRÍTICO' || alerta.nivel === 'ALTO') ? 'ALTO' : 'MEDIO',
-                mensaje: `Acumulados: ${datosPrediccion.gdd_alcanzado.toFixed(1)} / ${datosPrediccion.gdd_meta_texto} GDD`, // Generamos un mensaje localmente
+                mensaje: `Acumulados: ${(datosPrediccion?.gdd_alcanzado || 0).toFixed(1)} / ${datosPrediccion?.gdd_meta_texto || "N/A"} GDD`, 
                 detalle: cultivo.riesgos_detallados?.[nombreRiesgo] || cultivo.riesgos_fitosanitarios?.[nombreRiesgo],
-                progreso: Math.round(parseFloat(alerta.progreso))
+                progreso: Math.round(parseFloat(alerta.progreso || 0))
             };
         }));
     } catch (error) { console.error("GDD Error:", error); } finally { setLoadingGDD(false); }
   };
 
   const reiniciarTemporadaGDD = async () => {
-    Alert.alert("Reiniciar", `¿Reiniciar monitoreo de ${selectedCropGDD.id}?`, [
+    Alert.alert("Reiniciar Todo", `¿Desea borrar todo el historial de monitoreo de ${selectedCropGDD.id}?`, [
         { text: "Cancelar", style: "cancel" },
         { text: "Reiniciar", style: "destructive", onPress: async () => {
             await AsyncStorage.removeItem(`@gdd_historial_${selectedCropGDD.id}`);
-            setAlertasGDD([]);
+            await AsyncStorage.removeItem(`@gdd_resets_${selectedCropGDD.id}`);
+            if (climaActual) calcularRiesgoGDD(selectedCropGDD, climaActual);
         }}
     ]);
   };
 
   const reiniciarPlagaIndividual = (nombrePlaga) => {
-    Alert.alert("Reiniciar Plaga", `¿Reiniciar el monitoreo de ${nombrePlaga}?`, [
+    Alert.alert("Reiniciar Ciclo", `¿Desea restablecer el desarrollo biológico de la plaga "${nombrePlaga}"?`, [
         { text: "Cancelar", style: "cancel" },
-        { text: "Reiniciar", style: "destructive", onPress: async () => {
+        { text: "Restablecer", style: "destructive", onPress: async () => {
             try {
                 const storageKey = `@gdd_resets_${selectedCropGDD.id}`;
                 const resetDatesStr = await AsyncStorage.getItem(storageKey);
                 const resetDates = resetDatesStr ? JSON.parse(resetDatesStr) : {};
                 
-                // Establecer la fecha de hoy como nuevo punto de inicio para esta plaga
                 const hoy = new Date().toISOString().split('T')[0];
                 resetDates[nombrePlaga] = hoy;
                 
                 await AsyncStorage.setItem(storageKey, JSON.stringify(resetDates));
                 
-                // Recalcular los datos visuales inmediatamente
                 if (climaActual) {
                     calcularRiesgoGDD(selectedCropGDD, climaActual);
                 }
             } catch (error) { 
-                console.error("Error al reiniciar plaga", error); 
+                console.error("Error al reiniciar plaga individual:", error); 
             }
         }}
     ]);
   };
 
-  // Cámara
+  // Cámara e IA
   const abrirCamara = async () => { 
     if (!hasPermission) {
       const permiso = await requestPermission();
@@ -281,7 +269,6 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Renderizado de Items
   const renderCultivo = ({ item }) => {
     const iconName = obtenerIconoCultivo(item.nombre, item.categoria);
     const esFavorito = cultivosGuardados.some(c => c.nombre === item.nombre);
@@ -289,7 +276,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.cultivoCardContainer}>
         <TouchableOpacity style={styles.cardMainArea} onPress={() => navigation.navigate('MenuDetalle', { cultivo: item.nombre })}>
           <View style={styles.iconBox}>
-             {item.imagen_url ? <Image source={{ uri: item.imagen_url }} style={styles.cardImage} /> : <MaterialCommunityIcons name={iconName} size={28} color="#43A047" />}
+             {item.imagen_url ? <Image source={{ uri: item.imagen_url }} style={styles.cardImage} /> : <MaterialCommunityIcons name={iconName} size={28} color="#2d6a4f" />}
           </View>
           <View style={{ flex: 1, marginLeft: 15 }}>
             <Text style={styles.cardTitle}>{item.nombre}</Text>
@@ -297,10 +284,10 @@ export default function HomeScreen({ navigation }) {
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={{padding: 10}} onPress={() => toggleFavorito(item)}>
-            <MaterialCommunityIcons name={esFavorito ? "heart" : "heart-outline"} size={24} color={esFavorito ? "#E91E63" : "#B0BEC5"} />
+            <MaterialCommunityIcons name={esFavorito ? "heart" : "heart-outline"} size={24} color={esFavorito ? "#d4a373" : "#B0BEC5"} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.btnGuiaArea} onPress={() => navigation.navigate('Guia', { cultivo: item.nombre })}>
-          <MaterialCommunityIcons name="compass-rose" size={24} color="#F57C00" />
+          <MaterialCommunityIcons name="compass-rose" size={24} color="#d4a373" />
           <Text style={styles.btnGuiaText}>Guía</Text>
         </TouchableOpacity>
       </View>
@@ -309,22 +296,22 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1B5E20" />
+      <StatusBar barStyle="light-content" backgroundColor="#1b4332" />
       
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-          {/* CONTENEDOR DINÁMICO AJUSTADO AL CLIMA */}
+          {/* Header con gradiente */}
           <View style={styles.dynamicHeaderWrapper}>
             <LinearGradient 
-              colors={['#1B5E20', '#2E7D32', '#43A047']} 
+              colors={['#1b4332', '#2d6a4f', '#40916c']} 
               style={styles.headerGradientBackground} 
             />
             
             <View style={styles.topSection}>
               <View style={styles.headerRow}>
                 <View>
-                  <Text style={styles.welcomeSub}>Bienvenido a</Text>
+                  <Text style={styles.welcomeSub}>Gestión Integral</Text>
                   <Text style={styles.appName}>RóslinApp</Text>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('About')}>
@@ -350,7 +337,7 @@ export default function HomeScreen({ navigation }) {
                 style={[styles.gddHeaderRow, { paddingHorizontal: 24, paddingBottom: 10 }]}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <MaterialCommunityIcons name="heart-multiple" size={20} color="#2E7D32" />
+                  <MaterialCommunityIcons name="heart-multiple" size={20} color="#2d6a4f" />
                   <Text style={[styles.sectionTitleFav, { marginLeft: 10, marginBottom: 0 }]}>Mis Cultivos</Text>
                 </View>
                 <Ionicons 
@@ -376,7 +363,7 @@ export default function HomeScreen({ navigation }) {
                         <MaterialCommunityIcons 
                           name={obtenerIconoCultivo(item.nombre, item.categoria)} 
                           size={22} 
-                          color="#2E7D32" 
+                          color="#2d6a4f" 
                         />
                       </View>
                       <Text numberOfLines={1} style={styles.favMinText}>{item.nombre}</Text>
@@ -390,12 +377,12 @@ export default function HomeScreen({ navigation }) {
           {/* Banner Diagnóstico */}
           <View style={styles.heroSection}>
             <TouchableOpacity style={styles.diagnoseCard} onPress={abrirCamara}>
-                <LinearGradient colors={['#FF8F00', '#FF6F00']} style={styles.diagnoseGradient} start={{x: 0, y: 0}} end={{x: 1, y: 0}}>
+                <LinearGradient colors={['#d4a373', '#b98b5c']} style={styles.diagnoseGradient} start={{x: 0, y: 0}} end={{x: 1, y: 0}}>
                     <View style={styles.diagnoseContent}>
                         <MaterialCommunityIcons name="camera-iris" size={30} color="#FFF" />
                         <View style={{marginLeft: 15, flex: 1}}>
                             <Text style={styles.diagnoseTitle}>Diagnóstico Inteligente</Text>
-                            <Text style={styles.diagnoseSub}>Analiza la salud de tus plantas</Text>
+                            <Text style={styles.diagnoseSub}>Analiza fitosanitarios por Inteligencia Artificial</Text>
                         </View>
                     </View>
                 </LinearGradient>
@@ -406,24 +393,24 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.searchContainer}>
              <View style={styles.searchBar}>
                 <Ionicons name="search" size={20} color="#757575" style={{marginRight: 10}} />
-                <TextInput style={styles.searchInput} placeholder="Buscar cultivos..." value={busqueda} onChangeText={setBusqueda} />
+                <TextInput style={styles.searchInput} placeholder="Buscar cultivos o variedades..." value={busqueda} onChangeText={setBusqueda} />
              </View>
           </View>
 
           {mostrarLista && <FlatList data={cultivosFiltrados} keyExtractor={(item) => item.nombre} renderItem={renderCultivo} scrollEnabled={false} />}
 
-          {/* Herramientas */}
+          {/* Herramientas Rápidas */}
           <View style={styles.quickAccessContainer}>
              <Text style={[styles.sectionTitleFav, {paddingHorizontal: 24}]}>Herramientas de Campo</Text>
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessScroll}>
                 {[
-                  {n: 'AgroControl', i: 'router-wireless', c: '#00695C', bg: '#E0F2F1'},
-                  {n: 'Fertilizantes', i: 'sack', c: '#2E7D32', bg: '#E8F5E9'},
-                  {n: 'Dosis', i: 'flask', c: '#006064', bg: '#E0F7FA'},
-                  {n: 'Bitacora', i: 'notebook', c: '#E65100', bg: '#FFF3E0'},
-                  {n: 'Noticias', i: 'newspaper', c: '#7B1FA2', bg: '#F3E5F5'},
-                  {n: 'ReporteAvanzado', i: 'file-chart', c: '#D32F2F', bg: '#FFEBEE', label: 'Reportes'},
-                  {n: 'Costos', i: 'finance', c: '#FBC02D', bg: '#FFFDE7', label: 'Mis Costos'}
+                  {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9'},
+                  {n: 'Fertilizantes', i: 'sack', c: '#2d6a4f', bg: '#E8F5E9'},
+                  {n: 'Dosis', i: 'flask', c: '#40916c', bg: '#EAF7EE'},
+                  {n: 'Bitacora', i: 'notebook', c: '#b98b5c', bg: '#FDF8F2'},
+                  {n: 'Noticias', i: 'newspaper', c: '#52b788', bg: '#EAFBF3'},
+                  {n: 'ReporteAvanzado', i: 'file-chart', c: '#1b4332', bg: '#E8F5E9', label: 'Reportes'},
+                  {n: 'Costos', i: 'finance', c: '#d4a373', bg: '#FDF8F2', label: 'Mis Costos'}
                 ].map((item, idx) => (
                   <TouchableOpacity key={idx} style={styles.quickBtn} onPress={() => navigation.navigate(item.n, { cultivo: selectedCropGDD?.id })}>
                     <View style={[styles.quickIcon, {backgroundColor: item.bg}]}><MaterialCommunityIcons name={item.i} size={26} color={item.c} /></View>
@@ -433,12 +420,12 @@ export default function HomeScreen({ navigation }) {
              </ScrollView>
           </View>
 
-          {/* Sección GDD */}
+          {/* Sección de Monitoreo GDD */}
           <View style={styles.gddMainCard}>
              <TouchableOpacity onPress={() => { LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); setGddSectionExpanded(!gddSectionExpanded); }} style={styles.gddHeaderRow}>
                 <View style={{flexDirection:'row', alignItems:'center'}}>
-                    <FontAwesome5 name="temperature-low" size={18} color="#2E7D32" />
-                    <Text style={[styles.gddTitleMain, {marginLeft:12}]}>Monitoreo GDD (Plagas)</Text>
+                    <FontAwesome5 name="temperature-low" size={18} color="#2d6a4f" />
+                    <Text style={[styles.gddTitleMain, {marginLeft:12}]}>Monitoreo GDD Fitosanitario</Text>
                 </View>
                 <Ionicons name={gddSectionExpanded ? "chevron-up" : "chevron-down"} size={24} color="#546E7A" />
              </TouchableOpacity>
@@ -447,31 +434,35 @@ export default function HomeScreen({ navigation }) {
                  <View style={styles.gddContentArea}>
                     <TouchableOpacity onPress={() => setShowCropSelector(true)} style={styles.gddSelectorBtn}>
                         <Text style={styles.gddSelectorText}>{selectedCropGDD?.id || "Seleccionar Cultivo"}</Text>
-                        <Ionicons name="caret-down" size={12} color="#2E7D32" />
+                        <Ionicons name="caret-down" size={12} color="#2d6a4f" />
                     </TouchableOpacity>
                     
+                    {alertasGDD.length === 0 && !loadingGDD && (
+                      <Text style={styles.noGddText}>No hay datos epidemiológicos configurados o disponibles para este cultivo.</Text>
+                    )}
+
                     {alertasGDD.map((alerta, index) => (
                         <TouchableOpacity key={index} style={styles.gddCard} onPress={() => setExpandedGddId(expandedGddId === alerta.id ? null : alerta.id)}>
                             <View style={styles.gddHeader}>
                                 <View style={{flex:1}}>
                                     <Text style={styles.gddTitle}>{alerta.nombre}</Text>
                                     <View style={styles.progressBarContainer}>
-                                        <View style={[styles.progressBarFill, { width: `${Math.min(alerta.progreso, 100)}%`, backgroundColor: alerta.nivel === 'ALTO' ? '#D32F2F' : '#4CAF50' }]} />
+                                        <View style={[styles.progressBarFill, { width: `${Math.min(alerta.progreso, 100)}%`, backgroundColor: alerta.nivel === 'ALTO' ? '#d32f2f' : '#2d6a4f' }]} />
                                     </View>
                                 </View>
-                                <View style={[styles.riskBadge, { backgroundColor: alerta.nivel === 'ALTO' ? '#FFCDD2' : '#C8E6C9' }]}>
-                                    <Text style={[styles.riskText, { color: alerta.nivel === 'ALTO' ? '#B71C1C' : '#1B5E20' }]}>{alerta.nivel}</Text>
+                                <View style={[styles.riskBadge, { backgroundColor: alerta.nivel === 'ALTO' ? '#FFEBEE' : '#E8F5E9' }]}>
+                                    <Text style={[styles.riskText, { color: alerta.nivel === 'ALTO' ? '#c32f27' : '#2d6a4f' }]}>{alerta.nivel}</Text>
                                 </View>
                             </View>
                             {expandedGddId === alerta.id && (
-                                <View>
+                                <View style={styles.containerDetallePlaga}>
                                     <Text style={styles.gddMsg}>{alerta.mensaje}</Text>
                                     <TouchableOpacity 
                                         style={styles.btnReiniciarIndividual} 
                                         onPress={() => reiniciarPlagaIndividual(alerta.nombre)}
                                     >
-                                        <MaterialCommunityIcons name="restart" size={16} color="#D32F2F" />
-                                        <Text style={styles.btnReiniciarTextInd}>Reiniciar ciclo de {alerta.nombre}</Text>
+                                        <MaterialCommunityIcons name="restart" size={14} color="#c32f27" />
+                                        <Text style={styles.btnReiniciarTextInd}>Reiniciar ciclo biológico de esta plaga</Text>
                                     </TouchableOpacity>
                                 </View>
                             )}
@@ -480,8 +471,8 @@ export default function HomeScreen({ navigation }) {
                     
                     {alertasGDD.length > 0 && (
                         <TouchableOpacity style={styles.btnReiniciarTemporada} onPress={reiniciarTemporadaGDD}>
-                            <MaterialCommunityIcons name="restart" size={16} color="#F57C00" />
-                            <Text style={styles.btnReiniciarText}>Reiniciar Ciclo</Text>
+                            <MaterialCommunityIcons name="refresh" size={16} color="#d4a373" />
+                            <Text style={styles.btnReiniciarText}>Reiniciar Monitoreo Completo</Text>
                         </TouchableOpacity>
                     )}
                  </View>
@@ -490,7 +481,7 @@ export default function HomeScreen({ navigation }) {
         </ScrollView>
       </SafeAreaView>
 
-      {/* Modal Cámara e IA */}
+      {/* MODAL MANTENIDO - Cámara nativa nativa y Procesamiento IA */}
       <Modal visible={modalCameraVisible} animationType="slide">
          <View style={{flex: 1, backgroundColor: 'black'}}>
              <View style={styles.cameraHeader}>
@@ -525,7 +516,7 @@ export default function HomeScreen({ navigation }) {
          </View>
       </Modal>
 
-      {/* Modal Selector */}
+      {/* MODAL MANTENIDO - Selector de Cultivos de Firebase */}
       <Modal visible={showCropSelector} transparent animationType="fade">
          <View style={styles.modalOverlay}>
              <View style={styles.modalContent}>
@@ -543,136 +534,84 @@ export default function HomeScreen({ navigation }) {
              </View>
          </View>
       </Modal>
+
       <AsistenteVoz cultivoActual={selectedCropGDD?.id || ""} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  container: { flex: 1, backgroundColor: '#FAFAFA' },
   safeArea: { flex: 1 },
-  scrollContent: { paddingBottom: 60 },
-  
-  dynamicHeaderWrapper: {
-    width: '100%',
-    paddingBottom: 25,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    overflow: 'hidden',
-    backgroundColor: '#1B5E20',
-  },
-  headerGradientBackground: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  
+  scrollContent: { paddingBottom: 80 },
+  dynamicHeaderWrapper: { width: '100%', paddingBottom: 25, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, overflow: 'hidden' },
+  headerGradientBackground: { ...StyleSheet.absoluteFillObject },
   topSection: { paddingHorizontal: 24, paddingTop: 20 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  welcomeSub: { color: '#A5D6A7', fontSize: 14 },
-  appName: { fontSize: 28, fontWeight: '800', color: '#fff' },
-  weatherContainer: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
-  heroSection: { marginTop: 20, paddingHorizontal: 20 },
-  diagnoseCard: { borderRadius: 20, elevation: 5 },
-  diagnoseGradient: { borderRadius: 20, padding: 2 },
-  diagnoseContent: { flexDirection: 'row', alignItems: 'center', padding: 18 },
-  diagnoseTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFF' },
-  diagnoseSub: { fontSize: 12, color: '#FFF', opacity: 0.9 },
+  welcomeSub: { color: '#D8F3DC', fontSize: 13, fontWeight: '500' },
+  appName: { fontSize: 26, fontWeight: '800', color: '#fff' },
+  heroSection: { marginTop: 20, paddingHorizontal: 24 },
+  diagnoseCard: { borderRadius: 15, elevation: 2 },
+  diagnoseGradient: { borderRadius: 15, padding: 2 },
+  diagnoseContent: { flexDirection: 'row', alignItems: 'center', padding: 16 },
+  diagnoseTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFF' },
+  diagnoseSub: { fontSize: 12, color: '#FFF', opacity: 0.9, marginTop: 2 },
   searchContainer: { marginVertical: 15, paddingHorizontal: 24 },
-  searchBar: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 15, paddingHorizontal: 15, height: 50, elevation: 2 },
-  searchInput: { flex: 1, fontSize: 15 },
+  searchBar: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 12, paddingHorizontal: 15, height: 48, elevation: 1, borderWidth: 1, borderColor: '#ECEFF1' },
+  searchInput: { flex: 1, fontSize: 14, color: '#263238' },
   quickAccessContainer: { marginBottom: 20 },
-  sectionTitleFav: { fontSize: 18, fontWeight: '700', color: '#263238', marginBottom: 12 },
+  sectionTitleFav: { fontSize: 16, fontWeight: '700', color: '#1b4332', marginBottom: 12 },
   quickAccessScroll: { paddingLeft: 24 },
-  quickBtn: { alignItems: 'center', marginRight: 18, width: 75 },
-  quickIcon: { width: 55, height: 55, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginBottom: 5 },
-  quickText: { fontSize: 10, fontWeight: '600', color: '#546E7A', textAlign: 'center' },
-  cultivoCardContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 15, marginBottom: 12, marginHorizontal: 24, elevation: 2, overflow: 'hidden' },
+  quickBtn: { alignItems: 'center', marginRight: 16, width: 75 },
+  quickIcon: { width: 52, height: 52, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  quickText: { fontSize: 10, fontWeight: '600', color: '#455A64', textAlign: 'center' },
+  cultivoCardContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 12, marginBottom: 10, marginHorizontal: 24, elevation: 1, borderWidth: 1, borderColor: '#ECEFF1' },
   cardMainArea: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 12 },
-  iconBox: { width: 50, height: 50, borderRadius: 12, backgroundColor: '#F1F8E9', justifyContent: 'center', alignItems: 'center' },
-  cardImage: { width: '100%', height: '100%', borderRadius: 12 },
-  cardTitle: { fontSize: 16, fontWeight: "700", color: "#2E384D" },
-  cardSubtitle: { fontSize: 12, color: "#90A4AE" },
-  btnGuiaArea: { padding: 12, backgroundColor: '#FAFAFA', alignItems: 'center' },
-  btnGuiaText: { fontSize: 9, color: '#F57C00', fontWeight: 'bold' },
-  gddMainCard: { backgroundColor: '#fff', marginHorizontal: 24, borderRadius: 15, elevation: 2, borderWidth: 1, borderColor: '#E8F5E9', paddingBottom: 10, marginBottom: 20 },
+  iconBox: { width: 44, height: 44, borderRadius: 10, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' },
+  cardImage: { width: '100%', height: '100%', borderRadius: 10 },
+  cardTitle: { fontSize: 15, fontWeight: "700", color: "#1b4332" },
+  cardSubtitle: { fontSize: 12, color: "#78909C", marginTop: 2 },
+  btnGuiaArea: { padding: 12, backgroundColor: '#FDFBF7', alignItems: 'center', borderLeftWidth: 1, borderLeftColor: '#ECEFF1' },
+  btnGuiaText: { fontSize: 10, color: '#b98b5c', fontWeight: 'bold', marginTop: 2 },
+  gddMainCard: { backgroundColor: '#fff', marginHorizontal: 24, borderRadius: 12, elevation: 1, borderWidth: 1, borderColor: '#E8F5E9', paddingBottom: 12, marginBottom: 20 },
   gddHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 15 },
-  gddTitleMain: { fontSize: 16, fontWeight: '700', color: '#2E7D32' },
+  gddTitleMain: { fontSize: 15, fontWeight: '700', color: '#1b4332' },
   gddContentArea: { paddingHorizontal: 15 },
-  gddSelectorBtn: { backgroundColor:'#F1F8E9', padding:8, borderRadius:10, alignSelf: 'flex-start', marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
-  gddSelectorText: { color:'#33691E', fontWeight:'700', fontSize:12, marginRight: 5 },
-  gddCard: { backgroundColor: '#FAFAFA', borderRadius: 10, marginBottom: 8, padding: 12, borderLeftWidth: 4, borderLeftColor: '#4CAF50' },
+  gddSelectorBtn: { backgroundColor:'#E8F5E9', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, alignSelf: 'flex-start', marginBottom: 12, flexDirection: 'row', alignItems: 'center' },
+  gddSelectorText: { color:'#1b4332', fontWeight:'700', fontSize:12, marginRight: 6 },
+  gddCard: { backgroundColor: '#FAFBFB', borderRadius: 10, marginBottom: 8, padding: 12, borderWidth: 1, borderColor: '#ECEFF1', borderLeftWidth: 4, borderLeftColor: '#2d6a4f' },
   gddHeader: { flexDirection: 'row', alignItems: 'center' },
-  gddTitle: { fontSize: 14, fontWeight: '600', color: '#37474F' },
-  gddMsg: { fontSize: 11, color: '#546E7A', marginTop: 5, fontStyle: 'italic' },
-  progressBarContainer: { height: 6, backgroundColor: '#E0E0E0', borderRadius: 3, marginTop: 5, width: '90%' },
+  gddTitle: { fontSize: 14, fontWeight: '600', color: '#263238' },
+  gddMsg: { fontSize: 12, color: '#546E7A', fontStyle: 'italic', lineHeight: 16 },
+  progressBarContainer: { height: 6, backgroundColor: '#ECEFF1', borderRadius: 3, marginTop: 6, width: '90%' },
   progressBarFill: { height: '100%', borderRadius: 3 },
   riskBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-  riskText: { fontSize: 9, fontWeight: '800' },
-  cameraHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20 },
-  previewImage: { width: width * 0.8, height: width * 0.8, borderRadius: 20, marginBottom: 20 },
-  btnAction: { padding: 15, borderRadius: 25, width: '80%', alignItems: 'center', backgroundColor: '#2E7D32', elevation: 3 },
-  btnText: { color: 'white', fontWeight: 'bold' },
+  riskText: { fontSize: 10, fontWeight: '700' },
+  noGddText: { textAlign: 'center', color: '#90A4AE', marginVertical: 15, fontSize: 13 },
+  btnReiniciarTemporada: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FDF8F2', padding: 10, borderRadius: 8, marginTop: 10, borderWidth: 1, borderColor: '#F5E6D3' },
+  btnReiniciarText: { color: '#b98b5c', fontSize: 12, fontWeight: '700', marginLeft: 6 },
+  favoritosMinContainer: { marginTop: 12, marginBottom: 4 },
+  containerDetallePlaga: { marginTop: 8, borderTopWidth: 1, borderTopColor: '#ECEFF1', paddingTop: 8 },
+  btnReiniciarIndividual: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFEBEE', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 6, marginTop: 8, alignSelf: 'flex-start' },
+  btnReiniciarTextInd: { color: '#c32f27', fontSize: 11, fontWeight: '700', marginLeft: 5 },
+  favoritosScroll: { paddingLeft: 24, paddingRight: 10, paddingBottom: 8 },
+  favMinCard: { alignItems: 'center', marginRight: 16, width: 65 },
+  favMinIconBadge: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', elevation: 2, marginBottom: 6, borderWidth: 1, borderColor: '#E8F5E9' },
+  favMinText: { fontSize: 11, fontWeight: '600', color: '#37474F', textAlign: 'center' },
+  
+  // Estilos de la cámara recuperados
+  cameraHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20, alignItems: 'center' },
+  previewImage: { width: width * 0.8, height: width * 0.8, borderRadius: 15, marginBottom: 20 },
+  btnAction: { padding: 14, borderRadius: 25, width: '80%', alignItems: 'center', backgroundColor: '#2d6a4f', elevation: 2 },
+  btnText: { color: 'white', fontWeight: 'bold', fontSize: 15 },
   cameraFooter: { position: 'absolute', bottom: 60, width: '100%', alignItems: 'center' },
-  captureOuter: { width: 70, height: 70, borderRadius: 35, borderWidth: 4, borderColor: 'white', justifyContent: 'center', alignItems: 'center' },
-  captureInner: { width: 54, height: 54, borderRadius: 27, backgroundColor: 'white' },
-  modalOverlay: { flex: 1, backgroundColor:'rgba(0,0,0,0.6)', justifyContent:'center', padding: 30 },
-  modalContent: { backgroundColor:'white', borderRadius:20, padding:20, maxHeight: '70%' },
-  modalTitle: { fontSize:18, fontWeight:'bold', marginBottom:15, textAlign:'center' },
-  modalItem: { padding:15, borderBottomWidth:1, borderBottomColor:'#EEE', flexDirection:'row', justifyContent:'space-between' },
-  modalItemText: { fontSize:16 },
-  closeModalBtn: { marginTop:15, alignSelf:'center' },
-  closeModalText: { color:'red', fontWeight:'bold' },
-  btnReiniciarTemporada: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF3E0', padding: 8, borderRadius: 10, marginTop: 10 },
-  btnReiniciarText: { color: '#F57C00', fontSize: 12, fontWeight: '700', marginLeft: 6 },
-  favoritosMinContainer: {
-    marginTop: 15,
-    marginBottom: 5,
-    backgroundColor: 'transparent',
-  },
-  btnReiniciarIndividual: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#FFEBEE', 
-    padding: 8, 
-    borderRadius: 8, 
-    marginTop: 10, 
-    alignSelf: 'flex-start' 
-  },
-  btnReiniciarTextInd: { 
-    color: '#D32F2F', 
-    fontSize: 11, 
-    fontWeight: '700', 
-    marginLeft: 6 
-  },
-  favoritosScroll: {
-    paddingLeft: 24,
-    paddingRight: 10,
-    paddingBottom: 10,
-  },
-  favMinCard: {
-    alignItems: 'center',
-    marginRight: 20,
-    width: 70,
-  },
-  favMinIconBadge: {
-    width: 55,
-    height: 55,
-    borderRadius: 27.5,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#E8F5E9',
-  },
-  favMinText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#37474F',
-    textAlign: 'center',
-  },
+  captureOuter: { width: 68, height: 68, borderRadius: 34, borderWidth: 4, borderColor: 'white', justifyContent: 'center', alignItems: 'center' },
+  captureInner: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'white' },
+  modalOverlay: { flex: 1, backgroundColor:'rgba(0,0,0,0.55)', justifyContent:'center', padding: 24 },
+  modalContent: { backgroundColor:'white', borderRadius:16, padding: 20, maxHeight: '70%' },
+  modalTitle: { fontSize:17, fontWeight:'bold', marginBottom:12, textAlign:'center', color: '#1b4332' },
+  modalItem: { padding:14, borderBottomWidth:1, borderBottomColor:'#ECEFF1', flexDirection:'row', justifyContent:'space-between', alignItems: 'center' },
+  modalItemText: { fontSize:15, color: '#263238' },
+  closeModalBtn: { marginTop:14, alignSelf:'center' },
+  closeModalText: { color:'#c32f27', fontWeight:'bold', fontSize: 15 },
 });

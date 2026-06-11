@@ -69,11 +69,12 @@ export default function AsistenteVoz({ cultivoActual }) {
       console.log("[Asistente] Enviando pregunta:", pregunta);
       console.log("[Asistente] Cultivo actual:", cultivoActual);
 
-      // Invocamos la Edge Function
+      // Modifica la invocación dentro de AsistenteVoz.js para enviar ambos alias de compatibilidad
       const { data, error } = await supabase.functions.invoke('consultar-asistente', {
         body: { 
           pregunta: pregunta, 
-          cultivoActual: cultivoActual || "sus cultivos" 
+          cultivoActual: cultivoActual || "", // El cultivo seleccionado en la pantalla
+          cultivoContexto: cultivoActual || "" // Respeta el fallback de la función flexible
         }
       });
 
