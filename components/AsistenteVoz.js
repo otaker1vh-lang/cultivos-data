@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Modal, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Modal, Keyboard, Image } from 'react-native';
 import * as Speech from 'expo-speech';
+import * as ImagePicker from 'expo-image-picker';
 import Voice from '@react-native-voice/voice'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -12,6 +13,30 @@ export default function AsistenteVoz({ cultivoActual }) {
   const [pregunta, setPregunta] = useState('');
   const [estado, setEstado] = useState('inactivo'); // inactivo, escuchando, pensando, hablando
   const [respuesta, setRespuesta] = useState('');
+
+  const [imagenAdjunta, setImagenAdjunta] = useState(null);
+
+  const tomarFoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Se necesitan permisos de cámara para identificar las plagas, patrón.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.6, // Comprimido para agilizar el envío a Supabase
+      base64: true, // Crucial para la IA
+    });
+
+    if (!result.canceled) {
+      setImagenAdjunta({
+        uri: result.assets[0].uri,
+        base64: result.assets[0].base64
+      });
+    }
+  };
 
   useEffect(() => {
     // Configuración de los listeners de reconocimiento de voz nativo
@@ -60,59 +85,46 @@ export default function AsistenteVoz({ cultivoActual }) {
   };
 
   const procesarPregunta = async () => {
-    if (!pregunta.trim()) return;
+    if (!pregunta.trim() && !imagenAdjunta) return; // Permite enviar solo una imagen sin texto
     Keyboard.dismiss();
     setEstado('pensando');
     setRespuesta('');
 
     try {
-      console.log("[Asistente] Enviando pregunta:", pregunta);
-      console.log("[Asistente] Cultivo actual:", cultivoActual);
+      // Configuramos el payload. Si mandó foto sin texto, le damos un texto por defecto
+      const bodyPayload = { 
+        pregunta: pregunta.trim() !== '' ? pregunta : "¿Qué plaga, enfermedad o deficiencia se observa en esta imagen?", 
+        cultivoActual: cultivoActual || "", 
+        cultivoContexto: cultivoActual || "" 
+      };
 
-      // Modifica la invocación dentro de AsistenteVoz.js para enviar ambos alias de compatibilidad
-      const { data, error } = await supabase.functions.invoke('consultar-asistente', {
-        body: { 
-          pregunta: pregunta, 
-          cultivoActual: cultivoActual || "", // El cultivo seleccionado en la pantalla
-          cultivoContexto: cultivoActual || "" // Respeta el fallback de la función flexible
-        }
-      });
-
-      if (error) {
-        console.error("[Asistente Error] Error devuelto por la Edge Function:", error);
-        throw error;
+      if (imagenAdjunta) {
+        bodyPayload.imagenBase64 = imagenAdjunta.base64;
       }
 
-      console.log("[Asistente] Datos crudos recibidos del servidor:", data);
+      const { data, error } = await supabase.functions.invoke('consultar-asistente', {
+        body: bodyPayload
+      });
 
-      // CONTROL DE DAÑOS: Validamos que 'data' exista y contenga la propiedad 'respuesta'
+      if (error) throw error;
       if (!data || typeof data.respuesta === 'undefined') {
-        throw new Error("El servidor respondió pero no incluyó la propiedad 'respuesta' en el JSON.");
+        throw new Error("El servidor respondió pero no incluyó la propiedad 'respuesta'.");
       }
 
       const respuestaFinal = data.respuesta;
-
       setRespuesta(respuestaFinal);
       setEstado('hablando');
 
-      // La app lee la respuesta para el productor en el campo
       Speech.speak(respuestaFinal, {
-        language: 'es-MX',
-        rate: 0.9, 
-        pitch: 1.0,
+        language: 'es-MX', rate: 0.9, pitch: 1.0,
         onDone: () => setEstado('inactivo'),
         onStopped: () => setEstado('inactivo')
       });
 
     } catch (error) {
-      // ESTE LOG TE DIRÁ EN LA CONSOLA EL MOTIVO REAL DEL FALLO:
-      console.error("[Asistente Error] Detalle completo de la falla:", error);
-
-      const errorMsg = "Hubo un problema con la señal del campo. Intente más tarde, patrón.";
-
-      // Opcional: Muestra una pista del error real en pantalla sólo durante desarrollo
+      console.error("[Asistente Error] Detalle:", error);
+      const errorMsg = "Hubo un problema con la señal del campo o el análisis de la imagen. Intente más tarde, patrón.";
       setRespuesta(`${errorMsg}\n\n(Nota técnica: ${error.message || JSON.stringify(error)})`);
-
       Speech.speak(errorMsg, { language: 'es-MX' });
       setEstado('inactivo');
     }
@@ -125,6 +137,7 @@ export default function AsistenteVoz({ cultivoActual }) {
     setEstado('inactivo');
     setPregunta('');
     setRespuesta('');
+    setImagenAdjunta(null); // Limpiar la imagen de la memoria
   };
 
   return (
@@ -149,14 +162,29 @@ export default function AsistenteVoz({ cultivoActual }) {
             </Text>
 
             {/* Fila de controles para activación por voz */}
-            <View style={styles.filaVoz}>
+            {/* Previsualización de la imagen si se tomó una foto */}
+            {imagenAdjunta && (
+              <View style={styles.imagenPreviewContainer}>
+                <Image source={{ uri: imagenAdjunta.uri }} style={styles.imagenPreview} />
+                <TouchableOpacity style={styles.btnQuitarImagen} onPress={() => setImagenAdjunta(null)}>
+                  <MaterialCommunityIcons name="close" size={16} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Fila de controles para activación por voz y cámara */}
+            <View style={styles.filaAcciones}>
+              <TouchableOpacity style={styles.btnIconoAccion} onPress={tomarFoto}>
+                <MaterialCommunityIcons name="camera" size={24} color="#FFF" />
+              </TouchableOpacity>
+
               {estado === 'escuchando' ? (
-                <TouchableOpacity style={[styles.btnVoz, styles.btnVozGrabando]} onPress={detenerDictado}>
+                <TouchableOpacity style={[styles.btnVoz, styles.btnVozGrabando, {flex: 1}]} onPress={detenerDictado}>
                   <MaterialCommunityIcons name="microphone-off" size={22} color="#FFF" />
                   <Text style={styles.textoBtnVoz}>Detener Escucha</Text>
                 </TouchableOpacity>
               ) : (
-                <TouchableOpacity style={styles.btnVoz} onPress={iniciarDictado}>
+                <TouchableOpacity style={[styles.btnVoz, {flex: 1}]} onPress={iniciarDictado}>
                   <MaterialCommunityIcons name="microphone" size={22} color="#FFF" />
                   <Text style={styles.textoBtnVoz}>Dictar Mensaje</Text>
                 </TouchableOpacity>
@@ -205,13 +233,17 @@ const styles = StyleSheet.create({
   titulo: { fontSize: 24, fontWeight: 'bold', color: '#2E7D32' },
   instruccion: { fontSize: 16, color: '#546E7A', marginBottom: 15 },
   
-  filaVoz: { flexDirection: 'row', justifyContent: 'center', marginBottom: 15 },
-  btnVoz: { flexDirection: 'row', backgroundColor: '#0288D1', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 25, alignItems: 'center', elevation: 2 },
+  filaAcciones: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, gap: 10 },
+  btnIconoAccion: { backgroundColor: '#455A64', padding: 12, borderRadius: 25, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+  btnVoz: { flexDirection: 'row', backgroundColor: '#0288D1', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 25, alignItems: 'center', justifyContent: 'center', elevation: 2 },
   btnVozGrabando: { backgroundColor: '#D32F2F' },
   textoBtnVoz: { color: '#FFF', fontWeight: 'bold', marginLeft: 8, fontSize: 14 },
 
   inputGigante: { backgroundColor: '#FFF', borderRadius: 15, padding: 15, height: 100, textAlignVertical: 'top', fontSize: 16, marginBottom: 20, elevation: 2, borderWidth: 1, borderColor: '#CFD8DC' },
-  botonAccion: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 15, alignItems: 'center' },
+  imagenPreviewContainer: { position: 'relative', alignSelf: 'flex-start', marginBottom: 15 },
+  imagenPreview: { width: 90, height: 90, borderRadius: 12, borderWidth: 1, borderColor: '#CFD8DC' },
+  btnQuitarImagen: { position: 'absolute', top: -8, right: -8, backgroundColor: '#D32F2F', borderRadius: 12, padding: 4, elevation: 3 },
+  botonAccion: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 15, alignItems: 'center', elevation: 2 },
   textoBoton: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
   cajaRespuesta: { marginTop: 20, backgroundColor: '#E8F5E9', padding: 15, borderRadius: 15, borderWidth: 1, borderColor: '#C8E6C9' },
   textoRespuesta: { fontSize: 16, color: '#1B5E20', lineHeight: 22, fontWeight: '500' }
