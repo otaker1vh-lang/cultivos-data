@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { LogBox } from 'react-native'; // Importamos LogBox para ocultar el warning molesto
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack'; 
+import { inicializarBaseDeDatos } from './src/services/Database';
+import { inicializarBaseDeDatos, sincronizarConocimiento } from './src/services/Database';
 
 // Importación de pantallas (Verifica que las rutas sean correctas)
 import WelcomeScreen from './screens/WelcomeScreen';
@@ -33,6 +35,15 @@ global.Buffer = Buffer;
 const Stack = createStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    // 1. Crea la estructura local inmediatamente
+    inicializarBaseDeDatos();
+    
+    // 2. Lanza la sincronización en segundo plano sin bloquear la app
+    // Si hay internet actualizará los manuales, si no hay, la función lo ignora.
+    sincronizarConocimiento();
+  }, []);
+  
   return (
     <NavigationContainer>
       <Stack.Navigator 

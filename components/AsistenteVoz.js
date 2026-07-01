@@ -4,6 +4,8 @@ import * as Speech from 'expo-speech';
 import * as ImagePicker from 'expo-image-picker';
 import Voice from '@react-native-voice/voice'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import NetInfo from "@react-native-community/netinfo";
+import { buscarRespuestaOffline } from '../src/services/Database'; // Ajusta la ruta
 
 // Conexión segura con el cliente de Supabase
 import { supabase } from '../src/services/supabaseClient'; 
@@ -85,33 +87,46 @@ export default function AsistenteVoz({ cultivoActual }) {
   };
 
   const procesarPregunta = async () => {
-    if (!pregunta.trim() && !imagenAdjunta) return; // Permite enviar solo una imagen sin texto
+    if (!pregunta.trim() && !imagenAdjunta) return; 
     Keyboard.dismiss();
     setEstado('pensando');
     setRespuesta('');
 
     try {
-      // Configuramos el payload. Si mandó foto sin texto, le damos un texto por defecto
-      const bodyPayload = { 
-        pregunta: pregunta.trim() !== '' ? pregunta : "¿Qué plaga, enfermedad o deficiencia se observa en esta imagen?", 
-        cultivoActual: cultivoActual || "", 
-        cultivoContexto: cultivoActual || "" 
-      };
+      // 1. Verificamos la conexión a Internet
+      const red = await NetInfo.fetch();
 
-      if (imagenAdjunta) {
-        bodyPayload.imagenBase64 = imagenAdjunta.base64;
+      let respuestaFinal = "";
+
+      if (red.isConnected && red.isInternetReachable) {
+        // --- MODO ONLINE (Supabase IA) ---
+        const bodyPayload = { 
+          pregunta: pregunta.trim() !== '' ? pregunta : "¿Qué plaga se observa?", 
+          cultivoActual: cultivoActual || "", 
+        };
+
+        if (imagenAdjunta) {
+          bodyPayload.imagenBase64 = imagenAdjunta.base64;
+        }
+
+        const { data, error } = await supabase.functions.invoke('consultar-asistente', {
+          body: bodyPayload
+        });
+
+        if (error) throw error;
+        respuestaFinal = data.respuesta;
+
+      } else {
+        // --- MODO OFFLINE (Búsqueda local SQLite) ---
+        if (imagenAdjunta) {
+          respuestaFinal = "Patrón, no tenemos señal en este momento para analizar la foto. Pero puedo responderle dudas escritas o habladas con el manual que tenemos guardado.";
+        } else {
+          // Ejecutamos el RAG local
+          respuestaFinal = buscarRespuestaOffline(pregunta, cultivoActual);
+        }
       }
 
-      const { data, error } = await supabase.functions.invoke('consultar-asistente', {
-        body: bodyPayload
-      });
-
-      if (error) throw error;
-      if (!data || typeof data.respuesta === 'undefined') {
-        throw new Error("El servidor respondió pero no incluyó la propiedad 'respuesta'.");
-      }
-
-      const respuestaFinal = data.respuesta;
+      // 2. Ejecutar la respuesta en pantalla y voz
       setRespuesta(respuestaFinal);
       setEstado('hablando');
 
@@ -123,8 +138,8 @@ export default function AsistenteVoz({ cultivoActual }) {
 
     } catch (error) {
       console.error("[Asistente Error] Detalle:", error);
-      const errorMsg = "Hubo un problema con la señal del campo o el análisis de la imagen. Intente más tarde, patrón.";
-      setRespuesta(`${errorMsg}\n\n(Nota técnica: ${error.message || JSON.stringify(error)})`);
+      const errorMsg = "Ocurrió un problema procesando la consulta. Intente más tarde, patrón.";
+      setRespuesta(`${errorMsg}`);
       Speech.speak(errorMsg, { language: 'es-MX' });
       setEstado('inactivo');
     }
@@ -132,7 +147,7 @@ export default function AsistenteVoz({ cultivoActual }) {
 
   const cerrarModal = () => {
     Speech.stop();
-    Voice.destroy().then(Voice.removeAllListeners);
+    Voice.destroy().then(() => Voice.removeAllListeners());
     setModalVisible(false);
     setEstado('inactivo');
     setPregunta('');
@@ -158,7 +173,7 @@ export default function AsistenteVoz({ cultivoActual }) {
             </View>
 
             <Text style={styles.instruccion}>
-              Pregúnteme sobre clima, precios, nutrición o plagas para {cultivoActual || "sus cultivos"}:
+              Pregúnteme sobre clima, precios, nutrición, plagas o envíeme una foto para diagnóstico:
             </Text>
 
             {/* Fila de controles para activación por voz */}
