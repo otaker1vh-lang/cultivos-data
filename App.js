@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { LogBox } from 'react-native'; // Importamos LogBox para ocultar el warning molesto
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack'; 
-import { inicializarBaseDeDatos } from './src/services/Database';
+import { createStackNavigator } from '@react-navigation/stack';
 import { inicializarBaseDeDatos, sincronizarConocimiento } from './src/services/Database';
 
 // Importación de pantallas (Verifica que las rutas sean correctas)
