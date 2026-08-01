@@ -535,7 +535,10 @@ export default function HomeScreen({ navigation }) {
          </View>
       </Modal>
 
-      <AsistenteVoz cultivoActual={selectedCropGDD?.id || ""} />
+      <AsistenteVoz 
+        cultivoActual={selectedCropGDD?.id || ""} 
+        climaActual={climaActual} 
+      />
     </View>
   );
 }

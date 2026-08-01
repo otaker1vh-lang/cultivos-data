@@ -5,18 +5,21 @@ import * as ImagePicker from 'expo-image-picker';
 import Voice from '@react-native-voice/voice'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import NetInfo from "@react-native-community/netinfo";
-import { buscarRespuestaOffline } from '../src/services/Database'; // Ajusta la ruta
+import { buscarRespuestaOffline } from '../src/services/Database'; 
 
 // Conexión segura con el cliente de Supabase
 import { supabase } from '../src/services/supabaseClient'; 
 
-export default function AsistenteVoz({ cultivoActual }) {
+export default function AsistenteVoz({ cultivoActual, climaActual }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [pregunta, setPregunta] = useState('');
-  const [estado, setEstado] = useState('inactivo'); // inactivo, escuchando, pensando, hablando
+  const [estado, setEstado] = useState('inactivo'); 
   const [respuesta, setRespuesta] = useState('');
 
   const [imagenAdjunta, setImagenAdjunta] = useState(null);
+  
+  const [idInteraccionActual, setIdInteraccionActual] = useState(null);
+  const [calificacionEnviada, setCalificacionEnviada] = useState(false);
 
   const tomarFoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -28,8 +31,8 @@ export default function AsistenteVoz({ cultivoActual }) {
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 0.6, // Comprimido para agilizar el envío a Supabase
-      base64: true, // Crucial para la IA
+      quality: 0.5, // Calidad optimizada para menor transferencia de datos
+      base64: true, 
     });
 
     if (!result.canceled) {
@@ -41,24 +44,21 @@ export default function AsistenteVoz({ cultivoActual }) {
   };
 
   useEffect(() => {
-    // Configuración de los listeners de reconocimiento de voz nativo
     Voice.onSpeechStart = onSpeechStart;
     Voice.onSpeechEnd = onSpeechEnd;
     Voice.onSpeechResults = onSpeechResults;
     Voice.onSpeechError = onSpeechError;
 
     return () => {
-      // Limpieza de memoria al cerrar el asistente
-      Voice.destroy().then(Voice.removeAllListeners);
+      Voice.destroy().then(() => Voice.removeAllListeners());
     };
   }, []);
 
-  // Controladores de estado del Micrófono
   const onSpeechStart = () => setEstado('escuchando');
   const onSpeechEnd = () => setEstado('inactivo');
   const onSpeechResults = (e) => {
     if (e.value && e.value.length > 0) {
-      setPregunta(e.value[0]); // Captura la interpretación con mayor nivel de confianza
+      setPregunta(e.value[0]); 
     }
   };
   const onSpeechError = (e) => {
@@ -70,8 +70,8 @@ export default function AsistenteVoz({ cultivoActual }) {
     try {
       setPregunta('');
       setRespuesta('');
-      Speech.stop(); // Si la app estaba hablando, la silencia
-      await Voice.start('es-MX'); // Forzar dictado en Español mexicano
+      Speech.stop(); 
+      await Voice.start('es-MX'); 
     } catch (e) {
       console.error("No se pudo iniciar el micrófono: ", e);
     }
@@ -91,58 +91,104 @@ export default function AsistenteVoz({ cultivoActual }) {
     Keyboard.dismiss();
     setEstado('pensando');
     setRespuesta('');
+    
+    let respuestaFinal = "";
+    let fueExitosoOnline = false;
+    let redConectada = false;
 
     try {
-      // 1. Verificamos la conexión a Internet
       const red = await NetInfo.fetch();
+      redConectada = !!(red.isConnected && red.isInternetReachable);
+    
+      if (redConectada) {
+        const mesActual = new Date().toLocaleString('es-MX', { month: 'long' });
 
-      let respuestaFinal = "";
-
-      if (red.isConnected && red.isInternetReachable) {
-        // --- MODO ONLINE (Supabase IA) ---
         const bodyPayload = { 
           pregunta: pregunta.trim() !== '' ? pregunta : "¿Qué plaga se observa?", 
-          cultivoActual: cultivoActual || "", 
+          cultivoActual: cultivoActual || "General", 
+          contextoTemporal: {
+            mes_actual: mesActual,
+            clima_hoy: climaActual || null,
+            etapa_fenologica: 'No registrada'
+          }
         };
-
+      
         if (imagenAdjunta) {
           bodyPayload.imagenBase64 = imagenAdjunta.base64;
         }
 
-        const { data, error } = await supabase.functions.invoke('consultar-asistente', {
+        // Promesa con Timeout de 8 segundos para evitar bloqueos en señal débil
+        const invokePromise = supabase.functions.invoke('consultar-asistente', {
           body: bodyPayload
         });
 
-        if (error) throw error;
-        respuestaFinal = data.respuesta;
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('TIMEOUT_NUBE')), 8000)
+        );
 
-      } else {
-        // --- MODO OFFLINE (Búsqueda local SQLite) ---
-        if (imagenAdjunta) {
-          respuestaFinal = "Patrón, no tenemos señal en este momento para analizar la foto. Pero puedo responderle dudas escritas o habladas con el manual que tenemos guardado.";
+        const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
+      
+        if (error) throw error;
+        
+        if (data && data.respuesta) {
+          respuestaFinal = data.respuesta;
+          fueExitosoOnline = true;
         } else {
-          // Ejecutamos el RAG local
-          respuestaFinal = buscarRespuestaOffline(pregunta, cultivoActual);
+          throw new Error('RESPUESTA_INVALIDA');
         }
       }
-
-      // 2. Ejecutar la respuesta en pantalla y voz
-      setRespuesta(respuestaFinal);
-      setEstado('hablando');
-
-      Speech.speak(respuestaFinal, {
-        language: 'es-MX', rate: 0.9, pitch: 1.0,
-        onDone: () => setEstado('inactivo'),
-        onStopped: () => setEstado('inactivo')
-      });
-
     } catch (error) {
-      console.error("[Asistente Error] Detalle:", error);
-      const errorMsg = "Ocurrió un problema procesando la consulta. Intente más tarde, patrón.";
-      setRespuesta(`${errorMsg}`);
-      Speech.speak(errorMsg, { language: 'es-MX' });
-      setEstado('inactivo');
+      console.warn("[Asistente Warning] Falló consulta en la nube o hubo timeout. Activando respaldo local:", error?.message || error);
     }
+
+    // --- FALLBACK AUTOMÁTICO A MODO OFFLINE/LOCAL ---
+    if (!fueExitosoOnline) {
+      if (imagenAdjunta) {
+        respuestaFinal = "Patrón, no logramos conectar bien con el servidor para revisar la foto. Pero dígame su duda en texto o voz y la buscamos en el manual guardado en su celular.";
+      } else {
+        const respuestaLocal = buscarRespuestaOffline(pregunta, cultivoActual);
+        respuestaFinal = respuestaLocal || "Patrón, no encontré esa información en el manual del celular. En cuanto tenga mejor señal volveremos a consultar al servidor.";
+      }
+    }
+
+    setRespuesta(respuestaFinal);
+    setEstado('hablando');
+    setCalificacionEnviada(false); 
+    setIdInteraccionActual(null);
+
+    // --- REGISTRO DE TELEMETRÍA (Silencioso en segundo plano) ---
+    try {
+      const faltaInfo = respuestaFinal.includes("Ese dato no lo tengo") || !fueExitosoOnline;
+      const origenRespuesta = fueExitosoOnline ? 'online' : 'offline';
+
+      const { data: logData } = await supabase
+        .from('interacciones_ia')
+        .insert([{
+          pregunta: pregunta.trim() || "¿Qué plaga se observa?",
+          respuesta: respuestaFinal,
+          cultivo: cultivoActual || 'General',
+          origen: origenRespuesta,
+          vacio_conocimiento: faltaInfo
+        }])
+        .select('id')
+        .single();
+
+      if (logData) {
+        setIdInteraccionActual(logData.id);
+      }
+    } catch (logErr) {
+      console.log("Telemetría no registrada (modo local o sin red):", logErr);
+    }
+    
+    // Lectura en voz alta
+    Speech.speak(respuestaFinal, {
+      language: 'es-MX', 
+      rate: 0.85, // Velocidad ligeramente reducida para facilitar la comprensión
+      pitch: 1.0,
+      onDone: () => setEstado('inactivo'),
+      onStopped: () => setEstado('inactivo'),
+      onError: () => setEstado('inactivo')
+    });
   };
 
   const cerrarModal = () => {
@@ -152,23 +198,37 @@ export default function AsistenteVoz({ cultivoActual }) {
     setEstado('inactivo');
     setPregunta('');
     setRespuesta('');
-    setImagenAdjunta(null); // Limpiar la imagen de la memoria
+    setImagenAdjunta(null); 
+  };
+
+  const calificarRespuesta = async (valor) => {
+    if (!idInteraccionActual) return;
+    setCalificacionEnviada(true); 
+    
+    try {
+      await supabase
+        .from('interacciones_ia')
+        .update({ calificacion: valor })
+        .eq('id', idInteraccionActual);
+    } catch (error) {
+      console.error("Error al guardar calificación:", error);
+    }
   };
 
   return (
     <>
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
-        <MaterialCommunityIcons name="microphone" size={32} color="#FFF" />
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.8}>
+        <MaterialCommunityIcons name="microphone" size={36} color="#FFF" />
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+      <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={cerrarModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             
             <View style={styles.header}>
               <Text style={styles.titulo}>Asesor Integral</Text>
-              <TouchableOpacity onPress={cerrarModal}>
-                <MaterialCommunityIcons name="close-circle" size={36} color="#D32F2F" />
+              <TouchableOpacity onPress={cerrarModal} style={{ padding: 5 }}>
+                <MaterialCommunityIcons name="close-circle" size={40} color="#D32F2F" />
               </TouchableOpacity>
             </View>
 
@@ -176,31 +236,28 @@ export default function AsistenteVoz({ cultivoActual }) {
               Pregúnteme sobre clima, precios, nutrición, plagas o envíeme una foto para diagnóstico:
             </Text>
 
-            {/* Fila de controles para activación por voz */}
-            {/* Previsualización de la imagen si se tomó una foto */}
             {imagenAdjunta && (
               <View style={styles.imagenPreviewContainer}>
                 <Image source={{ uri: imagenAdjunta.uri }} style={styles.imagenPreview} />
                 <TouchableOpacity style={styles.btnQuitarImagen} onPress={() => setImagenAdjunta(null)}>
-                  <MaterialCommunityIcons name="close" size={16} color="#FFF" />
+                  <MaterialCommunityIcons name="close" size={18} color="#FFF" />
                 </TouchableOpacity>
               </View>
             )}
 
-            {/* Fila de controles para activación por voz y cámara */}
             <View style={styles.filaAcciones}>
-              <TouchableOpacity style={styles.btnIconoAccion} onPress={tomarFoto}>
-                <MaterialCommunityIcons name="camera" size={24} color="#FFF" />
+              <TouchableOpacity style={styles.btnIconoAccion} onPress={tomarFoto} activeOpacity={0.7}>
+                <MaterialCommunityIcons name="camera" size={28} color="#FFF" />
               </TouchableOpacity>
 
               {estado === 'escuchando' ? (
                 <TouchableOpacity style={[styles.btnVoz, styles.btnVozGrabando, {flex: 1}]} onPress={detenerDictado}>
-                  <MaterialCommunityIcons name="microphone-off" size={22} color="#FFF" />
+                  <MaterialCommunityIcons name="microphone-off" size={26} color="#FFF" />
                   <Text style={styles.textoBtnVoz}>Detener Escucha</Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={[styles.btnVoz, {flex: 1}]} onPress={iniciarDictado}>
-                  <MaterialCommunityIcons name="microphone" size={22} color="#FFF" />
+                  <MaterialCommunityIcons name="microphone" size={26} color="#FFF" />
                   <Text style={styles.textoBtnVoz}>Dictar Mensaje</Text>
                 </TouchableOpacity>
               )}
@@ -208,19 +265,27 @@ export default function AsistenteVoz({ cultivoActual }) {
 
             <TextInput
               style={styles.inputGigante}
-              placeholder="Ej: ¿Que es esta plaga? o ¿A qué precio se vende el café?"
+              placeholder="Ej: ¿Cómo controlo gusano cogollero en maíz?"
+              placeholderTextColor="#78909C"
               value={pregunta}
               onChangeText={setPregunta}
               multiline
             />
 
             <TouchableOpacity 
-              style={[styles.botonAccion, !pregunta && { backgroundColor: '#A5D6A7' }]} 
+              style={[
+                styles.botonAccion, 
+                (!pregunta && !imagenAdjunta) && { backgroundColor: '#A5D6A7' }
+              ]} 
               onPress={procesarPregunta}
-              disabled={!pregunta || estado === 'pensando'}
+              disabled={(!pregunta && !imagenAdjunta) || estado === 'pensando'}
+              activeOpacity={0.8}
             >
               {estado === 'pensando' ? (
-                <ActivityIndicator size="large" color="#FFF" />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <ActivityIndicator size="small" color="#FFF" />
+                  <Text style={styles.textoBoton}>Consultando manual...</Text>
+                </View>
               ) : (
                 <Text style={styles.textoBoton}>Asesorar en Voz Alta</Text>
               )}
@@ -228,8 +293,26 @@ export default function AsistenteVoz({ cultivoActual }) {
 
             {respuesta !== '' && (
               <View style={styles.cajaRespuesta}>
-                <MaterialCommunityIcons name="bullhorn-outline" size={28} color="#2E7D32" style={{marginBottom: 10}}/>
+                <MaterialCommunityIcons name="bullhorn-outline" size={32} color="#2E7D32" style={{marginBottom: 8}}/>
                 <Text style={styles.textoRespuesta}>{respuesta}</Text>
+                
+                {idInteraccionActual && !calificacionEnviada && estado === 'inactivo' && (
+                  <View style={styles.contenedorFeedback}>
+                    <Text style={styles.textoFeedback}>¿Le sirvió esta respuesta, patrón?</Text>
+                    <View style={styles.filaBotonesFeedback}>
+                      <TouchableOpacity style={[styles.btnFeedback, { backgroundColor: '#E8F5E9' }]} onPress={() => calificarRespuesta(1)}>
+                        <MaterialCommunityIcons name="thumb-up-outline" size={28} color="#2E7D32" />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={[styles.btnFeedback, { backgroundColor: '#FFEBEE' }]} onPress={() => calificarRespuesta(-1)}>
+                        <MaterialCommunityIcons name="thumb-down-outline" size={28} color="#D32F2F" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+
+                {calificacionEnviada && (
+                  <Text style={styles.textoAgradecimiento}>¡Gracias por ayudarnos a mejorar!</Text>
+                )}
               </View>
             )}
 
@@ -241,25 +324,30 @@ export default function AsistenteVoz({ cultivoActual }) {
 }
 
 const styles = StyleSheet.create({
-  fab: { position: 'absolute', bottom: 20, right: 20, width: 70, height: 70, borderRadius: 35, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 } },
+  fab: { position: 'absolute', bottom: 25, right: 20, width: 72, height: 72, borderRadius: 36, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 } },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#F5F7FA', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 25, minHeight: '72%' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  titulo: { fontSize: 24, fontWeight: 'bold', color: '#2E7D32' },
-  instruccion: { fontSize: 16, color: '#546E7A', marginBottom: 15 },
+  modalContent: { backgroundColor: '#F5F7FA', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 22, minHeight: '75%' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  titulo: { fontSize: 26, fontWeight: 'bold', color: '#1B5E20' },
+  instruccion: { fontSize: 16, color: '#37474F', marginBottom: 15, lineHeight: 22 },
   
-  filaAcciones: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, gap: 10 },
-  btnIconoAccion: { backgroundColor: '#455A64', padding: 12, borderRadius: 25, justifyContent: 'center', alignItems: 'center', elevation: 2 },
-  btnVoz: { flexDirection: 'row', backgroundColor: '#0288D1', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 25, alignItems: 'center', justifyContent: 'center', elevation: 2 },
+  filaAcciones: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, gap: 12 },
+  btnIconoAccion: { backgroundColor: '#455A64', padding: 14, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+  btnVoz: { flexDirection: 'row', backgroundColor: '#0288D1', paddingVertical: 14, paddingHorizontal: 20, borderRadius: 30, alignItems: 'center', justifyContent: 'center', elevation: 2 },
   btnVozGrabando: { backgroundColor: '#D32F2F' },
-  textoBtnVoz: { color: '#FFF', fontWeight: 'bold', marginLeft: 8, fontSize: 14 },
+  textoBtnVoz: { color: '#FFF', fontWeight: 'bold', marginLeft: 8, fontSize: 16 },
 
-  inputGigante: { backgroundColor: '#FFF', borderRadius: 15, padding: 15, height: 100, textAlignVertical: 'top', fontSize: 16, marginBottom: 20, elevation: 2, borderWidth: 1, borderColor: '#CFD8DC' },
+  inputGigante: { backgroundColor: '#FFF', borderRadius: 15, padding: 16, height: 100, textAlignVertical: 'top', fontSize: 18, color: '#263238', marginBottom: 15, elevation: 2, borderWidth: 1, borderColor: '#CFD8DC' },
   imagenPreviewContainer: { position: 'relative', alignSelf: 'flex-start', marginBottom: 15 },
-  imagenPreview: { width: 90, height: 90, borderRadius: 12, borderWidth: 1, borderColor: '#CFD8DC' },
-  btnQuitarImagen: { position: 'absolute', top: -8, right: -8, backgroundColor: '#D32F2F', borderRadius: 12, padding: 4, elevation: 3 },
-  botonAccion: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 15, alignItems: 'center', elevation: 2 },
-  textoBoton: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
-  cajaRespuesta: { marginTop: 20, backgroundColor: '#E8F5E9', padding: 15, borderRadius: 15, borderWidth: 1, borderColor: '#C8E6C9' },
-  textoRespuesta: { fontSize: 16, color: '#1B5E20', lineHeight: 22, fontWeight: '500' }
+  imagenPreview: { width: 100, height: 100, borderRadius: 12, borderWidth: 1, borderColor: '#CFD8DC' },
+  btnQuitarImagen: { position: 'absolute', top: -8, right: -8, backgroundColor: '#D32F2F', borderRadius: 14, padding: 4, elevation: 3 },
+  botonAccion: { backgroundColor: '#2E7D32', padding: 16, borderRadius: 15, alignItems: 'center', elevation: 2 },
+  textoBoton: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
+  cajaRespuesta: { marginTop: 18, backgroundColor: '#E8F5E9', padding: 18, borderRadius: 15, borderWidth: 1, borderColor: '#C8E6C9' },
+  textoRespuesta: { fontSize: 18, color: '#1B5E20', lineHeight: 26, fontWeight: '500' },
+  contenedorFeedback: { marginTop: 15, borderTopWidth: 1, borderTopColor: '#C8E6C9', paddingTop: 15, alignItems: 'center' },
+  textoFeedback: { fontSize: 16, color: '#37474F', marginBottom: 12, fontWeight: '500' },
+  filaBotonesFeedback: { flexDirection: 'row', gap: 24 },
+  btnFeedback: { padding: 14, borderRadius: 30, borderWidth: 1, borderColor: '#CFD8DC', width: 70, alignItems: 'center', elevation: 1 },
+  textoAgradecimiento: { marginTop: 15, textAlign: 'center', color: '#2E7D32', fontStyle: 'italic', fontSize: 15, fontWeight: 'bold' }
 });
