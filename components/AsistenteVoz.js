@@ -98,7 +98,12 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
 
     try {
       const red = await NetInfo.fetch();
-      redConectada = !!(red.isConnected && red.isInternetReachable);
+      
+      // --- CORRECCIÓN CRÍTICA ---
+      // Simplificamos la verificación: si hay interfaz de red activa, lo intentamos.
+      // Eliminamos isInternetReachable porque falla frecuentemente en redes débiles y detiene la consulta.
+      // Confiamos en el TIMEOUT existente más abajo para manejar las redes muy lentas.
+      redConectada = !!red.isConnected;
     
       if (redConectada) {
         const mesActual = new Date().toLocaleString('es-MX', { month: 'long' });
