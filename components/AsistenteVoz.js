@@ -186,7 +186,10 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
     }
     
     // Lectura en voz alta
-    Speech.speak(respuestaFinal, {
+    // Limpieza estricta: borramos saltos de línea y markdown que rompen el motor de Android
+    const textoLimpioParaVoz = respuestaFinal.replace(/[\n\r]/g, ' ').replace(/[*#_]/g, '');
+    
+    Speech.speak(textoLimpioParaVoz, {
       language: 'es-MX', 
       rate: 0.85, // Velocidad ligeramente reducida para facilitar la comprensión
       pitch: 1.0,
@@ -229,13 +232,16 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
       <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={cerrarModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            
-            <View style={styles.header}>
-              <Text style={styles.titulo}>Asesor Integral</Text>
-              <TouchableOpacity onPress={cerrarModal} style={{ padding: 5 }}>
-                <MaterialCommunityIcons name="close-circle" size={40} color="#D32F2F" />
-              </TouchableOpacity>
-            </View>
+
+            {/* ENVUELVE EL CONTENIDO EN UN SCROLLVIEW */}
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+
+              <View style={styles.header}>
+                <Text style={styles.titulo}>Asesor Integral</Text>
+                <TouchableOpacity onPress={cerrarModal} style={{ padding: 5 }}>
+                  <MaterialCommunityIcons name="close-circle" size={40} color="#D32F2F" />
+                </TouchableOpacity>
+              </View>
 
             <Text style={styles.instruccion}>
               Pregúnteme sobre clima, precios, nutrición, plagas o envíeme una foto para diagnóstico:
@@ -297,9 +303,9 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
             </TouchableOpacity>
 
             {respuesta !== '' && (
-              <View style={styles.cajaRespuesta}>
-                <MaterialCommunityIcons name="bullhorn-outline" size={32} color="#2E7D32" style={{marginBottom: 8}}/>
-                <Text style={styles.textoRespuesta}>{respuesta}</Text>
+          <View style={styles.cajaRespuesta}>
+            <MaterialCommunityIcons name="bullhorn-outline" size={32} color="#2E7D32" style={{marginBottom: 8}}/>
+            <Text style={styles.textoRespuesta}>{respuesta}</Text>
                 
                 {idInteraccionActual && !calificacionEnviada && estado === 'inactivo' && (
                   <View style={styles.contenedorFeedback}>
@@ -320,7 +326,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
                 )}
               </View>
             )}
-
+          </ScrollView>
           </View>
         </View>
       </Modal>
