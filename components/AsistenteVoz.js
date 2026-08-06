@@ -128,7 +128,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
         });
 
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('TIMEOUT_NUBE')), 8000)
+          setTimeout(() => reject(new Error('TIMEOUT_NUBE')), 30000)
         );
 
         const { data, error } = await Promise.race([invokePromise, timeoutPromise]);

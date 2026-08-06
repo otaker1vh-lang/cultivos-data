@@ -38,58 +38,55 @@ serve(async (req) => {
     // 3. Inicializar el cliente interno de Supabase
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
 
-    // 4. PASO RAG A: Obtener el Vector Matemático (Embedding) de la pregunta
-    const embeddingUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${geminiKey}`
-    const embeddingRes = await fetch(embeddingUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: "models/gemini-embedding-001",
-        content: { parts: [{ text: preguntaSegura }] }
-      })
-    })
+    // 4 y 5. Buscar la información del cultivo directamente en la tabla 'cultivos'
+    let contextoExtraido = "Sin datos específicos de este tema en la base de datos.";
     
-    const embeddingData = await embeddingRes.json()
-    if (!embeddingData.embedding?.values) {
-      throw new Error("No se pudo generar el embedding con Gemini.")
+    if (cultivoActual && cultivoActual !== "General") {
+      const { data: cultivoData, error: dbError } = await supabaseClient
+        .from('cultivos')
+        .select('requerimientos_agroclimaticos, plagas_resumen, calendarios_regionales, guia_errores_comunes, labores')
+        .ilike('nombre', `%${cultivoActual}%`)
+        .limit(1)
+        .maybeSingle();
+
+      if (cultivoData) {
+        contextoExtraido = `
+          Datos técnicos para ${cultivoActual}:
+          - Clima y Suelo: ${cultivoData.requerimientos_agroclimaticos || 'N/A'}
+          - Calendario de Siembra: ${cultivoData.calendarios_regionales || 'N/A'}
+          - Plagas y Enfermedades: ${cultivoData.plagas_resumen || 'N/A'}
+          - Labores: ${cultivoData.labores || 'N/A'}
+          - Errores Comunes: ${cultivoData.guia_errores_comunes || 'N/A'}
+        `;
+      }
     }
-    const vector = embeddingData.embedding.values.slice(0, 768)
-
-    // 5. PASO RAG B: Buscar conocimiento en la base de datos por Similitud Vectorial
-    const { data: documentos, error: rpcError } = await supabaseClient.rpc('buscar_conocimiento_agricola', {
-      query_embedding: vector,
-      match_threshold: 0.35,
-      match_count: 3
-    })
-
-    if (rpcError) throw rpcError
-
-    const contextoExtraido = documentos && documentos.length > 0 
-      ? documentos.map((doc: any) => doc.texto_busqueda).join(" ") 
-      : "Sin datos específicos de este tema en la base de datos."
 
     // 6. PASO RAG C: Construir el Prompt Maestro (Consciencia Estacional y de Clima)
     const promptSistema = `
-      Eres el Asesor Agrícola Experto de Roslinapp. Estás orientando a un productor rural sobre el cultivo de ${cultivoActual || 'diversos cultivos'}.
-      
+      Eres el Asesor Agrícola Experto del sistema Roslinapp. Orientas al productor rural de manera precisa, segura y apegada a la realidad.
+      El productor tiene seleccionado el cultivo: ${cultivoActual || 'General'}, pero puede consultar sobre CUALQUIER tema agropecuario.
+
       --- CONTEXTO ACTUAL DEL CAMPO ---
       Mes Actual: ${contextoTemporal?.mes_actual || 'No especificado'}
       Clima de Hoy: Max ${contextoTemporal?.clima_hoy?.temp_max || 'N/A'}°C, Min ${contextoTemporal?.clima_hoy?.temp_min || 'N/A'}°C, Humedad: ${contextoTemporal?.clima_hoy?.humedad_relativa || 'N/A'}%
-      Etapa Fenológica: ${contextoTemporal?.etapa_fenologica || 'No registrada'}
-
-      --- CONOCIMIENTO TÉCNICO OFICIAL ---
-      "${contextoExtraido}"
       
-      Reglas de oro:
-      1. CRUCE ESTACIONAL: Si la recomendación oficial choca con el clima de hoy o el mes, adviértelo.
-      2. DIAGNÓSTICO: Si recibes una foto, analiza la plaga/deficiencia basándote en el conocimiento técnico.
-      3. Responde de forma directa, respetuosa ("Patrón") y clara. 
-      4. Máximo 3 a 4 oraciones (se leerá en voz alta). Sin viñetas.
-      5. Si la respuesta no está en el conocimiento técnico, di: "Ese dato no lo tengo a la mano, patrón. Consulte a su técnico."
-    `
+      --- CONOCIMIENTO LOCAL EXTRAÍDO DE LA APP ---
+      "${contextoExtraido}"
 
-    // 7. Configurar el Payload Multimodal para Gemini 1.5 Flash
-    const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`
+      --- REGLAS DE RESPUESTA (CERO ALUCINACIONES) ---
+      1. PRIORIDAD: Revisa primero el "CONOCIMIENTO LOCAL". Si la respuesta está ahí, úsala como base principal.
+      2. CONOCIMIENTO OFICIAL RESPALDO: Si el conocimiento local dice "Sin datos específicos" (porque preguntan por otro cultivo), SÍ DEBES RESPONDER utilizando tu conocimiento experto preentrenado. Asegúrate de basar tu respuesta únicamente en manuales y guías validadas por instituciones públicas (INIFAP, SADER, SENASICA, Chapingo, etc.).
+      3. RIGOR TÉCNICO: Tienes prohibido inventar o adivinar datos económicos, dosis de agroquímicos o fechas de siembra si no estás seguro de su respaldo oficial.
+      4. VÁLVULA DE ESCAPE: Solo si la pregunta es sobre un tema del cual no tienes ninguna certeza oficial ni local, di textualmente: "Ese dato no lo tengo a la mano con respaldo oficial, patrón. Le sugiero consultarlo con su técnico."
+
+      --- INSTRUCCIONES DE TONO Y FORMATO ---
+      - Trato: Dirígete al productor con respeto usando la palabra "Patrón". Sé claro, directo y práctico.
+      - Formato: Máximo 3 a 4 oraciones cortas.
+      - Restricciones de Voz: Escribe en formato conversacional fluido. ESTÁ ESTRICTAMENTE PROHIBIDO usar viñetas, guiones, asteriscos o negritas (tu respuesta será leída por un sintetizador de voz).
+      - DIAGNÓSTICO: Si recibes una foto, analiza la plaga/deficiencia basándote en fuentes autorizadas.
+    `
+    // 7. Configurar el Payload Multimodal para el modelo actualizado
+    const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
     
     const geminiPayload: any = {
       contents: [{ 
@@ -99,7 +96,7 @@ serve(async (req) => {
       }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 250,
+        maxOutputTokens: 600,
       }
     }
 
@@ -135,6 +132,9 @@ serve(async (req) => {
     })
 
   } catch (err: any) {
+    // Te sugiero agregar esta línea para que los errores se guarden en los Logs de Supabase
+    console.error("🚨 ERROR FATAL EN EDGE FUNCTION:", err);
+    
     return new Response(JSON.stringify({ error: err.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
