@@ -4,14 +4,21 @@ import NetInfo from "@react-native-community/netinfo";
 import { supabase } from './supabaseClient'; 
 
 // Abre o crea la base de datos local de forma síncrona
-const db = SQLite.openDatabaseSync('roslinapp_offline.db');
+//const db = SQLite.openDatabaseSync('roslinapp_offline.db');
 
 /**
  * INICIALIZACIÓN DE LA BASE DE DATOS LOCAL
  * Se llama desde App.js al arrancar la aplicación.
  */
+
+// Función para obtener la DB solo cuando se necesita
+const getDb = () => {
+  return SQLite.openDatabaseSync('roslinapp_offline.db');
+};
+
 export const inicializarBaseDeDatos = () => {
   try {
+    const db = getDb();
     // FTS5 es ideal para búsquedas de texto ignorando errores ortográficos menores
     db.execSync(`
       CREATE VIRTUAL TABLE IF NOT EXISTS conocimiento_agricola USING fts5(
@@ -32,8 +39,9 @@ export const inicializarBaseDeDatos = () => {
  * Se ejecuta en AsistenteVoz.js cuando no hay internet.
  */
 export const buscarRespuestaOffline = (pregunta, cultivoActual) => {
-  if (!pregunta) return "Patrón, no alcancé a escuchar bien la pregunta.";
+  if (!pregunta) return "Disculpa, no alcancé a escuchar bien la pregunta.";
 
+  const db = getDb();
   // Limpiamos la pregunta de signos y creamos un formato de búsqueda FTS (palabra OR palabra)
   const palabrasClave = pregunta
     .replace(/[¿?¡!.,]/g, '')
@@ -76,12 +84,14 @@ export const sincronizarConocimiento = async () => {
     const red = await NetInfo.fetch();
     if (!red.isConnected || !red.isInternetReachable) return;
 
+    const db = getDb();
+
     console.log("Descargando datos de cultivos desde Supabase...");
 
-    // 1. Descargamos tu tabla actual
+    // 1. Descargamos la tabla real 'cultivos' con las columnas correctas
     const { data: cultivos, error } = await supabase
-      .from('tabla_cultivos') // Ajusta el nombre si en Supabase se llama diferente
-      .select('nombre, datos_completos');
+      .from('cultivos')
+      .select('nombre, programa_fertilizacion, plagas_resumen, sistemas_riego, economia_expandida');
 
     if (error) throw error;
     if (!cultivos || cultivos.length === 0) return;
@@ -93,40 +103,37 @@ export const sincronizarConocimiento = async () => {
       db.execSync('DELETE FROM conocimiento_agricola;'); // Limpiamos la caché anterior
       
       for (const cultivo of cultivos) {
-        // Aseguramos que el JSON sea un objeto (por si viene como string)
-        const info = typeof cultivo.datos_completos === 'string' 
-          ? JSON.parse(cultivo.datos_completos) 
-          : cultivo.datos_completos;
+        const nombreCultivo = cultivo.nombre;
 
-        const nombreCultivo = cultivo.nombre || info.cultivo;
-
-        // --- EXTRACCIÓN Y ENRIQUECIMIENTO PARA EL ASISTENTE ---
-        // Aquí "aplanamos" el JSON en oraciones que el asistente pueda leer en voz alta.
+        // Parseo seguro de los JSONs individuales
+        const fertilizacion = typeof cultivo.programa_fertilizacion === 'string' ? JSON.parse(cultivo.programa_fertilizacion) : cultivo.programa_fertilizacion;
+        const plagas = typeof cultivo.plagas_resumen === 'string' ? JSON.parse(cultivo.plagas_resumen) : cultivo.plagas_resumen;
+        const riego = typeof cultivo.sistemas_riego === 'string' ? JSON.parse(cultivo.sistemas_riego) : cultivo.sistemas_riego;
+        const eco = typeof cultivo.economia_expandida === 'string' ? JSON.parse(cultivo.economia_expandida) : cultivo.economia_expandida;
 
         // A. Nutrición y Fertilizantes
-        if (info.fertilizacion?.requerimientos_anuales) {
-          const req = info.fertilizacion.requerimientos_anuales;
-          const respuestaNutricion = `Para el cultivo de ${nombreCultivo}, se requieren ${req.N_kg_ha} kilos de nitrógeno, ${req.P2O5_kg_ha} de fósforo y ${req.K2O_kg_ha} de potasio por hectárea.`;
+        if (fertilizacion && fertilizacion.length > 0) {
+          const resumenFert = fertilizacion.map(f => `${f.dosis_kg_ha} kg/ha de la fórmula ${f.formula} en etapa de ${f.etapa}`).join(', ');
+          const respuestaNutricion = `Para el cultivo de ${nombreCultivo}, se sugiere aplicar: ${resumenFert}.`;
           statement.executeSync([nombreCultivo, 'Nutrición', `¿Cuánto fertilizante necesita el ${nombreCultivo}?`, respuestaNutricion]);
         }
 
         // B. Plagas y Enfermedades
-        if (info.plagas_resumen && info.plagas_resumen.length > 0) {
-          const listaPlagas = info.plagas_resumen.map(p => `${p.nombre}, que ${p.descripcion.toLowerCase()}`).join('. También ataca ');
+        if (plagas && plagas.length > 0) {
+          const listaPlagas = plagas.map(p => `${p.nombre}, que ${p.descripcion ? p.descripcion.toLowerCase() : 'afecta el cultivo'}`).join('. También ataca ');
           const respuestaPlagas = `Las plagas principales del ${nombreCultivo} son: ${listaPlagas}.`;
           statement.executeSync([nombreCultivo, 'Plagas', `¿Qué plagas atacan al ${nombreCultivo}?`, respuestaPlagas]);
         }
 
         // C. Riego
-        if (info.riego?.requerimiento_hidrico) {
-          const agua = info.riego.requerimiento_hidrico;
-          const respuestaRiego = `El requerimiento hídrico es de ${agua.lamina_total_anual_mm} milímetros anuales.`;
+        if (riego && riego.length > 0) {
+          const sis = riego[0];
+          const respuestaRiego = `Se recomienda sistema por ${sis.sistema} con una lámina anual de ${sis.lamina_anual_mm} milímetros.`;
           statement.executeSync([nombreCultivo, 'Riego', `¿Cuánta agua ocupa el ${nombreCultivo}?`, respuestaRiego]);
         }
         
         // D. Mercado y Economía
-        if (info.estadisticas?.economia) {
-          const eco = info.estadisticas.economia;
+        if (eco) {
           const respuestaEco = `La época de mejor precio es de ${eco.epoca_mejor_precio}. El precio máximo ronda los ${eco.precio_max_mxn_ton} pesos por tonelada.`;
           statement.executeSync([nombreCultivo, 'Economía', `¿A cómo se vende el ${nombreCultivo}?`, respuestaEco]);
         }
