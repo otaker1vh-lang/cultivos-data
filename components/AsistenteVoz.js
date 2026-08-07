@@ -108,12 +108,22 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
       if (redConectada) {
         const mesActual = new Date().toLocaleString('es-MX', { month: 'long' });
 
+        // --- SOLUCIÓN: Limpiamos y aseguramos los datos del clima antes de enviarlos
+        let climaSeguro = null;
+        if (climaActual && typeof climaActual === 'object') {
+           climaSeguro = {
+             temp_max: climaActual.temp_max || climaActual.max || 'N/A',
+             temp_min: climaActual.temp_min || climaActual.min || 'N/A',
+             humedad_relativa: climaActual.humedad_relativa || climaActual.humidity || 'N/A'
+           };
+        }
+
         const bodyPayload = { 
           pregunta: pregunta.trim() !== '' ? pregunta : "¿Qué plaga se observa?", 
           cultivoActual: cultivoActual || "General", 
           contextoTemporal: {
             mes_actual: mesActual,
-            clima_hoy: climaActual || null,
+            clima_hoy: climaSeguro, // Usamos el objeto limpio y seguro
             etapa_fenologica: 'No registrada'
           }
         };
