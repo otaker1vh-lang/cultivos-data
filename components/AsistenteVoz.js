@@ -43,6 +43,30 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
     }
   };
 
+  const seleccionarDeGaleria = async () => {
+    // Pedir permisos para acceder a las fotos
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Se necesitan permisos de galería para subir sus fotos, patrón.');
+      return;
+    }
+
+    // Abrir la galería
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.5, // Mantenemos la compresión para que no pese mucho
+      base64: true, 
+    });
+
+    if (!result.canceled) {
+      setImagenAdjunta({
+        uri: result.assets[0].uri,
+        base64: result.assets[0].base64
+      });
+    }
+  };
+
   useEffect(() => {
     Voice.onSpeechStart = onSpeechStart;
     Voice.onSpeechEnd = onSpeechEnd;
@@ -99,16 +123,11 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
     try {
       const red = await NetInfo.fetch();
       
-      // --- CORRECCIÓN CRÍTICA ---
-      // Simplificamos la verificación: si hay interfaz de red activa, lo intentamos.
-      // Eliminamos isInternetReachable porque falla frecuentemente en redes débiles y detiene la consulta.
-      // Confiamos en el TIMEOUT existente más abajo para manejar las redes muy lentas.
       redConectada = !!red.isConnected;
     
       if (redConectada) {
         const mesActual = new Date().toLocaleString('es-MX', { month: 'long' });
 
-        // --- SOLUCIÓN: Limpiamos y aseguramos los datos del clima antes de enviarlos
         let climaSeguro = null;
         if (climaActual && typeof climaActual === 'object') {
            climaSeguro = {
@@ -123,7 +142,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
           cultivoActual: cultivoActual || "General", 
           contextoTemporal: {
             mes_actual: mesActual,
-            clima_hoy: climaSeguro, // Usamos el objeto limpio y seguro
+            clima_hoy: climaSeguro,
             etapa_fenologica: 'No registrada'
           }
         };
@@ -132,7 +151,6 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
           bodyPayload.imagenBase64 = imagenAdjunta.base64;
         }
 
-        // Promesa con Timeout de 8 segundos para evitar bloqueos en señal débil
         const invokePromise = supabase.functions.invoke('consultar-asistente', {
           body: bodyPayload
         });
@@ -156,7 +174,6 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
       console.warn("[Asistente Warning] Falló consulta en la nube o hubo timeout. Activando respaldo local:", error?.message || error);
     }
 
-    // --- FALLBACK AUTOMÁTICO A MODO OFFLINE/LOCAL ---
     if (!fueExitosoOnline) {
       if (imagenAdjunta) {
         respuestaFinal = "Patrón, no logramos conectar bien con el servidor para revisar la foto. Pero dígame su duda en texto o voz y la buscamos en el manual guardado en su celular.";
@@ -171,7 +188,6 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
     setCalificacionEnviada(false); 
     setIdInteraccionActual(null);
 
-    // --- REGISTRO DE TELEMETRÍA (Silencioso en segundo plano) ---
     try {
       const faltaInfo = respuestaFinal.includes("Ese dato no lo tengo") || !fueExitosoOnline;
       const origenRespuesta = fueExitosoOnline ? 'online' : 'offline';
@@ -195,13 +211,11 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
       console.log("Telemetría no registrada (modo local o sin red):", logErr);
     }
     
-    // Lectura en voz alta
-    // Limpieza estricta: borramos saltos de línea y markdown que rompen el motor de Android
     const textoLimpioParaVoz = respuestaFinal.replace(/[\n\r]/g, ' ').replace(/[*#_]/g, '');
     
     Speech.speak(textoLimpioParaVoz, {
       language: 'es-MX', 
-      rate: 0.85, // Velocidad ligeramente reducida para facilitar la comprensión
+      rate: 0.85, 
       pitch: 1.0,
       onDone: () => setEstado('inactivo'),
       onStopped: () => setEstado('inactivo'),
@@ -235,108 +249,117 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
 
   return (
     <>
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.8}>
-        <MaterialCommunityIcons name="microphone" size={36} color="#FFF" />
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.85}>
+        <MaterialCommunityIcons name="microphone-outline" size={34} color="#FFF" />
       </TouchableOpacity>
 
       <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={cerrarModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
 
-            {/* ENVUELVE EL CONTENIDO EN UN SCROLLVIEW */}
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+
+              {/* Indicador superior estilo iOS */}
+              <View style={styles.dragIndicator} />
 
               <View style={styles.header}>
                 <Text style={styles.titulo}>Asesor Integral</Text>
-                <TouchableOpacity onPress={cerrarModal} style={{ padding: 5 }}>
-                  <MaterialCommunityIcons name="close-circle" size={40} color="#D32F2F" />
+                <TouchableOpacity onPress={cerrarModal} style={styles.btnClose}>
+                  <MaterialCommunityIcons name="close" size={24} color="#546E7A" />
                 </TouchableOpacity>
               </View>
 
-            <Text style={styles.instruccion}>
-              Pregúnteme sobre clima, precios, nutrición, plagas o envíeme una foto para diagnóstico:
-            </Text>
+              <Text style={styles.instruccion}>
+                Pregúnteme sobre clima, nutrición, plagas o envíe una foto para diagnóstico rápido:
+              </Text>
 
-            {imagenAdjunta && (
-              <View style={styles.imagenPreviewContainer}>
-                <Image source={{ uri: imagenAdjunta.uri }} style={styles.imagenPreview} />
-                <TouchableOpacity style={styles.btnQuitarImagen} onPress={() => setImagenAdjunta(null)}>
-                  <MaterialCommunityIcons name="close" size={18} color="#FFF" />
+              {imagenAdjunta && (
+                <View style={styles.imagenPreviewContainer}>
+                  <Image source={{ uri: imagenAdjunta.uri }} style={styles.imagenPreview} />
+                  <TouchableOpacity style={styles.btnQuitarImagen} onPress={() => setImagenAdjunta(null)}>
+                    <MaterialCommunityIcons name="close" size={16} color="#FFF" />
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.filaAcciones}>
+                <TouchableOpacity style={styles.btnIconoAccion} onPress={tomarFoto} activeOpacity={0.7}>
+                  <MaterialCommunityIcons name="camera-outline" size={26} color="#455A64" />
                 </TouchableOpacity>
-              </View>
-            )}
 
-            <View style={styles.filaAcciones}>
-              <TouchableOpacity style={styles.btnIconoAccion} onPress={tomarFoto} activeOpacity={0.7}>
-                <MaterialCommunityIcons name="camera" size={28} color="#FFF" />
+                <TouchableOpacity style={styles.btnIconoAccion} onPress={seleccionarDeGaleria} activeOpacity={0.7}>
+                  <MaterialCommunityIcons name="image-outline" size={26} color="#455A64" />
+                </TouchableOpacity>
+
+                {estado === 'escuchando' ? (
+                  <TouchableOpacity style={[styles.btnVoz, styles.btnVozGrabando, {flex: 1}]} onPress={detenerDictado} activeOpacity={0.8}>
+                    <ActivityIndicator size="small" color="#FFF" style={{marginRight: 8}} />
+                    <Text style={styles.textoBtnVoz}>Escuchando...</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={[styles.btnVoz, {flex: 1}]} onPress={iniciarDictado} activeOpacity={0.8}>
+                    <MaterialCommunityIcons name="microphone-outline" size={24} color="#FFF" />
+                    <Text style={styles.textoBtnVoz}>Dictar Consulta</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <TextInput
+                style={styles.inputGigante}
+                placeholder="Ej: ¿Cómo controlo el gusano cogollero?"
+                placeholderTextColor="#90A4AE"
+                value={pregunta}
+                onChangeText={setPregunta}
+                multiline
+              />
+
+              <TouchableOpacity 
+                style={[
+                  styles.botonAccion, 
+                  (!pregunta && !imagenAdjunta) && { backgroundColor: '#A5D6A7' }
+                ]} 
+                onPress={procesarPregunta}
+                disabled={(!pregunta && !imagenAdjunta) || estado === 'pensando'}
+                activeOpacity={0.85}
+              >
+                {estado === 'pensando' ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <ActivityIndicator size="small" color="#FFF" />
+                    <Text style={styles.textoBoton}>Consultando manual...</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.textoBoton}>Asesorar en Voz Alta</Text>
+                )}
               </TouchableOpacity>
 
-              {estado === 'escuchando' ? (
-                <TouchableOpacity style={[styles.btnVoz, styles.btnVozGrabando, {flex: 1}]} onPress={detenerDictado}>
-                  <MaterialCommunityIcons name="microphone-off" size={26} color="#FFF" />
-                  <Text style={styles.textoBtnVoz}>Detener Escucha</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity style={[styles.btnVoz, {flex: 1}]} onPress={iniciarDictado}>
-                  <MaterialCommunityIcons name="microphone" size={26} color="#FFF" />
-                  <Text style={styles.textoBtnVoz}>Dictar Mensaje</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            <TextInput
-              style={styles.inputGigante}
-              placeholder="Ej: ¿Cómo controlo gusano cogollero en maíz?"
-              placeholderTextColor="#78909C"
-              value={pregunta}
-              onChangeText={setPregunta}
-              multiline
-            />
-
-            <TouchableOpacity 
-              style={[
-                styles.botonAccion, 
-                (!pregunta && !imagenAdjunta) && { backgroundColor: '#A5D6A7' }
-              ]} 
-              onPress={procesarPregunta}
-              disabled={(!pregunta && !imagenAdjunta) || estado === 'pensando'}
-              activeOpacity={0.8}
-            >
-              {estado === 'pensando' ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <ActivityIndicator size="small" color="#FFF" />
-                  <Text style={styles.textoBoton}>Consultando manual...</Text>
-                </View>
-              ) : (
-                <Text style={styles.textoBoton}>Asesorar en Voz Alta</Text>
-              )}
-            </TouchableOpacity>
-
-            {respuesta !== '' && (
-          <View style={styles.cajaRespuesta}>
-            <MaterialCommunityIcons name="bullhorn-outline" size={32} color="#2E7D32" style={{marginBottom: 8}}/>
-            <Text style={styles.textoRespuesta}>{respuesta}</Text>
-                
-                {idInteraccionActual && !calificacionEnviada && estado === 'inactivo' && (
-                  <View style={styles.contenedorFeedback}>
-                    <Text style={styles.textoFeedback}>¿Le sirvió esta respuesta, patrón?</Text>
-                    <View style={styles.filaBotonesFeedback}>
-                      <TouchableOpacity style={[styles.btnFeedback, { backgroundColor: '#E8F5E9' }]} onPress={() => calificarRespuesta(1)}>
-                        <MaterialCommunityIcons name="thumb-up-outline" size={28} color="#2E7D32" />
-                      </TouchableOpacity>
-                      <TouchableOpacity style={[styles.btnFeedback, { backgroundColor: '#FFEBEE' }]} onPress={() => calificarRespuesta(-1)}>
-                        <MaterialCommunityIcons name="thumb-down-outline" size={28} color="#D32F2F" />
-                      </TouchableOpacity>
-                    </View>
+              {respuesta !== '' && (
+                <View style={styles.cajaRespuesta}>
+                  <View style={styles.encabezadoRespuesta}>
+                    <MaterialCommunityIcons name="leaf-circle-outline" size={24} color="#2E7D32" />
+                    <Text style={styles.tituloRespuesta}>Diagnóstico IA</Text>
                   </View>
-                )}
+                  <Text style={styles.textoRespuesta}>{respuesta}</Text>
+                  
+                  {idInteraccionActual && !calificacionEnviada && estado === 'inactivo' && (
+                    <View style={styles.contenedorFeedback}>
+                      <Text style={styles.textoFeedback}>¿La respuesta fue útil?</Text>
+                      <View style={styles.filaBotonesFeedback}>
+                        <TouchableOpacity style={[styles.btnFeedback, { backgroundColor: '#F1F8E9' }]} onPress={() => calificarRespuesta(1)}>
+                          <MaterialCommunityIcons name="thumb-up-outline" size={22} color="#2E7D32" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.btnFeedback, { backgroundColor: '#FFEBEE' }]} onPress={() => calificarRespuesta(-1)}>
+                          <MaterialCommunityIcons name="thumb-down-outline" size={22} color="#D32F2F" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
 
-                {calificacionEnviada && (
-                  <Text style={styles.textoAgradecimiento}>¡Gracias por ayudarnos a mejorar!</Text>
-                )}
-              </View>
-            )}
-          </ScrollView>
+                  {calificacionEnviada && (
+                    <Text style={styles.textoAgradecimiento}>¡Gracias por ayudarnos a mejorar!</Text>
+                  )}
+                </View>
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -345,30 +368,37 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
 }
 
 const styles = StyleSheet.create({
-  fab: { position: 'absolute', bottom: 25, right: 20, width: 72, height: 72, borderRadius: 36, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 } },
-  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#F5F7FA', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 22, minHeight: '75%' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  titulo: { fontSize: 26, fontWeight: 'bold', color: '#1B5E20' },
-  instruccion: { fontSize: 16, color: '#37474F', marginBottom: 15, lineHeight: 22 },
+  fab: { position: 'absolute', bottom: 25, right: 20, width: 68, height: 68, borderRadius: 34, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', elevation: 6, shadowColor: '#000', shadowOpacity: 0.25, shadowOffset: { width: 0, height: 4 }, shadowRadius: 5 },
+  modalContainer: { flex: 1, backgroundColor: 'rgba(15, 30, 20, 0.65)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 24, paddingTop: 12, paddingBottom: 24, minHeight: '75%', elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.1, shadowRadius: 10 },
+  dragIndicator: { width: 40, height: 5, backgroundColor: '#CFD8DC', borderRadius: 5, alignSelf: 'center', marginBottom: 15 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  titulo: { fontSize: 24, fontWeight: '800', color: '#1B5E20', letterSpacing: 0.2 },
+  btnClose: { backgroundColor: '#F5F7FA', padding: 8, borderRadius: 20 },
+  instruccion: { fontSize: 15, color: '#546E7A', marginBottom: 20, lineHeight: 22, fontWeight: '400' },
   
-  filaAcciones: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, gap: 12 },
-  btnIconoAccion: { backgroundColor: '#455A64', padding: 14, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 2 },
-  btnVoz: { flexDirection: 'row', backgroundColor: '#0288D1', paddingVertical: 14, paddingHorizontal: 20, borderRadius: 30, alignItems: 'center', justifyContent: 'center', elevation: 2 },
-  btnVozGrabando: { backgroundColor: '#D32F2F' },
-  textoBtnVoz: { color: '#FFF', fontWeight: 'bold', marginLeft: 8, fontSize: 16 },
+  filaAcciones: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, gap: 12 },
+  btnIconoAccion: { backgroundColor: '#F0F4F8', padding: 14, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
+  btnVoz: { flexDirection: 'row', backgroundColor: '#0277BD', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20, alignItems: 'center', justifyContent: 'center', elevation: 2, shadowColor: '#0277BD', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  btnVozGrabando: { backgroundColor: '#D32F2F', shadowColor: '#D32F2F' },
+  textoBtnVoz: { color: '#FFF', fontWeight: 'bold', marginLeft: 6, fontSize: 15 },
 
-  inputGigante: { backgroundColor: '#FFF', borderRadius: 15, padding: 16, height: 100, textAlignVertical: 'top', fontSize: 18, color: '#263238', marginBottom: 15, elevation: 2, borderWidth: 1, borderColor: '#CFD8DC' },
-  imagenPreviewContainer: { position: 'relative', alignSelf: 'flex-start', marginBottom: 15 },
-  imagenPreview: { width: 100, height: 100, borderRadius: 12, borderWidth: 1, borderColor: '#CFD8DC' },
-  btnQuitarImagen: { position: 'absolute', top: -8, right: -8, backgroundColor: '#D32F2F', borderRadius: 14, padding: 4, elevation: 3 },
-  botonAccion: { backgroundColor: '#2E7D32', padding: 16, borderRadius: 15, alignItems: 'center', elevation: 2 },
-  textoBoton: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
-  cajaRespuesta: { marginTop: 18, backgroundColor: '#E8F5E9', padding: 18, borderRadius: 15, borderWidth: 1, borderColor: '#C8E6C9' },
-  textoRespuesta: { fontSize: 18, color: '#1B5E20', lineHeight: 26, fontWeight: '500' },
-  contenedorFeedback: { marginTop: 15, borderTopWidth: 1, borderTopColor: '#C8E6C9', paddingTop: 15, alignItems: 'center' },
-  textoFeedback: { fontSize: 16, color: '#37474F', marginBottom: 12, fontWeight: '500' },
-  filaBotonesFeedback: { flexDirection: 'row', gap: 24 },
-  btnFeedback: { padding: 14, borderRadius: 30, borderWidth: 1, borderColor: '#CFD8DC', width: 70, alignItems: 'center', elevation: 1 },
-  textoAgradecimiento: { marginTop: 15, textAlign: 'center', color: '#2E7D32', fontStyle: 'italic', fontSize: 15, fontWeight: 'bold' }
+  inputGigante: { backgroundColor: '#F8FAFC', borderRadius: 20, padding: 18, height: 110, textAlignVertical: 'top', fontSize: 16, color: '#263238', marginBottom: 20 },
+  imagenPreviewContainer: { position: 'relative', alignSelf: 'flex-start', marginBottom: 20 },
+  imagenPreview: { width: 110, height: 110, borderRadius: 16 },
+  btnQuitarImagen: { position: 'absolute', top: -10, right: -10, backgroundColor: '#D32F2F', borderRadius: 15, width: 30, height: 30, justifyContent: 'center', alignItems: 'center', elevation: 4 },
+  
+  botonAccion: { backgroundColor: '#2E7D32', padding: 18, borderRadius: 20, alignItems: 'center', elevation: 3, shadowColor: '#2E7D32', shadowOpacity: 0.3, shadowOffset: { width: 0, height: 3 }, shadowRadius: 5 },
+  textoBoton: { color: '#FFF', fontSize: 18, fontWeight: 'bold', letterSpacing: 0.5 },
+  
+  cajaRespuesta: { marginTop: 24, backgroundColor: '#F5FAF6', padding: 20, borderRadius: 24 },
+  encabezadoRespuesta: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  tituloRespuesta: { fontSize: 16, fontWeight: '700', color: '#2E7D32', marginLeft: 8 },
+  textoRespuesta: { fontSize: 16, color: '#263238', lineHeight: 26, fontWeight: '400' },
+  
+  contenedorFeedback: { marginTop: 20, borderTopWidth: 1, borderTopColor: '#E8F5E9', paddingTop: 20, alignItems: 'center' },
+  textoFeedback: { fontSize: 15, color: '#546E7A', marginBottom: 12, fontWeight: '500' },
+  filaBotonesFeedback: { flexDirection: 'row', gap: 20 },
+  btnFeedback: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20, alignItems: 'center' },
+  textoAgradecimiento: { marginTop: 15, textAlign: 'center', color: '#2E7D32', fontStyle: 'italic', fontSize: 14, fontWeight: '600' }
 });

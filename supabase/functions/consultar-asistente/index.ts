@@ -73,17 +73,19 @@ serve(async (req) => {
       --- CONOCIMIENTO LOCAL EXTRAÍDO DE LA APP ---
       "${contextoExtraido}"
 
-      --- REGLAS DE RESPUESTA (CERO ALUCINACIONES) ---
-      1. PRIORIDAD: Revisa primero el "CONOCIMIENTO LOCAL". Si la respuesta está ahí, úsala como base principal.
-      2. CONOCIMIENTO OFICIAL RESPALDO: Si el conocimiento local dice "Sin datos específicos" (porque preguntan por otro cultivo), SÍ DEBES RESPONDER utilizando tu conocimiento experto preentrenado. Asegúrate de basar tu respuesta únicamente en manuales y guías validadas por instituciones públicas (INIFAP, SADER, SENASICA, Chapingo, etc.).
-      3. RIGOR TÉCNICO: Tienes prohibido inventar o adivinar datos económicos, dosis de agroquímicos o fechas de siembra si no estás seguro de su respaldo oficial.
-      4. VÁLVULA DE ESCAPE: Solo si la pregunta es sobre un tema del cual no tienes ninguna certeza oficial ni local, di textualmente: "Ese dato no lo tengo a la mano con respaldo oficial, patrón. Le sugiero consultarlo con su técnico."
+      --- REGLAS DE RESPUESTA Y RECETAS (CERO ALUCINACIONES) ---
+      1. PRIORIDAD LOCAL: Revisa primero el "CONOCIMIENTO LOCAL". Si la respuesta está ahí, úsala como base principal.
+      2. CONOCIMIENTO OFICIAL: Si el conocimiento local no contiene la respuesta, responde utilizando tu conocimiento experto preentrenado, pero basándote ÚNICAMENTE en manuales y guías de instituciones públicas de México (INIFAP, SADER, SENASICA, COFEPRIS, Chapingo).
+      3. AGROQUÍMICOS Y DOSIS: Tienes permitido sugerir ingredientes activos, productos comerciales genéricos y dosis para nutrición, plagas y enfermedades, siempre que tengan sustento oficial. No inventes dosis.
+      4. AVISO OBLIGATORIO: Siempre que sugieras un agroquímico, fertilizante o dosis, tu última oración DEBE SER exactamente: "Recuerde que estos datos son ilustrativos, patrón, corrobore la información con su técnico antes de aplicar."
+      5. OMISIÓN DE TRANSICIÓN: Si el productor pregunta por un cultivo distinto al seleccionado, RESPONDE DIRECTAMENTE. No gastes palabras diciendo frases como "Aunque tenga seleccionado el maíz, le comento sobre el frijol...". Ve directo al grano.
+      6. VÁLVULA DE ESCAPE: Solo si la pregunta es sobre un tema sin certeza oficial, di textualmente: "Ese dato no lo tengo a la mano con respaldo oficial, patrón. Le sugiero consultarlo con su técnico."
 
       --- INSTRUCCIONES DE TONO Y FORMATO ---
       - Trato: Dirígete al productor con respeto usando la palabra "Patrón". Sé claro, directo y práctico.
-      - Formato: Máximo 3 a 4 oraciones cortas.
-      - Restricciones de Voz: Escribe en formato conversacional fluido. ESTÁ ESTRICTAMENTE PROHIBIDO usar viñetas, guiones, asteriscos o negritas (tu respuesta será leída por un sintetizador de voz).
-      - DIAGNÓSTICO: Si recibes una foto, analiza la plaga/deficiencia basándote en fuentes autorizadas.
+      - Formato: Máximo 4 a 5 oraciones cortas.
+      - Restricciones de Voz: Escribe en formato conversacional fluido. ESTÁ ESTRICTAMENTE PROHIBIDO usar viñetas, guiones, asteriscos o símbolos (tu respuesta será leída por un sintetizador de voz).
+      - DIAGNÓSTICO CON FOTO: Si recibes una foto, diagnostica la plaga/deficiencia y sugiere de inmediato un manejo agronómico aprobado en México.
     `
     // 7. Configurar el Payload Multimodal para el modelo actualizado
     const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
@@ -96,7 +98,10 @@ serve(async (req) => {
       }],
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 600,
+        maxOutputTokens: 2048,
+        thinkingConfig: {
+          thinkingBudget: 0          // desactiva el "thinking" interno
+        }
       }
     }
 
@@ -117,6 +122,11 @@ serve(async (req) => {
     })
     
     const chatData = await chatRes.json()
+
+    const finishReason = chatData.candidates?.[0]?.finishReason
+    if (finishReason === "MAX_TOKENS") {
+      console.warn("⚠️ Respuesta cortada por límite de tokens:", JSON.stringify(chatData))
+    }
 
     if (!chatData.candidates?.[0]?.content?.parts?.[0]?.text) {
       console.error("Error de Gemini o respuesta bloqueada:", JSON.stringify(chatData))
