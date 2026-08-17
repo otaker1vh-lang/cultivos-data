@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import MapView, { Polygon, UrlTile, MAP_TYPES } from 'react-native-maps';
-import { supabase } from '../services/supabaseClient'; 
+import { supabase } from '../src/services/supabaseClient'; 
 
 export default function LoteSatelitalScreen({ route }) {
     // Recibimos el ID del lote que el usuario seleccionó en la pantalla principal
