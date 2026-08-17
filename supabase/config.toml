@@ -422,3 +422,36 @@ entrypoint = "./functions/consultar-asistente/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/consultar-asistente/*.html" ]
+
+[functions.sincronizar-clima-gdd]
+enabled = true
+verify_jwt = false
+import_map = "./functions/sincronizar-clima-gdd/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/sincronizar-clima-gdd/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/sincronizar-clima-gdd/*.html" ]
+
+[functions.recibir-telemetria-esp32]
+enabled = true
+verify_jwt = false
+import_map = "./functions/recibir-telemetria-esp32/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/recibir-telemetria-esp32/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/recibir-telemetria-esp32/*.html" ]
+
+[functions.cron-alertas-comunitarias]
+enabled = true
+verify_jwt = false
+import_map = "./functions/cron-alertas-comunitarias/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/cron-alertas-comunitarias/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/cron-alertas-comunitarias/*.html" ]

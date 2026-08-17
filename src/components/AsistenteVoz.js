@@ -1,3 +1,4 @@
+import * as Notifications from 'expo-notifications';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Modal, Keyboard, Image, ScrollView } from 'react-native';
 import * as Speech from 'expo-speech';
@@ -5,12 +6,13 @@ import * as ImagePicker from 'expo-image-picker';
 import Voice from '@react-native-voice/voice'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-async-storage/async-storage'; // <-- IMPORTANTE: Importación añadida
 import { buscarRespuestaOffline } from '../src/services/Database'; 
 
 // Conexión segura con el cliente de Supabase
 import { supabase } from '../src/services/supabaseClient'; 
 
-export default function AsistenteVoz({ cultivoActual, climaActual }) {
+export default function AsistenteVoz({ cultivoActual, loteId, climaActual }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [pregunta, setPregunta] = useState('');
   const [estado, setEstado] = useState('inactivo'); 
@@ -31,7 +33,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 0.5, // Calidad optimizada para menor transferencia de datos
+      quality: 0.5, 
       base64: true, 
     });
 
@@ -44,18 +46,16 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
   };
 
   const seleccionarDeGaleria = async () => {
-    // Pedir permisos para acceder a las fotos
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       alert('Se necesitan permisos de galería para subir sus fotos, patrón.');
       return;
     }
 
-    // Abrir la galería
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 0.5, // Mantenemos la compresión para que no pese mucho
+      quality: 0.5, 
       base64: true, 
     });
 
@@ -82,6 +82,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
   const onSpeechEnd = () => setEstado('inactivo');
   const onSpeechResults = (e) => {
     if (e.value && e.value.length > 0) {
+      // Corrección para evitar duplicados al dictar rápido
       setPregunta(e.value[0]); 
     }
   };
@@ -122,7 +123,6 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
 
     try {
       const red = await NetInfo.fetch();
-      
       redConectada = !!red.isConnected;
     
       if (redConectada) {
@@ -139,7 +139,8 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
 
         const bodyPayload = { 
           pregunta: pregunta.trim() !== '' ? pregunta : "¿Qué plaga se observa?", 
-          cultivoActual: cultivoActual || "General", 
+          cultivoActual: cultivoActual || "General",
+          loteId: loteId, // <-- AÑADIDO: Ahora la IA sabrá el historial exacto 
           contextoTemporal: {
             mes_actual: mesActual,
             clima_hoy: climaSeguro,
@@ -162,8 +163,83 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
         const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
       
         if (error) throw error;
-        
-        if (data && data.respuesta) {
+
+        // --- LÓGICA DE CLASIFICACIÓN DE INTENCIÓN ---
+        if (data && data.accion === 'registro_bitacora') {
+           respuestaFinal = data.respuesta; 
+           fueExitosoOnline = true;
+           
+           try {
+               // 1. Cargar registros anteriores del cultivo actual
+               const STORAGE_KEY = `@bitacora_v4_fotos_${cultivoActual || 'General'}`;
+               const dataAnterior = await AsyncStorage.getItem(STORAGE_KEY);
+               let bitacorasAnteriores = dataAnterior ? JSON.parse(dataAnterior) : [];
+               
+               // 2. Construir la nota (concatenando dosis y producto si existen)
+               let notaTexto = data.datos.nota;
+               if (data.datos.producto || data.datos.dosis) {
+                   const dosisExtra = data.datos.dosis ? ` (${data.datos.dosis})` : '';
+                   const productoExtra = data.datos.producto ? ` con ${data.datos.producto}` : '';
+                   // Solo se añade si no vienen explícitamente en la nota
+                   if (!notaTexto.toLowerCase().includes(data.datos.producto?.toLowerCase() || 'xyz')) {
+                       notaTexto += `${productoExtra}${dosisExtra}`;
+                   }
+               }
+
+               // --- NUEVA LÓGICA: GESTIÓN DE RECORDATORIOS (ALARMAS LOCALES) ---
+               let alertaProgramada = false;
+               if (data.datos.programar_recordatorio && data.datos.dias_para_recordatorio > 0) {
+                   const dias = data.datos.dias_para_recordatorio;
+                   const tituloRem = data.datos.titulo_recordatorio || "Actividad programada";
+                   
+                   // Calculamos la fecha objetivo (ej. dentro de 3 días a las 8:00 AM)
+                   const fechaObjetivo = new Date();
+                   fechaObjetivo.setDate(fechaObjetivo.getDate() + dias);
+                   fechaObjetivo.setHours(8, 0, 0, 0); 
+                   
+                   try {
+                       await Notifications.scheduleNotificationAsync({
+                           content: {
+                               title: `🌱 Recordatorio: ${cultivoActual || 'Campo'}`,
+                               body: tituloRem,
+                               sound: 'default',
+                               data: { pantalla: 'HomeScreen' }
+                           },
+                           trigger: fechaObjetivo,
+                       });
+                       alertaProgramada = true;
+                       console.log(`⏰ Alarma programada para dentro de ${dias} días.`);
+                       
+                       // Adjuntamos visualmente la confirmación a la nota de bitácora
+                       notaTexto += `\n[⏰ Alarma programada para el ${fechaObjetivo.toLocaleDateString()}]`;
+                   } catch (err) {
+                       console.error("Error programando notificación local:", err);
+                   }
+               }
+
+               // 3. Crear el nuevo registro de bitácora (incluyendo marca de alarma si aplica)
+               const nuevaBitacora = {
+                  id: Date.now().toString(),
+                  cultivo: cultivoActual || 'General',
+                  etapa: data.datos.etapa && data.datos.etapa !== 'General' ? data.datos.etapa : 'General',
+                  nota: notaTexto,
+                  fecha: new Date().getTime(),
+                  imagen: imagenAdjunta ? imagenAdjunta.uri : null,
+                  completada: false,
+                  sincronizado: false, // Obligatorio para el SyncManager
+                  tiene_alarma: alertaProgramada
+                };
+                
+                // 4. Guardar en Storage (Offline First)
+                await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([nuevaBitacora, ...bitacorasAnteriores]));
+                console.log("✅ Bitácora y comandos guardados automáticamente:", nuevaBitacora);
+
+           } catch (e) {
+               console.error("Error guardando bitácora automática:", e);
+           }
+            
+        } else if (data && data.respuesta) {
+          // Es una asesoría normal
           respuestaFinal = data.respuesta;
           fueExitosoOnline = true;
         } else {
@@ -171,9 +247,10 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
         }
       }
     } catch (error) {
-      console.warn("[Asistente Warning] Falló consulta en la nube o hubo timeout. Activando respaldo local:", error?.message || error);
+      console.warn("[Asistente Warning] Falló consulta en la nube o hubo timeout:", error?.message || error);
     }
 
+    // --- RESPALDO OFFLINE Y ERROR ---
     if (!fueExitosoOnline) {
       if (imagenAdjunta) {
         respuestaFinal = "Patrón, no logramos conectar bien con el servidor para revisar la foto. Pero dígame su duda en texto o voz y la buscamos en el manual guardado en su celular.";
@@ -188,6 +265,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
     setCalificacionEnviada(false); 
     setIdInteraccionActual(null);
 
+    // --- TELEMETRÍA (Guarda todo tipo de interacciones) ---
     try {
       const faltaInfo = respuestaFinal.includes("Ese dato no lo tengo") || !fueExitosoOnline;
       const origenRespuesta = fueExitosoOnline ? 'online' : 'offline';
@@ -211,8 +289,8 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
       console.log("Telemetría no registrada (modo local o sin red):", logErr);
     }
     
+    // --- TEXT TO SPEECH ---
     const textoLimpioParaVoz = respuestaFinal.replace(/[\n\r]/g, ' ').replace(/[*#_]/g, '');
-    
     Speech.speak(textoLimpioParaVoz, {
       language: 'es-MX', 
       rate: 0.85, 
@@ -270,7 +348,7 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
               </View>
 
               <Text style={styles.instruccion}>
-                Pregúnteme sobre clima, nutrición, plagas o envíe una foto para diagnóstico rápido:
+                Pregúnteme dudas o dícteme actividades para guardar en su bitácora:
               </Text>
 
               {imagenAdjunta && (
@@ -299,14 +377,14 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
                 ) : (
                   <TouchableOpacity style={[styles.btnVoz, {flex: 1}]} onPress={iniciarDictado} activeOpacity={0.8}>
                     <MaterialCommunityIcons name="microphone-outline" size={24} color="#FFF" />
-                    <Text style={styles.textoBtnVoz}>Dictar Consulta</Text>
+                    <Text style={styles.textoBtnVoz}>Dictar</Text>
                   </TouchableOpacity>
                 )}
               </View>
 
               <TextInput
                 style={styles.inputGigante}
-                placeholder="Ej: ¿Cómo controlo el gusano cogollero?"
+                placeholder="Ej: Anotar que apliqué 1L de fungicida ayer"
                 placeholderTextColor="#90A4AE"
                 value={pregunta}
                 onChangeText={setPregunta}
@@ -325,10 +403,10 @@ export default function AsistenteVoz({ cultivoActual, climaActual }) {
                 {estado === 'pensando' ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <ActivityIndicator size="small" color="#FFF" />
-                    <Text style={styles.textoBoton}>Consultando manual...</Text>
+                    <Text style={styles.textoBoton}>Procesando...</Text>
                   </View>
                 ) : (
-                  <Text style={styles.textoBoton}>Asesorar en Voz Alta</Text>
+                  <Text style={styles.textoBoton}>Enviar al Asistente</Text>
                 )}
               </TouchableOpacity>
 

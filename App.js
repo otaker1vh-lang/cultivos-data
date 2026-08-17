@@ -29,6 +29,7 @@ import DosisScreen from './screens/DosisScreen';
 import WeatherScreen from './screens/WeatherScreen'; // <--- NUEVA IMPORTACIÓN
 import CostosScreen from './screens/CostosScreen';
 import { Buffer } from 'buffer';
+import LoteSatelitalScreen from './screens/LoteSatelitalScreen';
 global.Buffer = Buffer;
 
 const Stack = createStackNavigator();
@@ -78,7 +79,7 @@ export default function App() {
         <Stack.Screen name="About" component={AboutScreen} options={{ title: 'Acerca de' }} />
         <Stack.Screen name="Bitacora" component={BitacoraScreen} options={{ title: 'Mi Bitácora' }} />
         <Stack.Screen name="Costos" component={CostosScreen} options={{ title: 'Calculadora Financiera' }} />
-
+        <Stack.Screen name="LoteSatelital" component={LoteSatelitalScreen} options={{ title: 'Mapa Satelital' }} />
         {/* PANTALLA DE CLIMA DETALLADO (NUEVA) */}
         <Stack.Screen name="WeatherScreen" component={WeatherScreen} options={{ title: 'Pronóstico Detallado' }} />
 

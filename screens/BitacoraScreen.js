@@ -10,6 +10,8 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system'; // Necesario para Base64
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Voice from '@react-native-voice/voice';
+import * as Notifications from 'expo-notifications';
 
 // ----------------------------------------------------
 // --- 1. CONSTANTES Y CONFIGURACIÓN ---
@@ -98,7 +100,8 @@ const generateHtml = (cultivo, bitacoras) => {
 // --- 3. COMPONENTE PRINCIPAL ---
 // ----------------------------------------------------
 export default function BitacoraScreen({ route }) {
-  const { cultivo } = route.params || { cultivo: 'General' };
+  // Ahora recibimos tanto el cultivo como el ID específico del lote
+  const { cultivo, lote_id } = route.params || { cultivo: 'General', lote_id: null };
   const etapasDisponibles = CATALOGO_ETAPAS[cultivo] || CATALOGO_ETAPAS["General"];
   const STORAGE_KEY = `@bitacora_v4_fotos_${cultivo}`;
 
@@ -219,14 +222,38 @@ export default function BitacoraScreen({ route }) {
     let imagenFinal = null;
     if (selectedImage) imagenFinal = selectedImage;
 
+    // --- PROGRAMACIÓN DE LA ALARMA ---
+    const ahora = new Date();
+    const esFuturo = fecha > ahora;
+    let notifId = null;
+
+    if (esFuturo) {
+      try {
+        notifId = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: `📝 Bitácora: ${cultivo}`,
+            body: nota.trim(),
+            sound: true,
+            data: { pantalla: 'Bitacora' } // Opcional para ruteo
+          },
+          trigger: { date: fecha }, // <-- Comando clave para que suene con app cerrada
+        });
+      } catch (e) {
+        console.log("Error al programar notificación en bitácora:", e);
+      }
+    }
+
     const nueva = {
       id: Date.now().toString(),
       cultivo,
+      lote_id: lote_id,
       etapa: selectedEtapa,
       nota: nota.trim(),
       fecha: fecha.getTime(),
       imagen: imagenFinal,
       completada: false,
+      sincronizado: false,
+      notificationId: notifId // Lo guardamos para poder cancelarla si se elimina
     };
 
     guardarDatos([nueva, ...bitacoras]);
@@ -236,7 +263,7 @@ export default function BitacoraScreen({ route }) {
     setFecha(new Date());
     Keyboard.dismiss();
 
-    Alert.alert("Éxito", "Tarea guardada.");
+    Alert.alert("Éxito", esFuturo ? "Tarea guardada y alarma programada." : "Registro guardado en bitácora.");
   };
 
   const eliminarNota = (id) => {
@@ -286,6 +313,50 @@ export default function BitacoraScreen({ route }) {
   // ----------------------
   // PDF (CONVERSIÓN BASE64 SEGURA)
   // ----------------------
+  
+  const [isRecording, setIsRecording] = useState(false);
+  
+  useEffect(() => {
+    // Configurar los listeners de voz
+    Voice.onSpeechStart = onSpeechStart;
+    Voice.onSpeechEnd = onSpeechEnd;
+    Voice.onSpeechResults = onSpeechResults;
+    Voice.onSpeechError = (error) => {
+        console.log("Error de voz:", error);
+        setIsRecording(false);
+    };
+
+    return () => {
+      // Limpiar listeners al desmontar
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
+  const onSpeechStart = (e) => setIsRecording(true);
+  const onSpeechEnd = (e) => setIsRecording(false);
+  
+  const onSpeechResults = (e) => {
+    // e.value es un array con las posibles transcripciones. Tomamos la más precisa [0]
+    if (e.value && e.value.length > 0) {
+      setNota(e.value[0]);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      await Voice.start('es-MX'); // Idioma español de México
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      await Voice.stop();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const generarPdf = async () => {
     if (bitacoras.length === 0) return Alert.alert("Vacío", "No hay registros.");
@@ -416,7 +487,26 @@ export default function BitacoraScreen({ route }) {
           )}
 
           <Text style={styles.label}>Actividad / Observación:</Text>
-          <TextInput style={styles.inputArea} multiline value={nota} onChangeText={setNota} />
+          <View style={styles.voiceInputContainer}>
+            <TextInput 
+              style={[styles.inputArea, { flex: 1, minHeight: 80 }]} 
+              multiline 
+              value={nota} 
+              onChangeText={setNota} 
+              placeholder="Escribe o dicta tu observación..."
+            />
+            
+            <TouchableOpacity 
+              style={[styles.btnMicrofono, isRecording && styles.btnMicrofonoGrabando]} 
+              onPress={isRecording ? stopRecording : startRecording}
+            >
+              <MaterialCommunityIcons 
+                name={isRecording ? "microphone-off" : "microphone"} 
+                size={28} 
+                color="#fff" 
+              />
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.camaraRow}>
             <TouchableOpacity style={styles.btnCamara} onPress={tomarFoto}>
@@ -515,4 +605,24 @@ const styles = StyleSheet.create({
   cardText: { fontSize: 14, color: '#333' },
   cardImage: { width: '100%', height: 150, borderRadius: 8, marginTop: 8, resizeMode: 'cover' },
   deleteButton: { paddingLeft: 10 },
+  voiceInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  btnMicrofono: {
+    backgroundColor: '#2E7D32',
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  btnMicrofonoGrabando: {
+    backgroundColor: '#D32F2F', // Rojo para indicar que está escuchando
+  },
 });

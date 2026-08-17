@@ -43,7 +43,8 @@ export default function MenuDetalleScreen({ navigation, route }) {
         { titulo: 'Plagas', descripcion: 'Control sanitario', icono: 'bug', ruta: 'Plagas', color: '#E53935', bg: '#FFEBEE' },
         { titulo: 'Nutrición', descripcion: 'Plan NPK suelo', icono: 'sack', ruta: 'Fertilizantes', color: '#795548', bg: '#EFEBE9' },
         { titulo: 'Dosis', descripcion: 'Calibración foliar', icono: 'flask', ruta: 'Dosis', color: '#00897B', bg: '#E0F2F1' },
-        { titulo: 'Bitácora', descripcion: 'Mis notas', icono: 'notebook-edit', ruta: 'Bitacora', color: '#8E24AA', bg: '#F3E5F5' }, 
+        { titulo: 'Bitácora', descripcion: 'Mis notas', icono: 'notebook-edit', ruta: 'Bitacora', color: '#8E24AA', bg: '#F3E5F5' },
+        { titulo: 'Agenda', descripcion: 'Alarmas y tareas', icono: 'calendar-clock', ruta: 'Recordatorios', color: '#D32F2F', bg: '#FFEBEE' }, 
     ];
 
     React.useLayoutEffect(() => {
