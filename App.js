@@ -20,7 +20,6 @@ import RecordatoriosScreen from './screens/RecordatoriosScreen';
 // Pantallas Globales solicitadas
 import AgroControlScreen from './screens/AgroControlScreen'; 
 import NoticiasScreen from './screens/NoticiasScreen';
-import ResumenCultivo from './src/components/ResumenCultivo';
 import ReporteAvanzadoScreen from './screens/ReporteAvanzadoScreen'; // Ajusta la ruta si lo pusiste en src
 
 // --- NUEVAS PANTALLAS ---

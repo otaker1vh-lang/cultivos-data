@@ -27,19 +27,16 @@ export default function LoteSatelitalScreen({ route }) {
         try {
             setLoading(true);
             
-            // 1. Obtener las coordenadas del lote desde Supabase
-            // (Asumimos que guardaste el polígono como JSON en la columna 'coordenadas_poligono')
             const { data, error } = await supabase
                 .from('lotes')
                 .select('nombre, coordenadas_poligono')
                 .eq('id', lote_id)
                 .single();
 
-            // Si es un lote de prueba y no tiene coordenadas, usaremos las de Texcoco para que veas la magia
-            let coords = data?.coordenadas_poligono;
-            if (error || !coords || coords.length === 0) {
-                console.log("No se encontraron coordenadas en la BD, usando lote de prueba (Texcoco)...");
-                coords = [
+            let coordsRaw = data?.coordenadas_poligono;
+            if (error || !coordsRaw || coordsRaw.length === 0) {
+                console.log("Usando lote de prueba (Texcoco)...");
+                coordsRaw = [
                     { lat: 19.46, lng: -98.88 },
                     { lat: 19.47, lng: -98.88 },
                     { lat: 19.47, lng: -98.87 },
@@ -47,23 +44,26 @@ export default function LoteSatelitalScreen({ route }) {
                 ];
             }
 
-            setPoligono(coords);
+            // 🚨 CORRECCIÓN VITAL: Convertir {lat, lng} a {latitude, longitude}
+            const coordsMapeadas = coordsRaw.map(p => ({
+                latitude: p.lat,
+                longitude: p.lng
+            }));
+
+            // El Polygon ahora recibirá el formato correcto y no crasheará
+            setPoligono(coordsMapeadas);
             
-            // Centrar el mapa en la parcela
             setRegion({
-                latitude: coords[0].lat,
-                longitude: coords[0].lng,
+                latitude: coordsMapeadas[0].latitude,
+                longitude: coordsMapeadas[0].longitude,
                 latitudeDelta: 0.02,
                 longitudeDelta: 0.02,
             });
 
-            // 2. Convertir coordenadas a formato GeoJSON [[lng, lat]] para Python
-            const geoJsonCoords = coords.map(p => [p.lng, p.lat]);
-            // Cerrar el polígono repitiendo el primer punto al final
-            geoJsonCoords.push([coords[0].lng, coords[0].lat]);
+            // Formato GeoJSON para el motor Python [[lng, lat]]
+            const geoJsonCoords = coordsRaw.map(p => [p.lng, p.lat]);
+            geoJsonCoords.push([coordsRaw[0].lng, coordsRaw[0].lat]);
 
-            // 3. Consultar a tu servidor Python local
-            // 🚨 ¡CAMBIA 192.168.1.X POR LA IP DE TU COMPUTADORA! 🚨
             const urlServidorPython = 'https://motor-satelital-roslin.onrender.com/get_ndvi_tile'; 
 
             const response = await fetch(urlServidorPython, {
