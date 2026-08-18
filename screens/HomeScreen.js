@@ -289,7 +289,7 @@ export default function HomeScreen({ navigation }) {
       if (errLote) throw errLote;
 
       Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
-      setMostrarMapaTrazador(false);
+      setModalCrearLote(false);
       setNuevoLoteCoords([]);
       setNuevoLoteNombre('');
       setNuevoLoteCultivos('');
