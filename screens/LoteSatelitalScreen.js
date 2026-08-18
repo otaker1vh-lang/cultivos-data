@@ -1,12 +1,11 @@
 // src/screens/LoteSatelitalScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import MapView, { Polygon, UrlTile, MAP_TYPES } from 'react-native-maps';
-import { supabase } from '../src/services/supabaseClient';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import MapView, { Polygon, UrlTile } from 'react-native-maps';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { supabase } from '../src/services/supabaseClient'; 
 
 export default function LoteSatelitalScreen({ route }) {
-    // Recibimos el ID del lote que el usuario seleccionó en la pantalla principal
     const { lote_id } = route.params || {};
     
     const [poligono, setPoligono] = useState([]);
@@ -35,8 +34,10 @@ export default function LoteSatelitalScreen({ route }) {
                 .single();
 
             let coordsRaw = data?.coordenadas_poligono;
-            if (error || !coordsRaw || coordsRaw.length === 0) {
-                console.log("Usando lote de prueba (Texcoco)...");
+            
+            // 🚨 BLINDAJE 1: Validar array correcto
+            if (error || !coordsRaw || !Array.isArray(coordsRaw) || coordsRaw.length < 3) {
+                console.log("Coordenadas inválidas, usando lote de prueba (Texcoco)...");
                 coordsRaw = [
                     { lat: 19.46, lng: -98.88 },
                     { lat: 19.47, lng: -98.88 },
@@ -45,13 +46,17 @@ export default function LoteSatelitalScreen({ route }) {
                 ];
             }
 
-            // 🚨 CORRECCIÓN VITAL: Convertir {lat, lng} a {latitude, longitude}
-            const coordsMapeadas = coordsRaw.map(p => ({
-                latitude: p.lat,
-                longitude: p.lng
-            }));
+            // 🚨 BLINDAJE 2: Forzar conversión a Números Reales estrictos. 
+            // Si pasamos Strings, el mapa nativo crasheará al instante.
+            const coordsMapeadas = coordsRaw.map(p => {
+                const lat = parseFloat(p.lat);
+                const lng = parseFloat(p.lng);
+                return {
+                    latitude: isNaN(lat) ? 0 : lat,
+                    longitude: isNaN(lng) ? 0 : lng
+                };
+            });
 
-            // El Polygon ahora recibirá el formato correcto y no crasheará
             setPoligono(coordsMapeadas);
             
             setRegion({
@@ -61,9 +66,13 @@ export default function LoteSatelitalScreen({ route }) {
                 longitudeDelta: 0.02,
             });
 
-            // Formato GeoJSON para el motor Python [[lng, lat]]
-            const geoJsonCoords = coordsRaw.map(p => [p.lng, p.lat]);
-            geoJsonCoords.push([coordsRaw[0].lng, coordsRaw[0].lat]);
+            // Formato GeoJSON exacto para el backend en Python
+            const geoJsonCoords = coordsRaw.map(p => {
+                const lat = parseFloat(p.lat);
+                const lng = parseFloat(p.lng);
+                return [isNaN(lng) ? 0 : lng, isNaN(lat) ? 0 : lat];
+            });
+            geoJsonCoords.push(geoJsonCoords[0]); // Cerramos el polígono repitiendo el primer punto
 
             const urlServidorPython = 'https://motor-satelital-roslin.onrender.com/get_ndvi_tile'; 
 
@@ -83,7 +92,7 @@ export default function LoteSatelitalScreen({ route }) {
             }
 
         } catch (e) {
-            console.error("Error conectando con el motor satelital:", e);
+            console.error("Error conectando con motor satelital:", e);
             Alert.alert("Error de Red", "No se pudo contactar al servidor satelital.");
         } finally {
             setLoading(false);
@@ -94,7 +103,7 @@ export default function LoteSatelitalScreen({ route }) {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>📡 Monitoreo Satelital (NDVI)</Text>
-                {fechaSatelite && <Text style={styles.subtitle}>Imagen libre de nubes del: {fechaSatelite}</Text>}
+                {fechaSatelite ? <Text style={styles.subtitle}>Imagen libre de nubes del: {fechaSatelite}</Text> : null}
             </View>
 
             {loading ? (
@@ -103,10 +112,9 @@ export default function LoteSatelitalScreen({ route }) {
                     <Text style={{marginTop: 10, color: '#555', fontWeight: 'bold'}}>Descargando datos Sentinel-2...</Text>
                 </View>
             ) : !region ? (
-                /* 🚨 CORRECCIÓN 1: Si no hay región (lote vacío o error), NO renderizamos el mapa */
                 <View style={styles.loadingBox}>
                     <MaterialCommunityIcons name="map-marker-off" size={50} color="#D32F2F" />
-                    <Text style={{marginTop: 10, color: '#555', textAlign: 'center'}}>
+                    <Text style={{marginTop: 10, color: '#555', textAlign: 'center', paddingHorizontal: 20}}>
                         No se encontraron coordenadas válidas para mostrar el mapa.
                     </Text>
                 </View>
@@ -114,16 +122,15 @@ export default function LoteSatelitalScreen({ route }) {
                 <View style={{ flex: 1 }}>
                     <MapView
                         style={styles.map}
-                        mapType={MAP_TYPES.HYBRID} 
+                        mapType="hybrid" /* 🚨 BLINDAJE 3: Forzamos la cadena de texto 'hybrid' */
                         initialRegion={region}
                     >
-                        {/* 🚨 CORRECCIÓN 2: Uso de ternarios (? : null) para evitar crash de react-native-maps */}
-                        {poligono.length > 0 ? (
+                        {poligono.length >= 3 ? (
                             <Polygon
                                 coordinates={poligono}
                                 strokeColor="#FFFFFF"
                                 strokeWidth={3}
-                                fillColor="rgba(0,0,0,0)" 
+                                fillColor="transparent" /* 🚨 BLINDAJE 4: Evitar crash por rgba en alfa 0 */
                                 zIndex={2}
                             />
                         ) : null}
@@ -132,14 +139,14 @@ export default function LoteSatelitalScreen({ route }) {
                             <UrlTile
                                 urlTemplate={tileUrl}
                                 maximumZ={19}
+                                minimumZ={0} /* 🚨 BLINDAJE 5: Agregar límite mínimo para evitar Crash */
                                 zIndex={1}
                                 opacity={0.7} 
                             />
                         ) : null}
                     </MapView>
 
-                    {/* Simbología para el agricultor */}
-                    {tileUrl && (
+                    {tileUrl ? (
                         <View style={styles.legendContainer}>
                             <Text style={styles.legendTitle}>Vigor del Cultivo</Text>
                             <View style={styles.colorBar}>
@@ -150,7 +157,7 @@ export default function LoteSatelitalScreen({ route }) {
                                 <View style={[styles.colorBox, {backgroundColor: '#1a9641'}]}><Text style={styles.colorText}>Excelente</Text></View>
                             </View>
                         </View>
-                    )}
+                    ) : null}
                 </View>
             )}
         </View>
@@ -169,4 +176,4 @@ const styles = StyleSheet.create({
     colorBar: { flexDirection: 'row', height: 20, borderRadius: 5, overflow: 'hidden' },
     colorBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     colorText: { fontSize: 9, color: 'white', fontWeight: 'bold', textShadowColor: 'black', textShadowRadius: 2 }
-});
+}); 

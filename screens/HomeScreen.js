@@ -10,29 +10,22 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import NetInfo from "@react-native-community/netinfo";
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
-
-// --- NUEVAS IMPORTACIONES PARA PUSH NOTIFICATIONS ---
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { supabase } from '../src/services/supabaseClient'; // Ajusta la ruta a tu cliente de Supabase
-
-// Datos y Utilidades
+import { supabase } from '../src/services/supabaseClient'; 
 import datosBasicos from "../data/cultivos_basico.json";
 import CultivoDataManager from '../utils/CultivoDataManager';
 import { getDatabase, ref, onValue } from "firebase/database";
 import { app } from '../utils/firebase';  
 import { cargarRiesgosDesdeJSON, calcularRiesgosMultiples, generarAlertas } from '../utils/gdd_calculator';
-
-// Componentes
 import ClimaWidget from '../components/ClimaWidget'; 
 import { TreatmentCard } from '../components/TreatmentCard';
 import { usePlantClassifier } from '../src/hooks/usePlantClassifier';
 import AsistenteVoz from '../components/AsistenteVoz';
-import { SyncManager } from '../src/services/SyncManager'; // Ajusta la ruta
-import MapView, { Marker, Polygon, MAP_TYPES } from 'react-native-maps';
+import { SyncManager } from '../src/services/SyncManager'; 
+import MapView, { Marker, Polygon } from 'react-native-maps';
 
-// --- CONFIGURACIÓN GLOBAL DE NOTIFICACIONES ---
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -48,7 +41,6 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 const obtenerIconoCultivo = (nombre, categoria) => {
-  // ... (Tu código existente se mantiene igual)
   const n = nombre ? nombre.toLowerCase() : "";
   const c = categoria ? categoria.toLowerCase() : "";
   if (n.includes("maiz") || n.includes("elote")) return "corn";
@@ -65,7 +57,6 @@ const obtenerIconoCultivo = (nombre, categoria) => {
 };
 
 export default function HomeScreen({ navigation }) {
-  // ... (Tus estados existentes) ...
   const [busqueda, setBusqueda] = useState("");
   const [cultivosFiltrados, setCultivosFiltrados] = useState([]);
   const [mostrarLista, setMostrarLista] = useState(false);
@@ -92,12 +83,12 @@ export default function HomeScreen({ navigation }) {
   const cameraRef = useRef(null);
   const isCalculatingRef = useRef(false);
 
-  const [modalCrearLote, setModalCrearLote] = useState(false);
+  // 🚨 BLINDAJE: Sustituimos el Modal problemático por un booleano para vista absoluta
+  const [mostrarMapaTrazador, setMostrarMapaTrazador] = useState(false);
   const [nuevoLoteCoords, setNuevoLoteCoords] = useState([]);
   const [nuevoLoteNombre, setNuevoLoteNombre] = useState('');
   const [nuevoLoteCultivos, setNuevoLoteCultivos] = useState('');
 
-  // Estados para notificaciones
   const [expoPushToken, setExpoPushToken] = useState('');
   const notificationListener = useRef();
   const responseListener = useRef();
@@ -108,6 +99,7 @@ export default function HomeScreen({ navigation }) {
     setClimaActual(datos);
   };
   
+  // 🚨 Única función de Carga de Lotes depurada
   const cargarLotes = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -121,18 +113,14 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => { cargarLotes(); }, []);
 
-  // --- NUEVA LÓGICA: REGISTRO DE PUSH TOKEN ---
   useEffect(() => {
-    // 1. Solicitar permisos y obtener el token
     registrarParaNotificacionesAsync().then(token => {
       if (token) {
         setExpoPushToken(token);
-        // 2. Guardar el token en Supabase (Tabla perfiles)
         guardarTokenEnSupabase(token);
       }
     });
 
-    // 3. Listeners para cuando llega una notificación o el usuario la toca
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       console.log("Notificación recibida en primer plano:", notification);
     });
@@ -154,7 +142,6 @@ export default function HomeScreen({ navigation }) {
 
   async function registrarParaNotificacionesAsync() {
     let token;
-
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Alertas GDD',
@@ -173,55 +160,26 @@ export default function HomeScreen({ navigation }) {
         finalStatus = status;
       }
       
-      if (finalStatus !== 'granted') {
-        console.log('Permiso de notificaciones denegado.');
-        return null;
-      }
+      if (finalStatus !== 'granted') return null;
       
       try {
-        // Necesitas asegurarte de que tu app.json tenga un "projectId" de EAS configurado si usas Expo Application Services
         const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
         token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-        console.log("Token obtenido:", token);
-      } catch (e) {
-        console.error("Error obteniendo el token de Expo:", e);
-      }
-    } else {
-      console.log('Debes usar un dispositivo físico para probar las Notificaciones Push.');
+      } catch (e) { console.error(e); }
     }
-
     return token;
   }
 
   async function guardarTokenEnSupabase(token) {
     try {
-      // Como no tienes Login, obtenemos el usuario actual (si existe sesión anónima o temporal)
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
-        // Actualizamos o insertamos en la tabla perfiles usando Upsert
-        const { error } = await supabase
-          .from('perfiles')
-          .upsert({ 
-            id: user.id, // Llave primaria
-            expo_push_token: token 
-          }, { onConflict: 'id' });
-
-        if (error) console.error("Error guardando token en Supabase:", error.message);
-        else console.log("Token vinculado exitosamente al perfil en Supabase.");
-      } else {
-        console.log("No hay usuario autenticado en Supabase. El token no se vinculó.");
-        // Opcional: Si manejas "Login Anónimo", deberías iniciarlo aquí antes de guardar.
+        await supabase.from('perfiles').upsert({ id: user.id, expo_push_token: token }, { onConflict: 'id' });
       }
-    } catch (error) {
-      console.error("Error de red al guardar token:", error);
-    }
+    } catch (error) { console.error(error); }
   }
-  // --- FIN NUEVA LÓGICA PUSH ---
 
-  // Efectos Iniciales (Resto de tu código intacto)
   useEffect(() => {
-    // ... (El resto de tus useEffects se mantienen exactamente igual)
     const unsubscribeNet = NetInfo.addEventListener(state => setIsOnline(!!state.isConnected));
     cargarFavoritos();
     
@@ -233,57 +191,26 @@ export default function HomeScreen({ navigation }) {
       try {
         const datosSupabase = await CultivoDataManager.obtenerListaCultivos();
         if (datosSupabase?.length > 0) setListaCultivos(datosSupabase);
-      } catch (error) { console.log("Modo offline activo"); }
+      } catch (error) {}
     };
     sincronizar();
-
     return () => unsubscribeNet();
   }, []);
 
-  // 1. Cargar el catálogo base de cultivos (Firebase o Local)
   useEffect(() => {
     const db = getDatabase(app);
     const dbRef = ref(db, 'cultivos'); 
     return onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
-      if (data) {
-        setDbCultivos(data);
-        // Eliminada la pre-selección automática
-      }
+      if (data) setDbCultivos(data);
     });
   }, []);
 
-  // 2. Cargar los lotes reales del usuario desde Supabase
-  useEffect(() => {
-    const cargarLotes = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('lotes')
-          .select('id, nombre, cultivos, predios(nombre, estado)') // 'cultivos' debe ser un array en tu BD
-          .eq('predios.user_id', user.id);
-          
-        if (data && data.length > 0) {
-            setLotesUsuario(data);
-        }
-      }
-    };
-    cargarLotes();
-  }, []);
-
-  // 3. Disparar el cálculo de GDD solo cuando hay Lote Y Cultivo seleccionado
   useEffect(() => {
     if (climaActual && loteActivo && cultivoActivo && !isCalculatingRef.current) {
         isCalculatingRef.current = true;
-        // Obtenemos la configuración epidemiológica del catálogo
         const configCultivo = dbCultivos?.[cultivoActivo] || {}; 
-        
-        // Armamos un objeto híbrido para el calculador
-        const cultivoParaGDD = { 
-            id: loteActivo.id, // El ID físico para aislar el historial
-            nombre: cultivoActivo, // El nombre biológico para las plagas
-            ...configCultivo 
-        };
+        const cultivoParaGDD = { id: loteActivo.id, nombre: cultivoActivo, ...configCultivo };
         
         calcularRiesgoGDD(cultivoParaGDD, climaActual).finally(() => { 
             isCalculatingRef.current = false; 
@@ -310,7 +237,7 @@ export default function HomeScreen({ navigation }) {
     try {
       const jsonValue = await AsyncStorage.getItem('@mis_cultivos');
       if (jsonValue != null) setCultivosGuardados(JSON.parse(jsonValue));
-    } catch(e) { console.log("Error favoritos"); }
+    } catch(e) {}
   };
 
   const toggleFavorito = async (item) => {
@@ -319,12 +246,13 @@ export default function HomeScreen({ navigation }) {
       const nuevoArray = existe ? cultivosGuardados.filter(c => c.nombre !== item.nombre) : [...cultivosGuardados, item];
       setCultivosGuardados(nuevoArray);
       await AsyncStorage.setItem('@mis_cultivos', JSON.stringify(nuevoArray));
-    } catch (e) { console.log("Error guardando"); }
+    } catch (e) {}
   };
 
-  // --- LÓGICA DE TRAZADO EN MAPA ---
   const handleMapPress = (e) => {
-    setNuevoLoteCoords([...nuevoLoteCoords, e.nativeEvent.coordinate]);
+    if (e.nativeEvent.coordinate) {
+       setNuevoLoteCoords([...nuevoLoteCoords, e.nativeEvent.coordinate]);
+    }
   };
 
   const guardarNuevoLote = async () => {
@@ -332,13 +260,11 @@ export default function HomeScreen({ navigation }) {
       Alert.alert("Incompleto", "Asigna un nombre y marca al menos 3 puntos en el mapa para formar un polígono.");
       return;
     }
-
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return Alert.alert("Error", "Debes iniciar sesión.");
 
-      // 1. Validar si ya tiene un predio (Rancho), si no, lo creamos
-      let predioId = lotesUsuario.length > 0 ? lotesUsuario[0].predios.id : null;
+      let predioId = lotesUsuario.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predios?.[0]?.id) : null;
       if (!predioId) {
         const { data: predioData, error: errP } = await supabase
           .from('predios')
@@ -348,11 +274,9 @@ export default function HomeScreen({ navigation }) {
         predioId = predioData.id;
       }
 
-      // 2. Formatear datos para Supabase (volviendo al formato {lat, lng} exigido por la BD)
       const arrCultivos = nuevoLoteCultivos.split(',').map(c => c.trim()).filter(c => c !== '');
       const coordsFormatoBD = nuevoLoteCoords.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
-      // 3. Guardar en Base de Datos
       const { error: errLote } = await supabase
         .from('lotes')
         .insert([{
@@ -365,21 +289,18 @@ export default function HomeScreen({ navigation }) {
       if (errLote) throw errLote;
 
       Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
-      setModalCrearLote(false);
+      setMostrarMapaTrazador(false);
       setNuevoLoteCoords([]);
       setNuevoLoteNombre('');
       setNuevoLoteCultivos('');
       
-      cargarLotes(); // Recargamos la lista automáticamente
-
+      cargarLotes(); 
     } catch (e) {
-      console.log(e);
       Alert.alert("Error", "No se pudo guardar el lote en la nube.");
     }
   };
 
   const calcularRiesgoGDD = async (cultivo, clima) => {
-    // ... (Tu función calcularRiesgoGDD se mantiene intacta)
     if (!clima?.temp_max || !clima?.temp_min) return;
     setLoadingGDD(true);
     try {
@@ -495,7 +416,6 @@ export default function HomeScreen({ navigation }) {
   };
 
   const renderCultivo = ({ item }) => {
-      // ... intacto ...
     const iconName = obtenerIconoCultivo(item.nombre, item.categoria);
     const esFavorito = cultivosGuardados.some(c => c.nombre === item.nombre);
     return (
@@ -521,9 +441,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    // EL RENDER (UI) SE MANTIENE EXACTAMENTE IGUAL, NO HAY CAMBIOS VISUALES
     <View style={styles.container}>
-      {/* ... Todo tu JSX permanece intacto aquí ... */}
       <StatusBar barStyle="light-content" backgroundColor="#1b4332" />
       
       <SafeAreaView style={styles.safeArea}>
@@ -545,7 +463,6 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
 
-          {/* ... Resto de la UI (Favoritos, Diagnóstico, Búsqueda, Herramientas, GDD, Modales) ... */}
           {cultivosGuardados.length > 0 && (
             <View style={styles.favoritosMinContainer}>
               <TouchableOpacity onPress={() => { LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); setFavoritosExpanded(!favoritosExpanded); }} style={[styles.gddHeaderRow, { paddingHorizontal: 24, paddingBottom: 10 }]}>
@@ -596,7 +513,7 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.quickAccessContainer}>
              <Text style={[styles.sectionTitleFav, {paddingHorizontal: 24}]}>Herramientas de Campo</Text>
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessScroll}>
-                {[ {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9'}, {n: 'Fertilizantes', i: 'sack', c: '#2d6a4f', bg: '#E8F5E9'}, {n: 'Dosis', i: 'flask', c: '#40916c', bg: '#EAF7EE'}, {n: 'Bitacora', i: 'notebook', c: '#b98b5c', bg: '#FDF8F2'}, {n: 'Noticias', i: 'newspaper', c: '#52b788', bg: '#EAFBF3'}, {n: 'ReporteAvanzado', i: 'file-chart', c: '#1b4332', bg: '#E8F5E9', label: 'Reportes'}, {n: 'Costos', i: 'finance', c: '#d4a373', bg: '#FDF8F2', label: 'Mis Costos'}, {n: 'Recordatorios', i: 'alarm', c: '#D32F2F', bg: '#FFEBEE', label: 'Agenda'}, {n: 'LoteSatelital', i: 'satellite-uplink', c: '#1976D2', bg: '#E3F2FD', label: 'Satélite'}, ].map((item, idx) => (
+                {[ {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9'}, {n: 'Fertilizantes', i: 'sack', c: '#2d6a4f', bg: '#E8F5E9'}, {n: 'Dosis', i: 'flask', c: '#40916c', bg: '#EAF7EE'}, {n: 'Bitacora', i: 'notebook', c: '#b98b5c', bg: '#FDF8F2'}, {n: 'Noticias', i: 'newspaper', c: '#52b788', bg: '#EAFBF3'}, {n: 'ReporteAvanzado', i: 'file-chart', c: '#1b4332', bg: '#E8F5E9', label: 'Reportes'}, {n: 'Costos', i: 'finance', c: '#d4a373', bg: '#FDF8F2', label: 'Mis Costos'}, {n: 'Recordatorios', i: 'alarm', c: '#D32F2F', bg: '#FFEBEE', label: 'Agenda'}, {n: 'LoteSatelital', i: 'satellite-uplink', c: '#1976D2', bg: '#E3F2FD', label: 'Satélite'} ].map((item, idx) => (
                   <TouchableOpacity key={idx} style={styles.quickBtn} onPress={() => navigation.navigate(item.n, { 
                       cultivo: cultivoActivo || "General", 
                       lote_id: loteActivo?.id })}>
@@ -618,27 +535,19 @@ export default function HomeScreen({ navigation }) {
 
              {gddSectionExpanded && (
                  <View style={styles.gddContentArea}>
-                    {/* SELECTOR DE PREDIO Y LOTE */}
-                    {/* NUEVO BOTÓN PARA ABRIR MAPA */}
-                <TouchableOpacity 
-                    onPress={() => { 
-                        setShowCropSelector(false); 
-                        // 🚨 CORRECCIÓN VITAL: Dar tiempo a que el primer modal se cierre para evitar el crash nativo
-                        setTimeout(() => {
-                            setModalCrearLote(true);
-                        }, 400); 
-                    }} 
-                    style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
-                >
-                    <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setShowCropSelector(true)} style={styles.gddSelectorBtn}>
+                        <Text style={styles.gddSelectorText}>
+                            {loteActivo 
+                                ? `📍 ${loteActivo.predios?.nombre} - ${loteActivo.nombre}` 
+                                : "Seleccionar Predio y Lote"}
+                        </Text>
+                        <Ionicons name="caret-down" size={14} color="#2d6a4f" />
+                    </TouchableOpacity>
 
-                    {/* Mostrar mensaje si no hay alertas configuradas */}
                     {loteActivo && cultivoActivo && alertasGDD.length === 0 && !loadingGDD && (
                       <Text style={styles.noGddText}>No hay datos epidemiológicos configurados o disponibles para este cultivo.</Text>
                     )}
 
-                    {/* Mapeo de tarjetas GDD condicionado a tener un cultivo seleccionado */}
                     {loteActivo && cultivoActivo && alertasGDD.map((alerta, index) => (
                         <TouchableOpacity key={index} style={styles.gddCard} onPress={() => setExpandedGddId(expandedGddId === alerta.id ? null : alerta.id)}>
                             <View style={styles.gddHeader}>
@@ -664,7 +573,6 @@ export default function HomeScreen({ navigation }) {
                         </TouchableOpacity>
                     ))}
                     
-                    {/* Botón de reinicio general */}
                     {loteActivo && cultivoActivo && alertasGDD.length > 0 && (
                         <TouchableOpacity style={styles.btnReiniciarTemporada} onPress={reiniciarTemporadaGDD}>
                             <MaterialCommunityIcons name="refresh" size={16} color="#d4a373" />
@@ -676,6 +584,76 @@ export default function HomeScreen({ navigation }) {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {/* 🚨 BLINDAJE: Mapa Geoespacial como Capa Absoluta para evitar crash de Modal nativo */}
+      {mostrarMapaTrazador && (
+        <View style={[StyleSheet.absoluteFillObject, { zIndex: 9999, backgroundColor: '#FFF', elevation: 10 }]}>
+           <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, paddingTop: 50, marginBottom: 0}]}>
+               <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Trazar Nuevo Lote</Text>
+               <TouchableOpacity onPress={() => setMostrarMapaTrazador(false)}>
+                   <Ionicons name="close" size={28} color="white" />
+               </TouchableOpacity>
+           </View>
+           
+           <View style={{padding: 15, backgroundColor: '#FFF', elevation: 4, zIndex: 10}}>
+               <TextInput 
+                   style={[styles.searchInput, {backgroundColor: '#F5F5F5', padding: 10, borderRadius: 8}]} 
+                   placeholder="Nombre del Lote (Ej. Parcela Norte)" 
+                   value={nuevoLoteNombre} 
+                   onChangeText={setNuevoLoteNombre} 
+               />
+               <TextInput 
+                   style={[styles.searchInput, {marginTop: 10, backgroundColor: '#F5F5F5', padding: 10, borderRadius: 8}]} 
+                   placeholder="Cultivos separados por coma (Ej. Maíz, Frijol)" 
+                   value={nuevoLoteCultivos} 
+                   onChangeText={setNuevoLoteCultivos} 
+               />
+               <Text style={{fontSize: 12, color: '#78909C', marginTop: 10}}>
+                   Toca el mapa para agregar los vértices del terreno.
+               </Text>
+           </View>
+
+           <MapView 
+               style={{flex: 1}} 
+               mapType="hybrid"
+               initialRegion={{
+                   latitude: 23.6345,
+                   longitude: -102.5528,
+                   latitudeDelta: 20, 
+                   longitudeDelta: 20,
+               }}
+               onPress={handleMapPress}
+           >
+               {nuevoLoteCoords.length >= 3 ? (
+                   <Polygon 
+                       coordinates={nuevoLoteCoords} 
+                       strokeColor="#FFF" 
+                       strokeWidth={2} 
+                       fillColor="rgba(46, 125, 50, 0.4)" 
+                   />
+               ) : null}
+               
+               {nuevoLoteCoords.length > 0 ? nuevoLoteCoords.map((c, i) => (
+                   <Marker key={i} coordinate={c} />
+               )) : null}
+           </MapView>
+
+           <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
+               <TouchableOpacity 
+                   style={{flex: 1, marginRight: 10, padding: 14, borderWidth: 1, borderColor: '#c32f27', borderRadius: 10, justifyContent: 'center'}} 
+                   onPress={() => setNuevoLoteCoords(prev => prev.slice(0, -1))}
+               >
+                   <Text style={{color: '#c32f27', textAlign: 'center', fontWeight: 'bold'}}>Deshacer Punto</Text>
+               </TouchableOpacity>
+               <TouchableOpacity 
+                   style={[styles.btnAction, {flex: 2, borderRadius: 10, marginBottom: 0}]} 
+                   onPress={guardarNuevoLote}
+               >
+                   <Text style={styles.btnText}>Guardar Geometría</Text>
+               </TouchableOpacity>
+           </View>
+        </View>
+      )}
 
       <Modal visible={modalCameraVisible} animationType="slide">
          <View style={{flex: 1, backgroundColor: 'black'}}>
@@ -734,9 +712,13 @@ export default function HomeScreen({ navigation }) {
                     )}
                     ListEmptyComponent={<Text style={{textAlign: 'center', marginVertical: 20, color: '#78909C'}}>No tiene lotes registrados aún.</Text>}
                 />
-                {/* NUEVO BOTÓN PARA ABRIR MAPA */}
+                
+                {/* Botón para abrir el trazador en capa absoluta */}
                 <TouchableOpacity 
-                    onPress={() => { setShowCropSelector(false); setModalCrearLote(true); }} 
+                    onPress={() => { 
+                        setShowCropSelector(false); 
+                        setMostrarMapaTrazador(true);
+                    }} 
                     style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
                 >
                     <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
@@ -749,80 +731,6 @@ export default function HomeScreen({ navigation }) {
          </View>
       </Modal>
 
-      {/* MODAL DE TRAZADO GEOESPACIAL */}
-      <Modal visible={modalCrearLote} animationType="slide">
-        <View style={{flex: 1, backgroundColor: '#FFF'}}>
-           <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, paddingTop: 50, marginBottom: 0}]}>
-               <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Trazar Nuevo Lote</Text>
-               <TouchableOpacity onPress={() => setModalCrearLote(false)}>
-                   <Ionicons name="close" size={28} color="white" />
-               </TouchableOpacity>
-           </View>
-           
-           <View style={{padding: 15, zIndex: 10, backgroundColor: '#FFF', elevation: 4}}>
-               <TextInput 
-                   style={[styles.searchInput, {backgroundColor: '#F5F5F5', padding: 10, borderRadius: 8}]} 
-                   placeholder="Nombre del Lote (Ej. Parcela Norte)" 
-                   value={nuevoLoteNombre} 
-                   onChangeText={setNuevoLoteNombre} 
-               />
-               <TextInput 
-                   style={[styles.searchInput, {marginTop: 10, backgroundColor: '#F5F5F5', padding: 10, borderRadius: 8}]} 
-                   placeholder="Cultivos separados por coma (Ej. Maíz, Frijol)" 
-                   value={nuevoLoteCultivos} 
-                   onChangeText={setNuevoLoteCultivos} 
-               />
-               <Text style={{fontSize: 12, color: '#78909C', marginTop: 10}}>
-                   Toca el mapa para agregar los vértices del terreno. El GPS marcará tu ubicación con un punto azul para guiarte.
-               </Text>
-           </View>
-
-           <MapView 
-               style={{flex: 1}} 
-               mapType={MAP_TYPES.HYBRID}
-               /* Damos una vista inicial centrada en México para evitar pantallas en blanco */
-               initialRegion={{
-                   latitude: 23.6345,
-                   longitude: -102.5528,
-                   latitudeDelta: 20, 
-                   longitudeDelta: 20,
-               }}
-               /* 🚨 RETIRAMOS showsUserLocation hasta que implementes expo-location */
-               onPress={handleMapPress}
-           >
-               {/* 1. Dibujamos el polígono seguro solo si hay 3 o más puntos */}
-               {nuevoLoteCoords.length >= 3 ? (
-                   <Polygon 
-                       coordinates={nuevoLoteCoords} 
-                       strokeColor="#FFF" 
-                       strokeWidth={2} 
-                       fillColor="rgba(46, 125, 50, 0.4)" 
-                   />
-               ) : null}
-               
-               {/* 2. Renderizamos marcadores seguros evitando el array vacío */}
-               {nuevoLoteCoords.length > 0 ? nuevoLoteCoords.map((c, i) => (
-                   <Marker key={i} coordinate={c} />
-               )) : null}
-           </MapView>
-
-           <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
-               <TouchableOpacity 
-                   style={{flex: 1, marginRight: 10, padding: 14, borderWidth: 1, borderColor: '#c32f27', borderRadius: 10, justifyContent: 'center'}} 
-                   onPress={() => setNuevoLoteCoords(nuevoLoteCoords.slice(0, -1))}
-               >
-                   <Text style={{color: '#c32f27', textAlign: 'center', fontWeight: 'bold'}}>Deshacer Punto</Text>
-               </TouchableOpacity>
-               <TouchableOpacity 
-                   style={[styles.btnAction, {flex: 2, borderRadius: 10, marginBottom: 0}]} 
-                   onPress={guardarNuevoLote}
-               >
-                   <Text style={styles.btnText}>Guardar Geometría</Text>
-               </TouchableOpacity>
-           </View>
-        </View>
-      </Modal>
-
       <AsistenteVoz 
         cultivoActual={cultivoActivo || "General"} 
         loteId={loteActivo?.id || null}
@@ -832,7 +740,6 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-// Estilos intactos
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAFA' },
   safeArea: { flex: 1 },
