@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import MapView, { Polygon, UrlTile, MAP_TYPES } from 'react-native-maps';
-import { supabase } from '../src/services/supabaseClient'; 
+import { supabase } from '../src/services/supabaseClient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function LoteSatelitalScreen({ route }) {
     // Recibimos el ID del lote que el usuario seleccionó en la pantalla principal
@@ -101,33 +102,40 @@ export default function LoteSatelitalScreen({ route }) {
                     <ActivityIndicator size="large" color="#2E7D32" />
                     <Text style={{marginTop: 10, color: '#555', fontWeight: 'bold'}}>Descargando datos Sentinel-2...</Text>
                 </View>
+            ) : !region ? (
+                /* 🚨 CORRECCIÓN 1: Si no hay región (lote vacío o error), NO renderizamos el mapa */
+                <View style={styles.loadingBox}>
+                    <MaterialCommunityIcons name="map-marker-off" size={50} color="#D32F2F" />
+                    <Text style={{marginTop: 10, color: '#555', textAlign: 'center'}}>
+                        No se encontraron coordenadas válidas para mostrar el mapa.
+                    </Text>
+                </View>
             ) : (
                 <View style={{ flex: 1 }}>
                     <MapView
                         style={styles.map}
-                        mapType={MAP_TYPES.HYBRID} // Mapa satelital de fondo con calles
+                        mapType={MAP_TYPES.HYBRID} 
                         initialRegion={region}
                     >
-                        {/* 1. Dibujamos el contorno blanco de la parcela */}
-                        {poligono.length > 0 && (
+                        {/* 🚨 CORRECCIÓN 2: Uso de ternarios (? : null) para evitar crash de react-native-maps */}
+                        {poligono.length > 0 ? (
                             <Polygon
                                 coordinates={poligono}
                                 strokeColor="#FFFFFF"
                                 strokeWidth={3}
-                                fillColor="rgba(0,0,0,0)" // Transparente para ver colores adentro
+                                fillColor="rgba(0,0,0,0)" 
                                 zIndex={2}
                             />
-                        )}
+                        ) : null}
 
-                        {/* 2. PINTAMOS LA CAPA MÁGICA DE COLORES NDVI DE GOOGLE */}
-                        {tileUrl && (
+                        {tileUrl ? (
                             <UrlTile
                                 urlTemplate={tileUrl}
                                 maximumZ={19}
                                 zIndex={1}
-                                opacity={0.7} // 70% opaco para ver el relieve real debajo
+                                opacity={0.7} 
                             />
-                        )}
+                        ) : null}
                     </MapView>
 
                     {/* Simbología para el agricultor */}

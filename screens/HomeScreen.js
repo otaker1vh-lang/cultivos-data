@@ -619,14 +619,19 @@ export default function HomeScreen({ navigation }) {
              {gddSectionExpanded && (
                  <View style={styles.gddContentArea}>
                     {/* SELECTOR DE PREDIO Y LOTE */}
-                    <TouchableOpacity onPress={() => setShowCropSelector(true)} style={styles.gddSelectorBtn}>
-                        <Text style={styles.gddSelectorText}>
-                            {loteActivo 
-                                ? `📍 ${loteActivo.predios?.nombre} - ${loteActivo.nombre}` 
-                                : "Seleccionar Predio y Lote"}
-                        </Text>
-                        <Ionicons name="caret-down" size={14} color="#2d6a4f" />
-                    </TouchableOpacity>
+                    {/* NUEVO BOTÓN PARA ABRIR MAPA */}
+                <TouchableOpacity 
+                    onPress={() => { 
+                        setShowCropSelector(false); 
+                        // 🚨 CORRECCIÓN VITAL: Dar tiempo a que el primer modal se cierre para evitar el crash nativo
+                        setTimeout(() => {
+                            setModalCrearLote(true);
+                        }, 400); 
+                    }} 
+                    style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
+                >
+                    <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
+                </TouchableOpacity>
 
                     {/* Mostrar mensaje si no hay alertas configuradas */}
                     {loteActivo && cultivoActivo && alertasGDD.length === 0 && !loadingGDD && (
@@ -775,21 +780,30 @@ export default function HomeScreen({ navigation }) {
            <MapView 
                style={{flex: 1}} 
                mapType={MAP_TYPES.HYBRID}
-               showsUserLocation={true}
-               showsMyLocationButton={true}
+               /* Damos una vista inicial centrada en México para evitar pantallas en blanco */
+               initialRegion={{
+                   latitude: 23.6345,
+                   longitude: -102.5528,
+                   latitudeDelta: 20, 
+                   longitudeDelta: 20,
+               }}
+               /* 🚨 RETIRAMOS showsUserLocation hasta que implementes expo-location */
                onPress={handleMapPress}
            >
-               {nuevoLoteCoords.length >=3 && (
+               {/* 1. Dibujamos el polígono seguro solo si hay 3 o más puntos */}
+               {nuevoLoteCoords.length >= 3 ? (
                    <Polygon 
                        coordinates={nuevoLoteCoords} 
                        strokeColor="#FFF" 
                        strokeWidth={2} 
                        fillColor="rgba(46, 125, 50, 0.4)" 
                    />
-               )}
-               {nuevoLoteCoords.map((c, i) => (
+               ) : null}
+               
+               {/* 2. Renderizamos marcadores seguros evitando el array vacío */}
+               {nuevoLoteCoords.length > 0 ? nuevoLoteCoords.map((c, i) => (
                    <Marker key={i} coordinate={c} />
-               ))}
+               )) : null}
            </MapView>
 
            <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
