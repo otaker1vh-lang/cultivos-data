@@ -37,30 +37,27 @@ const METRICAS_DISPONIBLES = [
 ];
 
 // --- 2. COMPONENTE AUTOCOMPLETE ---
+// --- 2. COMPONENTE AUTOCOMPLETE ---
 const FiltroAutocomplete = ({ 
     label, valor, setValor, opciones = [], zIndex = 1, 
     placeholder = "Seleccionar...", isMulti = false,
     openMenu, setOpenMenu, id 
 }) => {
     const [busqueda, setBusqueda] = useState('');
-    const [sugerencias, setSugerencias] = useState([]);
     const isOpen = openMenu === id;
 
-    useEffect(() => {
-        if (isOpen) {
-            setBusqueda('');
-            setSugerencias(opciones);
-        }
-    }, [isOpen, opciones]);
+    // 🚨 FIX: Rendimiento - Eliminamos estado duplicado, usamos useMemo para búsqueda ultrarrápida
+    const sugerencias = React.useMemo(() => {
+        if (!busqueda) return opciones;
+        const query = busqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return opciones.filter(op => 
+            op && op.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query)
+        );
+    }, [busqueda, opciones]);
 
     const filtrar = (texto) => {
         setBusqueda(texto);
-        const matches = opciones.filter(op => 
-            op && op.toString().toLowerCase().includes(texto.toLowerCase())
-        );
-        setSugerencias(matches);
         setOpenMenu(id);
-        if (!isMulti) setValor(texto);
     };
 
     const seleccionar = (item) => {
@@ -133,7 +130,7 @@ const FiltroAutocomplete = ({
 export default function ReporteAvanzadoScreen() {
   const [openMenu, setOpenMenu] = useState(null);
   const [filtros, setFiltros] = useState({
-    anio: ['2023'], 
+    anio: ['2025'], 
     cultivo: [],
     estado: [], 
     municipio: [],
@@ -172,6 +169,9 @@ export default function ReporteAvanzadoScreen() {
             if (data) setListaMunicipios([...new Set(data.map(item => item.nommunicipio))].sort());
         };
         fetchMunicipios();
+    } else {
+        setListaMunicipios([]);
+        setFiltros(prev => ({ ...prev, municipio: [] }));
     }
   }, [filtros.estado]);
 
@@ -200,24 +200,18 @@ export default function ReporteAvanzadoScreen() {
     try {
       const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
       
-      // Creamos un arreglo de promesas, una por cada año seleccionado.
-      // Así evitamos el límite de 50k filas de Supabase descargando los años en paralelo.
       const promesasConsulta = filtros.anio.map(async (anioFiltro) => {
           let query = supabase.from('produccion_agricola').select('*');
           
-          // Filtramos exactamente por este año en iteración
           query = query.eq('anio', parseInt(anioFiltro));
 
           if (filtros.cultivo.length > 0) query = query.in('nomcultivo', filtros.cultivo);
           
-          // Lógica de Estado Nacional
           if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
               query = query.in('nomestado', estadosReales);
           }
 
-          if (filtros.municipio.length > 0) {
-              query = query.in('nommunicipio', filtros.municipio);
-          }
+          if (filtros.municipio.length > 0) query = query.in('nommunicipio', filtros.municipio);
           if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
           if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
           
@@ -226,18 +220,25 @@ export default function ReporteAvanzadoScreen() {
           return data || [];
       });
 
-      // Ejecutamos las descargas simultáneas y combinamos los arreglos devueltos
       const resultadosPorAnio = await Promise.all(promesasConsulta);
       const dataFinalCombinada = resultadosPorAnio.flat();
 
       if (!dataFinalCombinada || dataFinalCombinada.length === 0) {
         Alert.alert("Aviso", "No hay datos para esta consulta.");
+        setCargando(false);
       } else {
-        procesarTodo(dataFinalCombinada);
+        setTimeout(() => {
+            try {
+                procesarTodo(dataFinalCombinada);
+            } catch (e) {
+                Alert.alert("Error analítico", "Hubo un fallo procesando las métricas.");
+            } finally {
+                setCargando(false);
+            }
+        }, 100);
       }
     } catch (error) {
       Alert.alert("Error", error.message);
-    } finally {
       setCargando(false);
     }
   };
@@ -623,7 +624,7 @@ export default function ReporteAvanzadoScreen() {
                                 initialNumToRender={15}
                                 maxToRenderPerBatch={15}
                                 windowSize={5}
-                                removeClippedSubviews={true}
+                                removeClippedSubviews={Platform.OS === 'ios'}
                                 ListEmptyComponent={<Text style={{padding: 20, textAlign: 'center'}}>No hay datos para mostrar</Text>}
                             />
                         </View>

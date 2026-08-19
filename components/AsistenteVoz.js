@@ -156,12 +156,17 @@ export default function AsistenteVoz({ cultivoActual, loteId, climaActual }) {
           body: bodyPayload
         });
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('TIMEOUT_NUBE')), 30000)
-        );
+        let timeoutId;
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('TIMEOUT_NUBE')), 30000);
+        });
+
+        timeoutPromise.catch(() => {});
 
         const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
       
+        clearTimeout(timeoutId);
+        
         if (error) throw error;
 
         // --- LÓGICA DE CLASIFICACIÓN DE INTENCIÓN ---
@@ -303,7 +308,7 @@ export default function AsistenteVoz({ cultivoActual, loteId, climaActual }) {
 
   const cerrarModal = () => {
     Speech.stop();
-    Voice.destroy().then(() => Voice.removeAllListeners());
+    Voice.stop();
     setModalVisible(false);
     setEstado('inactivo');
     setPregunta('');

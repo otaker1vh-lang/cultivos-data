@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { supabase } from '../src/services/supabaseClient'; 
 
 export default function LoteSatelitalScreen({ route }) {
-    const { lote_id } = route.params || {};
+    const { lote_id, coords_offline } = route.params || {};
     
     const [poligono, setPoligono] = useState([]);
     const [region, setRegion] = useState(null);
@@ -15,46 +15,53 @@ export default function LoteSatelitalScreen({ route }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         if (!lote_id) {
             Alert.alert("Error", "No se ha seleccionado ningún lote para analizar.");
             setLoading(false);
             return;
         }
-        cargarDatosLoteYNDVI();
-    }, [lote_id]);
+        
+        cargarDatosLoteYNDVI(controller);
 
-    const cargarDatosLoteYNDVI = async () => {
-        try {
+        // Cleanup: Aborta la red automáticamente si el agricultor sale de la vista
+        return () => {
+            controller.abort();
+        };
+    }, [lote_id, coords_offline]);
+
+    const cargarDatosLoteYNDVI = async (controller) => {
+        try { // Try A: Supabase
             setLoading(true);
             
-            const { data, error } = await supabase
-                .from('lotes')
-                .select('nombre, coordenadas_poligono')
-                .eq('id', lote_id)
-                .single();
+            let coordsRaw = coords_offline;
 
-            let coordsRaw = data?.coordenadas_poligono;
-            
-            // 🚨 BLINDAJE 1: Validar array correcto
-            if (error || !coordsRaw || !Array.isArray(coordsRaw) || coordsRaw.length < 3) {
+            if (!coordsRaw) {
+                const { data, error } = await supabase
+                    .from('lotes')
+                    .select('nombre, coordenadas_poligono')
+                    .eq('id', lote_id)
+                    .single();
+                
+                if (controller.signal.aborted) return;
+                
+                coordsRaw = data?.coordenadas_poligono;
+                if (error) throw error;
+            }
+
+            if (!coordsRaw || !Array.isArray(coordsRaw) || coordsRaw.length < 3) {
                 console.log("Coordenadas inválidas, usando lote de prueba (Texcoco)...");
                 coordsRaw = [
-                    { lat: 19.46, lng: -98.88 },
-                    { lat: 19.47, lng: -98.88 },
-                    { lat: 19.47, lng: -98.87 },
-                    { lat: 19.46, lng: -98.87 }
+                    { lat: 19.46, lng: -98.88 }, { lat: 19.47, lng: -98.88 },
+                    { lat: 19.47, lng: -98.87 }, { lat: 19.46, lng: -98.87 }
                 ];
             }
 
-            // 🚨 BLINDAJE 2: Forzar conversión a Números Reales estrictos. 
-            // Si pasamos Strings, el mapa nativo crasheará al instante.
             const coordsMapeadas = coordsRaw.map(p => {
                 const lat = parseFloat(p.lat);
                 const lng = parseFloat(p.lng);
-                return {
-                    latitude: isNaN(lat) ? 0 : lat,
-                    longitude: isNaN(lng) ? 0 : lng
-                };
+                return { latitude: isNaN(lat) ? 0 : lat, longitude: isNaN(lng) ? 0 : lng };
             });
 
             setPoligono(coordsMapeadas);
@@ -66,36 +73,63 @@ export default function LoteSatelitalScreen({ route }) {
                 longitudeDelta: 0.02,
             });
 
-            // Formato GeoJSON exacto para el backend en Python
             const geoJsonCoords = coordsRaw.map(p => {
                 const lat = parseFloat(p.lat);
                 const lng = parseFloat(p.lng);
                 return [isNaN(lng) ? 0 : lng, isNaN(lat) ? 0 : lat];
             });
-            geoJsonCoords.push(geoJsonCoords[0]); // Cerramos el polígono repitiendo el primer punto
+            geoJsonCoords.push(geoJsonCoords[0]); 
 
             const urlServidorPython = 'https://motor-satelital-roslin.onrender.com/get_ndvi_tile'; 
+            const timeoutId = setTimeout(() => controller.abort(), 15000); 
 
-            const response = await fetch(urlServidorPython, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ polygon: [geoJsonCoords] })
-            });
+            try { // Try B: Fetch Servidor Satelital
+                const response = await fetch(urlServidorPython, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ polygon: [geoJsonCoords] }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
 
-            const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
 
-            if (result.status === "success") {
-                setTileUrl(result.tile_url);
-                setFechaSatelite(result.fecha_imagen);
-            } else {
-                Alert.alert("Aviso", "No hay imágenes recientes sin nubes para esta zona.");
+                if (controller.signal.aborted) return;
+
+                const result = await response.json();
+
+                if (controller.signal.aborted) return;
+
+                if (result.status === "success") {
+                    setTileUrl(result.tile_url);
+                    setFechaSatelite(result.fecha_imagen);
+                } else {
+                    Alert.alert("Aviso", "No hay imágenes recientes sin nubes para esta zona.");
+                }
+
+            } catch (error) { // Catch B
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    console.log("Petición satelital abortada por cambio de pantalla o timeout.");
+                } else {
+                    console.error("Error conectando con motor satelital:", error);
+                    Alert.alert("Error de Red", "No se pudo contactar al servidor satelital.");
+                }
             }
-
-        } catch (e) {
-            console.error("Error conectando con motor satelital:", e);
-            Alert.alert("Error de Red", "No se pudo contactar al servidor satelital.");
+            
+        } catch (errorSupabase) { 
+           
+            if (!controller.signal.aborted) {
+                console.error("Error de Base de Datos:", errorSupabase);
+                Alert.alert("Error", "No se pudo cargar la información del lote.");
+            }
         } finally {
-            setLoading(false);
+            
+            if (!controller.signal.aborted) {
+                setLoading(false);
+            }
         }
     };
 
@@ -130,7 +164,7 @@ export default function LoteSatelitalScreen({ route }) {
                                 coordinates={poligono}
                                 strokeColor="#FFFFFF"
                                 strokeWidth={3}
-                                fillColor="transparent" /* 🚨 BLINDAJE 4: Evitar crash por rgba en alfa 0 */
+                                fillColor="#00000000" 
                                 zIndex={2}
                             />
                         ) : null}
