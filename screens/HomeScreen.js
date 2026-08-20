@@ -101,28 +101,19 @@ export default function HomeScreen({ navigation }) {
     setClimaActual(datos);
   }, []);
   
-  // 🚨 FIX: Blindaje Offline con Try/Catch
-  // 🚨 FIX: Blindaje Offline Total, Caché Visual y Recuperación de Coordenadas
   const cargarLotes = async () => {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) throw new Error("Fallo de red en validación");
-
       const { data, error } = await supabase
         .from('lotes')
-        .select('id, nombre, cultivos, coordenadas_poligono, predios!inner(id, nombre, estado)')
-        .eq('predios.user_id', user.id);
+        .select('id, nombre, cultivos, coordenadas_poligono, predios!inner(id, nombre, estado)');
         
       if (error) throw error;
       if (data) {
           setLotesUsuario(data);
-          // Guardamos la copia de seguridad para el modo offline
           await AsyncStorage.setItem('@lotes_cache', JSON.stringify(data));
       }
     } catch (error) {
-      console.warn("Modo Offline activo, cargando lotes desde memoria local...");
-      // 🚨 FIX: Rescate del estado desde la caché local
+      console.warn("Modo Offline activo, cargando lotes locales...", error.message);
       try {
           const cacheStr = await AsyncStorage.getItem('@lotes_cache');
           if (cacheStr) {
@@ -144,23 +135,23 @@ export default function HomeScreen({ navigation }) {
         guardarTokenEnSupabase(token);
       }
     });
-
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+  
+    const notifSub = Notifications.addNotificationReceivedListener(notification => {
       console.log("Notificación recibida en primer plano:", notification);
     });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+  
+    const respSub = Notifications.addNotificationResponseReceivedListener(response => {
       const pantallaDestino = response.notification.request.content.data?.pantalla;
       if (pantallaDestino) {
         navigation.navigate(pantallaDestino);
       }
     });
-
+  
     SyncManager.iniciarListener();
-
+  
     return () => {
-      if (notificationListener.current) Notifications.removeNotificationSubscription(notificationListener.current);
-      if (responseListener.current) Notifications.removeNotificationSubscription(responseListener.current);
+      notifSub.remove();
+      respSub.remove();
     };
   }, []);
 
@@ -274,61 +265,47 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleMapPress = (e) => {
-    const coord = e.nativeEvent.coordinate;
-    if (coord && typeof coord.latitude === 'number' && typeof coord.longitude === 'number') {
-       setNuevoLoteCoords(prev => [...prev, coord]);
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    if (typeof latitude === 'number' && typeof longitude === 'number') {
+       setNuevoLoteCoords(prev => [...prev, { latitude, longitude }]);
     }
   };
 
-  // 1. REEMPLAZAR el inicio de la función guardarNuevoLote en HomeScreen_9.js (Aprox Línea 174)
-
   const guardarNuevoLote = async () => {
-    if (!nuevoLoteNombre || nuevoLoteCoords.length < 3) {
+    if (!nuevoLoteNombre.trim() || nuevoLoteCoords.length < 3) {
       Alert.alert("Incompleto", "Asigna un nombre y marca al menos 3 puntos en el mapa para formar un polígono.");
       return;
     }
 
-    let predioIdLocal = lotesUsuario?.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predios?.[0]?.id) : null;
-    let esNuevoPredioOffline = false;
+    let predioIdLocal = lotesUsuario?.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predio_id) : null;
+    let esNuevoPredio = false;
 
     if (!predioIdLocal) {
         predioIdLocal = `temp_predio_${Date.now()}`;
-        esNuevoPredioOffline = true;
+        esNuevoPredio = true;
     }
 
-    // 🚨 FIX: Extraer la sesión fuera del try-catch. Garantiza que el flujo Offline 
-    // tenga acceso al UUID del agricultor para firmar los JSON antes de meterlos a la caché.
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-        Alert.alert("Acceso Denegado", "Debes iniciar sesión para trazar parcelas, incluso en modo sin conexión.");
-        return;
-    }
+    const arrCultivos = nuevoLoteCultivos.split(',').map(c => c.trim()).filter(c => c.length > 0);
+    const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
+    const coordsFormatoBD = nuevoLoteCoords.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) throw authError; 
-      
-      if (!user) return Alert.alert("Error", "Debes iniciar sesión.");
-
-      if (esNuevoPredioOffline) {
+      // 🚨 FIX: Inserción anónima pura en la Nube. Sin barreras de supabase.auth.
+      if (esNuevoPredio) {
         const { data: predioData, error: errP } = await supabase
           .from('predios')
-          .insert([{ nombre: 'Mi Parcela Principal', user_id: user.id, estado: 'ND' }])
+          .insert([{ nombre: 'Mi Parcela Principal', estado: 'ND' }])
           .select('id').single();
         if (errP) throw errP;
         predioIdLocal = predioData.id; 
       }
 
-      const arrCultivos = nuevoLoteCultivos.split(',').map(c => c.trim()).filter(c => c !== '');
-      const coordsFormatoBD = nuevoLoteCoords.map(c => ({ lat: c.latitude, lng: c.longitude }));
-
       const { error: errLote } = await supabase
         .from('lotes')
         .insert([{
           predio_id: predioIdLocal,
-          nombre: nuevoLoteNombre,
-          cultivos: arrCultivos.length > 0 ? arrCultivos : ['General'],
+          nombre: nuevoLoteNombre.trim(),
+          cultivos: cultivosFinales,
           coordenadas_poligono: coordsFormatoBD
         }]);
 
@@ -343,15 +320,12 @@ export default function HomeScreen({ navigation }) {
       cargarLotes(); 
 
     } catch (e) {
-      Alert.alert(
-          "Modo Sin Conexión",
-          "El lote se guardó localmente. Se sincronizará en la nube de forma automática."
-      );
+      Alert.alert("Modo Sin Conexión", "El lote se guardó localmente. Se sincronizará en la nube de forma automática.");
 
-      if (esNuevoPredioOffline) {
+      if (esNuevoPredio) {
           const predioPendiente = {
               id: predioIdLocal,
-              user_id: session.user.id,
+              // 🚨 FIX: Eliminado session.user.id que causaba TypeError fatal en modo Offline.
               nombre: 'Mi Parcela Principal',
               estado: 'ND',
               pendiente_sincronizacion: true
@@ -359,9 +333,7 @@ export default function HomeScreen({ navigation }) {
           try {
               const str = await AsyncStorage.getItem('@predios_pendientes');
               let arr = [];
-              if (str) {
-                  try { arr = JSON.parse(str); } catch (e) { arr = []; }
-              }
+              if (str) { try { arr = JSON.parse(str); } catch (err) { arr = []; } }
               if (!Array.isArray(arr)) arr = [];
               arr.push(predioPendiente);
               await AsyncStorage.setItem('@predios_pendientes', JSON.stringify(arr));
@@ -370,15 +342,12 @@ export default function HomeScreen({ navigation }) {
           }
       }
 
-      const arrCultivosOffline = nuevoLoteCultivos.split(',').map(c => c.trim()).filter(c => c !== '');
-
       const lotePendiente = {
           id: `temp_lote_${Date.now()}`,
           predio_id: predioIdLocal, 
-          user_id: session.user.id, // 🚨 FIX: Llave foránea requerida por RLS
-          nombre: nuevoLoteNombre,
-          coordenadas_poligono: nuevoLoteCoords.map(c => ({ lat: c.latitude, lng: c.longitude })),
-          cultivos: arrCultivosOffline.length > 0 ? arrCultivosOffline : ['General'], 
+          nombre: nuevoLoteNombre.trim(),
+          coordenadas_poligono: coordsFormatoBD,
+          cultivos: cultivosFinales, 
           pendiente_sincronizacion: true,
           predios: { 
               id: predioIdLocal, 
@@ -389,18 +358,14 @@ export default function HomeScreen({ navigation }) {
       try {
           const str = await AsyncStorage.getItem('@lotes_pendientes');
           let pendientes = [];
-          if (str) {
-              try { pendientes = JSON.parse(str); } catch (e) { pendientes = []; }
-          }
+          if (str) { try { pendientes = JSON.parse(str); } catch (err) { pendientes = []; } }
           if (!Array.isArray(pendientes)) pendientes = []; 
           pendientes.push(lotePendiente);
           await AsyncStorage.setItem('@lotes_pendientes', JSON.stringify(pendientes));
 
           const cacheStr = await AsyncStorage.getItem('@lotes_cache');
           let cache = [];
-          if (cacheStr) {
-              try { cache = JSON.parse(cacheStr); } catch (e) { cache = []; }
-          }
+          if (cacheStr) { try { cache = JSON.parse(cacheStr); } catch (err) { cache = []; } }
           if (!Array.isArray(cache)) cache = [];
           cache.push(lotePendiente);
           await AsyncStorage.setItem('@lotes_cache', JSON.stringify(cache));
@@ -542,7 +507,7 @@ export default function HomeScreen({ navigation }) {
     setModalCameraVisible(true); 
   };
   
-  const takePicture = async () => { 
+  const takePicture = async () => { 1
     if (cameraRef.current) { 
       const photo = await cameraRef.current.takePhoto({ flash: 'off' });
       setImage(`file://${photo.path}`); 
@@ -642,7 +607,6 @@ export default function HomeScreen({ navigation }) {
              </View>
           </View>
 
-          {/* 🚨 FIX: Prevenir bloqueo del Main Thread limitando nodos en el DOM nativo */}
           {mostrarLista && (
              <View style={{ marginBottom: 15 }}>
                 {cultivosFiltrados.slice(0, 8).map((item, index) => (
@@ -740,7 +704,6 @@ export default function HomeScreen({ navigation }) {
         <View style={[StyleSheet.absoluteFillObject, { zIndex: 9999, backgroundColor: '#FFF', elevation: 10 }]}>
            <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, paddingTop: 50, marginBottom: 0}]}>
                <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Trazar Nuevo Lote</Text>
-               {/* 🚨 FIX: Evitar "Ghosting" geoespacial. Purgar la memoria RAM al cancelar para no corromper polígonos futuros. */}
                <TouchableOpacity onPress={() => {
                    setMostrarMapaTrazador(false);
                    setNuevoLoteCoords([]);

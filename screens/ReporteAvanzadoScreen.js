@@ -8,6 +8,9 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system'; 
 import { supabase } from '../src/services/supabaseClient'; 
+import { LineChart, BarChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
+const screenWidth = Dimensions.get("window").width;
 
 // --- 1. DATOS ESTÁTICOS ---
 const ESTADOS_MX = [
@@ -128,7 +131,7 @@ const FiltroAutocomplete = ({
         </View>
     );
 };
-// --- 3. PANTALLA PRINCIPAL ---
+
 export default function ReporteAvanzadoScreen() {
   const [openMenu, setOpenMenu] = useState(null);
   const [filtros, setFiltros] = useState({
@@ -155,48 +158,53 @@ export default function ReporteAvanzadoScreen() {
   const [cargando, setCargando] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
 
-  // REEMPLAZAR los hooks useEffect de inicialización en ReporteAvanzadoScreen_2.js (Aprox Líneas 124 a 144)
-
-  useEffect(() => {
+useEffect(() => {
+    let isMounted = true;
     const fetchCultivos = async () => {
-        try {
-            const { data, error } = await supabase.from('produccion_agricola').select('nomcultivo');
-            if (error) throw error;
-            // 🚨 FIX: Filtrar nulos (Datos malformados de origen) antes de ordenar para evitar JS Crash
-            if (data) setListaCultivos([...new Set(data.map(item => item.nomcultivo).filter(Boolean))].sort());
-        } catch (e) {
-            console.warn("Modo offline: No se pudieron cargar los cultivos", e.message);
+      try {
+        const { data, error } = await supabase.from('catalogo_cultivos').select('nomcultivo').limit(5000);
+        if (error) throw error;
+        if (data && isMounted) {
+          const unicos = Array.from(new Set(data.map(item => item.nomcultivo))).filter(Boolean).sort();
+          setListaCultivos(unicos);
         }
+      } catch (e) {
+        console.warn("Fallo de red al cargar catálogo de cultivos:", e.message);
+      }
     };
     fetchCultivos();
+    return () => { isMounted = false; };
   }, []);
 
-  // REEMPLAZAR el useEffect de fetchMunicipios en ReporteAvanzadoScreen_9.js (Aprox Línea 145)
-
   useEffect(() => {
+    let isMounted = true;
     const estadosFiltrados = filtros.estado.filter(e => e !== 'Nacional');
+    
     if (estadosFiltrados.length > 0) {
-       
-        if (estadosFiltrados.length > 2) {
-            setListaMunicipios([]);
-            Alert.alert("Región muy amplia", "Has seleccionado demasiados estados. El filtro de municipios se ha desactivado para proteger el rendimiento de la aplicación.");
-            return;
-        }
-
-        const fetchMunicipios = async () => {
-            try {
-                const { data, error } = await supabase.from('produccion_agricola').select('nommunicipio').in('nomestado', estadosFiltrados);
-                if (error) throw error;
-                if (data) setListaMunicipios([...new Set(data.map(item => item.nommunicipio).filter(Boolean))].sort());
-            } catch (e) {
-                console.warn("Modo offline: No se pudieron cargar los municipios", e.message);
-            }
-        };
-        fetchMunicipios();
-    } else {
+      if (estadosFiltrados.length > 2) {
         setListaMunicipios([]);
-        setFiltros(prev => ({ ...prev, municipio: [] }));
+        Alert.alert("Región muy amplia", "Filtro de municipios pausado para optimizar memoria.");
+        return;
+      }
+
+      const fetchMunicipios = async () => {
+        try {
+          const { data, error } = await supabase.from('catalogo_municipios').select('nommunicipio').in('nomestado', estadosFiltrados).limit(5000);
+          if (error) throw error;
+          if (data && isMounted) {
+            const unicosMun = Array.from(new Set(data.map(item => item.nommunicipio))).filter(Boolean).sort();
+            setListaMunicipios(unicosMun);
+          }
+        } catch (e) {
+          console.warn("Fallo de red al cargar catálogo de municipios:", e.message);
+        }
+      };
+      fetchMunicipios();
+    } else {
+      setListaMunicipios([]);
+      setFiltros(prev => ({ ...prev, municipio: [] }));
     }
+    return () => { isMounted = false; };
   }, [filtros.estado]);
 
   const toggleMetrica = (id) => {
@@ -276,159 +284,165 @@ export default function ReporteAvanzadoScreen() {
     }
   };
 
-  const procesarTodo = (data) => {
-    const keyField = nivelDesglose === "Estatal" ? 'nomestado' : 
-                     nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
+  // REEMPLAZAR: Función procesarTodo completa
+const procesarTodo = (data) => {
+  const keyField = nivelDesglose === "Estatal" ? 'nomestado' : 
+                   nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
 
-    const totals = { val: 0, vol: 0, sem: 0, cos: 0 };
-    const grouped = {};
+  const totals = { val: 0, vol: 0, sem: 0, cos: 0 };
+  const grouped = {};
 
-    const initGroup = (id, entity, anio) => {
-        grouped[id] = { 
-            descripcion: entity,
-            anio: anio,
-            valorproduccion: 0, sembrada: 0, siniestrada: 0, 
-            volumenproduccion: 0, cosechada: 0, sumPrecio: 0, 
-            sumPrecioPonderado: 0, counter: 0 // <- Añadido para cálculo matemático real
-        };
+  const initGroup = (id, entity, anio) => {
+    grouped[id] = { 
+      descripcion: entity,
+      anio: Number(anio),
+      valorproduccion: 0, 
+      sembrada: 0, 
+      siniestrada: 0, 
+      volumenproduccion: 0, 
+      cosechada: 0, 
+      sumPrecio: 0, 
+      sumPrecioPonderado: 0, 
+      counter: 0 
     };
+  };
 
-    const addDataToId = (id, item) => {
-        grouped[id].valorproduccion += (item.valorproduccion || 0);
-        grouped[id].sembrada += (item.sembrada || 0);
-        grouped[id].siniestrada += (item.siniestrada || 0);
-        grouped[id].volumenproduccion += (item.volumenproduccion || 0);
-        grouped[id].cosechada += (item.cosechada || 0);
-        grouped[id].sumPrecio += (item.preciomediorural || 0);
-        // <- Calculamos el peso del precio según el volumen aportado
-        grouped[id].sumPrecioPonderado += ((item.preciomediorural || 0) * (item.volumenproduccion || 0));
-        grouped[id].counter++;
-    };
+  const addDataToId = (id, item) => {
+    const val = Number(item.valorproduccion) || 0;
+    const sem = Number(item.sembrada) || 0;
+    const sin = Number(item.siniestrada) || 0;
+    const vol = Number(item.volumenproduccion) || 0;
+    const cos = Number(item.cosechada) || 0;
+    const pmr = Number(item.preciomediorural) || 0;
 
-    data.forEach(item => {
-        const year = item.anio;
-        
-        // <- Prevenir colisión de nombres de municipios entre diferentes estados
-        let entity = item[keyField] || "N/A";
-        if (nivelDesglose === "Municipal" && item.nommunicipio && item.nomestado) {
-            entity = `${item.nommunicipio}, ${item.nomestado}`;
-        }
+    grouped[id].valorproduccion += val;
+    grouped[id].sembrada += sem;
+    grouped[id].siniestrada += sin;
+    grouped[id].volumenproduccion += vol;
+    grouped[id].cosechada += cos;
+    grouped[id].sumPrecio += pmr;
+    grouped[id].sumPrecioPonderado += (pmr * vol);
+    grouped[id].counter += 1;
+  };
 
-        let renderNormalRow = true;
-        const esNacionalVsEstatal = (nivelDesglose === "Estatal" && filtros.estado.includes("Nacional"));
-        const estadosReales = filtros.estado.filter(e => e !== "Nacional");
-
-        if (filtros.estado.length > 0) {
-            if (esNacionalVsEstatal) {
-                renderNormalRow = estadosReales.length > 0 && estadosReales.includes(item.nomestado);
-            } else {
-                if (filtros.estado.includes("Nacional")) {
-                    renderNormalRow = true; 
-                } else {
-                    renderNormalRow = estadosReales.includes(item.nomestado);
-                }
-            }
-        }
-
-        if (renderNormalRow) {
-            const id = `${entity}-${year}`;
-            if (!grouped[id]) initGroup(id, entity, year);
-            addDataToId(id, item);
-        }
-
-        if (esNacionalVsEstatal) {
-            const idNac = `Nacional-${year}`;
-            if (!grouped[idNac]) initGroup(idNac, "Nacional", year);
-            addDataToId(idNac, item);
-        }
-
-        totals.val += item.valorproduccion || 0;
-        totals.vol += item.volumenproduccion || 0;
-        totals.sem += item.sembrada || 0;
-        totals.cos += item.cosechada || 0;
-    });
-
-    let listaFinal = Object.values(grouped).map(i => ({
-        ...i,
-        rendimiento: i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0,
-        // <- Ahora la tabla mostrará el precio rural ponderado correctamente para múltiples cultivos/estados
-        preciomediorural: i.volumenproduccion > 0 ? (i.sumPrecioPonderado / i.volumenproduccion) : (i.sumPrecio / i.counter),
-    }));
+  data.forEach(item => {
+    const year = Number(item.anio);
+    let entity = item[keyField] || "N/A";
     
-    // Orden temporal por entidad y año descendente para calcular las variaciones correctamente
-    listaFinal.sort((a,b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
-
-    listaFinal = listaFinal.map((curr, idx, arr) => {
-        const prev = (arr[idx + 1] && arr[idx + 1].descripcion === curr.descripcion) 
-            ? arr[idx + 1] 
-            : undefined;
-        
-        const variaciones = {};
-        
-        metricasSeleccionadas.forEach(mId => {
-            const mRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
-            const key = mRef.key;
-            
-            // Validamos que exista un dato previo y sea mayor a 0 para evitar divisiones por cero
-            if (prev && prev[key] > 0) {
-                variaciones[`var_${mId}`] = ((curr[key] - prev[key]) / prev[key]) * 100;
-            } else {
-                variaciones[`var_${mId}`] = null;
-            }
-        });
-        return { ...curr, ...variaciones };
-    });
-
-    if (filtros.anio.length > 1) {
-        const aniosS = [...filtros.anio].map(Number).sort((a, b) => a - b);
-        const anioIni = aniosS[0];
-        const anioFin = aniosS[aniosS.length - 1];
-        
-        const nuevasVariaciones = metricasSeleccionadas.map(mId => {
-            const metricaRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
-            const getT = (anioBusqueda) => {
-                const f = listaFinal.filter(d => 
-                    d.anio === anioBusqueda && 
-                    !(nivelDesglose === "Estatal" && d.descripcion === "Nacional")
-                );
-                
-                return {
-                    v: f.reduce((s, c) => s + (c[metricaRef.key] || 0), 0),
-                    vol: f.reduce((s, c) => s + (c.volumenproduccion || 0), 0),
-                    cos: f.reduce((s, c) => s + (c.cosechada || 0), 0),
-                    // <- Necesitamos el precio total ponderado del año para comparar
-                    sumPrecioPonderadoTotal: f.reduce((s, c) => s + ((c.preciomediorural || 0) * (c.volumenproduccion || 0)), 0)
-                };
-            };
-            const t1 = getT(anioIni);
-            const t2 = getT(anioFin);
-            let v1, v2;
-            
-            if (mId === 'rendimiento') {
-                v1 = t1.cos > 0 ? (t1.vol / t1.cos) : 0;
-                v2 = t2.cos > 0 ? (t2.vol / t2.cos) : 0;
-            } else if (mId === 'precio') {
-                // <- Nueva lógica aislada para que la variación del Precio Rural global sea real
-                v1 = t1.vol > 0 ? (t1.sumPrecioPonderadoTotal / t1.vol) : 0;
-                v2 = t2.vol > 0 ? (t2.sumPrecioPonderadoTotal / t2.vol) : 0;
-            } else {
-                v1 = t1.v; 
-                v2 = t2.v;
-            }
-            
-            const porcentajeVar = v1 > 0 ? ((v2 - v1) / v1) * 100 : (v2 > 0 ? 100 : 0);
-
-            return { label: metricaRef.label, p: porcentajeVar, i: anioIni, f: anioFin };
-        });
-        setVariacionesMultiples(nuevasVariaciones);
-    } else {
-        setVariacionesMultiples([]);
+    if (nivelDesglose === "Municipal" && item.nommunicipio && item.nomestado) {
+      entity = `${item.nommunicipio}, ${item.nomestado}`;
     }
 
-    setResumenGeneral(totals);
-    setResultados(listaFinal);
-    setMostrarTabla(true);
-  };
+    const esNacionalVsEstatal = (nivelDesglose === "Estatal" && filtros.estado.includes("Nacional"));
+    const estadosReales = filtros.estado.filter(e => e !== "Nacional");
+    
+    let renderNormalRow = true;
+    if (filtros.estado.length > 0) {
+      if (esNacionalVsEstatal) {
+        renderNormalRow = estadosReales.length > 0 && estadosReales.includes(item.nomestado);
+      } else {
+        renderNormalRow = filtros.estado.includes("Nacional") || estadosReales.includes(item.nomestado);
+      }
+    }
+
+    if (renderNormalRow) {
+      const id = `${entity}-${year}`;
+      if (!grouped[id]) initGroup(id, entity, year);
+      addDataToId(id, item);
+    }
+
+    if (esNacionalVsEstatal) {
+      const idNac = `Nacional-${year}`;
+      if (!grouped[idNac]) initGroup(idNac, "Nacional", year);
+      addDataToId(idNac, item);
+    }
+
+    totals.val += Number(item.valorproduccion) || 0;
+    totals.vol += Number(item.volumenproduccion) || 0;
+    totals.sem += Number(item.sembrada) || 0;
+    totals.cos += Number(item.cosechada) || 0;
+  });
+
+  let listaFinal = Object.values(grouped).map(i => {
+    const rend = i.cosechada > 0 ? (i.volumenproduccion / i.cosechada) : 0;
+    const pmr = i.volumenproduccion > 0 
+      ? (i.sumPrecioPonderado / i.volumenproduccion) 
+      : (i.counter > 0 ? (i.sumPrecio / i.counter) : 0);
+
+    return {
+      ...i,
+      rendimiento: Number(rend.toFixed(2)),
+      preciomediorural: Number(pmr.toFixed(2))
+    };
+  });
+
+  listaFinal.sort((a, b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
+
+  listaFinal = listaFinal.map((curr, idx, arr) => {
+    const prev = (arr[idx + 1] && arr[idx + 1].descripcion === curr.descripcion && arr[idx + 1].anio === curr.anio - 1)
+      ? arr[idx + 1]
+      : undefined;
+
+    const variaciones = {};
+    metricasSeleccionadas.forEach(mId => {
+      const mRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
+      const key = mRef.key;
+      if (prev && prev[key] && prev[key] > 0) {
+        variaciones[`var_${mId}`] = ((curr[key] - prev[key]) / prev[key]) * 100;
+      } else {
+        variaciones[`var_${mId}`] = null;
+      }
+    });
+    return { ...curr, ...variaciones };
+  });
+
+  if (filtros.anio.length > 1) {
+    const aniosS = [...filtros.anio].map(Number).sort((a, b) => a - b);
+    const anioIni = aniosS[0];
+    const anioFin = aniosS[aniosS.length - 1];
+
+    const nuevasVariaciones = metricasSeleccionadas.map(mId => {
+      const metricaRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
+      const getT = (anioBusqueda) => {
+        const f = listaFinal.filter(d => 
+          d.anio === anioBusqueda && !(nivelDesglose === "Estatal" && d.descripcion === "Nacional")
+        );
+        return {
+          v: f.reduce((s, c) => s + (Number(c[metricaRef.key]) || 0), 0),
+          vol: f.reduce((s, c) => s + (Number(c.volumenproduccion) || 0), 0),
+          cos: f.reduce((s, c) => s + (Number(c.cosechada) || 0), 0),
+          sumPMR: f.reduce((s, c) => s + ((Number(c.preciomediorural) || 0) * (Number(c.volumenproduccion) || 0)), 0)
+        };
+      };
+
+      const t1 = getT(anioIni);
+      const t2 = getT(anioFin);
+      let v1 = 0;
+      let v2 = 0;
+
+      if (mId === 'rendimiento') {
+        v1 = t1.cos > 0 ? (t1.vol / t1.cos) : 0;
+        v2 = t2.cos > 0 ? (t2.vol / t2.cos) : 0;
+      } else if (mId === 'precio') {
+        v1 = t1.vol > 0 ? (t1.sumPMR / t1.vol) : 0;
+        v2 = t2.vol > 0 ? (t2.sumPMR / t2.vol) : 0;
+      } else {
+        v1 = t1.v;
+        v2 = t2.v;
+      }
+
+      const porcentajeVar = v1 > 0 ? ((v2 - v1) / v1) * 100 : (v2 > 0 ? 100 : 0);
+      return { label: metricaRef.label, p: porcentajeVar, i: anioIni, f: anioFin };
+    });
+    setVariacionesMultiples(nuevasVariaciones);
+  } else {
+    setVariacionesMultiples([]);
+  }
+
+  setResumenGeneral(totals);
+  setResultados(listaFinal);
+  setMostrarTabla(true);
+};
 
   const formatMoney = (n) => '$' + Math.round(n || 0).toLocaleString('es-MX');
   const formatNum = (n) => (n || 0).toLocaleString('es-MX', { maximumFractionDigits: 1 });
@@ -462,9 +476,28 @@ export default function ReporteAvanzadoScreen() {
     });
   }, [resultados, ordenCriterio, ordenDireccion]);
 
-  // REEMPLAZAR la función handlePDF en ReporteAvanzadoScreen_2.js (Aprox Línea 403)
+  const datosGrafica = React.useMemo(() => {
+    if (!resultados || resultados.length === 0) return null;
+    
+    // Agrupamos la sumatoria nacional/estatal sin importar el desglose de la tabla
+    const agrupado = {};
+    resultados.forEach(r => {
+        if (!agrupado[r.anio]) agrupado[r.anio] = { sem: 0, cos: 0, vol: 0, val: 0 };
+        agrupado[r.anio].sem += (r.sembrada || 0);
+        agrupado[r.anio].cos += (r.cosechada || 0);
+        agrupado[r.anio].vol += (r.volumenproduccion || 0);
+        agrupado[r.anio].val += (r.valorproduccion || 0);
+    });
 
-  // REEMPLAZAR las funciones handlePDF y handleExcel en ReporteAvanzadoScreen_4.js (Aprox Líneas 403)
+    const anios = Object.keys(agrupado).sort((a, b) => Number(a) - Number(b));
+    return {
+        anios,
+        sembrada: anios.map(a => agrupado[a].sem),
+        cosechada: anios.map(a => agrupado[a].cos),
+        volumen: anios.map(a => agrupado[a].vol),
+        valor: anios.map(a => agrupado[a].val)
+    };
+  }, [resultados]);
 
   const handlePDF = async () => {
     try {
@@ -503,7 +536,6 @@ export default function ReporteAvanzadoScreen() {
           </table>
         </body></html>`;
         
-        // 🚨 FIX: Blindaje nativo contra permisos denegados o falta de memoria de almacenamiento
         const { uri } = await Print.printToFileAsync({ html });
         await Sharing.shareAsync(uri);
     } catch (error) {
@@ -520,7 +552,7 @@ export default function ReporteAvanzadoScreen() {
             metricasSeleccionadas.forEach(m => {
                 const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
                 const v = r[`var_${m}`];
-                fila += `,${r[key]},${v !== null ? v.toFixed(2) : ''}`;
+                fila += `,${r[key] ?? 0},${v !== null ? v.toFixed(2) : ''}`;
             });
             return fila;
         });
@@ -661,6 +693,45 @@ export default function ReporteAvanzadoScreen() {
                     )}
                 </View>
 
+                {/* 🚨 RENDERIZADO DE GRÁFICAS: Tendencia Multianual */}
+                {datosGrafica && datosGrafica.anios.length > 1 && (
+                    <View style={{ marginBottom: 20 }}>
+                        <Text style={[styles.sectionTitle, {marginLeft: 5}]}>Tendencia de Superficie (Ha)</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            <LineChart
+                                data={{
+                                    labels: datosGrafica.anios,
+                                    datasets: [
+                                        { data: datosGrafica.sembrada, color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`, strokeWidth: 3 }, 
+                                        { data: datosGrafica.cosechada, color: (opacity = 1) => `rgba(129, 199, 132, ${opacity})`, strokeWidth: 3 } 
+                                    ],
+                                    legend: ["Sembrada", "Cosechada"]
+                                }}
+                                width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)} 
+                                height={220}
+                                chartConfig={chartConfig}
+                                style={{ borderRadius: 16 }}
+                            />
+                        </ScrollView>
+
+                        <Text style={[styles.sectionTitle, {marginLeft: 5, marginTop: 15}]}>Producción (Toneladas)</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            <BarChart
+                                data={{
+                                    labels: datosGrafica.anios,
+                                    datasets: [{ data: datosGrafica.volumen }]
+                                }}
+                                width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)}
+                                height={220}
+                                yAxisLabel=""
+                                yAxisSuffix=""
+                                chartConfig={{...chartConfig, color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`}} // Azul para volumen
+                                style={{ borderRadius: 16 }}
+                            />
+                        </ScrollView>
+                    </View>
+                )}
+
                 <View style={styles.exportRow}>
                     <TouchableOpacity style={[styles.btnExp, {backgroundColor:'#D32F2F'}]} onPress={handlePDF}>
                         <MaterialCommunityIcons name="file-pdf-box" size={20} color="#fff" />
@@ -697,13 +768,24 @@ export default function ReporteAvanzadoScreen() {
                         </View>
                     </View>
                 </ScrollView>
-
             </View>
         )}
       </ScrollView>
     </View>
   );
 }
+
+const chartConfig = {
+  backgroundColor: "#ffffff",
+  backgroundGradientFrom: "#ffffff",
+  backgroundGradientTo: "#ffffff",
+  decimalPlaces: 0,
+  fromZero: true,
+  color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(84, 110, 122, ${opacity})`,
+  style: { borderRadius: 16 },
+  propsForDots: { r: "5", strokeWidth: "2", stroke: "#2E7D32" }
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#eceff1' },
