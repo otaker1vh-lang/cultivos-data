@@ -72,9 +72,6 @@ const FiltroAutocomplete = ({
         }
     };
 
-    // REEMPLAZAR el return completo del componente FiltroAutocomplete (Aprox Líneas 88 a 135)
-
-    // REEMPLAZAR el return de FiltroAutocomplete (Aprox Línea 91 a 135)
     return (
         <View style={[styles.filterWrapper, { zIndex: isOpen ? 1000 : zIndex }]}>
             <Text style={styles.label}>{label}</Text>
@@ -88,43 +85,30 @@ const FiltroAutocomplete = ({
                     onFocus={() => setOpenMenu(id)}
                 />
                 {(isMulti ? valor.length > 0 : valor !== '') && (
-                    <TouchableOpacity 
-                        onPress={() => { setValor(isMulti ? [] : ''); setOpenMenu(null); }} 
-                        style={styles.clearBtn}
-                    >
+                    <TouchableOpacity onPress={() => { setValor(isMulti ? [] : ''); setOpenMenu(null); }} style={styles.clearBtn}>
                         <MaterialCommunityIcons name="close-circle" size={20} color="#ccc" />
                     </TouchableOpacity>
                 )}
             </View>
             
             {isOpen && (
-                <View 
-                    style={styles.dropdownList} 
-                    onStartShouldSetResponder={() => true}
-                    onTouchEnd={(e) => e.stopPropagation()}
-                >
-                    <FlatList 
-                        data={sugerencias}
-                        keyExtractor={(item, index) => `${item}-${index}`}
-                        nestedScrollEnabled={true}
-                        keyboardShouldPersistTaps="handled"
-                        style={{maxHeight: 280, flexGrow: 1}}
-                        initialNumToRender={15}
-                        maxToRenderPerBatch={15}
-                        windowSize={5}
-                        renderItem={({item}) => (
-                            <TouchableOpacity 
-                                style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
-                                onPress={() => seleccionar(item)}
-                            >
-                                <Text style={[styles.itemText, isMulti && valor.includes(item) && styles.itemTextActive]}>
-                                    {item}
-                                </Text>
-                                {isMulti && valor.includes(item) && <MaterialCommunityIcons name="check" size={18} color="#2E7D32" />}
-                            </TouchableOpacity>
+                <View style={styles.dropdownList} onStartShouldSetResponder={() => true} onTouchEnd={(e) => e.stopPropagation()}>
+                    <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled" style={{maxHeight: 280, flexGrow: 1}}>
+                        {sugerencias.length === 0 ? (
+                            <Text style={styles.noResults}>Sin resultados</Text>
+                        ) : (
+                            sugerencias.slice(0, 50).map((item, index) => (
+                                <TouchableOpacity 
+                                    key={`${item}-${index}`}
+                                    style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
+                                    onPress={() => seleccionar(item)}
+                                >
+                                    <Text style={[styles.itemText, isMulti && valor.includes(item) && styles.itemTextActive]}>{item}</Text>
+                                    {isMulti && valor.includes(item) && <MaterialCommunityIcons name="check" size={18} color="#2E7D32" />}
+                                </TouchableOpacity>
+                            ))
                         )}
-                        ListEmptyComponent={<Text style={styles.noResults}>Sin resultados</Text>}
-                    />
+                    </ScrollView>
                     {isMulti && (
                         <TouchableOpacity style={styles.btnCloseMulti} onPress={() => setOpenMenu(null)}>
                             <Text style={styles.btnCloseText}>CONFIRMAR ({valor.length})</Text>
@@ -217,14 +201,12 @@ useEffect(() => {
     
     if (isSelected) {
         const metricaRemovida = METRICAS_DISPONIBLES.find(m => m.id === id);
-        if (ordenCriterio === metricaRemovida.label) {
+        if (metricaRemovida && ordenCriterio === metricaRemovida.label) {
             setOrdenCriterio('Entidad');
         }
     }
     
-    setMetricasSeleccionadas(prev => 
-        isSelected ? prev.filter(m => m !== id) : [...prev, id]
-    );
+    setMetricasSeleccionadas(prev => isSelected ? prev.filter(m => m !== id) : [...prev, id]);
   };
 
   const consultarBaseDatos = async () => {
@@ -719,23 +701,10 @@ const procesarTodo = (data) => {
                 </View>
 
                 {datosGrafica && datosGrafica.anios.length > 1 && (() => {
-                    // 🚨 FIX: Cálculo matemático para el "suelo" de la gráfica. 
-                    // Evita que el punto más bajo toque el límite inferior del eje Y.
-                    const allSuperficie = [...datosGrafica.sembrada, ...datosGrafica.cosechada];
-                    const minSup = Math.min(...allSuperficie);
-                    const maxSup = Math.max(...allSuperficie);
-                    // Acolchado del 15% para que la curva tenga espacio visual para "respirar"
-                    const paddingSup = (maxSup - minSup) * 0.15 || minSup * 0.15 || 10;
-                    const yMinSup = Math.max(0, minSup - paddingSup); // Nunca menor a 0 Ha
-                    const yMaxSup = maxSup + paddingSup;
-
-                    // Dataset fantasma e invisible que obliga al canvas a expandir el eje Y
-                    const datasetFondoScale = {
-                        data: datosGrafica.anios.map((_, i) => i === 0 ? yMinSup : yMaxSup),
-                        color: () => 'rgba(0,0,0,0)', // 100% transparente
-                        strokeWidth: 0,
-                        withDots: false
-                    };
+                    const minSembrada = Math.min(...(datosGrafica.sembrada.length ? datosGrafica.sembrada : [0]));
+                    const minCosechada = Math.min(...(datosGrafica.cosechada.length ? datosGrafica.cosechada : [0]));
+                    const globalMinLine = Math.min(minSembrada, minCosechada);
+                    const bottomPaddingLine = globalMinLine > 0 ? globalMinLine * 0.90 : 0; 
 
                     return (
                         <View style={{ marginBottom: 20 }}>
@@ -747,13 +716,15 @@ const procesarTodo = (data) => {
                                         datasets: [
                                             { data: datosGrafica.sembrada, color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`, strokeWidth: 3 }, 
                                             { data: datosGrafica.cosechada, color: (opacity = 1) => `rgba(129, 199, 132, ${opacity})`, strokeWidth: 3 },
-                                            datasetFondoScale // Se inyecta el margen invisible
+                                            // TRUCO MAGISTRAL: Dataset 100% invisible para expandir el eje Y.
+                                            // Cumple la regla: no se ve ningún dato falso, solo los de la base de datos.
+                                            { data: datosGrafica.anios.map(() => bottomPaddingLine), withDots: false, color: () => 'rgba(0,0,0,0)', strokeWidth: 0 }
                                         ],
                                         legend: ["Sembrada", "Cosechada"]
                                     }}
                                     width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)} 
                                     height={220}
-                                    chartConfig={chartConfig}
+                                    chartConfig={{ ...chartConfig, fromZero: false }} // ¡Debe ser false!
                                     style={{ borderRadius: 16 }}
                                 />
                             </ScrollView>
@@ -769,12 +740,10 @@ const procesarTodo = (data) => {
                                     height={220}
                                     yAxisLabel=""
                                     yAxisSuffix=""
-                                    // 🚨 FIX: La gráfica de barras siempre debe nacer de 0 para representar volumen proporcional
-                                    chartConfig={{
-                                        ...chartConfig, 
-                                        fromZero: true, 
-                                        color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`
-                                    }} 
+                                    // NOTA AGRONÓMICA: Un BarChart de volumen DEBE iniciar en 0 (fromZero: true). 
+                                    // Visualmente, si cortas la base de una barra, distorsionas la proporción 
+                                    // real de las toneladas cosechadas.
+                                    chartConfig={{ ...chartConfig, fromZero: true, color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})` }} 
                                     style={{ borderRadius: 16 }}
                                 />
                             </ScrollView>
