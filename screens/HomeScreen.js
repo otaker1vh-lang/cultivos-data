@@ -761,9 +761,9 @@ export default function HomeScreen({ navigation }) {
                    />
                ) : null}
                
-               {nuevoLoteCoords.map((c, i) => (
+               {nuevoLoteCoords.length > 0 ? nuevoLoteCoords.map((c, i) => (
                    <Marker key={`vertice-${i}`} coordinate={c} />
-               ))}
+               )) : null}
            </MapView>
 
            <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>

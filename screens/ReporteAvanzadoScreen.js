@@ -407,13 +407,12 @@ const procesarTodo = (data) => {
       : undefined;
 
     const variaciones = {};
-    metricasSeleccionadas.forEach(mId => {
-      const mRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
+    METRICAS_DISPONIBLES.forEach(mRef => {
       const key = mRef.key;
       if (prev && prev[key] && prev[key] > 0) {
-        variaciones[`var_${mId}`] = ((curr[key] - prev[key]) / prev[key]) * 100;
+        variaciones[`var_${mRef.id}`] = ((curr[key] - prev[key]) / prev[key]) * 100;
       } else {
-        variaciones[`var_${mId}`] = null;
+        variaciones[`var_${mRef.id}`] = null;
       }
     });
     return { ...curr, ...variaciones };
@@ -550,9 +549,10 @@ const procesarTodo = (data) => {
               ${metricasSeleccionadas.map(m => {
                   const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
                   const v = r[`var_${m}`];
+                  // 🚨 FIX: Verificación abstracta != null
                   return `
                     <td style="padding:5px; border:1px solid #ccc; text-align:right;">${formatNum(r[key])}</td>
-                    <td style="padding:5px; border:1px solid #ccc; text-align:right;">${v !== null ? v.toFixed(1)+'%' : '-'}</td>
+                    <td style="padding:5px; border:1px solid #ccc; text-align:right;">${v != null ? v.toFixed(1)+'%' : '-'}</td>
                   `;
               }).join('')}
             </tr>`).join('')}
@@ -575,7 +575,8 @@ const procesarTodo = (data) => {
             metricasSeleccionadas.forEach(m => {
                 const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
                 const v = r[`var_${m}`];
-                fila += `,${r[key] ?? 0},${v !== null ? v.toFixed(2) : ''}`;
+                // 🚨 FIX: Verificación abstracta != null
+                fila += `,${r[key] ?? 0},${v != null ? v.toFixed(2) : ''}`;
             });
             return fila;
         });
@@ -616,8 +617,9 @@ const procesarTodo = (data) => {
                     <Text style={[styles.cell, {width: 100, textAlign: 'right'}]}>
                         {mId === 'valor' || mId === 'precio' ? formatMoney(item[key]) : formatNum(item[key])}
                     </Text>
+                    {/* 🚨 FIX: Verificación abstracta != null evita crasheos por undefined */}
                     <Text style={[styles.cell, {width: 70, textAlign: 'right', fontWeight: 'bold', color: varVal >= 0 ? '#2E7D32' : '#D32F2F'}]}>
-                        {varVal !== null ? `${varVal > 0 ? '+' : ''}${varVal.toFixed(1)}%` : '-'}
+                        {varVal != null ? `${varVal > 0 ? '+' : ''}${varVal.toFixed(1)}%` : '-'}
                     </Text>
                 </React.Fragment>
             );
@@ -716,44 +718,69 @@ const procesarTodo = (data) => {
                     )}
                 </View>
 
-                {/* 🚨 RENDERIZADO DE GRÁFICAS: Tendencia Multianual */}
-                {datosGrafica && datosGrafica.anios.length > 1 && (
-                    <View style={{ marginBottom: 20 }}>
-                        <Text style={[styles.sectionTitle, {marginLeft: 5}]}>Tendencia de Superficie (Ha)</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            <LineChart
-                                data={{
-                                    labels: datosGrafica.anios,
-                                    datasets: [
-                                        { data: datosGrafica.sembrada, color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`, strokeWidth: 3 }, 
-                                        { data: datosGrafica.cosechada, color: (opacity = 1) => `rgba(129, 199, 132, ${opacity})`, strokeWidth: 3 } 
-                                    ],
-                                    legend: ["Sembrada", "Cosechada"]
-                                }}
-                                width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)} 
-                                height={220}
-                                chartConfig={chartConfig}
-                                style={{ borderRadius: 16 }}
-                            />
-                        </ScrollView>
+                {datosGrafica && datosGrafica.anios.length > 1 && (() => {
+                    // 🚨 FIX: Cálculo matemático para el "suelo" de la gráfica. 
+                    // Evita que el punto más bajo toque el límite inferior del eje Y.
+                    const allSuperficie = [...datosGrafica.sembrada, ...datosGrafica.cosechada];
+                    const minSup = Math.min(...allSuperficie);
+                    const maxSup = Math.max(...allSuperficie);
+                    // Acolchado del 15% para que la curva tenga espacio visual para "respirar"
+                    const paddingSup = (maxSup - minSup) * 0.15 || minSup * 0.15 || 10;
+                    const yMinSup = Math.max(0, minSup - paddingSup); // Nunca menor a 0 Ha
+                    const yMaxSup = maxSup + paddingSup;
 
-                        <Text style={[styles.sectionTitle, {marginLeft: 5, marginTop: 15}]}>Producción (Toneladas)</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            <BarChart
-                                data={{
-                                    labels: datosGrafica.anios,
-                                    datasets: [{ data: datosGrafica.volumen }]
-                                }}
-                                width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)}
-                                height={220}
-                                yAxisLabel=""
-                                yAxisSuffix=""
-                                chartConfig={{...chartConfig, color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`}} // Azul para volumen
-                                style={{ borderRadius: 16 }}
-                            />
-                        </ScrollView>
-                    </View>
-                )}
+                    // Dataset fantasma e invisible que obliga al canvas a expandir el eje Y
+                    const datasetFondoScale = {
+                        data: datosGrafica.anios.map((_, i) => i === 0 ? yMinSup : yMaxSup),
+                        color: () => 'rgba(0,0,0,0)', // 100% transparente
+                        strokeWidth: 0,
+                        withDots: false
+                    };
+
+                    return (
+                        <View style={{ marginBottom: 20 }}>
+                            <Text style={[styles.sectionTitle, {marginLeft: 5}]}>Tendencia de Superficie (Ha)</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                <LineChart
+                                    data={{
+                                        labels: datosGrafica.anios,
+                                        datasets: [
+                                            { data: datosGrafica.sembrada, color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`, strokeWidth: 3 }, 
+                                            { data: datosGrafica.cosechada, color: (opacity = 1) => `rgba(129, 199, 132, ${opacity})`, strokeWidth: 3 },
+                                            datasetFondoScale // Se inyecta el margen invisible
+                                        ],
+                                        legend: ["Sembrada", "Cosechada"]
+                                    }}
+                                    width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)} 
+                                    height={220}
+                                    chartConfig={chartConfig}
+                                    style={{ borderRadius: 16 }}
+                                />
+                            </ScrollView>
+
+                            <Text style={[styles.sectionTitle, {marginLeft: 5, marginTop: 15}]}>Producción (Toneladas)</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                <BarChart
+                                    data={{
+                                        labels: datosGrafica.anios,
+                                        datasets: [{ data: datosGrafica.volumen }]
+                                    }}
+                                    width={Math.max(screenWidth - 30, datosGrafica.anios.length * 60)}
+                                    height={220}
+                                    yAxisLabel=""
+                                    yAxisSuffix=""
+                                    // 🚨 FIX: La gráfica de barras siempre debe nacer de 0 para representar volumen proporcional
+                                    chartConfig={{
+                                        ...chartConfig, 
+                                        fromZero: true, 
+                                        color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`
+                                    }} 
+                                    style={{ borderRadius: 16 }}
+                                />
+                            </ScrollView>
+                        </View>
+                    );
+                })()}
 
                 <View style={styles.exportRow}>
                     <TouchableOpacity style={[styles.btnExp, {backgroundColor:'#D32F2F'}]} onPress={handlePDF}>
@@ -803,7 +830,7 @@ const chartConfig = {
   backgroundGradientFrom: "#ffffff",
   backgroundGradientTo: "#ffffff",
   decimalPlaces: 0,
-  fromZero: true,
+  fromZero: false,
   color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(84, 110, 122, ${opacity})`,
   style: { borderRadius: 16 },
