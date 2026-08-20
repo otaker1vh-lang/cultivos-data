@@ -127,7 +127,7 @@ const FiltroAutocomplete = ({
             )}
         </View>
     );
-
+};
 // --- 3. PANTALLA PRINCIPAL ---
 export default function ReporteAvanzadoScreen() {
   const [openMenu, setOpenMenu] = useState(null);
