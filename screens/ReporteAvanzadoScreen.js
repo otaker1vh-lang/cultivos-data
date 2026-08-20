@@ -9,8 +9,7 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system'; 
 import { supabase } from '../src/services/supabaseClient'; 
 import { LineChart, BarChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
-const screenWidth = Dimensions.get("window").width;
+import { Dimensions, useWindowDimensions } from "react-native";
 
 // --- 1. DATOS ESTÁTICOS ---
 const ESTADOS_MX = [
@@ -75,6 +74,7 @@ const FiltroAutocomplete = ({
 
     // REEMPLAZAR el return completo del componente FiltroAutocomplete (Aprox Líneas 88 a 135)
 
+    // REEMPLAZAR el return de FiltroAutocomplete (Aprox Línea 91 a 135)
     return (
         <View style={[styles.filterWrapper, { zIndex: isOpen ? 1000 : zIndex }]}>
             <Text style={styles.label}>{label}</Text>
@@ -98,13 +98,17 @@ const FiltroAutocomplete = ({
             </View>
             
             {isOpen && (
-                <View style={styles.dropdownList}>
+                <View 
+                    style={styles.dropdownList} 
+                    onStartShouldSetResponder={() => true}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                >
                     <FlatList 
                         data={sugerencias}
                         keyExtractor={(item, index) => `${item}-${index}`}
                         nestedScrollEnabled={true}
-                        keyboardShouldPersistTaps="always"
-                        style={{maxHeight: 280}}
+                        keyboardShouldPersistTaps="handled"
+                        style={{maxHeight: 280, flexGrow: 1}}
                         initialNumToRender={15}
                         maxToRenderPerBatch={15}
                         windowSize={5}
@@ -133,6 +137,7 @@ const FiltroAutocomplete = ({
 };
 
 export default function ReporteAvanzadoScreen() {
+  const { width: screenWidth } = useWindowDimensions();
   const [openMenu, setOpenMenu] = useState(null);
   const [filtros, setFiltros] = useState({
     anio: ['2025'], 
@@ -240,6 +245,7 @@ useEffect(() => {
     try {
       const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
       
+      // Ejecución optimizada y paralela por año para proteger el rendimiento
       const promesasConsulta = filtros.anio.map(async (anioFiltro) => {
           let query = supabase.from('produccion_agricola')
           .select('anio, nomestado, nommunicipio, nomcultivo, nomcicloproductivo, nommodalidad, valorproduccion, sembrada, siniestrada, volumenproduccion, cosechada, preciomediorural');
@@ -257,7 +263,10 @@ useEffect(() => {
           if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
           
           const { data, error } = await query.limit(50000); 
-          if (error) throw error;
+          if (error) {
+              console.warn("Fallo de conexión en año", anioFiltro, ":", error.message);
+              throw error;
+          }
           return data || [];
       });
 
@@ -279,12 +288,11 @@ useEffect(() => {
         }, 100);
       }
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert("Error de Red", "No se pudieron obtener los datos. Verifica tu conexión a internet.");
       setCargando(false);
     }
   };
 
-  // REEMPLAZAR: Función procesarTodo completa
 const procesarTodo = (data) => {
   const keyField = nivelDesglose === "Estatal" ? 'nomestado' : 
                    nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
@@ -327,12 +335,27 @@ const procesarTodo = (data) => {
 
   data.forEach(item => {
     const year = Number(item.anio);
-    let entity = item[keyField] || "N/A";
     
-    if (nivelDesglose === "Municipal" && item.nommunicipio && item.nomestado) {
-      entity = `${item.nommunicipio}, ${item.nomestado}`;
+    let entity = item[keyField] || "N/A";
+    const estadoItem = item.nomestado || "Sin Estado";
+    const municipioItem = item.nommunicipio || "Sin Municipio";
+    const cultivoItem = item.nomcultivo || "Sin Cultivo";
+    
+    if (nivelDesglose === "Estatal") {
+        entity = estadoItem;
+        if (filtros.cultivo.length > 0) entity += ` - ${cultivoItem}`;
+    } else if (nivelDesglose === "Municipal") {
+        entity = `${municipioItem}, ${estadoItem}`;
+        if (filtros.cultivo.length > 0) entity += ` - ${cultivoItem}`;
+    } else if (nivelDesglose === "Por Cultivo") {
+        entity = cultivoItem;
+        if (filtros.municipio.length > 0) {
+            entity += ` (${municipioItem}, ${estadoItem})`;
+        } else if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
+            entity += ` (${estadoItem})`;
+        }
     }
-
+    
     const esNacionalVsEstatal = (nivelDesglose === "Estatal" && filtros.estado.includes("Nacional"));
     const estadosReales = filtros.estado.filter(e => e !== "Nacional");
     
@@ -604,7 +627,7 @@ const procesarTodo = (data) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled" scrollEnabled={openMenu === null}>
         <View style={styles.header}>
             <MaterialCommunityIcons name="finance" size={40} color="#2E7D32" />
             <Text style={styles.title}>SIACON BI</Text>

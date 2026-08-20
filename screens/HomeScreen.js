@@ -26,6 +26,18 @@ import AsistenteVoz from '../components/AsistenteVoz';
 import { SyncManager } from '../src/services/SyncManager'; 
 import MapView, { Marker, Polygon } from 'react-native-maps';
 
+const HERRAMIENTAS_CAMPO = [
+  {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9', label: 'AgroControl'}, 
+  {n: 'Fertilizantes', i: 'sack', c: '#2d6a4f', bg: '#E8F5E9', label: 'Fertilizantes'}, 
+  {n: 'Dosis', i: 'flask', c: '#40916c', bg: '#EAF7EE', label: 'Dosis'}, 
+  {n: 'Bitacora', i: 'notebook', c: '#b98b5c', bg: '#FDF8F2', label: 'Bitácora'}, 
+  {n: 'Noticias', i: 'newspaper', c: '#52b788', bg: '#EAFBF3', label: 'Noticias'}, 
+  {n: 'ReporteAvanzado', i: 'file-chart', c: '#1b4332', bg: '#E8F5E9', label: 'Reportes'}, 
+  {n: 'Costos', i: 'finance', c: '#d4a373', bg: '#FDF8F2', label: 'Mis Costos'}, 
+  {n: 'Recordatorios', i: 'alarm', c: '#D32F2F', bg: '#FFEBEE', label: 'Agenda'}, 
+  {n: 'LoteSatelital', i: 'satellite-uplink', c: '#1976D2', bg: '#E3F2FD', label: 'Satélite'}
+];
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -92,8 +104,6 @@ export default function HomeScreen({ navigation }) {
   const [nuevoLoteCultivos, setNuevoLoteCultivos] = useState('');
 
   const [expoPushToken, setExpoPushToken] = useState('');
-  const notificationListener = useRef();
-  const responseListener = useRef();
 
   const { prediction, setPrediction, loadingIA, classifyImage } = usePlantClassifier(isOnline, climaActual, alertasGDD);
 
@@ -507,7 +517,7 @@ export default function HomeScreen({ navigation }) {
     setModalCameraVisible(true); 
   };
   
-  const takePicture = async () => { 1
+  const takePicture = async () => {
     if (cameraRef.current) { 
       const photo = await cameraRef.current.takePhoto({ flash: 'off' });
       setImage(`file://${photo.path}`); 
@@ -625,12 +635,11 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.quickAccessContainer}>
              <Text style={[styles.sectionTitleFav, {paddingHorizontal: 24}]}>Herramientas de Campo</Text>
              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessScroll}>
-                {/* 🚨 FIX: Comentario corregido a formato JSX para evitar "Invariant Violation Crash" nativo */}
-                {[ {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9'}, {n: 'Fertilizantes', i: 'sack', c: '#2d6a4f', bg: '#E8F5E9'}, {n: 'Dosis', i: 'flask', c: '#40916c', bg: '#EAF7EE'}, {n: 'Bitacora', i: 'notebook', c: '#b98b5c', bg: '#FDF8F2'}, {n: 'Noticias', i: 'newspaper', c: '#52b788', bg: '#EAFBF3'}, {n: 'ReporteAvanzado', i: 'file-chart', c: '#1b4332', bg: '#E8F5E9', label: 'Reportes'}, {n: 'Costos', i: 'finance', c: '#d4a373', bg: '#FDF8F2', label: 'Mis Costos'}, {n: 'Recordatorios', i: 'alarm', c: '#D32F2F', bg: '#FFEBEE', label: 'Agenda'}, {n: 'LoteSatelital', i: 'satellite-uplink', c: '#1976D2', bg: '#E3F2FD', label: 'Satélite'} ].map((item, idx) => (
+                {HERRAMIENTAS_CAMPO.map((item, idx) => (
                   <TouchableOpacity key={idx} style={styles.quickBtn} onPress={() => navigation.navigate(item.n, { 
                       cultivo: cultivoActivo || "General", 
                       lote_id: loteActivo?.id,
-                      coords_offline: loteActivo?.coordenadas_poligono // <--- Polígono en memoria
+                      coords_offline: loteActivo?.coordenadas_poligono 
                   })}>
                     <View style={[styles.quickIcon, {backgroundColor: item.bg}]}><MaterialCommunityIcons name={item.i} size={26} color={item.c} /></View>
                     <Text style={styles.quickText}>{item.label || item.n}</Text>
@@ -738,8 +747,8 @@ export default function HomeScreen({ navigation }) {
                initialRegion={{
                    latitude: 23.6345,
                    longitude: -102.5528,
-                   latitudeDelta: 20, 
-                   longitudeDelta: 20,
+                   latitudeDelta: 0.05, 
+                   longitudeDelta: 0.05,
                }}
                onPress={handleMapPress}
            >
@@ -748,13 +757,13 @@ export default function HomeScreen({ navigation }) {
                        coordinates={nuevoLoteCoords} 
                        strokeColor="#FFF" 
                        strokeWidth={2} 
-                       fillColor="#2E7D3266" 
+                       fillColor="rgba(46, 125, 50, 0.4)" 
                    />
                ) : null}
                
-               {nuevoLoteCoords.length > 0 ? nuevoLoteCoords.map((c, i) => (
-                   <Marker key={i} coordinate={c} />
-               )) : null}
+               {nuevoLoteCoords.map((c, i) => (
+                   <Marker key={`vertice-${i}`} coordinate={c} />
+               ))}
            </MapView>
 
            <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>

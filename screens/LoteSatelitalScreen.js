@@ -25,14 +25,13 @@ export default function LoteSatelitalScreen({ route }) {
         
         cargarDatosLoteYNDVI(controller);
 
-        // Cleanup: Aborta la red automáticamente si el agricultor sale de la vista
         return () => {
             controller.abort();
         };
     }, [lote_id, coords_offline]);
 
     const cargarDatosLoteYNDVI = async (controller) => {
-        try { // Try A: Supabase
+        try {
             setLoading(true);
             
             let coordsRaw = coords_offline;
@@ -83,7 +82,7 @@ export default function LoteSatelitalScreen({ route }) {
             const urlServidorPython = 'https://motor-satelital-roslin.onrender.com/get_ndvi_tile'; 
             const timeoutId = setTimeout(() => controller.abort(), 15000); 
 
-            try { // Try B: Fetch Servidor Satelital
+            try { 
                 const response = await fetch(urlServidorPython, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -109,7 +108,7 @@ export default function LoteSatelitalScreen({ route }) {
                     Alert.alert("Aviso", "No hay imágenes recientes sin nubes para esta zona.");
                 }
 
-            } catch (error) { // Catch B
+            } catch (error) { 
                 clearTimeout(timeoutId);
                 if (error.name === 'AbortError') {
                     console.log("Petición satelital abortada por cambio de pantalla o timeout.");
@@ -156,7 +155,7 @@ export default function LoteSatelitalScreen({ route }) {
                 <View style={{ flex: 1 }}>
                     <MapView
                         style={styles.map}
-                        mapType="hybrid" /* 🚨 BLINDAJE 3: Forzamos la cadena de texto 'hybrid' */
+                        mapType="hybrid"
                         initialRegion={region}
                     >
                         {poligono.length >= 3 ? (
@@ -164,7 +163,7 @@ export default function LoteSatelitalScreen({ route }) {
                                 coordinates={poligono}
                                 strokeColor="#FFFFFF"
                                 strokeWidth={3}
-                                fillColor="#00000000" 
+                                fillColor="rgba(0,0,0,0)" 
                                 zIndex={2}
                             />
                         ) : null}
@@ -173,7 +172,7 @@ export default function LoteSatelitalScreen({ route }) {
                             <UrlTile
                                 urlTemplate={tileUrl}
                                 maximumZ={19}
-                                minimumZ={0} /* 🚨 BLINDAJE 5: Agregar límite mínimo para evitar Crash */
+                                minimumZ={0} 
                                 zIndex={1}
                                 opacity={0.7} 
                             />
