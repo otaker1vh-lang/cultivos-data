@@ -36,8 +36,6 @@ const METRICAS_DISPONIBLES = [
     { id: 'valor', label: 'Valor Producción', key: 'valorproduccion' },
 ];
 
-// --- 2. COMPONENTE AUTOCOMPLETE ---
-// --- 2. COMPONENTE AUTOCOMPLETE ---
 const FiltroAutocomplete = ({ 
     label, valor, setValor, opciones = [], zIndex = 1, 
     placeholder = "Seleccionar...", isMulti = false,
@@ -46,7 +44,6 @@ const FiltroAutocomplete = ({
     const [busqueda, setBusqueda] = useState('');
     const isOpen = openMenu === id;
 
-    // 🚨 FIX: Rendimiento - Eliminamos estado duplicado, usamos useMemo para búsqueda ultrarrápida
     const sugerencias = React.useMemo(() => {
         if (!busqueda) return opciones;
         const query = busqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -73,6 +70,8 @@ const FiltroAutocomplete = ({
         }
     };
 
+    // REEMPLAZAR el return completo del componente FiltroAutocomplete (Aprox Líneas 88 a 135)
+
     return (
         <View style={[styles.filterWrapper, { zIndex: isOpen ? 1000 : zIndex }]}>
             <Text style={styles.label}>{label}</Text>
@@ -97,24 +96,28 @@ const FiltroAutocomplete = ({
             
             {isOpen && (
                 <View style={styles.dropdownList}>
-                    <ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="always" style={{maxHeight: 280}}>
-                        {sugerencias.length > 0 ? (
-                            sugerencias.map((item, index) => (
-                                <TouchableOpacity 
-                                    key={index} 
-                                    style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
-                                    onPress={() => seleccionar(item)}
-                                >
-                                    <Text style={[styles.itemText, isMulti && valor.includes(item) && styles.itemTextActive]}>
-                                        {item}
-                                    </Text>
-                                    {isMulti && valor.includes(item) && <MaterialCommunityIcons name="check" size={18} color="#2E7D32" />}
-                                </TouchableOpacity>
-                            ))
-                        ) : (
-                            <Text style={styles.noResults}>Sin resultados</Text>
+                    <FlatList 
+                        data={sugerencias}
+                        keyExtractor={(item, index) => `${item}-${index}`}
+                        nestedScrollEnabled={true}
+                        keyboardShouldPersistTaps="always"
+                        style={{maxHeight: 280}}
+                        initialNumToRender={15}
+                        maxToRenderPerBatch={15}
+                        windowSize={5}
+                        renderItem={({item}) => (
+                            <TouchableOpacity 
+                                style={[styles.dropdownItem, isMulti && valor.includes(item) && {backgroundColor: '#e8f5e9'}]} 
+                                onPress={() => seleccionar(item)}
+                            >
+                                <Text style={[styles.itemText, isMulti && valor.includes(item) && styles.itemTextActive]}>
+                                    {item}
+                                </Text>
+                                {isMulti && valor.includes(item) && <MaterialCommunityIcons name="check" size={18} color="#2E7D32" />}
+                            </TouchableOpacity>
                         )}
-                    </ScrollView>
+                        ListEmptyComponent={<Text style={styles.noResults}>Sin resultados</Text>}
+                    />
                     {isMulti && (
                         <TouchableOpacity style={styles.btnCloseMulti} onPress={() => setOpenMenu(null)}>
                             <Text style={styles.btnCloseText}>CONFIRMAR ({valor.length})</Text>
@@ -124,7 +127,6 @@ const FiltroAutocomplete = ({
             )}
         </View>
     );
-};
 
 // --- 3. PANTALLA PRINCIPAL ---
 export default function ReporteAvanzadoScreen() {
@@ -153,20 +155,42 @@ export default function ReporteAvanzadoScreen() {
   const [cargando, setCargando] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
 
+  // REEMPLAZAR los hooks useEffect de inicialización en ReporteAvanzadoScreen_2.js (Aprox Líneas 124 a 144)
+
   useEffect(() => {
     const fetchCultivos = async () => {
-        const { data } = await supabase.from('produccion_agricola').select('nomcultivo');
-        if (data) setListaCultivos([...new Set(data.map(item => item.nomcultivo))].sort());
+        try {
+            const { data, error } = await supabase.from('produccion_agricola').select('nomcultivo');
+            if (error) throw error;
+            // 🚨 FIX: Filtrar nulos (Datos malformados de origen) antes de ordenar para evitar JS Crash
+            if (data) setListaCultivos([...new Set(data.map(item => item.nomcultivo).filter(Boolean))].sort());
+        } catch (e) {
+            console.warn("Modo offline: No se pudieron cargar los cultivos", e.message);
+        }
     };
     fetchCultivos();
   }, []);
 
+  // REEMPLAZAR el useEffect de fetchMunicipios en ReporteAvanzadoScreen_9.js (Aprox Línea 145)
+
   useEffect(() => {
     const estadosFiltrados = filtros.estado.filter(e => e !== 'Nacional');
     if (estadosFiltrados.length > 0) {
+       
+        if (estadosFiltrados.length > 2) {
+            setListaMunicipios([]);
+            Alert.alert("Región muy amplia", "Has seleccionado demasiados estados. El filtro de municipios se ha desactivado para proteger el rendimiento de la aplicación.");
+            return;
+        }
+
         const fetchMunicipios = async () => {
-            const { data } = await supabase.from('produccion_agricola').select('nommunicipio').in('nomestado', estadosFiltrados);
-            if (data) setListaMunicipios([...new Set(data.map(item => item.nommunicipio))].sort());
+            try {
+                const { data, error } = await supabase.from('produccion_agricola').select('nommunicipio').in('nomestado', estadosFiltrados);
+                if (error) throw error;
+                if (data) setListaMunicipios([...new Set(data.map(item => item.nommunicipio).filter(Boolean))].sort());
+            } catch (e) {
+                console.warn("Modo offline: No se pudieron cargar los municipios", e.message);
+            }
         };
         fetchMunicipios();
     } else {
@@ -176,23 +200,31 @@ export default function ReporteAvanzadoScreen() {
   }, [filtros.estado]);
 
   const toggleMetrica = (id) => {
-    setMetricasSeleccionadas(prev => {
-        const isSelected = prev.includes(id);
-        const newSelected = isSelected ? prev.filter(m => m !== id) : [...prev, id];
-        
-        // Resetear el ordenamiento si se deselecciona la métrica que estaba ordenando
-        if (isSelected) {
-            const metricaRemovida = METRICAS_DISPONIBLES.find(m => m.id === id);
-            if (ordenCriterio === metricaRemovida.label) {
-                setOrdenCriterio('Entidad');
-            }
+    const isSelected = metricasSeleccionadas.includes(id);
+    
+    if (isSelected) {
+        const metricaRemovida = METRICAS_DISPONIBLES.find(m => m.id === id);
+        if (ordenCriterio === metricaRemovida.label) {
+            setOrdenCriterio('Entidad');
         }
-        return newSelected;
-    });
+    }
+    
+    setMetricasSeleccionadas(prev => 
+        isSelected ? prev.filter(m => m !== id) : [...prev, id]
+    );
   };
 
   const consultarBaseDatos = async () => {
     if (metricasSeleccionadas.length === 0) return Alert.alert("Error", "Selecciona al menos una métrica.");
+    
+    const esBusquedaNacionalMasiva = filtros.estado.length === 0 || filtros.estado.includes('Nacional');
+    if (filtros.anio.length > 3 && filtros.cultivo.length === 0 && esBusquedaNacionalMasiva) {
+        return Alert.alert(
+            "Consulta Demasiado Amplia", 
+            "Estás intentando analizar demasiados años a nivel nacional. Por favor, selecciona un Cultivo o Estado específico para no sobrecargar el procesamiento."
+        );
+    }
+
     setCargando(true);
     setMostrarTabla(false);
     setOpenMenu(null);
@@ -201,7 +233,8 @@ export default function ReporteAvanzadoScreen() {
       const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
       
       const promesasConsulta = filtros.anio.map(async (anioFiltro) => {
-          let query = supabase.from('produccion_agricola').select('*');
+          let query = supabase.from('produccion_agricola')
+          .select('anio, nomestado, nommunicipio, nomcultivo, nomcicloproductivo, nommodalidad, valorproduccion, sembrada, siniestrada, volumenproduccion, cosechada, preciomediorural');
           
           query = query.eq('anio', parseInt(anioFiltro));
 
@@ -326,9 +359,9 @@ export default function ReporteAvanzadoScreen() {
     listaFinal.sort((a,b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
 
     listaFinal = listaFinal.map((curr, idx, arr) => {
-        // En lugar de buscar "curr.anio - 1", buscamos el registro cronológicamente anterior 
-        // disponible en la selección actual (item.anio < curr.anio).
-        const prev = arr.find(item => item.descripcion === curr.descripcion && item.anio < curr.anio);
+        const prev = (arr[idx + 1] && arr[idx + 1].descripcion === curr.descripcion) 
+            ? arr[idx + 1] 
+            : undefined;
         
         const variaciones = {};
         
@@ -383,7 +416,9 @@ export default function ReporteAvanzadoScreen() {
                 v2 = t2.v;
             }
             
-            return { label: metricaRef.label, p: v1 > 0 ? ((v2 - v1) / v1) * 100 : 0, i: anioIni, f: anioFin };
+            const porcentajeVar = v1 > 0 ? ((v2 - v1) / v1) * 100 : (v2 > 0 ? 100 : 0);
+
+            return { label: metricaRef.label, p: porcentajeVar, i: anioIni, f: anioFin };
         });
         setVariacionesMultiples(nuevasVariaciones);
     } else {
@@ -427,51 +462,76 @@ export default function ReporteAvanzadoScreen() {
     });
   }, [resultados, ordenCriterio, ordenDireccion]);
 
+  // REEMPLAZAR la función handlePDF en ReporteAvanzadoScreen_2.js (Aprox Línea 403)
+
+  // REEMPLAZAR las funciones handlePDF y handleExcel en ReporteAvanzadoScreen_4.js (Aprox Líneas 403)
+
   const handlePDF = async () => {
-    const html = `<html><body style="font-family:sans-serif; padding: 20px;">
-      <h2 style="color:#2E7D32;">Reporte SIACON - Desglose ${nivelDesglose}</h2>
-      <p>Periodo: ${filtros.anio.join(', ')}</p>
-      <table style="width:100%; border-collapse:collapse; font-size:10px;">
-        <tr style="background:#455A64; color:white;">
-          <th style="padding:5px; border:1px solid #ccc;">${nivelDesglose}</th>
-          <th style="padding:5px; border:1px solid #ccc;">Año</th>
-          ${metricasSeleccionadas.map(m => `
-            <th style="padding:5px; border:1px solid #ccc;">${METRICAS_DISPONIBLES.find(x=>x.id===m).label}</th>
-            <th style="padding:5px; border:1px solid #ccc; color:#81C784;">Var %</th>
-          `).join('')}
-        </tr>
-        ${datosOrdenados.map(r => `<tr>
-          <td style="padding:5px; border:1px solid #ccc;">${r.descripcion}</td>
-          <td style="padding:5px; border:1px solid #ccc;">${r.anio}</td>
-          ${metricasSeleccionadas.map(m => {
-              const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
-              const v = r[`var_${m}`];
-              return `
-                <td style="padding:5px; border:1px solid #ccc; text-align:right;">${formatNum(r[key])}</td>
-                <td style="padding:5px; border:1px solid #ccc; text-align:right;">${v !== null ? v.toFixed(1)+'%' : '-'}</td>
-              `;
-          }).join('')}
-        </tr>`).join('')}
-      </table>
-    </body></html>`;
-    const { uri } = await Print.printToFileAsync({ html });
-    await Sharing.shareAsync(uri);
+    try {
+        const isMassive = datosOrdenados.length > 500;
+        const datosPDF = isMassive ? datosOrdenados.slice(0, 500) : datosOrdenados;
+        
+        if (isMassive) {
+            Alert.alert("Reporte Extenso", "El PDF mostrará los primeros 500 registros para proteger la memoria del equipo. Para ver el análisis completo, utiliza la exportación a Excel.");
+        }
+
+        const html = `<html><body style="font-family:sans-serif; padding: 20px;">
+          <h2 style="color:#2E7D32;">Reporte SIACON - Desglose ${nivelDesglose}</h2>
+          <p>Periodo: ${filtros.anio.join(', ')}</p>
+          ${isMassive ? '<p style="color:#D32F2F; font-size:12px;"><b>Nota:</b> Mostrando los 500 registros principales.</p>' : ''}
+          <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <tr style="background:#455A64; color:white;">
+              <th style="padding:5px; border:1px solid #ccc;">${nivelDesglose}</th>
+              <th style="padding:5px; border:1px solid #ccc;">Año</th>
+              ${metricasSeleccionadas.map(m => `
+                <th style="padding:5px; border:1px solid #ccc;">${METRICAS_DISPONIBLES.find(x=>x.id===m).label}</th>
+                <th style="padding:5px; border:1px solid #ccc; color:#81C784;">Var %</th>
+              `).join('')}
+            </tr>
+            ${datosPDF.map(r => `<tr>
+              <td style="padding:5px; border:1px solid #ccc;">${r.descripcion}</td>
+              <td style="padding:5px; border:1px solid #ccc;">${r.anio}</td>
+              ${metricasSeleccionadas.map(m => {
+                  const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
+                  const v = r[`var_${m}`];
+                  return `
+                    <td style="padding:5px; border:1px solid #ccc; text-align:right;">${formatNum(r[key])}</td>
+                    <td style="padding:5px; border:1px solid #ccc; text-align:right;">${v !== null ? v.toFixed(1)+'%' : '-'}</td>
+                  `;
+              }).join('')}
+            </tr>`).join('')}
+          </table>
+        </body></html>`;
+        
+        // 🚨 FIX: Blindaje nativo contra permisos denegados o falta de memoria de almacenamiento
+        const { uri } = await Print.printToFileAsync({ html });
+        await Sharing.shareAsync(uri);
+    } catch (error) {
+        Alert.alert("Error de Exportación", "No se pudo generar el PDF. Verifica el espacio de almacenamiento de tu dispositivo.");
+    }
   };
 
   const handleExcel = async () => {
-    let csv = `${nivelDesglose},Año,${metricasSeleccionadas.map(m => `${METRICAS_DISPONIBLES.find(x=>x.id===m).label},Variación %`).join(',')}\n`;
-    datosOrdenados.forEach(r => {
-        let fila = `"${r.descripcion}",${r.anio}`;
-        metricasSeleccionadas.forEach(m => {
-            const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
-            const v = r[`var_${m}`];
-            fila += `,${r[key]},${v !== null ? v.toFixed(2) : ''}`;
+    try {
+        const cabecera = `${nivelDesglose},Año,${metricasSeleccionadas.map(m => `${METRICAS_DISPONIBLES.find(x=>x.id===m).label},Variación %`).join(',')}\n`;
+        
+        const filasCsv = datosOrdenados.map(r => {
+            let fila = `"${r.descripcion}",${r.anio}`;
+            metricasSeleccionadas.forEach(m => {
+                const key = METRICAS_DISPONIBLES.find(x=>x.id===m).key;
+                const v = r[`var_${m}`];
+                fila += `,${r[key]},${v !== null ? v.toFixed(2) : ''}`;
+            });
+            return fila;
         });
-        csv += fila + `\n`;
-    });
-    const uri = FileSystem.cacheDirectory + "Reporte_SIACON_BI.csv";
-    await FileSystem.writeAsStringAsync(uri, csv, { encoding: 'utf8' });
-    await Sharing.shareAsync(uri);
+
+        const csv = cabecera + filasCsv.join('\n');
+        const uri = FileSystem.cacheDirectory + "Reporte_SIACON_BI.csv";
+        await FileSystem.writeAsStringAsync(uri, csv, { encoding: 'utf8' });
+        await Sharing.shareAsync(uri);
+    } catch (error) {
+        Alert.alert("Error de Exportación", "Hubo un fallo al escribir el archivo Excel en la memoria caché.");
+    }
   };
 
   const renderCabeceraTabla = () => (
@@ -616,17 +676,24 @@ export default function ReporteAvanzadoScreen() {
                     <View>
                         {renderCabeceraTabla()}
                         <View style={{ maxHeight: 400 }}> 
-                            <FlatList
-                                data={datosOrdenados}
-                                keyExtractor={(item, index) => `${item.descripcion}-${item.anio}-${index}`}
-                                renderItem={renderFilaTabla}
-                                nestedScrollEnabled={true}
-                                initialNumToRender={15}
-                                maxToRenderPerBatch={15}
-                                windowSize={5}
-                                removeClippedSubviews={Platform.OS === 'ios'}
-                                ListEmptyComponent={<Text style={{padding: 20, textAlign: 'center'}}>No hay datos para mostrar</Text>}
-                            />
+                            <ScrollView nestedScrollEnabled={true}>
+                                {datosOrdenados.length > 0 ? (
+                                    <>
+                                        {datosOrdenados.slice(0, 100).map((item, index) => (
+                                            <React.Fragment key={`${item.descripcion}-${item.anio}-${index}`}>
+                                                {renderFilaTabla({ item, index })}
+                                            </React.Fragment>
+                                        ))}
+                                        {datosOrdenados.length > 100 && (
+                                            <Text style={{padding: 15, textAlign: 'center', color: '#D32F2F', fontWeight: 'bold'}}>
+                                                + {datosOrdenados.length - 100} registros ocultos. Exporta a Excel para ver el dataset completo.
+                                            </Text>
+                                        )}
+                                    </>
+                                ) : (
+                                    <Text style={{padding: 20, textAlign: 'center', color: '#666'}}>No hay datos para mostrar</Text>
+                                )}
+                            </ScrollView>
                         </View>
                     </View>
                 </ScrollView>

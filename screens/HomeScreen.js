@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   View, Text, StyleSheet, FlatList, TextInput, 
   TouchableOpacity, StatusBar, Image, ScrollView, Modal, ActivityIndicator, Alert, Dimensions,
-  LayoutAnimation, Platform, UIManager
+  LayoutAnimation, Platform, UIManager, AppState
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
@@ -79,6 +79,11 @@ export default function HomeScreen({ navigation }) {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
   const cameraRef = useRef(null);
+  const [appState, setAppState] = useState(AppState.currentState);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => setAppState(nextState));
+    return () => subscription.remove();
+  }, []);
 
   // 🚨 BLINDAJE: Sustituimos el Modal problemático por un booleano para vista absoluta
   const [mostrarMapaTrazador, setMostrarMapaTrazador] = useState(false);
@@ -106,8 +111,7 @@ export default function HomeScreen({ navigation }) {
 
       const { data, error } = await supabase
         .from('lotes')
-        // 🚨 FIX IMPORTANTE: Faltaba incluir 'coordenadas_poligono' en el select
-        .select('id, nombre, cultivos, coordenadas_poligono, predios(id, nombre, estado)')
+        .select('id, nombre, cultivos, coordenadas_poligono, predios!inner(id, nombre, estado)')
         .eq('predios.user_id', user.id);
         
       if (error) throw error;
@@ -121,7 +125,10 @@ export default function HomeScreen({ navigation }) {
       // 🚨 FIX: Rescate del estado desde la caché local
       try {
           const cacheStr = await AsyncStorage.getItem('@lotes_cache');
-          if (cacheStr) setLotesUsuario(JSON.parse(cacheStr));
+          if (cacheStr) {
+              const parsedCache = JSON.parse(cacheStr);
+              setLotesUsuario(Array.isArray(parsedCache) ? parsedCache : []);
+          }
       } catch (cacheErr) {
           console.error("Error leyendo caché", cacheErr);
       }
@@ -267,10 +274,13 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleMapPress = (e) => {
-    if (e.nativeEvent.coordinate) {
-       setNuevoLoteCoords([...nuevoLoteCoords, e.nativeEvent.coordinate]);
+    const coord = e.nativeEvent.coordinate;
+    if (coord && typeof coord.latitude === 'number' && typeof coord.longitude === 'number') {
+       setNuevoLoteCoords(prev => [...prev, coord]);
     }
   };
+
+  // 1. REEMPLAZAR el inicio de la función guardarNuevoLote en HomeScreen_9.js (Aprox Línea 174)
 
   const guardarNuevoLote = async () => {
     if (!nuevoLoteNombre || nuevoLoteCoords.length < 3) {
@@ -278,7 +288,7 @@ export default function HomeScreen({ navigation }) {
       return;
     }
 
-    let predioIdLocal = lotesUsuario.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predios?.[0]?.id) : null;
+    let predioIdLocal = lotesUsuario?.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predios?.[0]?.id) : null;
     let esNuevoPredioOffline = false;
 
     if (!predioIdLocal) {
@@ -286,10 +296,17 @@ export default function HomeScreen({ navigation }) {
         esNuevoPredioOffline = true;
     }
 
+    // 🚨 FIX: Extraer la sesión fuera del try-catch. Garantiza que el flujo Offline 
+    // tenga acceso al UUID del agricultor para firmar los JSON antes de meterlos a la caché.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        Alert.alert("Acceso Denegado", "Debes iniciar sesión para trazar parcelas, incluso en modo sin conexión.");
+        return;
+    }
+
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      // Si hay error de red, lanzamos la excepción para saltar a la lógica offline en el catch
       if (authError) throw authError; 
       
       if (!user) return Alert.alert("Error", "Debes iniciar sesión.");
@@ -324,6 +341,7 @@ export default function HomeScreen({ navigation }) {
       setNuevoLoteCultivos('');
       
       cargarLotes(); 
+
     } catch (e) {
       Alert.alert(
           "Modo Sin Conexión",
@@ -333,15 +351,23 @@ export default function HomeScreen({ navigation }) {
       if (esNuevoPredioOffline) {
           const predioPendiente = {
               id: predioIdLocal,
+              user_id: session.user.id,
               nombre: 'Mi Parcela Principal',
               estado: 'ND',
               pendiente_sincronizacion: true
           };
-          AsyncStorage.getItem('@predios_pendientes').then(str => {
-              const arr = str ? JSON.parse(str) : [];
+          try {
+              const str = await AsyncStorage.getItem('@predios_pendientes');
+              let arr = [];
+              if (str) {
+                  try { arr = JSON.parse(str); } catch (e) { arr = []; }
+              }
+              if (!Array.isArray(arr)) arr = [];
               arr.push(predioPendiente);
-              AsyncStorage.setItem('@predios_pendientes', JSON.stringify(arr));
-          }).catch(console.error);
+              await AsyncStorage.setItem('@predios_pendientes', JSON.stringify(arr));
+          } catch (predioErr) {
+              console.error("Fallo al guardar predio pendiente", predioErr);
+          }
       }
 
       const arrCultivosOffline = nuevoLoteCultivos.split(',').map(c => c.trim()).filter(c => c !== '');
@@ -349,24 +375,33 @@ export default function HomeScreen({ navigation }) {
       const lotePendiente = {
           id: `temp_lote_${Date.now()}`,
           predio_id: predioIdLocal, 
+          user_id: session.user.id, // 🚨 FIX: Llave foránea requerida por RLS
           nombre: nuevoLoteNombre,
           coordenadas_poligono: nuevoLoteCoords.map(c => ({ lat: c.latitude, lng: c.longitude })),
           cultivos: arrCultivosOffline.length > 0 ? arrCultivosOffline : ['General'], 
           pendiente_sincronizacion: true,
           predios: { 
               id: predioIdLocal, 
-              nombre: lotesUsuario.length > 0 ? lotesUsuario[0].predios?.nombre : 'Mi Parcela Principal' 
+              nombre: lotesUsuario?.length > 0 ? lotesUsuario[0].predios?.nombre : 'Mi Parcela Principal' 
           }
       };
 
       try {
           const str = await AsyncStorage.getItem('@lotes_pendientes');
-          const pendientes = str ? JSON.parse(str) : [];
+          let pendientes = [];
+          if (str) {
+              try { pendientes = JSON.parse(str); } catch (e) { pendientes = []; }
+          }
+          if (!Array.isArray(pendientes)) pendientes = []; 
           pendientes.push(lotePendiente);
           await AsyncStorage.setItem('@lotes_pendientes', JSON.stringify(pendientes));
 
           const cacheStr = await AsyncStorage.getItem('@lotes_cache');
-          const cache = cacheStr ? JSON.parse(cacheStr) : [];
+          let cache = [];
+          if (cacheStr) {
+              try { cache = JSON.parse(cacheStr); } catch (e) { cache = []; }
+          }
+          if (!Array.isArray(cache)) cache = [];
           cache.push(lotePendiente);
           await AsyncStorage.setItem('@lotes_cache', JSON.stringify(cache));
 
@@ -383,13 +418,15 @@ export default function HomeScreen({ navigation }) {
   };
 
   const calcularRiesgoGDD = async (cultivo, clima) => {
-    if (!clima?.temp_max || !clima?.temp_min) return;
+    if (clima?.temp_max == null || clima?.temp_min == null) return;
     setLoadingGDD(true);
     try {
         const storageKey = `@gdd_historial_${cultivo.id}`;
         const historialStr = await AsyncStorage.getItem(storageKey);
         let historial = historialStr ? JSON.parse(historialStr) : [];
-        const hoy = new Date().toISOString().split('T')[0];
+        if (!Array.isArray(historial)) historial = [];
+        const d = new Date();
+        const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         
         const humedad = clima.humedad_relativa || clima.humedad || clima.humidity || 50;
 
@@ -400,10 +437,23 @@ export default function HomeScreen({ navigation }) {
             humedad_relativa: parseFloat(humedad)
         };
         const idx = historial.findIndex(d => d.fecha === hoy);
-        if (idx !== -1) historial[idx] = nuevoDato;
-        else historial.push(nuevoDato);
+        if (idx !== -1) {
+            historial[idx] = {
+                fecha: hoy,
+                tmax: Math.max(historial[idx].tmax, parseFloat(clima.temp_max)),
+                tmin: Math.min(historial[idx].tmin, parseFloat(clima.temp_min)),
+                humedad_relativa: parseFloat(humedad)
+            };
+        } else {
+            historial.push({ 
+                fecha: hoy, 
+                tmax: parseFloat(clima.temp_max), 
+                tmin: parseFloat(clima.temp_min),
+                humedad_relativa: parseFloat(humedad)
+            });
+        }
         
-        await AsyncStorage.setItem(storageKey, JSON.stringify(historial.slice(-180)));
+        await AsyncStorage.setItem(storageKey, JSON.stringify(historial.slice(-730)));
         
         const riesgosConfig = cargarRiesgosDesdeJSON(cultivo); 
         const resetKey = `@gdd_resets_${cultivo.id}`;
@@ -468,12 +518,12 @@ export default function HomeScreen({ navigation }) {
                 const resetDatesStr = await AsyncStorage.getItem(storageKey);
                 const resetDates = resetDatesStr ? JSON.parse(resetDatesStr) : {};
                 
-                const hoy = new Date().toISOString().split('T')[0];
+                const d = new Date();
+                const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 resetDates[nombrePlaga] = hoy;
                 
                 await AsyncStorage.setItem(storageKey, JSON.stringify(resetDates));
                 
-                // 🚨 FIX: Fallback Offline asegurado al resetear plaga individual
                 const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {};
                 const cultivoParaGDD = { id: loteActivo.id, nombre: cultivoActivo, ...configCultivo };
                 if (climaActual) calcularRiesgoGDD(cultivoParaGDD, climaActual);
@@ -592,14 +642,19 @@ export default function HomeScreen({ navigation }) {
              </View>
           </View>
 
-          {/* 🚨 FIX: Rendimiento - Reemplazo de FlatList anidada por un mapeo directo */}
+          {/* 🚨 FIX: Prevenir bloqueo del Main Thread limitando nodos en el DOM nativo */}
           {mostrarLista && (
              <View style={{ marginBottom: 15 }}>
-                {cultivosFiltrados.map((item, index) => (
+                {cultivosFiltrados.slice(0, 8).map((item, index) => (
                     <React.Fragment key={item.nombre || index}>
                         {renderCultivo({ item })}
                     </React.Fragment>
                 ))}
+                {cultivosFiltrados.length > 8 && (
+                    <Text style={{textAlign: 'center', color: '#78909C', marginTop: 10, fontSize: 12}}>
+                        Mostrando 8 resultados. Refina tu búsqueda para ver más.
+                    </Text>
+                )}
              </View>
           )}
 
@@ -681,12 +736,17 @@ export default function HomeScreen({ navigation }) {
         </ScrollView>
       </SafeAreaView>
 
-      {/* 🚨 BLINDAJE: Mapa Geoespacial como Capa Absoluta para evitar crash de Modal nativo */}
       {mostrarMapaTrazador && (
         <View style={[StyleSheet.absoluteFillObject, { zIndex: 9999, backgroundColor: '#FFF', elevation: 10 }]}>
            <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, paddingTop: 50, marginBottom: 0}]}>
                <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Trazar Nuevo Lote</Text>
-               <TouchableOpacity onPress={() => setMostrarMapaTrazador(false)}>
+               {/* 🚨 FIX: Evitar "Ghosting" geoespacial. Purgar la memoria RAM al cancelar para no corromper polígonos futuros. */}
+               <TouchableOpacity onPress={() => {
+                   setMostrarMapaTrazador(false);
+                   setNuevoLoteCoords([]);
+                   setNuevoLoteNombre('');
+                   setNuevoLoteCultivos('');
+               }}>
                    <Ionicons name="close" size={28} color="white" />
                </TouchableOpacity>
            </View>
@@ -751,7 +811,11 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
 
-      <Modal visible={modalCameraVisible} animationType="slide">
+      <Modal 
+         visible={modalCameraVisible} 
+         animationType="slide"
+         onRequestClose={() => {setModalCameraVisible(false); setImage(null); setPrediction(null);}} 
+      >
          <View style={{flex: 1, backgroundColor: 'black'}}>
              <View style={styles.cameraHeader}>
                  <TouchableOpacity onPress={() => {setModalCameraVisible(false); setImage(null); setPrediction(null);}}><Ionicons name="close" size={30} color="white" /></TouchableOpacity>
@@ -776,7 +840,15 @@ export default function HomeScreen({ navigation }) {
                  </ScrollView>
              ) : (
                  <View style={{flex:1}}>
-                    {device && <Camera style={StyleSheet.absoluteFill} device={device} isActive={modalCameraVisible} ref={cameraRef} photo={true} />}
+                    {modalCameraVisible && device && hasPermission && (
+                        <Camera 
+                            style={StyleSheet.absoluteFill} 
+                            device={device} 
+                            isActive={appState === 'active'} 
+                            ref={cameraRef} 
+                            photo={true} 
+                        />
+                    )}
                     <View style={styles.cameraFooter}>
                        <TouchableOpacity style={styles.captureOuter} onPress={takePicture}><View style={styles.captureInner}/></TouchableOpacity>
                     </View>
@@ -785,13 +857,18 @@ export default function HomeScreen({ navigation }) {
          </View>
       </Modal>
 
-      <Modal visible={showCropSelector} transparent animationType="fade">
+      <Modal 
+         visible={showCropSelector} 
+         transparent 
+         animationType="fade"
+         onRequestClose={() => setShowCropSelector(false)} 
+      >
          <View style={styles.modalOverlay}>
              <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Seleccionar Predio y Lote</Text>
                 <FlatList 
                     data={lotesUsuario}
-                    keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+                    keyExtractor={(item, index) => item?.id?.toString() || `lote-temp-${index}`}
                     renderItem={({item}) => (
                         <TouchableOpacity style={styles.modalItem} onPress={() => {
                             setLoteActivo(item);
@@ -809,11 +886,12 @@ export default function HomeScreen({ navigation }) {
                     ListEmptyComponent={<Text style={{textAlign: 'center', marginVertical: 20, color: '#78909C'}}>No tiene lotes registrados aún.</Text>}
                 />
                 
-                {/* Botón para abrir el trazador en capa absoluta */}
                 <TouchableOpacity 
                     onPress={() => { 
                         setShowCropSelector(false); 
-                        setMostrarMapaTrazador(true);
+                        setTimeout(() => {
+                            setMostrarMapaTrazador(true);
+                        }, 400);
                     }} 
                     style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
                 >
