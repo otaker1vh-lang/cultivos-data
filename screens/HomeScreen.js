@@ -24,7 +24,7 @@ import { TreatmentCard } from '../components/TreatmentCard';
 import { usePlantClassifier } from '../src/hooks/usePlantClassifier';
 import AsistenteVoz from '../components/AsistenteVoz';
 import { SyncManager } from '../src/services/SyncManager'; 
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import MapView, { Marker, Polygon, PROVIDER_GOOGLE } from 'react-native-maps';
 
 const HERRAMIENTAS_CAMPO = [
   {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9', label: 'AgroControl'}, 
@@ -92,6 +92,7 @@ export default function HomeScreen({ navigation }) {
   const { hasPermission, requestPermission } = useCameraPermission();
   const cameraRef = useRef(null);
   const [appState, setAppState] = useState(AppState.currentState);
+  const [mapReady, setMapReady] = useState(false);
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextState => setAppState(nextState));
     return () => subscription.remove();
@@ -104,6 +105,15 @@ export default function HomeScreen({ navigation }) {
   const [nuevoLoteCultivos, setNuevoLoteCultivos] = useState('');
   const [isSavingLote, setIsSavingLote] = useState(false);
 
+   const coordenadasValidas = React.useMemo(() => {
+      return nuevoLoteCoords.filter(p => 
+          typeof p?.latitude === 'number' && 
+          typeof p?.longitude === 'number' && 
+          !isNaN(p.latitude) && 
+          !isNaN(p.longitude)
+      );
+  }, [nuevoLoteCoords]);
+
   const [expoPushToken, setExpoPushToken] = useState('');
 
   const { prediction, setPrediction, loadingIA, classifyImage } = usePlantClassifier(isOnline, climaActual, alertasGDD);
@@ -113,6 +123,24 @@ export default function HomeScreen({ navigation }) {
   }, []);
   
   const cargarLotes = async () => {
+    // 1. CARGA INMEDIATA DESDE CACHÉ (Evita la pantalla vacía al iniciar sin internet)
+    try {
+        const cacheStr = await AsyncStorage.getItem('@lotes_cache');
+        if (cacheStr) {
+            const parsedCache = JSON.parse(cacheStr);
+            // Inyectamos a la UI instantáneamente si hay datos guardados
+            if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+                setLotesUsuario(parsedCache);
+            }
+        }
+    } catch (cacheErr) {
+        console.error("Error leyendo caché de lotes", cacheErr);
+    }
+
+    // 2. ABORTO TEMPRANO SI NO HAY RED (Previene timeouts largos de Supabase)
+    if (!isOnline) return;
+
+    // 3. SINCRONIZACIÓN SILENCIOSA EN SEGUNDO PLANO
     try {
       const { data, error } = await supabase
         .from('lotes')
@@ -120,27 +148,28 @@ export default function HomeScreen({ navigation }) {
         
       if (error) throw error;
       if (data) {
-          setLotesUsuario(data);
-          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(data));
+          setLotesUsuario(data); // Actualiza la UI con datos frescos
+          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(data)); // Refresca el caché
       }
     } catch (error) {
-      console.warn("Modo Offline activo, cargando lotes locales...", error.message);
-      try {
-          const cacheStr = await AsyncStorage.getItem('@lotes_cache');
-          if (cacheStr) {
-              const parsedCache = JSON.parse(cacheStr);
-              setLotesUsuario(Array.isArray(parsedCache) ? parsedCache : []);
-          }
-      } catch (cacheErr) {
-          console.error("Error leyendo caché", cacheErr);
-      }
+      console.warn("Fallo sincronización de lotes, manteniendo caché activo...", error.message);
     }
   };
 
   useEffect(() => {
-    if (isOnline) {
-      cargarLotes();
-    }
+     if (mostrarMapaTrazador) {
+        const timer = setTimeout(() => {
+           setMapReady(true);
+        }, 150);
+
+        return () => clearTimeout(timer);
+     }
+
+     setMapReady(false);
+  }, [mostrarMapaTrazador]);
+
+  useEffect(() => {
+    cargarLotes();
   }, [isOnline]);
 
   useEffect(() => {
@@ -210,7 +239,12 @@ export default function HomeScreen({ navigation }) {
   }
 
   useEffect(() => {
-    const unsubscribeNet = NetInfo.addEventListener(state => setIsOnline(!!state.isConnected));
+    let isMounted = true;
+    
+    const unsubscribeNet = NetInfo.addEventListener(state => {
+        if (isMounted) setIsOnline(!!(state.isConnected && state.isInternetReachable));
+    });
+
     cargarFavoritos();
     
     if (datosBasicos?.cultivos) {
@@ -220,11 +254,19 @@ export default function HomeScreen({ navigation }) {
     const sincronizar = async () => {
       try {
         const datosSupabase = await CultivoDataManager.obtenerListaCultivos();
-        if (datosSupabase?.length > 0) setListaCultivos(datosSupabase);
-      } catch (error) {}
+        if (isMounted && datosSupabase?.length > 0) {
+            setListaCultivos(datosSupabase);
+        }
+      } catch (error) {
+          console.warn("Fallo sincronización silenciosa:", error.message);
+      }
     };
     sincronizar();
-    return () => unsubscribeNet();
+
+    return () => {
+        isMounted = false; // Corta la actualización de estados si el componente se desmonta
+        unsubscribeNet();
+    };
   }, []);
 
   useEffect(() => {
@@ -261,13 +303,12 @@ export default function HomeScreen({ navigation }) {
     return () => clearTimeout(timeoutId);
   }, [climaActual, loteActivo, cultivoActivo, dbCultivos]);
 
-  // 🚨 FIX: Optimización de Rendimiento (Estado Derivado). 
-  // Elimina el doble renderizado y libera el hilo de JavaScript al escribir.
-  const cultivosFiltrados = React.useMemo(() => {
+ const cultivosFiltrados = React.useMemo(() => {
     if (busqueda.trim() === "") return [];
     const query = busqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     return listaCultivos.filter((cultivo) => {
-      const nombreNorm = cultivo.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      // FIX: Blindaje contra undefined que causa pantalla blanca
+      const nombreNorm = (cultivo.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       return nombreNorm.includes(query);
     });
   }, [busqueda, listaCultivos]);
@@ -277,7 +318,14 @@ export default function HomeScreen({ navigation }) {
   const cargarFavoritos = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@mis_cultivos');
-      if (jsonValue != null) setCultivosGuardados(JSON.parse(jsonValue));
+      if (jsonValue != null) {
+         try {
+            const parsed = JSON.parse(jsonValue);
+            setCultivosGuardados(Array.isArray(parsed) ? parsed : []);
+         } catch {
+            setCultivosGuardados([]);
+         }
+      }
     } catch(e) {}
   };
 
@@ -299,8 +347,8 @@ export default function HomeScreen({ navigation }) {
 
   const guardarNuevoLote = async () => {
     if (isSavingLote) return; 
-    if (!nuevoLoteNombre.trim() || nuevoLoteCoords.length < 3) {
-      Alert.alert("Incompleto", "Asigna un nombre y marca al menos 3 puntos en el mapa para formar un polígono.");
+    if (!nuevoLoteNombre.trim() || coordenadasValidas.length < 3) {
+      Alert.alert("Incompleto", "Asigna un nombre y marca al menos 3 puntos válidos en el mapa para formar un polígono.");
       return;
     }
 
@@ -314,10 +362,10 @@ export default function HomeScreen({ navigation }) {
         esNuevoPredio = true;
     }
 
-    // 🚨 FIX: Normalización para asegurar compatibilidad con llaves GDD/BBCH
     const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
     const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
-    const coordsFormatoBD = nuevoLoteCoords.map(c => ({ lat: c.latitude, lng: c.longitude }));
+    
+    const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
     try {
       if (esNuevoPredio) {
@@ -407,7 +455,7 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  const calcularRiesgoGDD = async (cultivo, clima) => {
+  async function calcularRiesgoGDD(cultivo, clima) {
     if (clima?.temp_max == null || clima?.temp_min == null) return;
     setLoadingGDD(true);
     try {
@@ -480,7 +528,7 @@ export default function HomeScreen({ navigation }) {
             };
         }));
     } catch (error) { console.error("GDD Error:", error); } finally { setLoadingGDD(false); }
-  };
+  }
 
   const reiniciarTemporadaGDD = async () => {
     if (!loteActivo || !cultivoActivo) return;
@@ -567,6 +615,7 @@ export default function HomeScreen({ navigation }) {
       </View>
     );
   };
+
 
   return (
     <View style={styles.container}>
@@ -761,72 +810,91 @@ export default function HomeScreen({ navigation }) {
                  </Text>
              </View>
 
-             <MapView 
-                 style={{flex: 1}} 
+             {mapReady && (
+              <>
+              <MapView
+                 provider={PROVIDER_GOOGLE}
+                 style={{ flex: 1 }}
                  mapType="hybrid"
-                 initialRegion={{
-                     latitude: 23.6345,
-                     longitude: -102.5528,
-                     latitudeDelta: 0.05, 
-                     longitudeDelta: 0.05,
-                 }}
-                 onPress={handleMapPress}
-             >
-                 {nuevoLoteCoords.length >= 3 && (
-                     <Polygon 
-                         key={`polygon-${nuevoLoteCoords.length}`} // <-- FIX NATIVO: Fuerza re-renderizado
-                         coordinates={nuevoLoteCoords} 
-                         strokeColor="#FFF" 
-                         strokeWidth={2} 
-                         fillColor="rgba(46, 125, 50, 0.4)" 
-                     />
-                 )}
-                 
-                 {nuevoLoteCoords.map((c, i) => (
-                     <Marker 
-                        key={`vertice-${i}-${c.latitude}`} // <-- FIX RENDIMIENTO: Llave única atada al dato
-                        coordinate={c} 
-                     />
-                 ))}
-             </MapView>
+                   initialRegion={{
+                       latitude: 23.6345,
+                       longitude: -102.5528,
+                       latitudeDelta: 0.05, 
+                       longitudeDelta: 0.05,
+                   }}
+                   onPress={handleMapPress}
+               >
+                   {coordenadasValidas.length >= 3 && (
+                       <Polygon 
+                           key={`polygon-${coordenadasValidas.length}`}
+                           coordinates={coordenadasValidas}
+                           strokeColor="#FFF" 
+                           strokeWidth={2} 
+                           fillColor="rgba(46, 125, 50, 0.4)" 
+                       />
+                   )}
 
-             <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
-                 <TouchableOpacity 
-                     style={{flex: 1, marginRight: 10, padding: 14, borderWidth: 1, borderColor: '#c32f27', borderRadius: 10, justifyContent: 'center'}} 
-                     onPress={() => setNuevoLoteCoords(prev => Array.isArray(prev) ? prev.slice(0, -1) : [])} // <-- FIX ESTADO
-                 >
-                     <Text style={{color: '#c32f27', textAlign: 'center', fontWeight: 'bold'}}>Deshacer Punto</Text>
-                 </TouchableOpacity>
-                 <TouchableOpacity 
-                     style={[styles.btnAction, {flex: 2, borderRadius: 10, marginBottom: 0, opacity: isSavingLote ? 0.7 : 1}]} 
-                     onPress={guardarNuevoLote}
-                     disabled={isSavingLote}
-                 >
-                     {isSavingLote ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={styles.btnText}>Guardar Geometría</Text>}
-                 </TouchableOpacity>
-             </View>
-          </SafeAreaView>
+                   {coordenadasValidas.map((c, i) => (
+                       <Marker 
+                          key={`vertice-${i}-${c.latitude}-${c.longitude}`}
+                          coordinate={c} 
+                       />
+                   ))}
+               </MapView>
+
+               <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
+                   <TouchableOpacity 
+                       style={{flex: 1, marginRight: 10, padding: 14, borderWidth: 1, borderColor: '#c32f27', borderRadius: 10, justifyContent: 'center'}} 
+                       onPress={() => setNuevoLoteCoords(prev => Array.isArray(prev) ? prev.slice(0, -1) : [])} // <-- FIX ESTADO
+                   >
+                       <Text style={{color: '#c32f27', textAlign: 'center', fontWeight: 'bold'}}>Deshacer Punto</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity 
+                       style={[styles.btnAction, {flex: 2, borderRadius: 10, marginBottom: 0, opacity: isSavingLote ? 0.7 : 1}]} 
+                       onPress={guardarNuevoLote}
+                       disabled={isSavingLote}
+                   >
+                       {isSavingLote ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={styles.btnText}>Guardar Geometría</Text>}
+                   </TouchableOpacity>
+               </View>
+               </> 
+            )}
+            </SafeAreaView>
         </View>
       )}
 
       <Modal 
          visible={modalCameraVisible} 
          animationType="slide"
-         onRequestClose={() => {setModalCameraVisible(false); setImage(null); setPrediction(null);}} 
+         onRequestClose={() => {
+            setModalCameraVisible(false); 
+            setImage(null); 
+            setPrediction(null); 
+        }}
       >
          <View style={{flex: 1, backgroundColor: 'black'}}>
              <View style={styles.cameraHeader}>
-                 <TouchableOpacity onPress={() => {setModalCameraVisible(false); setImage(null); setPrediction(null);}}><Ionicons name="close" size={30} color="white" /></TouchableOpacity>
-                 <Text style={{color:'white', fontWeight:'bold', fontSize: 18}}>Scanner Phytosanitario</Text>
+                 <TouchableOpacity onPress={() => {
+                     setModalCameraVisible(false); 
+                     setImage(null); 
+                     setPrediction(null);
+                 }}>
+                     <Ionicons name="close" size={30} color="white" />
+                 </TouchableOpacity>
+                 <Text style={{color:'white', fontWeight:'bold', fontSize: 18}}>Scanner Fitosanitario</Text>
                  <View style={{width:40}}/>
              </View>
              {image ? (
                  <ScrollView contentContainerStyle={{alignItems:'center', padding:20}}>
                     <Image source={{ uri: image }} style={styles.previewImage} />
-                    <TouchableOpacity style={styles.btnAction} onPress={() => classifyImage(image)}>
+                    <TouchableOpacity 
+                        style={[styles.btnAction, { opacity: loadingIA ? 0.6 : 1 }]} 
+                        onPress={() => !loadingIA && classifyImage(image)} // FIX: Prevenir doble toque mientras carga
+                        disabled={loadingIA}
+                    >
                         {loadingIA ? <ActivityIndicator color="white"/> : <Text style={styles.btnText}>🔍 Iniciar Análisis</Text>}
                     </TouchableOpacity>
-                    {prediction && (
+                    {prediction && !loadingIA && (
                         <View style={{width:'100%', marginTop:20}}>
                             <TreatmentCard predictionClass={prediction.label} />
                             <TouchableOpacity style={[styles.btnAction, {backgroundColor:'#1565C0', marginTop:15}]} onPress={() => Alert.alert("Registro", "Diagnóstico guardado en bitácora.")}>
@@ -834,10 +902,23 @@ export default function HomeScreen({ navigation }) {
                             </TouchableOpacity>
                         </View>
                     )}
-                    <TouchableOpacity style={{marginTop:25}} onPress={() => {setImage(null); setPrediction(null);}}><Text style={{color:'white', fontSize: 16}}>Capturar otra vez</Text></TouchableOpacity>
+                    <TouchableOpacity 
+                        style={{marginTop:25}} 
+                        onPress={() => {
+                            if (!loadingIA) {
+                                setImage(null); 
+                                setPrediction(null);
+                            }
+                        }}
+                    >
+                        <Text style={{color: loadingIA ? 'gray' : 'white', fontSize: 16}}>
+                            {loadingIA ? 'Analizando...' : 'Capturar otra vez'}
+                        </Text>
+                    </TouchableOpacity>
                  </ScrollView>
              ) : (
                  <View style={{flex:1}}>
+                    {/* FIX: Vision Camera necesita desactivarse por completo al cerrar */}
                     {modalCameraVisible && device && hasPermission && (
                         <Camera 
                             style={StyleSheet.absoluteFill} 
@@ -848,7 +929,9 @@ export default function HomeScreen({ navigation }) {
                         />
                     )}
                     <View style={styles.cameraFooter}>
-                       <TouchableOpacity style={styles.captureOuter} onPress={takePicture}><View style={styles.captureInner}/></TouchableOpacity>
+                       <TouchableOpacity style={styles.captureOuter} onPress={takePicture}>
+                           <View style={styles.captureInner}/>
+                       </TouchableOpacity>
                     </View>
                  </View>
              )}
@@ -881,11 +964,15 @@ export default function HomeScreen({ navigation }) {
                     />
                     
                     <TouchableOpacity 
-                        onPress={() => { 
-                            // Sin timeouts ni frames: cambio de estado instantáneo y seguro
-                            setShowCropSelector(false); 
-                            setMostrarMapaTrazador(true);
-                        }} 
+                        onPress={() => {
+                           setShowCropSelector(false);
+
+                           requestAnimationFrame(() => {
+                              requestAnimationFrame(() => {
+                                 setMostrarMapaTrazador(true);
+                              });
+                           });
+                        }}
                         style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
                     >
                         <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
