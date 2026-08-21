@@ -779,8 +779,7 @@ export default function HomeScreen({ navigation }) {
 
       {mostrarMapaTrazador && (
         <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#FFF', zIndex: 1000, elevation: 10 }]}>
-          <SafeAreaView style={{ flex: 1 }}>
-             <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, marginBottom: 0}]}>
+             <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, marginBottom: 0, paddingTop: Platform.OS === 'android' ? 40 : 15}]}>
                  <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Trazar Nuevo Lote</Text>
                  <TouchableOpacity onPress={() => {
                      setMostrarMapaTrazador(false);
@@ -810,56 +809,56 @@ export default function HomeScreen({ navigation }) {
                  </Text>
              </View>
 
-             {mapReady && (
-              <>
-              <MapView
-                 provider={PROVIDER_GOOGLE}
-                 style={{ flex: 1 }}
-                 mapType="hybrid"
-                   initialRegion={{
-                       latitude: 23.6345,
-                       longitude: -102.5528,
-                       latitudeDelta: 0.05, 
-                       longitudeDelta: 0.05,
-                   }}
-                   onPress={handleMapPress}
-               >
-                   {coordenadasValidas.length >= 3 && (
-                       <Polygon 
-                           key={`polygon-${coordenadasValidas.length}`}
-                           coordinates={coordenadasValidas}
-                           strokeColor="#FFF" 
-                           strokeWidth={2} 
-                           fillColor="rgba(46, 125, 50, 0.4)" 
-                       />
-                   )}
+             {/* FIX: Contenedor con flex:1 puro para evitar colapso de dimensiones nativas */}
+             <View style={{ flex: 1 }}>
+               {mapReady && (
+                <MapView
+                   provider={PROVIDER_GOOGLE}
+                   style={{ flex: 1 }}
+                   mapType="hybrid"
+                     initialRegion={{
+                         latitude: 23.6345,
+                         longitude: -102.5528,
+                         latitudeDelta: 0.05, 
+                         longitudeDelta: 0.05,
+                     }}
+                     onPress={handleMapPress}
+                 >
+                     {coordenadasValidas.length >= 3 && (
+                         <Polygon 
+                             key="poligono-trazado-estatico" // FIX: Clave estática previene el SIGABRT nativo
+                             coordinates={coordenadasValidas}
+                             strokeColor="#FFF" 
+                             strokeWidth={2} 
+                             fillColor="rgba(46, 125, 50, 0.4)" 
+                         />
+                     )}
 
-                   {coordenadasValidas.map((c, i) => (
-                       <Marker 
-                          key={`vertice-${i}-${c.latitude}-${c.longitude}`}
-                          coordinate={c} 
-                       />
-                   ))}
-               </MapView>
+                     {coordenadasValidas.map((c, i) => (
+                         <Marker 
+                            key={`vertice-${i}`} // FIX: Clave simple indexada
+                            coordinate={c} 
+                         />
+                     ))}
+                 </MapView>
+               )}
+             </View>
 
-               <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
-                   <TouchableOpacity 
-                       style={{flex: 1, marginRight: 10, padding: 14, borderWidth: 1, borderColor: '#c32f27', borderRadius: 10, justifyContent: 'center'}} 
-                       onPress={() => setNuevoLoteCoords(prev => Array.isArray(prev) ? prev.slice(0, -1) : [])} // <-- FIX ESTADO
-                   >
-                       <Text style={{color: '#c32f27', textAlign: 'center', fontWeight: 'bold'}}>Deshacer Punto</Text>
-                   </TouchableOpacity>
-                   <TouchableOpacity 
-                       style={[styles.btnAction, {flex: 2, borderRadius: 10, marginBottom: 0, opacity: isSavingLote ? 0.7 : 1}]} 
-                       onPress={guardarNuevoLote}
-                       disabled={isSavingLote}
-                   >
-                       {isSavingLote ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={styles.btnText}>Guardar Geometría</Text>}
-                   </TouchableOpacity>
-               </View>
-               </> 
-            )}
-            </SafeAreaView>
+             <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
+                 <TouchableOpacity 
+                     style={{flex: 1, marginRight: 10, padding: 14, borderWidth: 1, borderColor: '#c32f27', borderRadius: 10, justifyContent: 'center'}} 
+                     onPress={() => setNuevoLoteCoords(prev => Array.isArray(prev) ? prev.slice(0, -1) : [])} 
+                 >
+                     <Text style={{color: '#c32f27', textAlign: 'center', fontWeight: 'bold'}}>Deshacer Punto</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity 
+                     style={[styles.btnAction, {flex: 2, borderRadius: 10, marginBottom: 0, opacity: isSavingLote ? 0.7 : 1}]} 
+                     onPress={guardarNuevoLote}
+                     disabled={isSavingLote}
+                 >
+                     {isSavingLote ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={styles.btnText}>Guardar Geometría</Text>}
+                 </TouchableOpacity>
+             </View>
         </View>
       )}
 
@@ -918,8 +917,7 @@ export default function HomeScreen({ navigation }) {
                  </ScrollView>
              ) : (
                  <View style={{flex:1}}>
-                    {/* FIX: Vision Camera necesita desactivarse por completo al cerrar */}
-                    {modalCameraVisible && device && hasPermission && (
+                    {device && hasPermission && (
                         <Camera 
                             style={StyleSheet.absoluteFill} 
                             device={device} 

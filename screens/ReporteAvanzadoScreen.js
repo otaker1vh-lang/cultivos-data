@@ -213,7 +213,7 @@ useEffect(() => {
     if (metricasSeleccionadas.length === 0) return Alert.alert("Error", "Selecciona al menos una métrica.");
     
     const esBusquedaNacionalMasiva = filtros.estado.length === 0 || filtros.estado.includes('Nacional');
-    if (filtros.anio.length > 3 && filtros.cultivo.length === 0 && esBusquedaNacionalMasiva) {
+    if (filtros.anio.length > 10 && filtros.cultivo.length === 0 && esBusquedaNacionalMasiva) {
         return Alert.alert(
             "Consulta Demasiado Amplia", 
             "Estás intentando analizar demasiados años a nivel nacional. Por favor, selecciona un Cultivo o Estado específico para no sobrecargar el procesamiento."
@@ -226,33 +226,34 @@ useEffect(() => {
 
     try {
       const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
+      const chunkSize = 3; // FIX: Procesamiento en lotes para evitar timeout de Supabase
+      let resultadosPorAnio = [];
+
+      for (let i = 0; i < filtros.anio.length; i += chunkSize) {
+          const chunk = filtros.anio.slice(i, i + chunkSize);
+          const promesasConsulta = chunk.map(async (anioFiltro) => {
+              let query = supabase.from('produccion_agricola')
+              .select('anio, nomestado, nommunicipio, nomcultivo, nomcicloproductivo, nommodalidad, valorproduccion, sembrada, siniestrada, volumenproduccion, cosechada, preciomediorural');
+              
+              query = query.eq('anio', parseInt(anioFiltro));
+
+              if (filtros.cultivo.length > 0) query = query.in('nomcultivo', filtros.cultivo);
+              if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
+                  query = query.in('nomestado', estadosReales);
+              }
+              if (filtros.municipio.length > 0) query = query.in('nommunicipio', filtros.municipio);
+              if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
+              if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
+              
+              const { data, error } = await query.limit(50000); 
+              if (error) throw error;
+              return data || [];
+          });
+          
+          const chunkData = await Promise.all(promesasConsulta);
+          resultadosPorAnio.push(...chunkData);
+      }
       
-      // Ejecución optimizada y paralela por año para proteger el rendimiento
-      const promesasConsulta = filtros.anio.map(async (anioFiltro) => {
-          let query = supabase.from('produccion_agricola')
-          .select('anio, nomestado, nommunicipio, nomcultivo, nomcicloproductivo, nommodalidad, valorproduccion, sembrada, siniestrada, volumenproduccion, cosechada, preciomediorural');
-          
-          query = query.eq('anio', parseInt(anioFiltro));
-
-          if (filtros.cultivo.length > 0) query = query.in('nomcultivo', filtros.cultivo);
-          
-          if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
-              query = query.in('nomestado', estadosReales);
-          }
-
-          if (filtros.municipio.length > 0) query = query.in('nommunicipio', filtros.municipio);
-          if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
-          if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
-          
-          const { data, error } = await query.limit(50000); 
-          if (error) {
-              console.warn("Fallo de conexión en año", anioFiltro, ":", error.message);
-              throw error;
-          }
-          return data || [];
-      });
-
-      const resultadosPorAnio = await Promise.all(promesasConsulta);
       const dataFinalCombinada = resultadosPorAnio.flat();
 
       if (!dataFinalCombinada || dataFinalCombinada.length === 0) {
@@ -278,6 +279,7 @@ useEffect(() => {
 const procesarTodo = (data) => {
   const keyField = nivelDesglose === "Estatal" ? 'nomestado' : 
                    nivelDesglose === "Por Cultivo" ? 'nomcultivo' : 'nommunicipio';
+  const anioMasReciente = Math.max(...filtros.anio.map(Number));
 
   const totals = { val: 0, vol: 0, sem: 0, cos: 0 };
   const grouped = {};
@@ -361,11 +363,6 @@ const procesarTodo = (data) => {
       if (!grouped[idNac]) initGroup(idNac, "Nacional", year);
       addDataToId(idNac, item);
     }
-
-    totals.val += Number(item.valorproduccion) || 0;
-    totals.vol += Number(item.volumenproduccion) || 0;
-    totals.sem += Number(item.sembrada) || 0;
-    totals.cos += Number(item.cosechada) || 0;
   });
 
   let listaFinal = Object.values(grouped).map(i => {
@@ -383,10 +380,15 @@ const procesarTodo = (data) => {
 
   listaFinal.sort((a, b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
 
+  // REEMPLAZAR ESTE MAPEO COMPLETO:
   listaFinal = listaFinal.map((curr, idx, arr) => {
-    const prev = (arr[idx + 1] && arr[idx + 1].descripcion === curr.descripcion && arr[idx + 1].anio === curr.anio - 1)
-      ? arr[idx + 1]
-      : undefined;
+    let prev = undefined;
+    for (let k = idx + 1; k < arr.length; k++) {
+        if (arr[k].descripcion === curr.descripcion) {
+            prev = arr[k];
+            break; 
+        }
+    }
 
     const variaciones = {};
     METRICAS_DISPONIBLES.forEach(mRef => {
@@ -400,17 +402,33 @@ const procesarTodo = (data) => {
     return { ...curr, ...variaciones };
   });
 
-  if (filtros.anio.length > 1) {
-    const aniosS = [...filtros.anio].map(Number).sort((a, b) => a - b);
-    const anioIni = aniosS[0];
-    const anioFin = aniosS[aniosS.length - 1];
+  const isValidForTotal = (d) => {
+      if (nivelDesglose === "Estatal" && filtros.estado.includes('Nacional')) {
+          return d.descripcion === "Nacional";
+      }
+      return d.descripcion !== "Nacional"; 
+  };
+
+  // FIX: Extraer los años REALES con datos, no los seleccionados ciegamente en el filtro
+  const aniosReales = Array.from(new Set(listaFinal.map(d => d.anio))).sort((a, b) => a - b);
+  const anioMasRecienteReal = aniosReales.length > 0 ? aniosReales[aniosReales.length - 1] : 0;
+
+  // FIX: Calcular totales usando el año más reciente con datos verificados
+  const registrosUltimoAnio = listaFinal.filter(d => d.anio === anioMasRecienteReal && isValidForTotal(d));
+  totals.val = registrosUltimoAnio.reduce((s, c) => s + (Number(c.valorproduccion) || 0), 0);
+  totals.vol = registrosUltimoAnio.reduce((s, c) => s + (Number(c.volumenproduccion) || 0), 0);
+  totals.sem = registrosUltimoAnio.reduce((s, c) => s + (Number(c.sembrada) || 0), 0);
+  totals.cos = registrosUltimoAnio.reduce((s, c) => s + (Number(c.cosechada) || 0), 0);
+
+  if (aniosReales.length > 1) {
+    const anioIni = aniosReales[0];
+    const anioFin = aniosReales[aniosReales.length - 1];
 
     const nuevasVariaciones = metricasSeleccionadas.map(mId => {
       const metricaRef = METRICAS_DISPONIBLES.find(x => x.id === mId);
+      
       const getT = (anioBusqueda) => {
-        const f = listaFinal.filter(d => 
-          d.anio === anioBusqueda && !(nivelDesglose === "Estatal" && d.descripcion === "Nacional")
-        );
+        const f = listaFinal.filter(d => d.anio === anioBusqueda && isValidForTotal(d));
         return {
           v: f.reduce((s, c) => s + (Number(c[metricaRef.key]) || 0), 0),
           vol: f.reduce((s, c) => s + (Number(c.volumenproduccion) || 0), 0),

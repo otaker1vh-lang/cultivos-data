@@ -109,6 +109,33 @@ export default function FertilizanteScreen({ route, navigation }) {
     return { aportes, metas: dosisObjetivoPersonalizada };
   }, [aplicaciones, dosisObjetivoPersonalizada, todosLosNutrientes]);
 
+  useEffect(() => {
+    const meta = balance.metas[nutrienteAcalcular] || 0;
+    const aporteActual = balance.aportes[nutrienteAcalcular] || 0;
+    
+    // Solo sugerimos si falta nutrir la meta (evita números negativos si hay exceso)
+    const faltante = Math.max(meta - aporteActual, 0);
+
+    if (faltante > 0) {
+      setDosisNutrientePura(faltante.toFixed(1).toString());
+    } else {
+      setDosisNutrientePura(''); // Limpia el input si la meta está cubierta
+    }
+  }, [nutrienteAcalcular, balance.metas, balance.aportes]);
+
+  useEffect(() => {
+    // Si la fuente tiene un símbolo principal (N, P, K) y no es una mezcla compleja,
+    // cambiamos automáticamente el selector "Necesito cubrir".
+    if (
+      fertilizanteSeleccionado && 
+      fertilizanteSeleccionado.simbolo && 
+      fertilizanteSeleccionado.simbolo !== 'Mix' && 
+      fertilizanteSeleccionado.simbolo !== 'Balanceado'
+    ) {
+      setNutrienteAcalcular(fertilizanteSeleccionado.simbolo);
+    }
+  }, [fertilizanteSeleccionado]);
+
   // --- EFECTO DENSIDAD ---
   useEffect(() => {
     const ha = parseFloat(hectareas) || 0;

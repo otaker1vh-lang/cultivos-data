@@ -80,9 +80,7 @@ export default function RecordatoriosScreen({ route }) {
     try {
       // Cargar y reproducir sonido
       const { sound } = await Audio.Sound.createAsync(
-        // Usamos un sonido de sistema o una URL externa si no tienes un archivo local
-        // Puedes reemplazar esto con require('./assets/tu_alarma.mp3')
-        { uri: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' }, 
+        require('./assets/tu_alarma.mp3'), 
         { shouldPlay: true, isLooping: true }
       );
       setSoundObject(sound);
@@ -240,10 +238,10 @@ export default function RecordatoriosScreen({ route }) {
             priority: Notifications.AndroidNotificationPriority.MAX,
             vibrate: [0, 500, 200, 500],
             interruptionLevel: 'timeSensitive',
-            data: { esAlarma: true } // Dato extra para identificar
+            data: { esAlarma: true } 
           },
           trigger: { 
-            date: triggerDate, // Usa la fecha exacta directamente
+            date: triggerDate, 
             channelId: 'default', 
           },
         });
