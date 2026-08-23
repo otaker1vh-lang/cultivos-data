@@ -105,6 +105,7 @@ export default function HomeScreen({ navigation }) {
   const [nuevoLoteNombre, setNuevoLoteNombre] = useState('');
   const [nuevoLoteCultivos, setNuevoLoteCultivos] = useState('');
   const [isSavingLote, setIsSavingLote] = useState(false);
+  const [mapError, setMapError] = useState(false);
 
    const coordenadasValidas = React.useMemo(() => {
       return nuevoLoteCoords.filter(p => 
@@ -346,34 +347,29 @@ export default function HomeScreen({ navigation }) {
   const guardarNuevoLote = async () => {
     if (isSavingLote) return; 
     if (!nuevoLoteNombre.trim() || coordenadasValidas.length < 3) {
-      Alert.alert("Incompleto", "Asigna un nombre y marca al menos 3 puntos válidos en el mapa para formar un polígono.");
+      Alert.alert("Incompleto", "Asigna un nombre y marca al menos 3 puntos válidos en el mapa.");
       return;
     }
 
     setIsSavingLote(true);
-
     let predioIdLocal = lotesUsuario?.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predio_id) : null;
     let esNuevoPredio = false;
 
-    if (!predioIdLocal) {
-        predioIdLocal = `temp_predio_${Date.now()}`;
-        esNuevoPredio = true;
-    }
-
-    const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
-    const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
-    
-    const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
-
     try {
-      if (esNuevoPredio) {
+      if (!isOnline) throw { code: 'OFFLINE_MODE' };
+
+      if (!predioIdLocal) {
         const { data: predioData, error: errP } = await supabase
           .from('predios')
           .insert([{ nombre: 'Mi Parcela Principal', estado: 'ND' }])
           .select('id').single();
         if (errP) throw errP;
-        predioIdLocal = predioData.id; 
+        predioIdLocal = predioData.id;
       }
+
+      const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
+      const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
+      const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
       const { error: errLote } = await supabase
         .from('lotes')
@@ -388,68 +384,53 @@ export default function HomeScreen({ navigation }) {
 
       Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
       setMostrarMapaTrazador(false);
+      setMapError(false);
       setNuevoLoteCoords([]);
       setNuevoLoteNombre('');
       setNuevoLoteCultivos('');
-      
       cargarLotes(); 
 
     } catch (e) {
-      Alert.alert("Modo Sin Conexión", "El lote se guardó localmente. Se sincronizará en la nube de forma automática.");
+      if (e.code === 'OFFLINE_MODE') {
+        console.log('Guardando lote en caché local...');
+        Alert.alert("Modo Sin Conexión", "El lote se guardó localmente. Se sincronizará en la nube automáticamente.");
+        
+        const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
+        const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
+        const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
-      if (esNuevoPredio) {
-          const predioPendiente = {
-              id: predioIdLocal,
-              nombre: 'Mi Parcela Principal',
-              estado: 'ND',
-              pendiente_sincronizacion: true
-          };
-          try {
-              const str = await AsyncStorage.getItem('@predios_pendientes');
-              let arr = [];
-              if (str) { try { arr = JSON.parse(str); } catch (err) { arr = []; } }
-              if (!Array.isArray(arr)) arr = [];
-              arr.push(predioPendiente);
-              await AsyncStorage.setItem('@predios_pendientes', JSON.stringify(arr));
-          } catch (predioErr) { console.error("Fallo", predioErr); }
+        const lotePendiente = {
+            id: `temp_lote_${Date.now()}`,
+            predio_id: predioIdLocal, 
+            nombre: nuevoLoteNombre.trim(),
+            coordenadas_poligono: coordsFormatoBD,
+            cultivos: cultivosFinales, 
+            pendiente_sincronizacion: true,
+            predios: { id: predioIdLocal, nombre: 'Mi Parcela Principal' }
+        };
+
+        try {
+            const str = await AsyncStorage.getItem('@lotes_pendientes');
+            let pendientes = str ? JSON.parse(str) : [];
+            pendientes.push(lotePendiente);
+            await AsyncStorage.setItem('@lotes_pendientes', JSON.stringify(pendientes));
+
+            const cacheStr = await AsyncStorage.getItem('@lotes_cache');
+            let cache = cacheStr ? JSON.parse(cacheStr) : [];
+            cache.push(lotePendiente);
+            await AsyncStorage.setItem('@lotes_cache', JSON.stringify(cache));
+        } catch (storageErr) {}
+
+        setLotesUsuario(prev => [...prev, lotePendiente]);
+        setMostrarMapaTrazador(false);
+        setNuevoLoteCoords([]);
+        setNuevoLoteNombre('');
+        setNuevoLoteCultivos('');
+      } else {
+        Alert.alert("Error", "Ocurrió un problema al guardar el lote.");
       }
-
-      const lotePendiente = {
-          id: `temp_lote_${Date.now()}`,
-          predio_id: predioIdLocal, 
-          nombre: nuevoLoteNombre.trim(),
-          coordenadas_poligono: coordsFormatoBD,
-          cultivos: cultivosFinales, 
-          pendiente_sincronizacion: true,
-          predios: { 
-              id: predioIdLocal, 
-              nombre: lotesUsuario?.length > 0 ? lotesUsuario[0].predios?.nombre : 'Mi Parcela Principal' 
-          }
-      };
-
-      try {
-          const str = await AsyncStorage.getItem('@lotes_pendientes');
-          let pendientes = [];
-          if (str) { try { pendientes = JSON.parse(str); } catch (err) { pendientes = []; } }
-          if (!Array.isArray(pendientes)) pendientes = []; 
-          pendientes.push(lotePendiente);
-          await AsyncStorage.setItem('@lotes_pendientes', JSON.stringify(pendientes));
-
-          const cacheStr = await AsyncStorage.getItem('@lotes_cache');
-          let cache = [];
-          if (cacheStr) { try { cache = JSON.parse(cacheStr); } catch (err) { cache = []; } }
-          if (!Array.isArray(cache)) cache = [];
-          cache.push(lotePendiente);
-          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(cache));
-      } catch (storageErr) {}
-
-      setLotesUsuario(prev => [...prev, lotePendiente]);
-      setMostrarMapaTrazador(false);
-      setNuevoLoteCoords([]);
-      setNuevoLoteNombre('');
-      setNuevoLoteCultivos('');
     } finally {
-      setIsSavingLote(false); // Liberar el botón
+      setIsSavingLote(false);
     }
   };
 
@@ -774,7 +755,9 @@ export default function HomeScreen({ navigation }) {
           </View>
         </ScrollView>
       </SafeAreaView>
+    
 
+    
       {mostrarMapaTrazador && (
         <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#FFF', zIndex: 1000, elevation: 10 }]}>
              <View style={[styles.headerRow, {backgroundColor: '#1b4332', padding: 15, marginBottom: 0, paddingTop: Platform.OS === 'android' ? 40 : 15}]}>
@@ -807,39 +790,36 @@ export default function HomeScreen({ navigation }) {
                  </Text>
              </View>
 
-             {/* FIX: Contenedor con flex:1 puro para evitar colapso de dimensiones nativas */}
-             <View style={{ flex: 1 }}>
-               {mapReady && (
-                <MapView
-                   style={{ flex: 1 }}
-                   mapType="hybrid"
-                     initialRegion={{
-                         latitude: 23.6345,
-                         longitude: -102.5528,
-                         latitudeDelta: 0.05, 
-                         longitudeDelta: 0.05,
-                     }}
-                     onPress={handleMapPress}
-                 >
-                     {coordenadasValidas.length >= 3 && (
-                         <Polygon 
-                             key={`poligono-${coordenadasValidas.length}`} // FIX REVERTIDO: Clave dinámica fuerza el remount seguro y evita SIGABRT
-                             coordinates={coordenadasValidas}
-                             strokeColor="#FFF" 
-                             strokeWidth={2} 
-                             fillColor="rgba(46, 125, 50, 0.4)" 
-                         />
-                     )}
-
-                     {coordenadasValidas.map((c, i) => (
-                         <Marker 
-                            key={`vertice-${i}`} 
-                            coordinate={c} 
-                         />
-                     ))}
-                 </MapView>
-               )}
-             </View>
+             <View style={{ flex: 1, backgroundColor: '#E0E0E0', overflow: 'hidden' }}>
+                {mapReady ? (
+                  <MapView
+                    provider={PROVIDER_GOOGLE}
+                    style={StyleSheet.absoluteFillObject}
+                    mapType="standard"
+                    initialRegion={{
+                      latitude: 23.6345,
+                      longitude: -102.5528,
+                      latitudeDelta: 0.05,
+                      longitudeDelta: 0.05,
+                    }}
+                    onPress={handleMapPress}
+                  >
+                    {coordenadasValidas.length >= 3 && (
+                      <Polygon
+                        coordinates={coordenadasValidas}
+                        strokeColor="#FFF"
+                        strokeWidth={2}
+                        fillColor="rgba(46,125,50,0.4)"
+                      />
+                    )}
+                    {coordenadasValidas.map((c, i) => (
+                      <Marker key={`vertice-${i}`} coordinate={c} />
+                    ))}
+                  </MapView>
+                ) : (
+                  <ActivityIndicator size="large" color="#2E7D32" style={{marginTop: '50%'}} />
+                )}
+              </View>
 
              <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>
                  <TouchableOpacity 
@@ -961,12 +941,7 @@ export default function HomeScreen({ navigation }) {
                     <TouchableOpacity 
                         onPress={() => {
                            setShowCropSelector(false);
-
-                           requestAnimationFrame(() => {
-                              requestAnimationFrame(() => {
-                                 setMostrarMapaTrazador(true);
-                              });
-                           });
+                           setMostrarMapaTrazador(true);
                         }}
                         style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
                     >

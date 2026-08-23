@@ -262,13 +262,12 @@ export default function RecordatoriosScreen({ route }) {
             sound: true, 
             color: '#2E7D32',
             priority: Notifications.AndroidNotificationPriority.MAX,
-            vibrate: [0, 500, 200, 500],
             interruptionLevel: 'timeSensitive',
             // FIX: Agregar 'pantalla' para que HomeScreen.js logre enrutar el toque del usuario
             data: { esAlarma: true, pantalla: 'Recordatorios', cultivo: cultivo } 
           },
           trigger: { 
-            seconds: diffSec,
+            date: triggerDate,
             channelId: 'default', 
           },
         });
