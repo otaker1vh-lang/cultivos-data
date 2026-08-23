@@ -53,8 +53,9 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 const obtenerIconoCultivo = (nombre, categoria) => {
-  const n = nombre ? nombre.toLowerCase() : "";
-  const c = categoria ? categoria.toLowerCase() : "";
+  const n = typeof nombre === 'string' ? nombre.toLowerCase() : "";
+  const c = typeof categoria === 'string' ? categoria.toLowerCase() : "";
+  
   if (n.includes("maiz") || n.includes("elote")) return "corn";
   if (n.includes("trigo") || n.includes("cebada") || n.includes("avena") || n.includes("sorgo")) return "barley";
   if (n.includes("frijol") || n.includes("soja") || n.includes("haba")) return "seed";
@@ -113,8 +114,6 @@ export default function HomeScreen({ navigation }) {
           !isNaN(p.longitude)
       );
   }, [nuevoLoteCoords]);
-
-  const [expoPushToken, setExpoPushToken] = useState('');
 
   const { prediction, setPrediction, loadingIA, classifyImage } = usePlantClassifier(isOnline, climaActual, alertasGDD);
 
@@ -175,7 +174,6 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     registrarParaNotificacionesAsync().then(token => {
       if (token) {
-        setExpoPushToken(token);
         guardarTokenEnSupabase(token);
       }
     });
@@ -254,7 +252,7 @@ export default function HomeScreen({ navigation }) {
     const sincronizar = async () => {
       try {
         const datosSupabase = await CultivoDataManager.obtenerListaCultivos();
-        if (isMounted && datosSupabase?.length > 0) {
+        if (isMounted && Array.isArray(datosSupabase) && datosSupabase.length > 0) {
             setListaCultivos(datosSupabase);
         }
       } catch (error) {
@@ -307,8 +305,8 @@ export default function HomeScreen({ navigation }) {
     if (busqueda.trim() === "") return [];
     const query = busqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     return listaCultivos.filter((cultivo) => {
-      // FIX: Blindaje contra undefined que causa pantalla blanca
-      const nombreNorm = (cultivo.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      // FIX: Optional chaining en 'cultivo' previene TypeError si el array listaCultivos recibe un 'null' o 'undefined'
+      const nombreNorm = (cultivo?.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       return nombreNorm.includes(query);
     });
   }, [busqueda, listaCultivos]);
@@ -813,7 +811,6 @@ export default function HomeScreen({ navigation }) {
              <View style={{ flex: 1 }}>
                {mapReady && (
                 <MapView
-                   provider={PROVIDER_GOOGLE}
                    style={{ flex: 1 }}
                    mapType="hybrid"
                      initialRegion={{
@@ -826,7 +823,7 @@ export default function HomeScreen({ navigation }) {
                  >
                      {coordenadasValidas.length >= 3 && (
                          <Polygon 
-                             key="poligono-trazado-estatico" // FIX: Clave estática previene el SIGABRT nativo
+                             key={`poligono-${coordenadasValidas.length}`} // FIX REVERTIDO: Clave dinámica fuerza el remount seguro y evita SIGABRT
                              coordinates={coordenadasValidas}
                              strokeColor="#FFF" 
                              strokeWidth={2} 
@@ -836,7 +833,7 @@ export default function HomeScreen({ navigation }) {
 
                      {coordenadasValidas.map((c, i) => (
                          <Marker 
-                            key={`vertice-${i}`} // FIX: Clave simple indexada
+                            key={`vertice-${i}`} 
                             coordinate={c} 
                          />
                      ))}

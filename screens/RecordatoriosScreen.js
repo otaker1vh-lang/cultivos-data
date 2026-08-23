@@ -43,11 +43,13 @@ export default function RecordatoriosScreen({ route }) {
 
   // --- ESTADOS PARA LA ALARMA ---
   const [alarmaVisible, setAlarmaVisible] = useState(false);
-  const [soundObject, setSoundObject] = useState(null);
+  const soundRef = useRef(null);
   const [tituloAlarmaActual, setTituloAlarmaActual] = useState("");
+  const isMounted = useRef(true); // FIX: Control estricto del ciclo de vida
   // ------------------------------
 
   useEffect(() => {
+    isMounted.current = true;
     configurarNotificaciones();
     cargarDatosGuardados();
 
@@ -62,6 +64,7 @@ export default function RecordatoriosScreen({ route }) {
     });
 
     return () => {
+      isMounted.current = false; // FIX: Marcar el componente como "muerto"
       foregroundSubscription.remove();
       responseSubscription.remove();
       detenerAlarma(); // Limpieza al salir
@@ -72,18 +75,32 @@ export default function RecordatoriosScreen({ route }) {
   const activarPantallaAlarma = async (tituloNotif) => {
     setTituloAlarmaActual(tituloNotif || "¡Recordatorio!");
     setAlarmaVisible(true);
-    
-    // Vibración en patrón infinito (Android) o larga (iOS)
-    const pattern = [1000, 2000, 1000, 2000];
-    Vibration.vibrate(pattern, true); // 'true' para repetir en Android
+
+    if (Platform.OS === 'android') {
+        const pattern = [1000, 2000, 1000, 2000];
+        Vibration.vibrate(pattern, true); 
+    } else {
+        Vibration.vibrate(); 
+    }
 
     try {
-      // Cargar y reproducir sonido
+      if (soundRef.current) {
+          await soundRef.current.stopAsync();
+          await soundRef.current.unloadAsync();
+      }
+      
       const { sound } = await Audio.Sound.createAsync(
         require('./assets/tu_alarma.mp3'), 
-        { shouldPlay: true, isLooping: true }
+        { isLooping: true }
       );
-      setSoundObject(sound);
+
+      // FIX: Prevenir "Zombie Audio" abortando si la pantalla se cerró durante la carga asíncrona
+      if (!isMounted.current) {
+          await sound.unloadAsync();
+          return;
+      }
+
+      soundRef.current = sound; 
       await sound.playAsync();
     } catch (error) {
       console.log("No se pudo reproducir el audio de la alarma", error);
@@ -92,16 +109,15 @@ export default function RecordatoriosScreen({ route }) {
 
   const detenerAlarma = async () => {
     Vibration.cancel();
-    if (soundObject) {
+    if (soundRef.current) {
       try {
-        await soundObject.stopAsync();
-        await soundObject.unloadAsync();
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
       } catch (e) { console.log(e); }
     }
-    setSoundObject(null);
+    soundRef.current = null;
     setAlarmaVisible(false);
   };
-  // ---------------------------------------------
 
   // --- CONFIGURACIÓN DE NOTIFICACIONES ---
   const configurarNotificaciones = async () => {
@@ -136,14 +152,24 @@ export default function RecordatoriosScreen({ route }) {
     try {
       const json = await AsyncStorage.getItem(STORAGE_KEY);
       if (json) {
-        const datos = JSON.parse(json).map((i) => ({
-          ...i,
-          fecha: new Date(i.fecha),
-        }));
-        setListaRecordatorios(datos);
+        const parsed = JSON.parse(json);
+        
+        // FIX: Prevenir TypeError si el caché se corrompe y no es un array
+        if (Array.isArray(parsed)) {
+          const datos = parsed.map((i) => ({
+            ...i,
+            fecha: new Date(i.fecha),
+          })).filter(i => !isNaN(i.fecha.getTime())); // FIX: Prevenir 'RangeError' eliminando fechas 'Invalid Date'
+          
+          setListaRecordatorios(datos);
+        } else {
+          // Si el caché está corrupto, lo reiniciamos por seguridad
+          setListaRecordatorios([]);
+        }
       }
     } catch (e) { 
       console.log("Error al cargar datos:", e); 
+      setListaRecordatorios([]); // Respaldo en caso de error de parseo
     }
   };
 
@@ -238,10 +264,11 @@ export default function RecordatoriosScreen({ route }) {
             priority: Notifications.AndroidNotificationPriority.MAX,
             vibrate: [0, 500, 200, 500],
             interruptionLevel: 'timeSensitive',
-            data: { esAlarma: true } 
+            // FIX: Agregar 'pantalla' para que HomeScreen.js logre enrutar el toque del usuario
+            data: { esAlarma: true, pantalla: 'Recordatorios', cultivo: cultivo } 
           },
           trigger: { 
-            date: triggerDate, 
+            seconds: diffSec,
             channelId: 'default', 
           },
         });
