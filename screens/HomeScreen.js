@@ -93,7 +93,7 @@ export default function HomeScreen({ navigation }) {
   const { hasPermission, requestPermission } = useCameraPermission();
   const cameraRef = useRef(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  const [mapReady, setMapReady] = useState(false);
+  
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextState => setAppState(nextState));
     return () => subscription.remove();
@@ -105,7 +105,6 @@ export default function HomeScreen({ navigation }) {
   const [nuevoLoteNombre, setNuevoLoteNombre] = useState('');
   const [nuevoLoteCultivos, setNuevoLoteCultivos] = useState('');
   const [isSavingLote, setIsSavingLote] = useState(false);
-  const [mapError, setMapError] = useState(false);
 
    const coordenadasValidas = React.useMemo(() => {
       return nuevoLoteCoords.filter(p => 
@@ -155,18 +154,6 @@ export default function HomeScreen({ navigation }) {
       console.warn("Fallo sincronización de lotes, manteniendo caché activo...", error.message);
     }
   };
-
-  useEffect(() => {
-     if (mostrarMapaTrazador) {
-        const timer = setTimeout(() => {
-           setMapReady(true);
-        }, 150);
-
-        return () => clearTimeout(timer);
-     }
-
-     setMapReady(false);
-  }, [mostrarMapaTrazador]);
 
   useEffect(() => {
     cargarLotes();
@@ -384,7 +371,6 @@ export default function HomeScreen({ navigation }) {
 
       Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
       setMostrarMapaTrazador(false);
-      setMapError(false);
       setNuevoLoteCoords([]);
       setNuevoLoteNombre('');
       setNuevoLoteCultivos('');
@@ -401,12 +387,12 @@ export default function HomeScreen({ navigation }) {
 
         const lotePendiente = {
             id: `temp_lote_${Date.now()}`,
-            predio_id: predioIdLocal, 
+            predio_id: predioIdLocal || 'temp_predio_default', 
             nombre: nuevoLoteNombre.trim(),
             coordenadas_poligono: coordsFormatoBD,
             cultivos: cultivosFinales, 
             pendiente_sincronizacion: true,
-            predios: { id: predioIdLocal, nombre: 'Mi Parcela Principal' }
+            predios: { id: predioIdLocal || 'temp_predio_default', nombre: 'Mi Parcela Principal' }
         };
 
         try {
@@ -791,7 +777,6 @@ export default function HomeScreen({ navigation }) {
              </View>
 
              <View style={{ flex: 1, backgroundColor: '#E0E0E0', overflow: 'hidden' }}>
-                {mapReady ? (
                   <MapView
                     provider={PROVIDER_GOOGLE}
                     style={StyleSheet.absoluteFillObject}
@@ -816,9 +801,6 @@ export default function HomeScreen({ navigation }) {
                       <Marker key={`vertice-${i}`} coordinate={c} />
                     ))}
                   </MapView>
-                ) : (
-                  <ActivityIndicator size="large" color="#2E7D32" style={{marginTop: '50%'}} />
-                )}
               </View>
 
              <View style={{flexDirection: 'row', padding: 15, backgroundColor: '#FFF', justifyContent: 'space-between', alignItems: 'center'}}>

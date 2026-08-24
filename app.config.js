@@ -1,0 +1,79 @@
+export default {
+  expo: {
+    name: "RoslinApp",
+    slug: "MiApp",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/roslin_icon.png",
+    userInterfaceStyle: "light",
+    newArchEnabled: false,
+    splash: {
+      image: "./assets/splash-icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    },
+    ios: {
+      supportsTablet: true,
+      infoPlist: {
+        NSCameraUsageDescription: "Allow $(PRODUCT_NAME) to access your camera",
+        NSMicrophoneUsageDescription: "Permita que RóslinApp escuche sus consultas sobre los cultivos directamente en el campo."
+      }
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/roslin_icon.png",
+        backgroundColor: "#4A7C59"
+      },
+      edgeToEdgeEnabled: true,
+      package: "com.otaker.miapp",
+      config: {
+        googleMaps: {
+          apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || ""
+        }
+      },
+      permissions: [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "SCHEDULE_EXACT_ALARM"
+      ]
+    },
+    web: {
+      favicon: "./assets/roslin_icon.png"
+    },
+    plugins: [
+      "./withAndroidManifestPatch.js",
+      "./withJetifier.js",
+      [
+        "expo-build-properties",
+        {
+          android: {
+            compileSdkVersion: 35,
+            targetSdkVersion: 35,
+            minSdkVersion: 24
+          },
+          ios: {
+            useFrameworks: "static"
+          }
+        }
+      ],
+      [
+        "@react-native-voice/voice",
+        {
+          microphonePermission: "Permita que RóslinApp escuche sus consultas sobre los cultivos directamente en el campo."
+        }
+      ],
+      "react-native-fast-tflite",
+      "react-native-vision-camera",
+      "expo-font",
+      "expo-asset",
+      "expo-web-browser",
+      "expo-sqlite"
+    ],
+    extra: {
+      eas: {
+        projectId: "256d62de-adb3-4e6d-b071-e30421de4102"
+      }
+    },
+    owner: "victorha"
+  }
+};
