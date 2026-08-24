@@ -206,8 +206,10 @@ export default function RecordatoriosScreen({ route }) {
       setFecha(nueva);
       
       setMostrarPicker(false);
-      setModo("time");
-      setTimeout(() => setMostrarPicker(true), 100); 
+      setTimeout(() => {
+        setModo("time");
+        setMostrarPicker(true);
+      }, Platform.OS === 'android' ? 350 : 50); 
     } else {
       const nueva = new Date(fecha);
       nueva.setHours(currentDate.getHours());
@@ -216,7 +218,7 @@ export default function RecordatoriosScreen({ route }) {
       nueva.setMilliseconds(0); 
       setFecha(nueva);
       setMostrarPicker(false);
-      setModo("date");
+      setTimeout(() => setModo("date"), 350);
     }
   };
 
@@ -266,7 +268,7 @@ export default function RecordatoriosScreen({ route }) {
             data: { esAlarma: true, pantalla: 'Recordatorios', cultivo: cultivo } 
           },
           trigger: { 
-            seconds: Math.max(1, diffSec),
+            date: triggerDate,
             channelId: 'default', 
           },
         });

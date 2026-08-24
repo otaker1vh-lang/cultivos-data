@@ -147,14 +147,25 @@ export default function HomeScreen({ navigation }) {
         
       if (error) throw error;
       if (data) {
-          setLotesUsuario(data); // Actualiza la UI con datos frescos
-          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(data)); // Refresca el caché
+          let lotesCompletos = [...data];
+          try {
+              const pendientesStr = await AsyncStorage.getItem('@lotes_pendientes');
+              if (pendientesStr) {
+                  const pendientes = JSON.parse(pendientesStr);
+                  if (Array.isArray(pendientes) && pendientes.length > 0) {
+                      lotesCompletos = [...data, ...pendientes];
+                  }
+              }
+          } catch (e) { console.warn("Error leyendo pendientes:", e); }
+
+          setLotesUsuario(lotesCompletos); 
+          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(lotesCompletos)); 
       }
     } catch (error) {
-      console.warn("Fallo sincronización de lotes, manteniendo caché activo...", error.message);
+      console.warn("Fallo sincronización de lotes...", error.message);
     }
   };
-
+  
   useEffect(() => {
     cargarLotes();
   }, [isOnline]);
@@ -340,15 +351,20 @@ export default function HomeScreen({ navigation }) {
 
     setIsSavingLote(true);
     let predioIdLocal = lotesUsuario?.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predio_id) : null;
-    let esNuevoPredio = false;
 
     try {
       if (!isOnline) throw { code: 'OFFLINE_MODE' };
 
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id;
+
       if (!predioIdLocal) {
+        const predioPayload = { nombre: 'Mi Parcela Principal', estado: 'ND' };
+        if (userId) predioPayload.user_id = userId; // Inyección segura para RLS
+
         const { data: predioData, error: errP } = await supabase
           .from('predios')
-          .insert([{ nombre: 'Mi Parcela Principal', estado: 'ND' }])
+          .insert([predioPayload])
           .select('id').single();
         if (errP) throw errP;
         predioIdLocal = predioData.id;
@@ -358,14 +374,17 @@ export default function HomeScreen({ navigation }) {
       const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
       const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
+      const lotePayload = {
+        predio_id: predioIdLocal,
+        nombre: nuevoLoteNombre.trim(),
+        cultivos: cultivosFinales,
+        coordenadas_poligono: coordsFormatoBD
+      };
+      if (userId) lotePayload.user_id = userId; // Inyección segura para RLS
+
       const { error: errLote } = await supabase
         .from('lotes')
-        .insert([{
-          predio_id: predioIdLocal,
-          nombre: nuevoLoteNombre.trim(),
-          cultivos: cultivosFinales,
-          coordenadas_poligono: coordsFormatoBD
-        }]);
+        .insert([lotePayload]);
 
       if (errLote) throw errLote;
 
@@ -377,6 +396,7 @@ export default function HomeScreen({ navigation }) {
       cargarLotes(); 
 
     } catch (e) {
+      console.error("DEBUG - Error al guardar lote en la nube:", e);
       if (e.code === 'OFFLINE_MODE') {
         console.log('Guardando lote en caché local...');
         Alert.alert("Modo Sin Conexión", "El lote se guardó localmente. Se sincronizará en la nube automáticamente.");
@@ -413,7 +433,9 @@ export default function HomeScreen({ navigation }) {
         setNuevoLoteNombre('');
         setNuevoLoteCultivos('');
       } else {
-        Alert.alert("Error", "Ocurrió un problema al guardar el lote.");
+        // 🚨 BLINDAJE: Ahora el desarrollador verá exactamente qué falló en Supabase.
+        const msgError = e.message || e.details || e.hint || "Problema de permisos o conexión RLS.";
+        Alert.alert("Error de Escritura", `No se guardó el lote.\nDetalle: ${msgError}`);
       }
     } finally {
       setIsSavingLote(false);
@@ -758,21 +780,25 @@ export default function HomeScreen({ navigation }) {
                  </TouchableOpacity>
              </View>
              
-             <View style={{padding: 15, backgroundColor: '#FFF', elevation: 4, zIndex: 10}}>
+             <View style={{padding: 20, backgroundColor: '#FFFFFF', elevation: 6, zIndex: 10, borderBottomWidth: 3, borderBottomColor: '#2d6a4f'}}>
+                 <Text style={{fontSize: 16, fontWeight: 'bold', color: '#1b4332', marginBottom: 8}}>📍 Identificador del Lote</Text>
                  <TextInput 
-                     style={[styles.searchInput, {backgroundColor: '#F5F5F5', padding: 10, borderRadius: 8}]} 
-                     placeholder="Nombre del Lote (Ej. Parcela Norte)" 
+                     style={{backgroundColor: '#F8F9FA', padding: 16, borderRadius: 10, fontSize: 18, color: '#000000', marginBottom: 15, borderWidth: 1, borderColor: '#90A4AE'}} 
+                     placeholder="Ej. Parcela Norte" 
+                     placeholderTextColor="#546E7A"
                      value={nuevoLoteNombre} 
                      onChangeText={setNuevoLoteNombre} 
                  />
+                 <Text style={{fontSize: 16, fontWeight: 'bold', color: '#1b4332', marginBottom: 8}}>🌱 Cultivos Establecidos</Text>
                  <TextInput 
-                     style={[styles.searchInput, {marginTop: 10, backgroundColor: '#F5F5F5', padding: 10, borderRadius: 8}]} 
-                     placeholder="Cultivos (Ej. Maíz, Frijol)" 
+                     style={{backgroundColor: '#F8F9FA', padding: 16, borderRadius: 10, fontSize: 18, color: '#000000', borderWidth: 1, borderColor: '#90A4AE'}} 
+                     placeholder="Ej. Maíz, Frijol" 
+                     placeholderTextColor="#546E7A"
                      value={nuevoLoteCultivos} 
                      onChangeText={setNuevoLoteCultivos} 
                  />
-                 <Text style={{fontSize: 12, color: '#78909C', marginTop: 10}}>
-                     Toca el mapa para agregar los vértices del terreno.
+                 <Text style={{fontSize: 14, color: '#E65100', marginTop: 12, fontWeight: 'bold', textAlign: 'center'}}>
+                     👆 Toca el mapa para agregar los vértices.
                  </Text>
              </View>
 
