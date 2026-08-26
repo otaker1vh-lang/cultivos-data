@@ -238,9 +238,26 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     let isMounted = true;
     
+    // NUEVA FUNCIÓN: Identidad Anónima Silenciosa
+    const iniciarSesionSilenciosa = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          await supabase.auth.signInAnonymously();
+        }
+      } catch (error) {
+        console.warn("Fallo al generar identidad anónima:", error.message);
+      }
+    };
+
     const unsubscribeNet = NetInfo.addEventListener(state => {
-        if (isMounted) setIsOnline(!!(state.isConnected && state.isInternetReachable));
+        const online = !!(state.isConnected && state.isInternetReachable);
+        if (isMounted) {
+            setIsOnline(online);
+            if (online) iniciarSesionSilenciosa(); // Ejecutamos al tener red
+        }
     });
+
 
     cargarFavoritos();
     
