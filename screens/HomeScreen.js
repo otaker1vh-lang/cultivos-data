@@ -25,6 +25,7 @@ import { usePlantClassifier } from '../src/hooks/usePlantClassifier';
 import AsistenteVoz from '../components/AsistenteVoz';
 import { SyncManager } from '../src/services/SyncManager'; 
 import MapView, { Marker, Polygon, PROVIDER_GOOGLE } from 'react-native-maps';
+import * as Location from 'expo-location';
 
 const HERRAMIENTAS_CAMPO = [
   {n: 'AgroControl', i: 'router-wireless', c: '#1b4332', bg: '#E8F5E9', label: 'AgroControl'}, 
@@ -106,6 +107,42 @@ export default function HomeScreen({ navigation }) {
   const [nuevoLoteNombre, setNuevoLoteNombre] = useState('');
   const [nuevoLoteCultivos, setNuevoLoteCultivos] = useState('');
   const [isSavingLote, setIsSavingLote] = useState(false);
+  // --- NUEVOS ESTADOS PARA BÚSQUEDA EN MAPA ---
+  const mapRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchingMap, setIsSearchingMap] = useState(false);
+
+  const [isLocating, setIsLocating] = useState(false);
+
+  const centrarEnUbicacionActual = async () => {
+    setIsLocating(true);
+    try {
+      // 1. Validar y solicitar permiso nativo al SO (Previene crasheos fatales)
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso Denegado', 'Se requiere acceso al GPS para centrar el mapa en tu ubicación.');
+        setIsLocating(false);
+        return;
+      }
+
+      // 2. Obtener la coordenada. Usamos 'High' porque en campo abierto el cielo despejado da precisión submétrica.
+      // Funciona 100% offline sin consumir datos móviles.
+      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      
+      if (mapRef.current) {
+        mapRef.current.animateToRegion({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.005, // Zoom hiper-cercano para trazar linderos
+          longitudeDelta: 0.005,
+        }, 1200);
+      }
+    } catch (error) {
+      Alert.alert('Señal GPS Débil', 'No se pudo triangular la ubicación. Verifica que tu GPS (Ubicación) esté encendido.');
+    } finally {
+      setIsLocating(false);
+    }
+  };
 
    const coordenadasValidas = React.useMemo(() => {
       return nuevoLoteCoords.filter(p => 
@@ -168,25 +205,28 @@ export default function HomeScreen({ navigation }) {
   };
 
   useEffect(() => {
+      const controller = new AbortController();
       let isMounted = true;
+      
       const fetchClimaLote = async () => {
           if (loteActivo?.coordenadas_poligono?.length > 0 && isOnline) {
               try {
                   const coord = loteActivo.coordenadas_poligono[0]; 
-                  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coord.lat}&lon=${coord.lng}&appid=8dd59ff1da764345cdd89f05c6326380&units=metric&lang=es`;
+                  // Open-Meteo: Datos por cuadrícula de alta resolución (Microclimas exactos por lat/lon)
+                  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lng}&daily=temperature_2m_max,temperature_2m_min&current=relative_humidity_2m&timezone=America/Mexico_City&forecast_days=1`;
                   
-                  const response = await fetch(url);
+                  const response = await fetch(url, { signal: controller.signal });
                   const data = await response.json();
                   
-                  if (response.ok && isMounted) {
+                  if (response.ok && isMounted && data.daily) {
                       setClimaLoteActivo({
-                          temp_max: data.main.temp_max,
-                          temp_min: data.main.temp_min,
-                          humedad_relativa: data.main.humidity
+                          temp_max: data.daily.temperature_2m_max[0],
+                          temp_min: data.daily.temperature_2m_min[0],
+                          humedad_relativa: data.current.relative_humidity_2m
                       });
                   }
               } catch (error) {
-                  console.log("Error obteniendo clima del lote:", error);
+                  if (error.name !== 'AbortError') console.log("Error obteniendo clima de cuadrícula:", error);
               }
           } else {
               if (isMounted) setClimaLoteActivo(null);
@@ -194,7 +234,10 @@ export default function HomeScreen({ navigation }) {
       };
 
       fetchClimaLote();
-      return () => { isMounted = false; };
+      return () => { 
+          isMounted = false; 
+          controller.abort(); 
+      };
   }, [loteActivo, isOnline]);
   
   useEffect(() => {
@@ -327,17 +370,18 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-        // Priorizar el clima del polígono. Si falla (offline), usar GPS del dispositivo como fallback de seguridad.
         const climaParaEvaluar = climaLoteActivo || climaActual; 
-
         if (climaParaEvaluar && loteActivo && cultivoActivo) {
-            const firmaCalculo = `${loteActivo.id}-${cultivoActivo}-${climaParaEvaluar.temp_max}-${climaParaEvaluar.temp_min}`;
+            const hoyFirma = new Date().toISOString().split('T')[0];
+            // Sello único que fuerza la evaluación diaria
+            const firmaCalculo = `${loteActivo.id}-${cultivoActivo}-${climaParaEvaluar.temp_max}-${climaParaEvaluar.temp_min}-${hoyFirma}`;
             
             if (ultimoCalculoGDD.current !== firmaCalculo) {
                 ultimoCalculoGDD.current = firmaCalculo;
                 
                 const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {}; 
-                const cultivoParaGDD = { id: loteActivo.id, nombre: cultivoActivo, ...configCultivo };
+                // Aislamiento: Se genera un ID compuesto para que cada cultivo tenga su propio historial en AsyncStorage
+                const cultivoParaGDD = { id: `${loteActivo.id}_${cultivoActivo}`, nombre: cultivoActivo, ...configCultivo };
                 
                 if (Object.keys(configCultivo).length > 0) {
                     calcularRiesgoGDD(cultivoParaGDD, climaParaEvaluar);
@@ -653,6 +697,40 @@ export default function HomeScreen({ navigation }) {
     ]);
   };
 
+  const buscarUbicacionMapa = async () => {
+    if (!isOnline) {
+      Alert.alert("Modo Offline", "La búsqueda requiere internet. Ubica tu parcela deslizando el mapa manualmente.");
+      return;
+    }
+    if (!searchQuery.trim()) return;
+    setIsSearchingMap(true);
+    
+    try {
+      // Photon Komoot: Motor ElasticSearch sobre OSM, ideal para localizar ejidos y localidades pequeñas en México.
+      const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&lat=23.6345&lon=-102.5528&limit=1`;
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data && data.features && data.features.length > 0) {
+        const [lon, lat] = data.features[0].geometry.coordinates; // El estándar GeoJSON devuelve [lon, lat]
+        if (mapRef.current) {
+          mapRef.current.animateToRegion({
+            latitude: lat,
+            longitude: lon,
+            latitudeDelta: 0.04,
+            longitudeDelta: 0.04,
+          }, 1000);
+        }
+      } else {
+        Alert.alert("Localidad no encontrada", "Intenta buscar un municipio cercano más grande, o desliza el mapa manualmente hacia tu parcela.");
+      }
+    } catch (error) {
+      Alert.alert("Error de red", "No se pudo conectar al geocodificador.");
+    } finally {
+      setIsSearchingMap(false);
+    }
+  };
+
   const abrirCamara = async () => { 
     if (!hasPermission) {
       const permiso = await requestPermission();
@@ -869,6 +947,7 @@ export default function HomeScreen({ navigation }) {
                      setNuevoLoteCoords([]);
                      setNuevoLoteNombre('');
                      setNuevoLoteCultivos('');
+                     setSearchQuery(''); // Limpiamos la búsqueda al salir
                  }}>
                      <Ionicons name="close" size={28} color="white" />
                  </TouchableOpacity>
@@ -897,15 +976,47 @@ export default function HomeScreen({ navigation }) {
              </View>
 
              <View style={{ flex: 1, backgroundColor: '#E0E0E0', overflow: 'hidden' }}>
+                  
+                  {/* --- CONTENEDOR DE BÚSQUEDA FLOTANTE (Komoot) --- */}
+                  <View style={{ position: 'absolute', top: 10, left: 15, right: 15, zIndex: 10, flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 12, elevation: 5, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: {width: 0, height: 2}, paddingHorizontal: 12, alignItems: 'center', borderWidth: 1, borderColor: '#ECEFF1' }}>
+                      <Ionicons name="search" size={20} color="#2d6a4f" />
+                      <TextInput
+                          style={{ flex: 1, height: 48, paddingHorizontal: 12, fontSize: 15, color: '#263238' }}
+                          placeholder="Buscar ciudad o municipio..."
+                          placeholderTextColor="#90A4AE"
+                          value={searchQuery}
+                          onChangeText={setSearchQuery}
+                          onSubmitEditing={buscarUbicacionMapa}
+                          returnKeyType="search"
+                      />
+                      <TouchableOpacity onPress={buscarUbicacionMapa} disabled={isSearchingMap} style={{ padding: 8 }}>
+                          {isSearchingMap ? <ActivityIndicator size="small" color="#2d6a4f" /> : <Text style={{ color: '#2d6a4f', fontWeight: 'bold' }}>Ir</Text>}
+                      </TouchableOpacity>
+                  </View>
+
+                  {/* --- NUEVO: BOTÓN FLOTANTE GPS (OFFLINE) --- */}
+                  <TouchableOpacity 
+                      style={{ position: 'absolute', bottom: 20, right: 15, zIndex: 10, backgroundColor: '#FFF', width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', elevation: 6, shadowColor: '#000', shadowOpacity: 0.3, shadowOffset: {width: 0, height: 3} }}
+                      onPress={centrarEnUbicacionActual}
+                      disabled={isLocating}
+                  >
+                      {isLocating ? (
+                          <ActivityIndicator size="small" color="#2d6a4f" />
+                      ) : (
+                          <MaterialCommunityIcons name="crosshairs-gps" size={26} color="#2E7D32" />
+                      )}
+                  </TouchableOpacity>
+
                   <MapView
+                    ref={mapRef}
                     provider={PROVIDER_GOOGLE}
                     style={StyleSheet.absoluteFillObject}
-                    mapType="standard"
+                    mapType="hybrid"
                     initialRegion={{
                       latitude: 23.6345,
                       longitude: -102.5528,
-                      latitudeDelta: 0.05,
-                      longitudeDelta: 0.05,
+                      latitudeDelta: 15.0, 
+                      longitudeDelta: 15.0,
                     }}
                     onPress={handleMapPress}
                   >
@@ -914,11 +1025,11 @@ export default function HomeScreen({ navigation }) {
                         coordinates={coordenadasValidas}
                         strokeColor="#FFF"
                         strokeWidth={2}
-                        fillColor="rgba(46,125,50,0.4)"
+                        fillColor="rgba(46,125,50,0.5)"
                       />
                     )}
                     {coordenadasValidas.map((c, i) => (
-                      <Marker key={`vertice-${i}`} coordinate={c} />
+                      <Marker key={`vertice-${i}`} coordinate={c} pinColor="#2E7D32" />
                     ))}
                   </MapView>
               </View>
@@ -1019,48 +1130,50 @@ export default function HomeScreen({ navigation }) {
          <View style={[StyleSheet.absoluteFillObject, { zIndex: 1000, elevation: 10 }]}>
              <View style={styles.modalOverlay}>
                  <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Seleccionar Predio y Lote</Text>
+                    <Text style={styles.modalTitle}>1. Seleccionar Lote</Text>
                     <FlatList 
                         data={lotesUsuario}
                         keyExtractor={(item, index) => item?.id?.toString() || `lote-temp-${index}`}
+                        style={{ maxHeight: 150 }}
                         renderItem={({item}) => (
-                            <View style={styles.modalItem}>
-                                <TouchableOpacity 
-                                    style={{ flex: 1 }}
-                                    onPress={() => {
-                                        setLoteActivo(item);
-                                        if (item.cultivos && item.cultivos.length > 0) {
-                                            setCultivoActivo(item.cultivos[0]);
-                                        } else {
-                                            setCultivoActivo(null);
-                                        }
-                                        setShowCropSelector(false);
-                                    }}>
+                            <View style={[styles.modalItem, loteActivo?.id === item.id && { backgroundColor: '#E8F5E9' }]}>
+                                <TouchableOpacity style={{ flex: 1 }} onPress={() => setLoteActivo(item)}>
                                     <Text style={styles.modalItemText}>{item.predios?.nombre} - {item.nombre}</Text>
                                 </TouchableOpacity>
-                                  
-                                {loteActivo?.id === item.id && <Ionicons name="checkmark-circle" size={20} color="green" style={{marginRight: 10}}/>}
-                                  
                                 <TouchableOpacity onPress={() => eliminarLote(item.id, item.nombre)}>
                                     <Ionicons name="trash-outline" size={22} color="#c32f27" />
                                 </TouchableOpacity>
                             </View>
                         )}
-                        ListEmptyComponent={<Text style={{textAlign: 'center', marginVertical: 20, color: '#78909C'}}>No tiene lotes registrados aún.</Text>}
+                        ListEmptyComponent={<Text style={{textAlign: 'center', color: '#78909C'}}>No tiene lotes registrados.</Text>}
                     />
                     
-                    <TouchableOpacity 
-                        onPress={() => {
-                           setShowCropSelector(false);
-                           setMostrarMapaTrazador(true);
-                        }}
-                        style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center', borderRadius: 12}]}
-                    >
-                        <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
-                    </TouchableOpacity>
+                    {loteActivo && (
+                        <>
+                            <Text style={[styles.modalTitle, { marginTop: 15, fontSize: 15 }]}>2. Seleccionar Cultivo</Text>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
+                                {(loteActivo.cultivos || []).map(c => (
+                                    <TouchableOpacity 
+                                        key={c} 
+                                        style={{ padding: 8, margin: 4, borderRadius: 8, backgroundColor: cultivoActivo === c ? '#FFCA28' : '#ECEFF1' }}
+                                        onPress={() => setCultivoActivo(c)}>
+                                        <Text style={{ color: '#1B5E20', fontWeight: 'bold' }}>{c}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                            <TextInput 
+                                style={{ backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#90A4AE', marginBottom: 10 }}
+                                placeholder="Escribir variedad u otro cultivo..."
+                                onSubmitEditing={(e) => {
+                                    const val = e.nativeEvent.text.trim();
+                                    if(val) setCultivoActivo(val);
+                                }}
+                            />
+                        </>
+                    )}
 
-                    <TouchableOpacity onPress={()=>setShowCropSelector(false)} style={styles.closeModalBtn}>
-                        <Text style={styles.closeModalText}>Cancelar</Text>
+                    <TouchableOpacity onPress={() => setShowCropSelector(false)} style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center'}]}>
+                        <Text style={styles.btnText}>Aceptar</Text>
                     </TouchableOpacity>
                  </View>
              </View>

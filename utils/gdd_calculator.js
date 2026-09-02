@@ -39,25 +39,42 @@ export function calcularGDD_Seno(tmaxRaw, tminRaw, baseTermicaRaw, umbralSuperio
 
 export function cargarRiesgosDesdeJSON(cultivoData) {
   const riesgos = [];
+  const nombresProcesados = new Set();
+
   if (!cultivoData) return riesgos;
 
-  // BLINDAJE: Búsqueda profunda en múltiples llaves posibles (Igual que en PlagasScreen)
-  const dataRiesgos = cultivoData.riesgos_detallados || cultivoData.plagas_enfermedades || cultivoData.sanidad?.principales_plagas_enfermedades;
-  if (!dataRiesgos || typeof dataRiesgos !== 'object') return riesgos;
+  let todosLosRiesgos = [];
+  
+  // Extraemos de TODAS las posibles ramas del JSON para no perder datos
+  const fuentes = [
+    cultivoData.riesgos_detallados, 
+    cultivoData.plagas_enfermedades, 
+    cultivoData.sanidad?.principales_plagas_enfermedades
+  ];
+  
+  fuentes.forEach(fuente => {
+      if (fuente && typeof fuente === 'object') {
+          // Normaliza tanto Objetos como Arrays
+          const arr = Array.isArray(fuente) 
+            ? fuente 
+            : Object.keys(fuente).map(key => ({ nombre: key, ...fuente[key] }));
+          todosLosRiesgos = [...todosLosRiesgos, ...arr];
+      }
+  });
 
-  // Ajuste para manejar tanto Objetos (Firebase) como Arrays (Manager)
-  const riesgosArray = Array.isArray(dataRiesgos) 
-    ? dataRiesgos 
-    : Object.keys(dataRiesgos).map(key => ({ nombre: key, ...dataRiesgos[key] }));
-
-  riesgosArray.forEach(info => {
+  todosLosRiesgos.forEach(info => {
     if (!info) return;
     
-    // 1. Extraer la configuración de GDD según la estructura real de tu Firebase JSON
+    const nombreOriginal = info.nombre || 'Riesgo Desconocido';
+    // Normalización: convierte a minúsculas y quita acentos para comparar
+    const nombreNormalizado = nombreOriginal.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+    // Filtro anti-duplicados
+    if (nombresProcesados.has(nombreNormalizado)) return; 
+    nombresProcesados.add(nombreNormalizado);
+
     const configGDD = info.ciclo_desarrollo?.grados_dia_desarrollo || info.grados_dia_desarrollo;
-    
-    // 2. Extraer la humedad desde las condiciones de desarrollo del JSON
-    const condiciones = info.condiciones_desarrollo;
+    const condiciones = info.condiciones_desarrollo || info.condiciones;
     const humedadMin = condiciones?.humedad_relativa?.minima || condiciones?.humedad_min || 0;
 
     if (configGDD && configGDD.base_termica !== undefined) {
@@ -65,12 +82,11 @@ export function cargarRiesgosDesdeJSON(cultivoData) {
 
       if (reqGDD) {
         riesgos.push({
-          nombre: info.nombre || 'Riesgo Desconocido',
-          tipo: String(info.tipo || 'Plaga').toLowerCase(),
+          nombre: nombreOriginal,
+          tipo: String(info.tipo || info.categoria || 'Plaga').toLowerCase(),
           config: {
             base_termica: parseFloat(configGDD.base_termica) || 10,
             umbral_superior: configGDD.umbral_superior ? parseFloat(configGDD.umbral_superior) : null,
-            // parseFloat de "350-500" devolverá 350 (el límite inferior), lo cual es ideal para el progreso
             gdd_requeridos_numero: parseFloat(reqGDD) || 100, 
             gdd_requeridos_texto: String(reqGDD), 
             humedad_minima: parseFloat(humedadMin)
