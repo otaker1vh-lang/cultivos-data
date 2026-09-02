@@ -1145,8 +1145,19 @@ export default function HomeScreen({ navigation }) {
                                 </TouchableOpacity>
                             </View>
                         )}
-                        ListEmptyComponent={<Text style={{textAlign: 'center', color: '#78909C'}}>No tiene lotes registrados.</Text>}
+                        ListEmptyComponent={<Text style={{textAlign: 'center', color: '#78909C', marginVertical: 10}}>No tiene lotes registrados.</Text>}
                     />
+                    
+                    {/* BOTÓN EXTRAÍDO DEL RENDERITEM (AHORA ESTÁ ESTÁTICO) */}
+                    <TouchableOpacity 
+                        onPress={() => {
+                           setShowCropSelector(false);
+                           setMostrarMapaTrazador(true);
+                        }}
+                        style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginVertical: 10, alignSelf: 'center', borderRadius: 12}]}
+                    >
+                        <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
+                    </TouchableOpacity>
                     
                     {loteActivo && (
                         <>
@@ -1172,8 +1183,8 @@ export default function HomeScreen({ navigation }) {
                         </>
                     )}
 
-                    <TouchableOpacity onPress={() => setShowCropSelector(false)} style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginBottom: 10, alignSelf: 'center'}]}>
-                        <Text style={styles.btnText}>Aceptar</Text>
+                    <TouchableOpacity onPress={() => setShowCropSelector(false)} style={[styles.btnAction, {backgroundColor: '#1b4332', width: '100%', marginBottom: 10, alignSelf: 'center'}]}>
+                        <Text style={styles.btnText}>Aceptar / Cerrar</Text>
                     </TouchableOpacity>
                  </View>
              </View>
