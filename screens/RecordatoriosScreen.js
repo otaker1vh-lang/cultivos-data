@@ -228,10 +228,16 @@ export default function RecordatoriosScreen({ route }) {
     }
 
     const ahora = new Date();
-    const fechaBase = new Date(fecha);
+    let fechaBase = new Date(fecha);
     
-    if (fechaBase <= ahora) {
-      return Alert.alert("Fecha inválida", "Selecciona una fecha y hora futura.");
+    // BLINDAJE LÓGICO Y AUTO-AJUSTE
+    // Si el usuario no cambió la hora y tardó hasta 10 minutos llenando el formulario,
+    // asume que quiere la alarma "ahora" y la empuja 15 segundos al futuro automáticamente.
+    const diffMs = ahora.getTime() - fechaBase.getTime();
+    if (diffMs > 0 && diffMs < 600000) { 
+        fechaBase = new Date(ahora.getTime() + 15000); 
+    } else if (fechaBase.getTime() <= ahora.getTime()) {
+        return Alert.alert("Fecha inválida", "La fecha y hora están en el pasado. Elige un momento futuro.");
     }
 
     let intervaloNum = 0;
@@ -277,7 +283,7 @@ export default function RecordatoriosScreen({ route }) {
       }
 
       if (notificationIds.length === 0) {
-        return Alert.alert("Atención", "No se pudo programar (¿Fecha muy cercana?).");
+        return Alert.alert("Atención", "No se pudo programar (¿Fecha muy cercana al pasado?).");
       }
 
       const nuevaTarea = {
@@ -309,7 +315,7 @@ export default function RecordatoriosScreen({ route }) {
 
     } catch (e) {
       console.log("Error CRÍTICO al programar:", e);
-      Alert.alert("Error", "Revisa la consola para más detalles.");
+      Alert.alert("Error", "No se logró programar en el sistema operativo.");
     }
   };
 
@@ -365,7 +371,7 @@ export default function RecordatoriosScreen({ route }) {
             is24Hour={true}
             display="default"
             onChange={onChange}
-            minimumDate={new Date()}
+            minimumDate={modo === 'date' ? new Date() : undefined}
           />
         )}
 

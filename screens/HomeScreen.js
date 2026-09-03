@@ -368,30 +368,58 @@ export default function HomeScreen({ navigation }) {
 
   const ultimoCalculoGDD = useRef(null);
 
-  useEffect(() => {
+ useEffect(() => {
     const timeoutId = setTimeout(() => {
         const climaParaEvaluar = climaLoteActivo || climaActual; 
         if (climaParaEvaluar && loteActivo && cultivoActivo) {
             const hoyFirma = new Date().toISOString().split('T')[0];
-            // Sello único que fuerza la evaluación diaria
-            const firmaCalculo = `${loteActivo.id}-${cultivoActivo}-${climaParaEvaluar.temp_max}-${climaParaEvaluar.temp_min}-${hoyFirma}`;
+            
+            // 1. Normalización robusta para empatar el string con las llaves de la base de datos
+            const cropNorm = cultivoActivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            
+            // 2. Buscar en la lista unificada permitiendo coincidencias parciales (ej. "maiz" entra en "Maíz grano")
+            let configCultivo = listaCultivos.find(c => {
+                const n = c.nombre ? c.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
+                return n === cropNorm || n.includes(cropNorm) || cropNorm.includes(n);
+            });
+
+            // 3. Fallback estricto a diccionarios en bruto (JSON local o Firebase)
+            if (!configCultivo) {
+                const searchInObject = (obj) => {
+                    if (!obj) return null;
+                    const exactKey = Object.keys(obj).find(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() === cropNorm);
+                    if (exactKey) return { nombre: exactKey, ...obj[exactKey] };
+                    
+                    const partialKey = Object.keys(obj).find(k => {
+                        const normK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+                        return normK.includes(cropNorm) || cropNorm.includes(normK);
+                    });
+                    return partialKey ? { nombre: partialKey, ...obj[partialKey] } : null;
+                };
+                configCultivo = searchInObject(dbCultivos) || searchInObject(datosBasicos?.cultivos);
+            }
+
+            const hasData = !!(configCultivo && (configCultivo.riesgos_detallados || configCultivo.plagas_enfermedades || configCultivo.sanidad || configCultivo.grados_dia_desarrollo));
+            
+            // Sello único que reacciona de inmediato si el productor cambia el cultivo en el mismo lote
+            const firmaCalculo = `${loteActivo.id}-${cropNorm}-${climaParaEvaluar.temp_max}-${climaParaEvaluar.temp_min}-${hoyFirma}-${hasData}`;
             
             if (ultimoCalculoGDD.current !== firmaCalculo) {
                 ultimoCalculoGDD.current = firmaCalculo;
                 
-                const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {}; 
-                // Aislamiento: Se genera un ID compuesto para que cada cultivo tenga su propio historial en AsyncStorage
-                const cultivoParaGDD = { id: `${loteActivo.id}_${cultivoActivo}`, nombre: cultivoActivo, ...configCultivo };
-                
-                if (Object.keys(configCultivo).length > 0) {
+                if (hasData) {
+                    const cultivoParaGDD = { id: `${loteActivo.id}_${cropNorm}`, nombre: configCultivo.nombre || cultivoActivo, ...configCultivo };
                     calcularRiesgoGDD(cultivoParaGDD, climaParaEvaluar);
+                } else {
+                    // Limpieza visual segura si el cultivo escrito no tiene plagas en el sistema
+                    setAlertasGDD([]);
                 }
             }
         }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [climaLoteActivo, climaActual, loteActivo, cultivoActivo, dbCultivos]);
+  }, [climaLoteActivo, climaActual, loteActivo, cultivoActivo, dbCultivos, listaCultivos]);
 
  const cultivosFiltrados = React.useMemo(() => {
     if (busqueda.trim() === "") return [];
@@ -453,7 +481,7 @@ export default function HomeScreen({ navigation }) {
 
       if (!predioIdLocal) {
         const predioPayload = { nombre: 'Mi Parcela Principal', estado: 'ND' };
-        if (userId) predioPayload.user_id = userId; // Inyección segura para RLS
+        if (userId) predioPayload.user_id = userId; 
 
         const { data: predioData, error: errP } = await supabase
           .from('predios')
@@ -473,11 +501,13 @@ export default function HomeScreen({ navigation }) {
         cultivos: cultivosFinales,
         coordenadas_poligono: coordsFormatoBD
       };
-      if (userId) lotePayload.user_id = userId; // Inyección segura para RLS
+      if (userId) lotePayload.user_id = userId; 
 
-      const { error: errLote } = await supabase
+      // BLINDAJE: Pedimos a Supabase que devuelva los datos insertados usando .select()
+      const { data: loteInsertado, error: errLote } = await supabase
         .from('lotes')
-        .insert([lotePayload]);
+        .insert([lotePayload])
+        .select('id, nombre, cultivos, coordenadas_poligono');
 
       if (errLote) throw errLote;
 
@@ -488,10 +518,19 @@ export default function HomeScreen({ navigation }) {
       setNuevoLoteCultivos('');
       cargarLotes(); 
 
+      // AUTO-SELECCIÓN: Dispara la visualización de GDD inmediatamente
+      if (loteInsertado && loteInsertado.length > 0) {
+          const nuevoLote = loteInsertado[0];
+          nuevoLote.predios = { nombre: 'Mi Parcela Principal' };
+          setLoteActivo(nuevoLote);
+          if (nuevoLote.cultivos && nuevoLote.cultivos.length > 0) {
+              setCultivoActivo(nuevoLote.cultivos[0]);
+          }
+      }
+
     } catch (e) {
       console.error("DEBUG - Error al guardar lote en la nube:", e);
       if (e.code === 'OFFLINE_MODE') {
-        console.log('Guardando lote en caché local...');
         Alert.alert("Modo Sin Conexión", "El lote se guardó localmente. Se sincronizará en la nube automáticamente.");
         
         const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
@@ -525,8 +564,13 @@ export default function HomeScreen({ navigation }) {
         setNuevoLoteCoords([]);
         setNuevoLoteNombre('');
         setNuevoLoteCultivos('');
+        
+        // AUTO-SELECCIÓN OFFLINE: Dispara la visualización de GDD sin internet
+        setLoteActivo(lotePendiente);
+        if (cultivosFinales && cultivosFinales.length > 0) {
+            setCultivoActivo(cultivosFinales[0]);
+        }
       } else {
-        // 🚨 BLINDAJE: Ahora el desarrollador verá exactamente qué falló en Supabase.
         const msgError = e.message || e.details || e.hint || "Problema de permisos o conexión RLS.";
         Alert.alert("Error de Escritura", `No se guardó el lote.\nDetalle: ${msgError}`);
       }
@@ -657,15 +701,17 @@ export default function HomeScreen({ navigation }) {
 
   const reiniciarTemporadaGDD = async () => {
     if (!loteActivo || !cultivoActivo) return;
-    Alert.alert("Reiniciar Todo", `¿Desea borrar todo el historial de monitoreo de ${cultivoActivo}?`, [
+    Alert.alert("Reiniciar Todo", `¿Desea borrar el historial de monitoreo de ${cultivoActivo}?`, [
         { text: "Cancelar", style: "cancel" },
         { text: "Reiniciar", style: "destructive", onPress: async () => {
-            await AsyncStorage.removeItem(`@gdd_historial_${loteActivo.id}`);
-            await AsyncStorage.removeItem(`@gdd_resets_${loteActivo.id}`);
+            const cropNorm = cultivoActivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            const compoundId = `${loteActivo.id}_${cropNorm}`; // BLINDAJE: ID Compuesto
             
-            // 🚨 FIX: Fallback Offline asegurado al resetear
+            await AsyncStorage.removeItem(`@gdd_historial_${compoundId}`);
+            await AsyncStorage.removeItem(`@gdd_resets_${compoundId}`);
+            
             const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {};
-            const cultivoParaGDD = { id: loteActivo.id, nombre: cultivoActivo, ...configCultivo };
+            const cultivoParaGDD = { id: compoundId, nombre: cultivoActivo, ...configCultivo };
             if (climaActual) calcularRiesgoGDD(cultivoParaGDD, climaActual);
         }}
     ]);
@@ -673,11 +719,14 @@ export default function HomeScreen({ navigation }) {
 
   const reiniciarPlagaIndividual = (nombrePlaga) => {
     if (!loteActivo || !cultivoActivo) return;
-    Alert.alert("Reiniciar Ciclo", `¿Desea restablecer el desarrollo biológico de la plaga "${nombrePlaga}"?`, [
+    Alert.alert("Reiniciar Ciclo", `¿Desea restablecer la plaga "${nombrePlaga}"?`, [
         { text: "Cancelar", style: "cancel" },
         { text: "Restablecer", style: "destructive", onPress: async () => {
             try {
-                const storageKey = `@gdd_resets_${loteActivo.id}`;
+                const cropNorm = cultivoActivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+                const compoundId = `${loteActivo.id}_${cropNorm}`; // BLINDAJE: ID Compuesto
+                const storageKey = `@gdd_resets_${compoundId}`;
+                
                 const resetDatesStr = await AsyncStorage.getItem(storageKey);
                 const resetDates = resetDatesStr ? JSON.parse(resetDatesStr) : {};
                 
@@ -688,7 +737,7 @@ export default function HomeScreen({ navigation }) {
                 await AsyncStorage.setItem(storageKey, JSON.stringify(resetDates));
                 
                 const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {};
-                const cultivoParaGDD = { id: loteActivo.id, nombre: cultivoActivo, ...configCultivo };
+                const cultivoParaGDD = { id: compoundId, nombre: cultivoActivo, ...configCultivo };
                 if (climaActual) calcularRiesgoGDD(cultivoParaGDD, climaActual);
             } catch (error) { 
                 console.error("Error al reiniciar plaga individual:", error); 
@@ -895,11 +944,19 @@ export default function HomeScreen({ navigation }) {
                         <Ionicons name="caret-down" size={14} color="#2d6a4f" />
                     </TouchableOpacity>
 
+                    {/* BLINDAJE VISUAL: Indicador de carga para que el agricultor sepa que el sistema está calculando */}
+                    {loteActivo && cultivoActivo && loadingGDD && (
+                        <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                            <ActivityIndicator size="small" color="#2d6a4f" />
+                            <Text style={{ fontSize: 12, color: '#546E7A', marginTop: 8 }}>Calculando ciclo biológico para {cultivoActivo}...</Text>
+                        </View>
+                    )}
+
                     {loteActivo && cultivoActivo && alertasGDD.length === 0 && !loadingGDD && (
                       <Text style={styles.noGddText}>No hay datos epidemiológicos configurados o disponibles para este cultivo.</Text>
                     )}
 
-                    {loteActivo && cultivoActivo && alertasGDD.map((alerta) => (
+                    {!loadingGDD && loteActivo && cultivoActivo && alertasGDD.map((alerta) => (
                         <TouchableOpacity key={alerta.id} style={styles.gddCard} onPress={() => setExpandedGddId(expandedGddId === alerta.id ? null : alerta.id)}>
                             <View style={styles.gddHeader}>
                                 <View style={{flex:1}}>
@@ -1137,7 +1194,18 @@ export default function HomeScreen({ navigation }) {
                         style={{ maxHeight: 150 }}
                         renderItem={({item}) => (
                             <View style={[styles.modalItem, loteActivo?.id === item.id && { backgroundColor: '#E8F5E9' }]}>
-                                <TouchableOpacity style={{ flex: 1 }} onPress={() => setLoteActivo(item)}>
+                                <TouchableOpacity 
+                                    style={{ flex: 1 }} 
+                                    onPress={() => {
+                                        setLoteActivo(item);
+                                        // BLINDAJE: Auto-seleccionar el primer cultivo para no dejar el estado huérfano
+                                        if (item.cultivos && item.cultivos.length > 0) {
+                                            setCultivoActivo(item.cultivos[0]);
+                                        } else {
+                                            setCultivoActivo(null);
+                                        }
+                                    }}
+                                >
                                     <Text style={styles.modalItemText}>{item.predios?.nombre} - {item.nombre}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => eliminarLote(item.id, item.nombre)}>
@@ -1177,7 +1245,20 @@ export default function HomeScreen({ navigation }) {
                                 placeholder="Escribir variedad u otro cultivo..."
                                 onSubmitEditing={(e) => {
                                     const val = e.nativeEvent.text.trim();
-                                    if(val) setCultivoActivo(val);
+                                    if(val) {
+                                        setCultivoActivo(val);
+                                        // Prevención de duplicados exactos usando Set
+                                        const arrayActualizado = [...new Set([...(loteActivo.cultivos || []), val])];
+                                        const loteActualizado = { ...loteActivo, cultivos: arrayActualizado };
+                                        
+                                        setLoteActivo(loteActualizado);
+                                        setLotesUsuario(prev => prev.map(l => l.id === loteActivo.id ? loteActualizado : l));
+                                        
+                                        // Sincronización transparente a Supabase
+                                        if (isOnline && !String(loteActivo.id).startsWith('temp_')) {
+                                            supabase.from('lotes').update({ cultivos: arrayActualizado }).eq('id', loteActivo.id).then();
+                                        }
+                                    }
                                 }}
                             />
                         </>
