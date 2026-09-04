@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -44,6 +44,8 @@ export default function RecordatoriosScreen({ route }) {
   // --- ESTADOS PARA LA ALARMA ---
   const [alarmaVisible, setAlarmaVisible] = useState(false);
   const soundRef = useRef(null);
+  const pickerTimeoutRef = useRef(null);
+  const alarmLoadingRef = useRef(false);
   const [tituloAlarmaActual, setTituloAlarmaActual] = useState("");
   const isMounted = useRef(true); // FIX: Control estricto del ciclo de vida
   // ------------------------------
@@ -64,6 +66,9 @@ export default function RecordatoriosScreen({ route }) {
     });
 
     return () => {
+      if (pickerTimeoutRef.current) {
+        clearTimeout(pickerTimeoutRef.current);
+      }
       isMounted.current = false; // FIX: Marcar el componente como "muerto"
       foregroundSubscription.remove();
       responseSubscription.remove();
@@ -73,37 +78,43 @@ export default function RecordatoriosScreen({ route }) {
 
   // --- LÓGICA DE PANTALLA DE ALARMA Y SONIDO ---
   const activarPantallaAlarma = async (tituloNotif) => {
-    setTituloAlarmaActual(tituloNotif || "¡Recordatorio!");
-    setAlarmaVisible(true);
-
-    if (Platform.OS === 'android') {
-        const pattern = [1000, 2000, 1000, 2000];
-        Vibration.vibrate(pattern, true); 
-    } else {
-        Vibration.vibrate(); 
-    }
-
+    if (alarmLoadingRef.current) return;
+    
+    alarmLoadingRef.current = true;
+    
     try {
-      if (soundRef.current) {
-          await soundRef.current.stopAsync();
-          await soundRef.current.unloadAsync();
+      setTituloAlarmaActual(tituloNotif || "¡Recordatorio!");
+      setAlarmaVisible(true);
+    
+      if (Platform.OS === "android") {
+        const pattern = [1000, 2000, 1000, 2000];
+        Vibration.vibrate(pattern, true);
+      } else {
+        Vibration.vibrate();
       }
-      
+    
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+      }
+    
       const { sound } = await Audio.Sound.createAsync(
-        require('./assets/tu_alarma.mp3'), 
+        require("../assets/tu_alarma.mp3"),
         { isLooping: true }
       );
-
-      // FIX: Prevenir "Zombie Audio" abortando si la pantalla se cerró durante la carga asíncrona
+    
       if (!isMounted.current) {
-          await sound.unloadAsync();
-          return;
+        await sound.unloadAsync();
+        return;
       }
-
-      soundRef.current = sound; 
+    
+      soundRef.current = sound;
       await sound.playAsync();
+    
     } catch (error) {
       console.log("No se pudo reproducir el audio de la alarma", error);
+    } finally {
+      alarmLoadingRef.current = false;
     }
   };
 
@@ -116,7 +127,9 @@ export default function RecordatoriosScreen({ route }) {
       } catch (e) { console.log(e); }
     }
     soundRef.current = null;
-    setAlarmaVisible(false);
+    if (isMounted.current) {
+      setAlarmaVisible(false);
+    }
   };
 
   // --- CONFIGURACIÓN DE NOTIFICACIONES ---
@@ -134,8 +147,19 @@ export default function RecordatoriosScreen({ route }) {
       }
     }
 
+    try {
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+      });
+    } catch (e) {
+      console.log("Audio mode error:", e);
+    }
+
     if (Platform.OS === 'android') {
-      await Notifications.deleteNotificationChannelAsync('default'); 
+      try {
+        await Notifications.deleteNotificationChannelAsync('default');
+      } catch (_) {}
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Alarmas Agrícolas', 
         importance: Notifications.AndroidImportance.MAX, 
@@ -173,7 +197,7 @@ export default function RecordatoriosScreen({ route }) {
     }
   };
 
-  const formatearFecha = (d) => {
+  const formatearFecha = useCallback((d) => {
     if (!d) return "Seleccionar fecha";
     return new Date(d).toLocaleString("es-MX", {
       weekday: "short", 
@@ -183,7 +207,7 @@ export default function RecordatoriosScreen({ route }) {
       hour: "2-digit", 
       minute: "2-digit",
     });
-  };
+  }, []);
 
   const abrirSelector = () => {
     Keyboard.dismiss();
@@ -206,7 +230,9 @@ export default function RecordatoriosScreen({ route }) {
       setFecha(nueva);
       
       setMostrarPicker(false);
-      setTimeout(() => {
+      pickerTimeoutRef.current = setTimeout(() => {
+        if (!isMounted.current) return;
+
         setModo("time");
         setMostrarPicker(true);
       }, Platform.OS === 'android' ? 350 : 50); 
@@ -218,7 +244,10 @@ export default function RecordatoriosScreen({ route }) {
       nueva.setMilliseconds(0); 
       setFecha(nueva);
       setMostrarPicker(false);
-      setTimeout(() => setModo("date"), 350);
+      pickerTimeoutRef.current = setTimeout(() => {
+        if (!isMounted.current) return;
+        setModo("date");
+      }, 350);
     }
   };
 
@@ -230,9 +259,6 @@ export default function RecordatoriosScreen({ route }) {
     const ahora = new Date();
     let fechaBase = new Date(fecha);
     
-    // BLINDAJE LÓGICO Y AUTO-AJUSTE
-    // Si el usuario no cambió la hora y tardó hasta 10 minutos llenando el formulario,
-    // asume que quiere la alarma "ahora" y la empuja 15 segundos al futuro automáticamente.
     const diffMs = ahora.getTime() - fechaBase.getTime();
     if (diffMs > 0 && diffMs < 600000) { 
         fechaBase = new Date(ahora.getTime() + 15000); 
@@ -248,6 +274,7 @@ export default function RecordatoriosScreen({ route }) {
       }
     }
 
+    
     try {
       const notificationIds = [];
       const repeticiones = esRepetitivo ? 5 : 1; 
@@ -308,7 +335,6 @@ export default function RecordatoriosScreen({ route }) {
       );
       
       setTitulo("");
-      setFecha(new Date()); 
       setEsRepetitivo(false);
       setDiasIntervalo("");
       Keyboard.dismiss();
@@ -476,7 +502,7 @@ const styles = StyleSheet.create({
   tagRepetitivo: { fontSize: 12, color: "#FF9800", fontWeight: 'bold', marginTop: 4 },
   
   // ESTILOS DE LA PANTALLA DE ALARMA
-  alarmContainer: { flex: 1, backgroundColor: "#D32F2F", justifyContent: "center", alignItems: "center", padding: 30 },
+  alarmContainer: { flex: 1, backgroundColor: "#D32F2F", justifyContent: "center", alignItems: "center", padding: 30   },
   alarmIcon: { marginBottom: 20 },
   alarmTitle: { fontSize: 32, fontWeight: "900", color: "#fff", marginBottom: 10, letterSpacing: 2 },
   alarmText: { fontSize: 20, color: "#fff", textAlign: "center", marginBottom: 50, fontWeight: "500" },

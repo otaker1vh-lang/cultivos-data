@@ -101,7 +101,68 @@ export default function HomeScreen({ navigation }) {
     return () => subscription.remove();
   }, []);
 
-  // 🚨 BLINDAJE: Sustituimos el Modal problemático por un booleano para vista absoluta
+  const [loteEnEdicion, setLoteEnEdicion] = useState(null);
+  const [busquedaCultivoModal, setBusquedaCultivoModal] = useState('');
+
+  const abrirEdicionLote = (lote) => {
+      setLoteEnEdicion(lote.id);
+      setNuevoLoteNombre(lote.nombre);
+      setNuevoLoteCoords((lote.coordenadas_poligono || []).map(c => ({ latitude: c.lat, longitude: c.lng })));
+      setNuevoLoteCultivos(lote.cultivos ? lote.cultivos.join(', ') : '');
+      setShowCropSelector(false);
+      setTimeout(() => setMostrarMapaTrazador(true), 400);
+  };
+
+  const actualizarCultivosNubeLocal = async (arrActualizado) => {
+      const loteActualizado = { ...loteActivo, cultivos: arrActualizado };
+      setLoteActivo(loteActualizado);
+      setLotesUsuario(prev => prev.map(l => l.id === loteActivo.id ? loteActualizado : l));
+      
+      if (arrActualizado.length > 0) setCultivoActivo(arrActualizado[0]);
+      else setCultivoActivo(null);
+
+      // 🚨 FIX OFFLINE: Persistencia estricta en el disco del dispositivo
+      try {
+          const cacheStr = await AsyncStorage.getItem('@lotes_cache');
+          let localCache = cacheStr ? JSON.parse(cacheStr) : [];
+          if (Array.isArray(localCache)) {
+              localCache = localCache.map(l => l.id === loteActivo.id ? loteActualizado : l);
+              await AsyncStorage.setItem('@lotes_cache', JSON.stringify(localCache));
+          }
+
+          if (!isOnline || String(loteActivo.id).startsWith('temp_')) {
+              const pendStr = await AsyncStorage.getItem('@lotes_pendientes');
+              let pendientes = pendStr ? JSON.parse(pendStr) : [];
+              if (Array.isArray(pendientes)) {
+                  const existe = pendientes.find(p => p.id === loteActivo.id);
+                  if (existe) {
+                      pendientes = pendientes.map(p => p.id === loteActivo.id ? loteActualizado : p);
+                  } else {
+                      pendientes.push({ ...loteActualizado, pendiente_sincronizacion: true });
+                  }
+                  await AsyncStorage.setItem('@lotes_pendientes', JSON.stringify(pendientes));
+              }
+          }
+      } catch (err) { console.error("Error guardando cultivo en caché", err); }
+
+      if (isOnline && !String(loteActivo.id).startsWith('temp_')) {
+          supabase.from('lotes').update({ cultivos: arrActualizado }).eq('id', loteActivo.id).then();
+      }
+  };
+
+  const agregarCultivoALote = (nuevoCultivo) => {
+      if (!nuevoCultivo) return;
+      const arrActualizado = [...new Set([...(loteActivo.cultivos || []), nuevoCultivo])];
+      actualizarCultivosNubeLocal(arrActualizado);
+      setBusquedaCultivoModal('');
+      Keyboard.dismiss();
+  };
+
+  const eliminarCultivoDeLote = (cultivoAEliminar) => {
+      const arrActualizado = (loteActivo.cultivos || []).filter(c => c !== cultivoAEliminar);
+      actualizarCultivosNubeLocal(arrActualizado);
+  };
+  
   const [mostrarMapaTrazador, setMostrarMapaTrazador] = useState(false);
   const [nuevoLoteCoords, setNuevoLoteCoords] = useState([]);
   const [nuevoLoteNombre, setNuevoLoteNombre] = useState('');
@@ -160,60 +221,72 @@ export default function HomeScreen({ navigation }) {
   }, []);
   
   const cargarLotes = async () => {
-    // 1. CARGA INMEDIATA DESDE CACHÉ (Evita la pantalla vacía al iniciar sin internet)
     try {
-        const cacheStr = await AsyncStorage.getItem('@lotes_cache');
-        if (cacheStr) {
-            const parsedCache = JSON.parse(cacheStr);
-            // Inyectamos a la UI instantáneamente si hay datos guardados
-            if (Array.isArray(parsedCache) && parsedCache.length > 0) {
-                setLotesUsuario(parsedCache);
-            }
-        }
-    } catch (cacheErr) {
-        console.error("Error leyendo caché de lotes", cacheErr);
-    }
+      // 🚨 FIX: Prevención de OOM Crash y Data Leak. Cargamos caché primero para saber qué lotes nos pertenecen.
+      const cacheStr = await AsyncStorage.getItem('@lotes_cache');
+      const localCache = cacheStr ? JSON.parse(cacheStr) : [];
+      
+      if (!isOnline) {
+          setLotesUsuario(Array.isArray(localCache) ? localCache : []);
+          return;
+      }
 
-    // 2. ABORTO TEMPRANO SI NO HAY RED (Previene timeouts largos de Supabase)
-    if (!isOnline) return;
+      const misLotesIds = Array.isArray(localCache) ? localCache.map(l => l.id).filter(Boolean) : [];
+      
+      if (misLotesIds.length === 0) {
+          setLotesUsuario([]);
+          return;
+      }
 
-    // 3. SINCRONIZACIÓN SILENCIOSA EN SEGUNDO PLANO
-    try {
       const { data, error } = await supabase
         .from('lotes')
-        .select('id, nombre, cultivos, coordenadas_poligono, predios!inner(id, nombre, estado)');
+        .select('id, nombre, cultivos, coordenadas_poligono, predios!inner(id, nombre, estado)')
+        .in('id', misLotesIds); // <- FILTRO VITAL PARA APP ANÓNIMA
         
       if (error) throw error;
-      if (data) {
-          let lotesCompletos = [...data];
-          try {
-              const pendientesStr = await AsyncStorage.getItem('@lotes_pendientes');
-              if (pendientesStr) {
-                  const pendientes = JSON.parse(pendientesStr);
-                  if (Array.isArray(pendientes) && pendientes.length > 0) {
-                      lotesCompletos = [...data, ...pendientes];
-                  }
-              }
-          } catch (e) { console.warn("Error leyendo pendientes:", e); }
-
-          setLotesUsuario(lotesCompletos); 
-          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(lotesCompletos)); 
+      
+      if (data && data.length > 0) {
+          const pendientesStr = await AsyncStorage.getItem('@lotes_pendientes');
+          const pendientes = pendientesStr ? JSON.parse(pendientesStr) : [];
+          const lotesCompletos = [...data, ...(Array.isArray(pendientes) ? pendientes : [])];
+          
+          setLotesUsuario(lotesCompletos);
+          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(lotesCompletos));
+      } else {
+          setLotesUsuario(localCache);
       }
     } catch (error) {
-      console.warn("Fallo sincronización de lotes...", error.message);
+      console.warn("Fallo sincronización, usando caché local...", error.message);
+      try {
+          const cacheStr = await AsyncStorage.getItem('@lotes_cache');
+          if (cacheStr) {
+              const parsedCache = JSON.parse(cacheStr);
+              setLotesUsuario(Array.isArray(parsedCache) ? parsedCache : []);
+          }
+      } catch (cacheErr) {
+          console.error("Error leyendo caché", cacheErr);
+      }
     }
   };
+
+  const coordenadasLoteSeguras = React.useMemo(() => {
+      if (loteActivo && loteActivo.coordenadas_poligono && loteActivo.coordenadas_poligono.length > 0) {
+          const c = loteActivo.coordenadas_poligono[0];
+          return `${c.lat},${c.lng}`; // String inmutable
+      }
+      return null;
+  }, [loteActivo?.id, loteActivo?.coordenadas_poligono]);
 
   useEffect(() => {
       const controller = new AbortController();
       let isMounted = true;
       
       const fetchClimaLote = async () => {
-          if (loteActivo?.coordenadas_poligono?.length > 0 && isOnline) {
+          if (coordenadasLoteSeguras && isOnline) {
               try {
-                  const coord = loteActivo.coordenadas_poligono[0]; 
-                  // Open-Meteo: Datos por cuadrícula de alta resolución (Microclimas exactos por lat/lon)
-                  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lng}&daily=temperature_2m_max,temperature_2m_min&current=relative_humidity_2m&timezone=America/Mexico_City&forecast_days=1`;
+                  const [lat, lng] = coordenadasLoteSeguras.split(',');
+                  // Open-Meteo: Datos por cuadrícula de alta resolución
+                  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min&current=relative_humidity_2m&timezone=America/Mexico_City&forecast_days=1`;
                   
                   const response = await fetch(url, { signal: controller.signal });
                   const data = await response.json();
@@ -238,7 +311,7 @@ export default function HomeScreen({ navigation }) {
           isMounted = false; 
           controller.abort(); 
       };
-  }, [loteActivo, isOnline]);
+  }, [coordenadasLoteSeguras, isOnline]);
   
   useEffect(() => {
     cargarLotes();
@@ -312,7 +385,6 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     let isMounted = true;
     
-    // NUEVA FUNCIÓN: Identidad Anónima Silenciosa
     const iniciarSesionSilenciosa = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -324,14 +396,42 @@ export default function HomeScreen({ navigation }) {
       }
     };
 
+    // 🚨 FIX OFFLINE: Sincronización transparente de cultivos/lotes editados sin internet.
+    const empujarColaOffline = async () => {
+        try {
+            const pendStr = await AsyncStorage.getItem('@lotes_pendientes');
+            const pendientes = pendStr ? JSON.parse(pendStr) : [];
+            
+            if (Array.isArray(pendientes) && pendientes.length > 0) {
+                for (const lote of pendientes) {
+                    if (String(lote.id).startsWith('temp_')) {
+                        // Es un lote nuevo trazado offline
+                        await supabase.from('lotes').insert([{
+                            predio_id: lote.predio_id, nombre: lote.nombre,
+                            cultivos: lote.cultivos, coordenadas_poligono: lote.coordenadas_poligono
+                        }]);
+                    } else {
+                        // Es una actualización offline de cultivos
+                        await supabase.from('lotes').update({ cultivos: lote.cultivos }).eq('id', lote.id);
+                    }
+                }
+                // Si todo pasa, limpiamos la cola
+                await AsyncStorage.removeItem('@lotes_pendientes');
+                cargarLotes(); // Recargar datos reales de la nube
+            }
+        } catch(e) { console.log("Fallo empujando cola offline", e); }
+    };
+
     const unsubscribeNet = NetInfo.addEventListener(state => {
         const online = !!(state.isConnected && state.isInternetReachable);
         if (isMounted) {
             setIsOnline(online);
-            if (online) iniciarSesionSilenciosa(); // Ejecutamos al tener red
+            if (online) {
+                iniciarSesionSilenciosa();
+                empujarColaOffline(); 
+            }
         }
     });
-
 
     cargarFavoritos();
     
@@ -352,7 +452,7 @@ export default function HomeScreen({ navigation }) {
     sincronizar();
 
     return () => {
-        isMounted = false; // Corta la actualización de estados si el componente se desmonta
+        isMounted = false; 
         unsubscribeNet();
     };
   }, []);
@@ -368,40 +468,38 @@ export default function HomeScreen({ navigation }) {
 
   const ultimoCalculoGDD = useRef(null);
 
- useEffect(() => {
+  // 🚨 FIX LÓGICO: Centralizamos la Inteligencia Agrícola (Fuzzy Matching)
+  // para que tanto el escáner en tiempo real como los botones de reinicio compartan el mismo cerebro.
+  const obtenerConfigCultivo = useCallback((nombreCultivo) => {
+      if (!nombreCultivo) return {};
+      const cropNorm = nombreCultivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+      const searchInObject = (obj) => {
+          if (!obj) return null;
+          const exactKey = Object.keys(obj).find(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() === cropNorm);
+          if (exactKey) return { nombre: exactKey, ...obj[exactKey] };
+
+          const partialKey = Object.keys(obj).find(k => {
+              const normK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+              return normK.includes(cropNorm) || cropNorm.includes(normK);
+          });
+          return partialKey ? { nombre: partialKey, ...obj[partialKey] } : null;
+      };
+
+      return searchInObject(dbCultivos) || searchInObject(datosBasicos?.cultivos) || {};
+  }, [dbCultivos]);
+
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
         const climaParaEvaluar = climaLoteActivo || climaActual; 
+
         if (climaParaEvaluar && loteActivo && cultivoActivo) {
             const hoyFirma = new Date().toISOString().split('T')[0];
-            
-            // 1. Normalización robusta para empatar el string con las llaves de la base de datos
             const cropNorm = cultivoActivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
             
-            // 2. Buscar en la lista unificada permitiendo coincidencias parciales (ej. "maiz" entra en "Maíz grano")
-            let configCultivo = listaCultivos.find(c => {
-                const n = c.nombre ? c.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : "";
-                return n === cropNorm || n.includes(cropNorm) || cropNorm.includes(n);
-            });
-
-            // 3. Fallback estricto a diccionarios en bruto (JSON local o Firebase)
-            if (!configCultivo) {
-                const searchInObject = (obj) => {
-                    if (!obj) return null;
-                    const exactKey = Object.keys(obj).find(k => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() === cropNorm);
-                    if (exactKey) return { nombre: exactKey, ...obj[exactKey] };
-                    
-                    const partialKey = Object.keys(obj).find(k => {
-                        const normK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-                        return normK.includes(cropNorm) || cropNorm.includes(normK);
-                    });
-                    return partialKey ? { nombre: partialKey, ...obj[partialKey] } : null;
-                };
-                configCultivo = searchInObject(dbCultivos) || searchInObject(datosBasicos?.cultivos);
-            }
-
-            const hasData = !!(configCultivo && (configCultivo.riesgos_detallados || configCultivo.plagas_enfermedades || configCultivo.sanidad || configCultivo.grados_dia_desarrollo));
+            const configCultivo = obtenerConfigCultivo(cultivoActivo);
+            const hasData = !!(configCultivo.riesgos_detallados || configCultivo.plagas_enfermedades || configCultivo.sanidad || configCultivo.grados_dia_desarrollo);
             
-            // Sello único que reacciona de inmediato si el productor cambia el cultivo en el mismo lote
             const firmaCalculo = `${loteActivo.id}-${cropNorm}-${climaParaEvaluar.temp_max}-${climaParaEvaluar.temp_min}-${hoyFirma}-${hasData}`;
             
             if (ultimoCalculoGDD.current !== firmaCalculo) {
@@ -411,15 +509,14 @@ export default function HomeScreen({ navigation }) {
                     const cultivoParaGDD = { id: `${loteActivo.id}_${cropNorm}`, nombre: configCultivo.nombre || cultivoActivo, ...configCultivo };
                     calcularRiesgoGDD(cultivoParaGDD, climaParaEvaluar);
                 } else {
-                    // Limpieza visual segura si el cultivo escrito no tiene plagas en el sistema
-                    setAlertasGDD([]);
+                    setAlertasGDD([]); 
                 }
             }
         }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [climaLoteActivo, climaActual, loteActivo, cultivoActivo, dbCultivos, listaCultivos]);
+  }, [climaLoteActivo, climaActual, loteActivo, cultivoActivo, obtenerConfigCultivo]);
 
  const cultivosFiltrados = React.useMemo(() => {
     if (busqueda.trim() === "") return [];
@@ -472,28 +569,28 @@ export default function HomeScreen({ navigation }) {
 
     setIsSavingLote(true);
     let predioIdLocal = lotesUsuario?.length > 0 ? (lotesUsuario[0].predios?.id || lotesUsuario[0].predio_id) : null;
+    let esNuevoPredio = false;
+
+    if (!predioIdLocal) {
+        predioIdLocal = `temp_predio_${Date.now()}`;
+        esNuevoPredio = true;
+    }
+
+    const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
+    const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
+    const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
     try {
       if (!isOnline) throw { code: 'OFFLINE_MODE' };
 
-      const { data: userData } = await supabase.auth.getUser();
-      const userId = userData?.user?.id;
-
-      if (!predioIdLocal) {
-        const predioPayload = { nombre: 'Mi Parcela Principal', estado: 'ND' };
-        if (userId) predioPayload.user_id = userId; 
-
+      if (esNuevoPredio) {
         const { data: predioData, error: errP } = await supabase
           .from('predios')
-          .insert([predioPayload])
+          .insert([{ nombre: 'Mi Parcela Principal', estado: 'ND' }])
           .select('id').single();
         if (errP) throw errP;
-        predioIdLocal = predioData.id;
+        predioIdLocal = predioData.id; 
       }
-
-      const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
-      const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
-      const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
 
       const lotePayload = {
         predio_id: predioIdLocal,
@@ -501,78 +598,113 @@ export default function HomeScreen({ navigation }) {
         cultivos: cultivosFinales,
         coordenadas_poligono: coordsFormatoBD
       };
-      if (userId) lotePayload.user_id = userId; 
 
-      // BLINDAJE: Pedimos a Supabase que devuelva los datos insertados usando .select()
-      const { data: loteInsertado, error: errLote } = await supabase
-        .from('lotes')
-        .insert([lotePayload])
-        .select('id, nombre, cultivos, coordenadas_poligono');
+      let loteDevuelto = null;
 
-      if (errLote) throw errLote;
+      if (loteEnEdicion && !String(loteEnEdicion).startsWith('temp_')) {
+          const { data: updateData, error: errUpdate } = await supabase
+            .from('lotes')
+            .update(lotePayload)
+            .eq('id', loteEnEdicion)
+            .select('id, nombre, cultivos, coordenadas_poligono').single();
+          if (errUpdate) throw errUpdate;
+          loteDevuelto = updateData;
+          Alert.alert("Actualizado", "La geometría del lote fue modificada.");
+      } else if (loteEnEdicion && String(loteEnEdicion).startsWith('temp_')) {
+          // Si editó un lote temporal y tiene internet, lo subimos como nuevo
+          const { data: insertTempData, error: errInsertTemp } = await supabase
+            .from('lotes')
+            .insert([lotePayload])
+            .select('id, nombre, cultivos, coordenadas_poligono').single();
+          if (errInsertTemp) throw errInsertTemp;
+          loteDevuelto = insertTempData;
+          Alert.alert("Éxito", "El lote guardado localmente se ha sincronizado en la nube.");
+      } else {
+          const { data: insertData, error: errInsert } = await supabase
+            .from('lotes')
+            .insert([lotePayload])
+            .select('id, nombre, cultivos, coordenadas_poligono').single();
+          if (errInsert) throw errInsert;
+          loteDevuelto = insertData;
+          Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
+      }
 
-      Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
-      setMostrarMapaTrazador(false);
-      setNuevoLoteCoords([]);
-      setNuevoLoteNombre('');
-      setNuevoLoteCultivos('');
-      cargarLotes(); 
+      // 🚨 FIX LÓGICO: Sincronización inmediata del UI previniendo Duplicaciones
+      if (loteDevuelto) {
+          loteDevuelto.predios = { nombre: 'Mi Parcela Principal' };
+          const cacheStr = await AsyncStorage.getItem('@lotes_cache');
+          let localCache = cacheStr ? JSON.parse(cacheStr) : [];
+          if (!Array.isArray(localCache)) localCache = [];
+          
+          // Filtrado doblemente asegurado contra el ID devuelto y el editado
+          localCache = localCache.filter(l => l.id !== loteDevuelto.id && l.id !== loteEnEdicion);
+          localCache.push(loteDevuelto);
+          
+          await AsyncStorage.setItem('@lotes_cache', JSON.stringify(localCache));
+          setLotesUsuario(localCache);
 
-      // AUTO-SELECCIÓN: Dispara la visualización de GDD inmediatamente
-      if (loteInsertado && loteInsertado.length > 0) {
-          const nuevoLote = loteInsertado[0];
-          nuevoLote.predios = { nombre: 'Mi Parcela Principal' };
-          setLoteActivo(nuevoLote);
-          if (nuevoLote.cultivos && nuevoLote.cultivos.length > 0) {
-              setCultivoActivo(nuevoLote.cultivos[0]);
+          if (loteActivo?.id === loteEnEdicion || !loteEnEdicion) {
+              setLoteActivo(loteDevuelto);
+              if (loteDevuelto.cultivos && loteDevuelto.cultivos.length > 0) setCultivoActivo(loteDevuelto.cultivos[0]);
           }
       }
 
+      setMostrarMapaTrazador(false);
+      setLoteEnEdicion(null);
+      setNuevoLoteCoords([]);
+      setNuevoLoteNombre('');
+      setNuevoLoteCultivos('');
+
     } catch (e) {
-      console.error("DEBUG - Error al guardar lote en la nube:", e);
-      if (e.code === 'OFFLINE_MODE') {
+      // 🚨 FIX OFFLINE: Atrapamos fallos de API ('Failed to fetch') no solo 'OFFLINE_MODE'.
+      const isNetworkError = e.code === 'OFFLINE_MODE' || e.message?.includes('fetch') || e.message?.includes('Network');
+      
+      if (isNetworkError || !isOnline) {
         Alert.alert("Modo Sin Conexión", "El lote se guardó localmente. Se sincronizará en la nube automáticamente.");
         
-        const arrCultivos = (nuevoLoteCultivos || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
-        const cultivosFinales = arrCultivos.length > 0 ? arrCultivos : ['General'];
-        const coordsFormatoBD = coordenadasValidas.map(c => ({ lat: c.latitude, lng: c.longitude }));
-
         const lotePendiente = {
-            id: `temp_lote_${Date.now()}`,
-            predio_id: predioIdLocal || 'temp_predio_default', 
+            id: loteEnEdicion || `temp_lote_${Date.now()}`,
+            predio_id: predioIdLocal, 
             nombre: nuevoLoteNombre.trim(),
             coordenadas_poligono: coordsFormatoBD,
             cultivos: cultivosFinales, 
             pendiente_sincronizacion: true,
-            predios: { id: predioIdLocal || 'temp_predio_default', nombre: 'Mi Parcela Principal' }
+            predios: { id: predioIdLocal, nombre: 'Mi Parcela Principal' }
         };
 
         try {
             const str = await AsyncStorage.getItem('@lotes_pendientes');
             let pendientes = str ? JSON.parse(str) : [];
+            if (!Array.isArray(pendientes)) pendientes = []; 
+            if (loteEnEdicion) pendientes = pendientes.filter(l => l.id !== loteEnEdicion);
             pendientes.push(lotePendiente);
             await AsyncStorage.setItem('@lotes_pendientes', JSON.stringify(pendientes));
 
             const cacheStr = await AsyncStorage.getItem('@lotes_cache');
             let cache = cacheStr ? JSON.parse(cacheStr) : [];
+            if (!Array.isArray(cache)) cache = [];
+            if (loteEnEdicion) cache = cache.filter(l => l.id !== loteEnEdicion);
             cache.push(lotePendiente);
             await AsyncStorage.setItem('@lotes_cache', JSON.stringify(cache));
         } catch (storageErr) {}
 
-        setLotesUsuario(prev => [...prev, lotePendiente]);
+        setLotesUsuario(prev => {
+           const cleaned = loteEnEdicion ? prev.filter(l => l.id !== loteEnEdicion) : prev;
+           return [...cleaned, lotePendiente];
+        });
+        
+        if (loteActivo?.id === loteEnEdicion || !loteEnEdicion) {
+            setLoteActivo(lotePendiente);
+            if (cultivosFinales.length > 0) setCultivoActivo(cultivosFinales[0]);
+        }
+
         setMostrarMapaTrazador(false);
+        setLoteEnEdicion(null);
         setNuevoLoteCoords([]);
         setNuevoLoteNombre('');
         setNuevoLoteCultivos('');
-        
-        // AUTO-SELECCIÓN OFFLINE: Dispara la visualización de GDD sin internet
-        setLoteActivo(lotePendiente);
-        if (cultivosFinales && cultivosFinales.length > 0) {
-            setCultivoActivo(cultivosFinales[0]);
-        }
       } else {
-        const msgError = e.message || e.details || e.hint || "Problema de permisos o conexión RLS.";
-        Alert.alert("Error de Escritura", `No se guardó el lote.\nDetalle: ${msgError}`);
+        Alert.alert("Error de Escritura", `No se guardó el lote.\nDetalle: ${e.message || "Problema en el servidor."}`);
       }
     } finally {
       setIsSavingLote(false);
@@ -681,8 +813,12 @@ export default function HomeScreen({ navigation }) {
 
         const alertas = generarAlertas(prediccionesTotales);
 
-        setAlertasGDD(alertas.map(alerta => {
-            const nombreRiesgo = alerta.nombre; 
+        // 🚨 FIX NATIVO: Evitar TypeError de react al mapear objetos no iterables.
+        // Convertimos el objeto devuelto por generarAlertas en un array seguro.
+        const arrayAlertas = Array.isArray(alertas) ? alertas : Object.values(alertas || {});
+
+        setAlertasGDD(arrayAlertas.map(alerta => {
+            const nombreRiesgo = alerta.nombre || alerta.id; 
             const datosPrediccion = prediccionesTotales[nombreRiesgo];
 
             return {
@@ -705,14 +841,18 @@ export default function HomeScreen({ navigation }) {
         { text: "Cancelar", style: "cancel" },
         { text: "Reiniciar", style: "destructive", onPress: async () => {
             const cropNorm = cultivoActivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-            const compoundId = `${loteActivo.id}_${cropNorm}`; // BLINDAJE: ID Compuesto
+            const compoundId = `${loteActivo.id}_${cropNorm}`; 
             
             await AsyncStorage.removeItem(`@gdd_historial_${compoundId}`);
             await AsyncStorage.removeItem(`@gdd_resets_${compoundId}`);
             
-            const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {};
-            const cultivoParaGDD = { id: compoundId, nombre: cultivoActivo, ...configCultivo };
-            if (climaActual) calcularRiesgoGDD(cultivoParaGDD, climaActual);
+            // 🚨 FIX AGRONÓMICO: Implementamos el buscador central para evitar ceguera visual
+            const configCultivo = obtenerConfigCultivo(cultivoActivo);
+            const cultivoParaGDD = { id: compoundId, nombre: configCultivo.nombre || cultivoActivo, ...configCultivo };
+            
+            // 🚨 FIX AGRONÓMICO: Respetar la exactitud del clima satelital (cuadrícula)
+            const climaParaEvaluar = climaLoteActivo || climaActual;
+            if (climaParaEvaluar) calcularRiesgoGDD(cultivoParaGDD, climaParaEvaluar);
         }}
     ]);
   };
@@ -724,7 +864,7 @@ export default function HomeScreen({ navigation }) {
         { text: "Restablecer", style: "destructive", onPress: async () => {
             try {
                 const cropNorm = cultivoActivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-                const compoundId = `${loteActivo.id}_${cropNorm}`; // BLINDAJE: ID Compuesto
+                const compoundId = `${loteActivo.id}_${cropNorm}`; 
                 const storageKey = `@gdd_resets_${compoundId}`;
                 
                 const resetDatesStr = await AsyncStorage.getItem(storageKey);
@@ -736,9 +876,13 @@ export default function HomeScreen({ navigation }) {
                 
                 await AsyncStorage.setItem(storageKey, JSON.stringify(resetDates));
                 
-                const configCultivo = dbCultivos?.[cultivoActivo] || datosBasicos?.cultivos?.[cultivoActivo] || {};
-                const cultivoParaGDD = { id: compoundId, nombre: cultivoActivo, ...configCultivo };
-                if (climaActual) calcularRiesgoGDD(cultivoParaGDD, climaActual);
+                // 🚨 FIX AGRONÓMICO: Implementamos el buscador central para evitar ceguera visual
+                const configCultivo = obtenerConfigCultivo(cultivoActivo);
+                const cultivoParaGDD = { id: compoundId, nombre: configCultivo.nombre || cultivoActivo, ...configCultivo };
+                
+                // 🚨 FIX AGRONÓMICO: Respetar la exactitud del clima satelital (cuadrícula)
+                const climaParaEvaluar = climaLoteActivo || climaActual;
+                if (climaParaEvaluar) calcularRiesgoGDD(cultivoParaGDD, climaParaEvaluar);
             } catch (error) { 
                 console.error("Error al reiniciar plaga individual:", error); 
             }
@@ -1183,94 +1327,94 @@ export default function HomeScreen({ navigation }) {
          </View>
       </Modal>
 
-      {showCropSelector && (
-         <View style={[StyleSheet.absoluteFillObject, { zIndex: 1000, elevation: 10 }]}>
-             <View style={styles.modalOverlay}>
-                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>1. Seleccionar Lote</Text>
-                    <FlatList 
-                        data={lotesUsuario}
-                        keyExtractor={(item, index) => item?.id?.toString() || `lote-temp-${index}`}
-                        style={{ maxHeight: 150 }}
-                        renderItem={({item}) => (
-                            <View style={[styles.modalItem, loteActivo?.id === item.id && { backgroundColor: '#E8F5E9' }]}>
-                                <TouchableOpacity 
-                                    style={{ flex: 1 }} 
-                                    onPress={() => {
-                                        setLoteActivo(item);
-                                        // BLINDAJE: Auto-seleccionar el primer cultivo para no dejar el estado huérfano
-                                        if (item.cultivos && item.cultivos.length > 0) {
-                                            setCultivoActivo(item.cultivos[0]);
-                                        } else {
-                                            setCultivoActivo(null);
-                                        }
-                                    }}
-                                >
-                                    <Text style={styles.modalItemText}>{item.predios?.nombre} - {item.nombre}</Text>
+      <Modal 
+         visible={showCropSelector} 
+         transparent 
+         animationType="fade"
+         onRequestClose={() => setShowCropSelector(false)} 
+      >
+         <View style={styles.modalOverlay}>
+             <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>1. Seleccionar o Editar Lote</Text>
+                <FlatList 
+                    data={lotesUsuario}
+                    keyExtractor={(item, index) => item?.id?.toString() || `lote-temp-${index}`}
+                    style={{ maxHeight: 150 }}
+                    renderItem={({item}) => (
+                        <View style={[styles.modalItem, loteActivo?.id === item.id && { backgroundColor: '#E8F5E9' }]}>
+                            <TouchableOpacity 
+                                style={{ flex: 1 }} 
+                                onPress={() => {
+                                    setLoteActivo(item);
+                                    if (item.cultivos && item.cultivos.length > 0) setCultivoActivo(item.cultivos[0]);
+                                    else setCultivoActivo(null);
+                                }}
+                            >
+                                <Text style={styles.modalItemText}>{item.predios?.nombre} - {item.nombre}</Text>
+                            </TouchableOpacity>
+                            <View style={{ flexDirection: 'row' }}>
+                                <TouchableOpacity style={{ marginRight: 15 }} onPress={() => abrirEdicionLote(item)}>
+                                    <Ionicons name="pencil" size={22} color="#1565C0" />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => eliminarLote(item.id, item.nombre)}>
                                     <Ionicons name="trash-outline" size={22} color="#c32f27" />
                                 </TouchableOpacity>
                             </View>
-                        )}
-                        ListEmptyComponent={<Text style={{textAlign: 'center', color: '#78909C', marginVertical: 10}}>No tiene lotes registrados.</Text>}
-                    />
-                    
-                    {/* BOTÓN EXTRAÍDO DEL RENDERITEM (AHORA ESTÁ ESTÁTICO) */}
-                    <TouchableOpacity 
-                        onPress={() => {
-                           setShowCropSelector(false);
-                           setMostrarMapaTrazador(true);
-                        }}
-                        style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginVertical: 10, alignSelf: 'center', borderRadius: 12}]}
-                    >
-                        <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
-                    </TouchableOpacity>
-                    
-                    {loteActivo && (
-                        <>
-                            <Text style={[styles.modalTitle, { marginTop: 15, fontSize: 15 }]}>2. Seleccionar Cultivo</Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
-                                {(loteActivo.cultivos || []).map(c => (
-                                    <TouchableOpacity 
-                                        key={c} 
-                                        style={{ padding: 8, margin: 4, borderRadius: 8, backgroundColor: cultivoActivo === c ? '#FFCA28' : '#ECEFF1' }}
-                                        onPress={() => setCultivoActivo(c)}>
+                        </View>
+                    )}
+                    ListEmptyComponent={<Text style={{textAlign: 'center', marginVertical: 10, color: '#78909C'}}>No tiene lotes registrados.</Text>}
+                />
+                
+                <TouchableOpacity 
+                    onPress={() => { setShowCropSelector(false); setTimeout(() => setMostrarMapaTrazador(true), 400); }} 
+                    style={[styles.btnAction, {backgroundColor: '#2E7D32', width: '100%', marginVertical: 10, alignSelf: 'center', borderRadius: 12}]}
+                >
+                    <Text style={styles.btnText}>+ Trazar Nuevo Lote en Mapa</Text>
+                </TouchableOpacity>
+
+                {loteActivo && (
+                    <View style={{ marginTop: 10, borderTopWidth: 1, borderColor: '#ECEFF1', paddingTop: 10 }}>
+                        <Text style={[styles.modalTitle, { fontSize: 15 }]}>2. Cultivos de la Parcela</Text>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
+                            {(loteActivo.cultivos || []).map(c => (
+                                <View key={c} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: cultivoActivo === c ? '#FFCA28' : '#ECEFF1', borderRadius: 8, margin: 4 }}>
+                                    <TouchableOpacity style={{ padding: 8 }} onPress={() => setCultivoActivo(c)}>
                                         <Text style={{ color: '#1B5E20', fontWeight: 'bold' }}>{c}</Text>
                                     </TouchableOpacity>
-                                ))}
-                            </View>
-                            <TextInput 
-                                style={{ backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#90A4AE', marginBottom: 10 }}
-                                placeholder="Escribir variedad u otro cultivo..."
-                                onSubmitEditing={(e) => {
-                                    const val = e.nativeEvent.text.trim();
-                                    if(val) {
-                                        setCultivoActivo(val);
-                                        // Prevención de duplicados exactos usando Set
-                                        const arrayActualizado = [...new Set([...(loteActivo.cultivos || []), val])];
-                                        const loteActualizado = { ...loteActivo, cultivos: arrayActualizado };
-                                        
-                                        setLoteActivo(loteActualizado);
-                                        setLotesUsuario(prev => prev.map(l => l.id === loteActivo.id ? loteActualizado : l));
-                                        
-                                        // Sincronización transparente a Supabase
-                                        if (isOnline && !String(loteActivo.id).startsWith('temp_')) {
-                                            supabase.from('lotes').update({ cultivos: arrayActualizado }).eq('id', loteActivo.id).then();
-                                        }
-                                    }
-                                }}
-                            />
-                        </>
-                    )}
+                                    <TouchableOpacity style={{ padding: 8, paddingLeft: 0 }} onPress={() => eliminarCultivoDeLote(c)}>
+                                        <Ionicons name="close-circle" size={18} color="#c32f27" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
 
-                    <TouchableOpacity onPress={() => setShowCropSelector(false)} style={[styles.btnAction, {backgroundColor: '#1b4332', width: '100%', marginBottom: 10, alignSelf: 'center'}]}>
-                        <Text style={styles.btnText}>Aceptar / Cerrar</Text>
-                    </TouchableOpacity>
-                 </View>
+                        <TextInput 
+                            style={{ backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#90A4AE', marginBottom: 5 }}
+                            placeholder="Buscar y agregar cultivo..."
+                            value={busquedaCultivoModal}
+                            onChangeText={setBusquedaCultivoModal}
+                        />
+                        {busquedaCultivoModal.length > 0 && (
+                            <ScrollView style={{ maxHeight: 120, backgroundColor: '#FFF', borderWidth: 1, borderColor: '#ECEFF1', borderRadius: 8, marginBottom: 10 }}>
+                                {listaCultivos.filter(c => c.nombre && c.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(busquedaCultivoModal.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).slice(0, 4).map((c, i) => (
+                                    <TouchableOpacity key={i} style={{ padding: 12, borderBottomWidth: 1, borderColor: '#ECEFF1' }} onPress={() => agregarCultivoALote(c.nombre)}>
+                                        <Text>{c.nombre}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                                <TouchableOpacity style={{ padding: 12, backgroundColor: '#E8F5E9' }} onPress={() => agregarCultivoALote(busquedaCultivoModal.trim())}>
+                                    <Text style={{ color: '#2E7D32', fontWeight: 'bold' }}>+ Guardar "{busquedaCultivoModal.trim()}" como nuevo</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        )}
+                    </View>
+                )}
+
+                <TouchableOpacity onPress={() => setShowCropSelector(false)} style={[styles.btnAction, {backgroundColor: '#1b4332', width: '100%', marginBottom: 10, alignSelf: 'center'}]}>
+                    <Text style={styles.btnText}>Aceptar / Cerrar</Text>
+                </TouchableOpacity>
              </View>
          </View>
-      )}
+      </Modal>
 
       <AsistenteVoz 
         cultivoActual={cultivoActivo || "General"} 
