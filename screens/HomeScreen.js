@@ -70,6 +70,72 @@ const obtenerIconoCultivo = (nombre, categoria) => {
   return "sprout";
 };
 
+// 🚨 NUEVA IMPLEMENTACIÓN UX: Autocomplete estandarizado paraHomeScreen
+const FiltroAutocomplete = ({ 
+    label, valor, setValor, opciones = [], placeholder = "Buscar...", onSeleccion
+}) => {
+    const [busqueda, setBusqueda] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+
+    const sugerencias = React.useMemo(() => {
+        if (!busqueda) return opciones;
+        const query = busqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return opciones.filter(op => 
+            op && op.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(query)
+        );
+    }, [busqueda, opciones]);
+
+    const seleccionar = (item) => {
+        setValor(''); // Limpiamos el input
+        setBusqueda('');
+        setIsOpen(false);
+        Keyboard.dismiss();
+        if (onSeleccion) onSeleccion(item);
+    };
+
+    return (
+        <View style={{ marginBottom: 15, position: 'relative', zIndex: isOpen ? 1000 : 1 }}>
+            {label && <Text style={{fontSize: 14, fontWeight: 'bold', color: '#1b4332', marginBottom: 8}}>{label}</Text>}
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8F9FA', borderRadius: 10, borderWidth: 1, borderColor: '#90A4AE' }}>
+                <TextInput 
+                    style={{ flex: 1, padding: 12, fontSize: 16, color: '#000' }} 
+                    value={isOpen ? busqueda : valor} 
+                    onChangeText={(texto) => { setBusqueda(texto); setIsOpen(true); }}
+                    placeholder={placeholder}
+                    placeholderTextColor="#90A4AE"
+                    onFocus={() => setIsOpen(true)}
+                />
+            </View>
+            
+            {isOpen && (
+                <View style={{ position: 'absolute', top: 60, left: 0, right: 0, backgroundColor: 'white', borderRadius: 10, elevation: 10, zIndex: 2000, borderWidth: 1, borderColor: '#cfd8dc' }}>
+                    <FlatList 
+                        data={sugerencias.slice(0, 8)} // Mostrar máximo 8 para no colapsar la vista
+                        keyExtractor={(item, index) => `${item}-${index}`}
+                        keyboardShouldPersistTaps="always"
+                        style={{maxHeight: 180}}
+                        renderItem={({item}) => (
+                            <TouchableOpacity style={{ padding: 15, borderBottomWidth: 1, borderBottomColor: '#ECEFF1' }} onPress={() => seleccionar(item)}>
+                                <Text style={{ fontSize: 14, color: '#37474F' }}>{item}</Text>
+                            </TouchableOpacity>
+                        )}
+                        ListFooterComponent={
+                           busqueda.trim().length > 0 ? (
+                            <TouchableOpacity style={{ padding: 15, backgroundColor: '#E8F5E9' }} onPress={() => seleccionar(busqueda.trim())}>
+                                <Text style={{ color: '#2E7D32', fontWeight: 'bold' }}>+ Añadir nuevo: "{busqueda.trim()}"</Text>
+                            </TouchableOpacity>
+                           ) : null
+                        }
+                    />
+                    <TouchableOpacity style={{ padding: 10, alignItems: 'center', backgroundColor: '#ECEFF1', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} onPress={() => setIsOpen(false)}>
+                        <Text style={{ color: '#546E7A', fontWeight: 'bold' }}>Cerrar Sugerencias</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+        </View>
+    );
+};
+
 export default function HomeScreen({ navigation }) {
   const [busqueda, setBusqueda] = useState("");
   const [listaCultivos, setListaCultivos] = useState([]);
@@ -396,28 +462,31 @@ export default function HomeScreen({ navigation }) {
       }
     };
 
-    // 🚨 FIX OFFLINE: Sincronización transparente de cultivos/lotes editados sin internet.
+    // 🚨 FIX OFFLINE: Sincronización transparente con inyección de identidad anónima
     const empujarColaOffline = async () => {
         try {
+            // Recuperamos el UUID de la sesión anónima para pasar las reglas RLS
+            const { data: { user } } = await supabase.auth.getUser();
+            const anonUid = user?.id;
+
             const pendStr = await AsyncStorage.getItem('@lotes_pendientes');
             const pendientes = pendStr ? JSON.parse(pendStr) : [];
             
             if (Array.isArray(pendientes) && pendientes.length > 0) {
                 for (const lote of pendientes) {
                     if (String(lote.id).startsWith('temp_')) {
-                        // Es un lote nuevo trazado offline
-                        await supabase.from('lotes').insert([{
+                        const payload = {
                             predio_id: lote.predio_id, nombre: lote.nombre,
                             cultivos: lote.cultivos, coordenadas_poligono: lote.coordenadas_poligono
-                        }]);
+                        };
+                        if (anonUid) payload.user_id = anonUid; // Firma RLS
+                        await supabase.from('lotes').insert([payload]);
                     } else {
-                        // Es una actualización offline de cultivos
                         await supabase.from('lotes').update({ cultivos: lote.cultivos }).eq('id', lote.id);
                     }
                 }
-                // Si todo pasa, limpiamos la cola
                 await AsyncStorage.removeItem('@lotes_pendientes');
-                cargarLotes(); // Recargar datos reales de la nube
+                cargarLotes(); 
             }
         } catch(e) { console.log("Fallo empujando cola offline", e); }
     };
@@ -583,10 +652,17 @@ export default function HomeScreen({ navigation }) {
     try {
       if (!isOnline) throw { code: 'OFFLINE_MODE' };
 
+      // 🚨 FIX RLS: Obtener la identidad anónima silenciosa generada por Supabase
+      const { data: userData } = await supabase.auth.getUser();
+      const anonUid = userData?.user?.id;
+
       if (esNuevoPredio) {
+        const predioPayload = { nombre: 'Mi Parcela Principal', estado: 'ND' };
+        if (anonUid) predioPayload.user_id = anonUid; // Inyección de Firma RLS
+
         const { data: predioData, error: errP } = await supabase
           .from('predios')
-          .insert([{ nombre: 'Mi Parcela Principal', estado: 'ND' }])
+          .insert([predioPayload])
           .select('id').single();
         if (errP) throw errP;
         predioIdLocal = predioData.id; 
@@ -598,6 +674,7 @@ export default function HomeScreen({ navigation }) {
         cultivos: cultivosFinales,
         coordenadas_poligono: coordsFormatoBD
       };
+      if (anonUid) lotePayload.user_id = anonUid; // Inyección de Firma RLS
 
       let loteDevuelto = null;
 
@@ -611,7 +688,6 @@ export default function HomeScreen({ navigation }) {
           loteDevuelto = updateData;
           Alert.alert("Actualizado", "La geometría del lote fue modificada.");
       } else if (loteEnEdicion && String(loteEnEdicion).startsWith('temp_')) {
-          // Si editó un lote temporal y tiene internet, lo subimos como nuevo
           const { data: insertTempData, error: errInsertTemp } = await supabase
             .from('lotes')
             .insert([lotePayload])
@@ -629,14 +705,12 @@ export default function HomeScreen({ navigation }) {
           Alert.alert("Éxito", "El lote fue registrado y trazado correctamente.");
       }
 
-      // 🚨 FIX LÓGICO: Sincronización inmediata del UI previniendo Duplicaciones
       if (loteDevuelto) {
           loteDevuelto.predios = { nombre: 'Mi Parcela Principal' };
           const cacheStr = await AsyncStorage.getItem('@lotes_cache');
           let localCache = cacheStr ? JSON.parse(cacheStr) : [];
           if (!Array.isArray(localCache)) localCache = [];
           
-          // Filtrado doblemente asegurado contra el ID devuelto y el editado
           localCache = localCache.filter(l => l.id !== loteDevuelto.id && l.id !== loteEnEdicion);
           localCache.push(loteDevuelto);
           
@@ -656,6 +730,7 @@ export default function HomeScreen({ navigation }) {
       setNuevoLoteCultivos('');
 
     } catch (e) {
+      // (Mantener el bloque "catch (e) { ... }" intacto como lo tienes en el archivo original)
       // 🚨 FIX OFFLINE: Atrapamos fallos de API ('Failed to fetch') no solo 'OFFLINE_MODE'.
       const isNetworkError = e.code === 'OFFLINE_MODE' || e.message?.includes('fetch') || e.message?.includes('Network');
       
@@ -813,8 +888,6 @@ export default function HomeScreen({ navigation }) {
 
         const alertas = generarAlertas(prediccionesTotales);
 
-        // 🚨 FIX NATIVO: Evitar TypeError de react al mapear objetos no iterables.
-        // Convertimos el objeto devuelto por generarAlertas en un array seguro.
         const arrayAlertas = Array.isArray(alertas) ? alertas : Object.values(alertas || {});
 
         setAlertasGDD(arrayAlertas.map(alerta => {
@@ -1388,24 +1461,15 @@ export default function HomeScreen({ navigation }) {
                             ))}
                         </View>
 
-                        <TextInput 
-                            style={{ backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#90A4AE', marginBottom: 5 }}
-                            placeholder="Buscar y agregar cultivo..."
-                            value={busquedaCultivoModal}
-                            onChangeText={setBusquedaCultivoModal}
+                        {/* 🚨 FIX UX & LÓGICO: Solo dejamos el Autocomplete blindado.
+                            El viejo TextInput y ScrollView manuales han sido erradicados para evitar colisiones. */}
+                        <FiltroAutocomplete 
+                            valor={busquedaCultivoModal}
+                            setValor={setBusquedaCultivoModal}
+                            opciones={listaCultivos.map(c => c.nombre)}
+                            placeholder="Buscar y agregar cultivo al lote..."
+                            onSeleccion={agregarCultivoALote}
                         />
-                        {busquedaCultivoModal.length > 0 && (
-                            <ScrollView style={{ maxHeight: 120, backgroundColor: '#FFF', borderWidth: 1, borderColor: '#ECEFF1', borderRadius: 8, marginBottom: 10 }}>
-                                {listaCultivos.filter(c => c.nombre && c.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(busquedaCultivoModal.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))).slice(0, 4).map((c, i) => (
-                                    <TouchableOpacity key={i} style={{ padding: 12, borderBottomWidth: 1, borderColor: '#ECEFF1' }} onPress={() => agregarCultivoALote(c.nombre)}>
-                                        <Text>{c.nombre}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                                <TouchableOpacity style={{ padding: 12, backgroundColor: '#E8F5E9' }} onPress={() => agregarCultivoALote(busquedaCultivoModal.trim())}>
-                                    <Text style={{ color: '#2E7D32', fontWeight: 'bold' }}>+ Guardar "{busquedaCultivoModal.trim()}" como nuevo</Text>
-                                </TouchableOpacity>
-                            </ScrollView>
-                        )}
                     </View>
                 )}
 

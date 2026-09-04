@@ -257,13 +257,12 @@ export default function RecordatoriosScreen({ route }) {
     }
 
     const ahora = new Date();
-    let fechaBase = new Date(fecha);
+    const fechaBase = new Date(fecha);
     
-    const diffMs = ahora.getTime() - fechaBase.getTime();
-    if (diffMs > 0 && diffMs < 600000) { 
-        fechaBase = new Date(ahora.getTime() + 15000); 
-    } else if (fechaBase.getTime() <= ahora.getTime()) {
-        return Alert.alert("Fecha inválida", "La fecha y hora están en el pasado. Elige un momento futuro.");
+    // 🚨 FIX LÓGICO: Erradicamos el auto-ajuste de 15 segundos.
+    // Exigimos que el agricultor programe una hora en el futuro real.
+    if (fechaBase.getTime() <= ahora.getTime()) {
+        return Alert.alert("Hora inválida", "La fecha y hora seleccionadas ya pasaron. Por favor, ajusta el reloj a un momento futuro.");
     }
 
     let intervaloNum = 0;
@@ -273,7 +272,6 @@ export default function RecordatoriosScreen({ route }) {
         return Alert.alert("Error", "Ingresa un número de días válido.");
       }
     }
-
     
     try {
       const notificationIds = [];
@@ -283,12 +281,18 @@ export default function RecordatoriosScreen({ route }) {
         const triggerDate = new Date(fechaBase.getTime());
         triggerDate.setDate(triggerDate.getDate() + (i * intervaloNum));
         
-        const diffMs = triggerDate.getTime() - Date.now();
-        const diffSec = Math.floor(diffMs / 1000);
+        // Calculamos la diferencia exacta en segundos desde AHORA
+        const diffMsTrig = triggerDate.getTime() - Date.now();
+        const diffSec = Math.floor(diffMsTrig / 1000);
 
         if (diffSec <= 0) {
           continue;
         }
+
+        // 🚨 FIX NATIVO: Pasar 'seconds' exactos al OS en lugar de un objeto Date
+        const triggerObj = Platform.OS === 'android' 
+          ? { seconds: diffSec, channelId: 'default' } 
+          : { seconds: diffSec };
 
         const id = await Notifications.scheduleNotificationAsync({
           content: {
@@ -300,17 +304,14 @@ export default function RecordatoriosScreen({ route }) {
             interruptionLevel: 'timeSensitive',
             data: { esAlarma: true, pantalla: 'Recordatorios', cultivo: cultivo } 
           },
-          trigger: { 
-            date: triggerDate,
-            channelId: 'default', 
-          },
+          trigger: triggerObj,
         });
         
         notificationIds.push(id);
       }
 
       if (notificationIds.length === 0) {
-        return Alert.alert("Atención", "No se pudo programar (¿Fecha muy cercana al pasado?).");
+        return Alert.alert("Atención", "No se pudo programar la alarma. Verifica la fecha.");
       }
 
       const nuevaTarea = {
@@ -329,12 +330,11 @@ export default function RecordatoriosScreen({ route }) {
 
       Alert.alert(
         "¡Listo!", 
-        esRepetitivo 
-          ? `Agenda guardada (${notificationIds.length} alarmas).` 
-          : `Alarma programada con éxito.`
+        esRepetitivo ? `Agenda guardada (${notificationIds.length} alarmas).` : `Alarma programada con éxito.`
       );
       
       setTitulo("");
+      setFecha(new Date()); 
       setEsRepetitivo(false);
       setDiasIntervalo("");
       Keyboard.dismiss();

@@ -12,8 +12,10 @@ import { LineChart, BarChart } from "react-native-chart-kit";
 import { Dimensions, useWindowDimensions } from "react-native";
 
 // --- 1. DATOS ESTÁTICOS ---
+// --- 1. DATOS ESTÁTICOS ---
 const ESTADOS_MX = [
-  "Nacional", // <- Opción Nacional Agregada
+  "Nacional", 
+  "Todos los estados",
   "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
   "Coahuila", "Colima", "Chiapas", "Chihuahua", "Ciudad de México", 
   "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", 
@@ -167,7 +169,7 @@ useEffect(() => {
 
   useEffect(() => {
     let isMounted = true;
-    const estadosFiltrados = filtros.estado.filter(e => e !== 'Nacional');
+    const estadosFiltrados = filtros.estado.filter(e => e !== 'Nacional' && e !== 'Todos los estados');
     
     if (estadosFiltrados.length > 0) {
       if (estadosFiltrados.length > 2) {
@@ -212,7 +214,8 @@ useEffect(() => {
   const consultarBaseDatos = async () => {
     if (metricasSeleccionadas.length === 0) return Alert.alert("Error", "Selecciona al menos una métrica.");
     
-    const esBusquedaNacionalMasiva = filtros.estado.length === 0 || filtros.estado.includes('Nacional');
+    // 🚨 FIX LÓGICO: Detectar la nueva métrica masiva
+    const esBusquedaNacionalMasiva = filtros.estado.length === 0 || filtros.estado.includes('Nacional') || filtros.estado.includes('Todos los estados');
     if (filtros.anio.length > 10 && filtros.cultivo.length === 0 && esBusquedaNacionalMasiva) {
         return Alert.alert(
             "Consulta Demasiado Amplia", 
@@ -225,8 +228,9 @@ useEffect(() => {
     setOpenMenu(null);
 
     try {
-      const estadosReales = filtros.estado.filter(e => e !== 'Nacional');
-      const chunkSize = 3; // FIX: Procesamiento en lotes para evitar timeout de Supabase
+      // 🚨 FIX: Purga los comodines analíticos antes de consultar Supabase
+      const estadosReales = filtros.estado.filter(e => e !== 'Nacional' && e !== 'Todos los estados');
+      const chunkSize = 3; 
       let resultadosPorAnio = [];
 
       for (let i = 0; i < filtros.anio.length; i += chunkSize) {
@@ -238,9 +242,12 @@ useEffect(() => {
               query = query.eq('anio', parseInt(anioFiltro));
 
               if (filtros.cultivo.length > 0) query = query.in('nomcultivo', filtros.cultivo);
-              if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
+              
+              // 🚨 FIX: Si es búsqueda masiva, se anula la restricción '.in' para traer todos los estados
+              if (filtros.estado.length > 0 && !esBusquedaNacionalMasiva) {
                   query = query.in('nomestado', estadosReales);
               }
+
               if (filtros.municipio.length > 0) query = query.in('nommunicipio', filtros.municipio);
               if (filtros.ciclo.length > 0) query = query.in('nomcicloproductivo', filtros.ciclo);
               if (filtros.modalidad.length > 0) query = query.in('nommodalidad', filtros.modalidad);
@@ -335,17 +342,21 @@ const procesarTodo = (data) => {
         entity = cultivoItem;
         if (filtros.municipio.length > 0) {
             entity += ` (${municipioItem}, ${estadoItem})`;
-        } else if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional')) {
+        } else if (filtros.estado.length > 0 && !filtros.estado.includes('Nacional') && !filtros.estado.includes('Todos los estados')) {
             entity += ` (${estadoItem})`;
         }
     }
     
     const esNacionalVsEstatal = (nivelDesglose === "Estatal" && filtros.estado.includes("Nacional"));
-    const estadosReales = filtros.estado.filter(e => e !== "Nacional");
+    const quiereTodosLosEstados = filtros.estado.includes("Todos los estados");
+    const estadosReales = filtros.estado.filter(e => e !== "Nacional" && e !== "Todos los estados");
     
     let renderNormalRow = true;
     if (filtros.estado.length > 0) {
-      if (esNacionalVsEstatal) {
+      // 🚨 FIX LÓGICO: Forzar el renderizado iterativo individual si se pide "Todos los estados"
+      if (quiereTodosLosEstados) {
+        renderNormalRow = true; 
+      } else if (esNacionalVsEstatal) {
         renderNormalRow = estadosReales.length > 0 && estadosReales.includes(item.nomestado);
       } else {
         renderNormalRow = filtros.estado.includes("Nacional") || estadosReales.includes(item.nomestado);
@@ -380,15 +391,12 @@ const procesarTodo = (data) => {
 
   listaFinal.sort((a, b) => a.descripcion.localeCompare(b.descripcion) || b.anio - a.anio);
 
-  // REEMPLAZAR ESTE MAPEO COMPLETO:
+  // 🚨 FIX RENDIMIENTO: Optimización O(N) para evitar congelamiento de pantalla (ANR Crash).
+  // Al estar la lista pre-ordenada por descripción y año, el año anterior siempre es el índice siguiente.
   listaFinal = listaFinal.map((curr, idx, arr) => {
-    let prev = undefined;
-    for (let k = idx + 1; k < arr.length; k++) {
-        if (arr[k].descripcion === curr.descripcion) {
-            prev = arr[k];
-            break; 
-        }
-    }
+    const prev = (arr[idx + 1] && arr[idx + 1].descripcion === curr.descripcion) 
+        ? arr[idx + 1] 
+        : undefined;
 
     const variaciones = {};
     METRICAS_DISPONIBLES.forEach(mRef => {
